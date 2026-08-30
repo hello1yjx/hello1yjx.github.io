@@ -5328,6 +5328,36 @@ git push origin main`,
   ],
   hotspots: [
     {
+      date: "2026-08-30",
+      tag: "AI 建站",
+      title: "Cloudflare AI Search 新增 GLM-5.3 Flash 模型：1M 上下文窗口，站内 AI 搜索可直接调用",
+      summary: "Cloudflare 官方 changelog 显示，AI Search 现已支持 @cf/zai-org/glm-5.3-flash 用于文本生成。该模型拥有 1,048,576 token 上下文窗口，运行在 Workers AI 上，无需额外配置第三方 API 密钥，可在创建或更新 AI Search 实例时直接选择。",
+      why: "这对用 Cloudflare 做站内搜索、文档问答和 AI 知识库的站长很实用。1M 上下文意味着可以一次性处理长文档和多轮对话，但新手应先确认实例是否已升级到支持该模型、核对 Workers AI 计费档位（需 Paid 计划或 AI Gateway 额度），并在小流量预览环境验证回答质量和延迟后再切到生产。",
+      sourceLabel: "Cloudflare Changelog",
+      sourceUrl: "https://developers.cloudflare.com/changelog/#purge-cached-responses",
+      articleIdea: "候选：AI Search 接入 GLM-5.3 Flash 后怎样做长文档问答与计费验收"
+    },
+    {
+      date: "2026-08-28",
+      tag: "AI 编程",
+      title: "GitHub Copilot for Visual Studio 8月更新：组织级自定义 Agent、推理强度三档调节和 Git Agent 代码审查上线",
+      summary: "GitHub Changelog 宣布 Visual Studio 中的 Copilot 8月更新，包括组织/企业所有者可发布跨仓库自定义 Agent、Low/Medium/High 三档推理强度调节、模型收藏与折叠管理、Git Agent 可审查未提交变更和提交记录，所有 Copilot 套餐（含 Free、Student、Pro、Business 和 Enterprise）均可使用。",
+      why: "推理强度调节让新手可以在简单补全任务省 token、复杂调试和架构决策时多花算力，Git Agent 则把代码审查前移到提 PR 之前。团队应先确认组织权限是否允许发布自定义 Agent，个人用户建议先用低强度做日常补全、高强度做算法和重构，避免全程高推理导致额度快速消耗。",
+      sourceLabel: "GitHub Changelog",
+      sourceUrl: "https://github.blog/changelog/2026-08-28-github-copilot-in-visual-studio-august-update-2/",
+      articleIdea: "候选：Copilot 推理强度三档怎样匹配日常编码与复杂调试场景"
+    },
+    {
+      date: "2026-08-28",
+      tag: "AI 编程",
+      title: "OpenAI 通知终止向 Cursor 提供模型服务，2026年11月12日起生效",
+      summary: "据多家媒体报道，OpenAI 已正式通知 SpaceX 旗下 AI 编程平台 Cursor，计划于 2026 年 11 月 12 日起停止向其提供 GPT 系列模型服务。OpenAI 称该决定基于服务条款和平台政策，Cursor 团队需在截止日期前完成模型提供商切换或调整产品方案。",
+      why: "这是 AI 编程工具生态的一次重大变动，直接影响大量依赖 GPT 系列模型的 Cursor 用户。新手应尽快确认自己的 Cursor 订阅绑定了哪些模型，在 11 月前测试 Claude、Gemini、DeepSeek、GLM 等替代方案的代码补全和 Agent 质量，并导出本地配置、自定义规则和项目上下文，避免截止日后工作流突然中断。",
+      sourceLabel: "OpenAI 官方通知 / 多家媒体报道",
+      sourceUrl: "https://m.yicai.com/news/103339832.html",
+      articleIdea: "候选：Cursor 切换模型提供商前怎样导出配置和验收替代方案"
+    },
+    {
       date: "2026-07-01",
       tag: "AI 编程",
       title: "GitHub Copilot 浏览器工具在 VS Code 正式可用：Agent 可以打开真实网页、点击、截图并读取控制台错误",
