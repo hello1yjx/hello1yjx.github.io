@@ -8,8 +8,8 @@
     newsletter: "#newsletter",
     bio: "把官方入口、学习路线、示例代码和可扩展资料放进同一张地图里，让第一次来的人也能马上知道从哪里开始。",
     heroStats: [
-      { value: "6", label: "原创下载包" },
-      { value: "56", label: "新手专题" },
+      { value: "8", label: "原创下载包" },
+      { value: "58", label: "新手专题" },
       { value: "持续", label: "更新与核验" }
     ],
     valueCards: [
