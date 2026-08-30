@@ -1,0 +1,9 @@
+工具名称,类型,支持平台,主要模型,免费额度,付费价格,终端Agent,自定义规则,MCP支持,代码审查,适合人群,官方链接
+GitHub Copilot,IDE插件+CLI,VS Code/Visual Studio/JetBrains/Xcode/CLI,GPT-5/Claude Sonnet 5/Gemini等多模型,有限补全,Pro $10/月 Pro+ $39/月,支持(Copilot CLI),支持,支持,支持,已使用GitHub生态的开发者,https://github.com/features/copilot
+Claude Code,终端Agent,macOS/Linux/Windows(终端),Claude Opus/Sonnet,有限试用,Pro $20/月(含用量),强(原生终端Agent),支持(Skills),支持,支持,喜欢终端工作流和长任务的开发者,https://code.claude.com
+Cursor,IDE,VS Code fork(桌面端),GPT系列(即将终止)/Claude/Gemini,有限补全,Pro $20/月,支持(Agent模式),支持(.cursorrules),支持,支持,喜欢VS Code界面和AI深度集成的开发者,https://cursor.com
+OpenAI Codex,云端+CLI,Web/CLI/IDE,GPT-5,有限试用,按用量计费,支持(云端任务),支持,支持,支持,需要无人值守长任务和代码审查的团队,https://openai.com/codex
+Qwen Code,终端Agent,macOS/Linux/Windows(终端),Qwen系列(开源),免费(本地部署),免费(需API或本地),支持,支持(Skills),支持,支持,偏好国产模型或本地部署的开发者,https://github.com/QwenLM/qwen-code
+Google Antigravity,IDE,Web/桌面端,Gemini系列,有限试用,待公布,支持,支持,支持,支持,已使用Google生态的开发者,https://antigravity.dev
+Windsurf,IDE,VS Code fork(桌面端),Claude/GPT,有限补全,Pro $15/月,支持(Cascade),支持,支持,支持,想要AI优先编辑体验的开发者,https://windsurf.com
+Continue,开源插件,VS Code/JetBrains,任意模型(自带API),免费,免费,有限,支持,支持,不支持,想要完全控制模型和数据的开发者,https://continue.dev

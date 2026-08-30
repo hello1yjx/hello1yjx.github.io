@@ -318,7 +318,14 @@ function main() {
   replaceRegion("index.html", "STATIC_HOME_HOTSPOTS", runtime.getHomeShowreelHotspots().map(runtime.buildHomeHotspotShowreelCard).join(""));
   replaceRegion("index.html", "STATIC_HOME_RESOURCE_STRIP", data.downloads.slice(0, 5).map(runtime.buildHomeResourceStripItem).join(""));
   replaceRegion("index.html", "STATIC_HOME_PRACTICE", runtime.buildHomePracticeCard(runtime.getHomePractice()));
-  replaceRegion("index.html", "STATIC_HOME_RECOMMENDATIONS", posts.filter((post) => post.featured).slice(0, 4).map(runtime.buildPostCard).join(""));
+  const featuredPostIds = [
+    "github-copilot-browser-tools-vscode-testing-guide",
+    "vercel-services-polyglot-monorepo-checklist",
+    "github-pages-blog-tutorial",
+    "python-beginner-series"
+  ];
+  const featuredPosts = featuredPostIds.map((id) => posts.find((post) => post.id === id)).filter(Boolean);
+  replaceRegion("index.html", "STATIC_HOME_RECOMMENDATIONS", featuredPosts.map(runtime.buildPostCard).join(""));
   replaceRegion("index.html", "STATIC_HOME_LATEST", posts.slice(4, 8).map(runtime.buildLatestItem).join(""));
 
   refreshRootAssetVersions();

@@ -5114,6 +5114,20 @@ git push origin main`,
   ],
   downloads: [
     {
+      id: "ai-coding-tools-migration-kit",
+      name: "AI 编程工具切换与对比指南",
+      category: "AI 工具",
+      badge: "本站原创",
+      description: "针对模型服务商政策变化，提供主流 AI 编程工具对比表、切换检查清单和跨工具通用提示词模板。",
+      pitch: "适合在 Cursor、Copilot、Claude Code 等工具之间评估和切换时，系统化完成对比、备份和验证。",
+      format: "ZIP · 4 个文件",
+      includes: ["工具对比 CSV", "切换检查清单", "通用提示词模板", "使用说明"],
+      preview: ["ai-coding-tools-comparison.csv：8 款主流工具的价格、模型、能力对比", "migration-checklist.md：切换前中后三阶段完整检查项", "prompt-templates.md：补全、审查、修 Bug、重构、测试、Agent 六类模板"],
+      updated: "2026-08-30",
+      cta: "下载切换指南",
+      link: "downloads/ai-coding-tools-migration-kit.zip"
+    },
+    {
       id: "ai-tool-source-verification-kit",
       name: "AI 工具来源核验表",
       category: "AI 工具",
@@ -6979,6 +6993,40 @@ git push origin main`,
     }
   ],
   projects: [
+    {
+      id: "guangruan-campus-network-auto-login",
+      title: "广州软件学院校园网自动登录 Web 端",
+      summary: "面向广州软件学院校园网的自动登录工具 Web 端，解决每次联网重复输入账号密码的问题，支持开机自启和状态检测。",
+      stack: "Python / Web / 校园网",
+      status: "已开源",
+      link: "https://github.com/hello1yjx/guangruan-campus-network-auto-login-web",
+      evidence: [
+        { label: "GitHub 仓库", url: "https://github.com/hello1yjx/guangruan-campus-network-auto-login-web" },
+        { label: "项目说明", url: "https://github.com/hello1yjx/guangruan-campus-network-auto-login-web#readme" },
+        { label: "开源协议", url: "https://github.com/hello1yjx/guangruan-campus-network-auto-login-web/blob/main/LICENSE" }
+      ],
+      body: `
+        <p>项目源于校园网每次连接都需要手动登录的实际痛点，通过 Web 端提供可视化配置和状态管理，适合广软在校生使用。</p>
+        <p>代码结构清晰，包含配置读取、登录请求、状态检测和 Web 界面，可作为学习 Python 网络请求和小型 Web 工具的参考案例。</p>
+      `
+    },
+    {
+      id: "myweb-resource-site",
+      title: "myweb 免费资源分享站",
+      summary: "免费分享学习资源和实用信息的 Web 网页，整理编程、建站、效率工具等方向的优质资源，减少新手查找成本。",
+      stack: "HTML / CSS / JavaScript",
+      status: "已开源",
+      link: "https://github.com/hello1yjx/myweb",
+      evidence: [
+        { label: "GitHub 仓库", url: "https://github.com/hello1yjx/myweb" },
+        { label: "项目说明", url: "https://github.com/hello1yjx/myweb#readme" },
+        { label: "在线预览", url: "https://hello1yjx.github.io/myweb/" }
+      ],
+      body: `
+        <p>myweb 是学习资源库的前身项目，专注于免费资源和信息分享，页面结构简单，适合新手学习静态网页搭建。</p>
+        <p>项目保留了资源分类、页面导航和基础交互，可作为从零开始搭建个人资源站的参考模板。</p>
+      `
+    },
     {
       id: "official-tool-navigation",
       title: "官方工具导航与核验入口",
