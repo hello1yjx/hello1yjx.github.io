@@ -29,6 +29,117 @@
   },
   posts: [
     {
+      id: "ai-agent-file-operation-safety-guide",
+      title: "AI Agent 文件操作安全防护指南：从 Claude 误删 700GB 事件看怎样保护你的代码和数据",
+      date: "2026-08-31",
+      category: "AI 安全",
+      readTime: "11 分钟",
+      excerpt: "2026 年 8 月 31 日，一名开发者让 Claude 写 /tmp 清理脚本，触发安全降级后模型在清理测试临时文件时复用了被赋值为主目录路径的变量，直接对用户主目录执行 rm -rf，700GB 数据被清除。这不是某个工具的孤例，而是所有 AI Agent 用户都必须面对的系统性风险：Agent 能力越强，文件操作范围越大，一次变量复用、路径拼接错误或权限配置遗漏就可能造成不可逆损失。这篇指南从事件复盘出发，给出可直接落地的防护措施：工作目录隔离、权限确认机制、危险命令拦截、备份策略、各工具安全配置和发布前检查清单。",
+      tags: ["AI Agent", "文件安全", "权限控制"],
+      featured: false,
+      intro: [
+        "AI Agent 已经从只补全代码发展到能读写文件、执行终端命令、批量重命名、自动清理和部署发布。能力提升的同时，风险边界也在扩大。2026 年 8 月 31 日曝光的 Claude 误删事件最值得警惕的地方，不是 Agent 执行了 rm -rf，而是安全机制本身出了问题：系统判定任务太危险，把模型从高能力版本降级到更保守的版本，但降级后的模型在处理变量作用域和文件路径时恰恰更容易犯错，最终在清理测试临时文件的步骤中删除了整个主目录。",
+        "这类事件不会因为换一个工具就消失。Claude Code、GitHub Copilot、Cursor、Qwen Code、OpenAI Codex 都具备文件修改和终端执行能力，任何一个都可能因为提示词歧义、路径拼接错误、符号链接绕过或权限配置遗漏而操作到不该碰的文件。新手最容易犯的错误是觉得“Agent 很聪明，不会犯这种低级错误”，或者把安全完全交给工具内置的确认机制。正确的做法是多层防护：从工作目录隔离、权限最小化、危险命令拦截、定期备份，到每次高风险操作前的人工复核，每一层都不能省。"
+      ],
+      audience: [
+        "正在使用 Claude Code、GitHub Copilot、Cursor、Qwen Code 等 AI 编程工具，且已经让 Agent 执行文件修改、终端命令或批量操作的新手开发者。",
+        "维护个人项目、课程作业或小型工具站，担心 Agent 误删代码、配置文件或重要数据的学生和独立开发者。",
+        "准备在团队中推广 AI Agent，但需要先建立文件安全规范、权限边界和事故恢复流程的技术负责人或学生团队管理者。"
+      ],
+      format: [
+        "适合整理成“风险等级 / 操作类型 / 防护措施 / 配置位置 / 验证方法 / 恢复方案”的 AI Agent 安全配置表。",
+        "可配套一份高风险操作前检查清单，覆盖目录确认、备份状态、权限范围、命令预览和回滚方案，每次让 Agent 执行删除、批量重命名、脚本清理或部署前逐项核对。"
+      ],
+      roadmap: [
+        "先理解事件的完整链路，而不是只记住“不要用 rm -rf”。这次事故的关键不是删除命令本身，而是安全降级后模型在测试清理步骤中复用了被错误赋值的变量。这意味着即使你不让 Agent 直接写 rm -rf，它也可能在脚本、循环或测试清理中间接执行危险操作。",
+        "建立第一层防护：工作目录隔离。永远不要在用户主目录、系统目录或包含多个重要项目的父目录中启动 Agent。每个项目应该有独立的工作目录，Agent 只能访问该目录及其子目录。Claude Code 支持通过配置限制可访问路径，Copilot 和 Cursor 也应在项目级工作区中运行，不要用“打开文件夹”的方式加载整个磁盘。",
+        "建立第二层防护：权限最小化和确认机制。检查你使用的工具是否支持权限模式（如 Claude Code 的 permission 模式、Copilot 的审批设置）。对于文件写入、终端命令、删除操作，至少设置为“每次确认”，不要为了省事开启全自动模式。特别要拦截 rm、mv、cp -r、chmod -R、chown -R、git reset --hard、git clean -fd 等高风险命令。",
+        "建立第三层防护：危险命令和路径的显式拦截。大多数 AI Agent 工具支持自定义规则文件（如 .cursorrules、.copilot-instructions.md、Claude Code 的 CLAUDE.md）。在项目根目录创建规则文件，明确列出禁止操作的目录（如 ../、~、/etc、/usr）、禁止执行的命令（如 rm -rf /、rm -rf ~、dd、mkfs）、以及执行删除或批量操作前必须先执行的预览命令（如 ls、find、git status）。",
+        "建立第四层防护：备份和版本控制。这是最后一道防线，也是最有效的一道。所有重要项目必须使用 Git 并定期推送到远程仓库，重要数据（文档、配置、数据库导出）应有独立备份。对于本地项目，配置 .gitignore 时不要把重要文件排除在外；对于 Agent 可能修改的配置文件，修改前先让 Agent 输出 diff 预览，确认后再应用。",
+        "建立第五层防护：高风险操作前的人工复核流程。当你需要让 Agent 执行删除、批量重命名、脚本清理、依赖升级、部署发布等高风险操作时，不要直接说“帮我清理一下”，而是写清楚操作范围、目标路径、排除规则和验证方式。要求 Agent 先列出将要操作的文件清单（用 find 或 ls），你确认无误后再让它执行。执行后要求 Agent 验证结果（如检查文件是否还在、目录大小是否符合预期）。",
+        "最后建立事故恢复预案。即使做了所有防护，也要假设最坏情况会发生。定期测试备份恢复流程，确认 Git 远程仓库可克隆、备份文件可读取。如果发生误删，立即停止 Agent 进程，不要继续执行任何可能覆盖数据的操作，然后从 Git 恢复代码、从备份恢复数据。记录事故原因和改进措施，更新规则文件和检查清单。"
+      ],
+      officialLinks: [
+        {
+          label: "机器之心：Claude 安全机制大翻车，AI 怒删开发者 700GB 主目录",
+          url: "https://tech.ifeng.com/c/8w21w6HXmE0",
+          note: "2026 年 8 月 31 日报道，详细复盘了开发者让 Claude 写 /tmp 清理脚本、触发安全降级、模型在测试清理步骤中复用变量误删主目录的完整过程。"
+        },
+        {
+          label: "Claude Code Docs：Permissions",
+          url: "https://docs.anthropic.com/en/docs/claude-code/permissions",
+          note: "官方文档说明 Claude Code 的权限模式、可访问路径限制、工具审批和自定义权限配置，是配置第一层防护的核心参考。"
+        },
+        {
+          label: "GitHub Docs：Configuring GitHub Copilot settings",
+          url: "https://docs.github.com/en/copilot/customizing-copilot/privacy-settings",
+          note: "说明 Copilot 的审批设置、建议接受方式和企业级策略配置，可用于配置文件修改和终端命令的确认机制。"
+        },
+        {
+          label: "OWASP：AI Agent Security Top 10",
+          url: "https://owasp.org/www-project-ai-agent-security-top-10/",
+          note: "OWASP 发布的 AI Agent 安全风险 Top 10，涵盖权限提升、工具滥用、数据泄露、提示注入等系统性风险，适合团队建立安全规范时参考。"
+        }
+      ],
+      curatedLinks: [
+        "这次事故的核心教训不是“不要用 rm -rf”，而是安全降级机制本身可能引入新风险：弱模型在处理变量作用域和路径时更容易犯错。",
+        "多层防护是唯一可靠的策略：工作目录隔离、权限最小化、危险命令拦截、定期备份、人工复核，每一层都不能省。",
+        "不要在主目录、系统目录或包含多个重要项目的父目录中启动 Agent，每个项目应有独立工作目录。",
+        "高风险操作前必须让 Agent 先输出文件清单和操作预览，人工确认后再执行，执行后必须验证结果。",
+        "Git 远程仓库和独立备份是最后一道防线，定期测试恢复流程比备份本身更重要。"
+      ],
+      downloadIdeas: [
+        "建议整理一份 AI Agent 安全配置模板，包含各工具的权限设置、规则文件示例（.cursorrules / .copilot-instructions.md / CLAUDE.md）、危险命令拦截清单和高风险操作检查清单。",
+        "建议配一份事故恢复速查表，覆盖误删后的立即操作、Git 恢复步骤、备份恢复流程和事故记录模板。"
+      ],
+      extraSections: [
+        {
+          title: "10 分钟安全配置练习",
+          items: [
+            "确认你当前使用的 AI Agent 运行在独立项目目录中，而不是主目录或包含多个项目的父目录。",
+            "检查工具的权限设置，将文件写入和终端命令设置为“每次确认”，关闭全自动模式。",
+            "在项目根目录创建规则文件（.cursorrules 或 .copilot-instructions.md 或 CLAUDE.md），写入禁止操作的目录和禁止执行的危险命令。",
+            "配置 Git 远程仓库，确认当前项目的所有重要文件都已提交并推送，.gitignore 没有误排除重要文件。",
+            "用一个低风险任务测试确认机制：让 Agent 执行一个简单的文件删除操作，确认它会先请求批准、显示操作预览，而不是直接执行。",
+            "测试规则文件是否生效：在提示词中故意要求 Agent 操作上级目录或执行 rm -rf，确认它会拒绝或先请求人工确认。",
+            "记录你的配置：工具名称、权限模式、规则文件路径、Git 远程地址、备份位置，作为项目安全配置的基线。"
+          ]
+        },
+        {
+          title: "必须拦截的高风险命令和操作",
+          items: [
+            "文件删除：rm -rf、rm -r、del /s /q（Windows）、Remove-Item -Recurse -Force（PowerShell）",
+            "批量移动/复制：mv -r、cp -r，特别是目标路径为上级目录或系统目录时",
+            "权限变更：chmod -R、chown -R，特别是对 /etc、/usr、~/.ssh 等敏感目录",
+            "Git 危险操作：git reset --hard、git clean -fd、git push --force、git rebase 后强推",
+            "磁盘操作：dd、mkfs、fdisk、diskpart（Windows），任何涉及原始磁盘写入的命令",
+            "系统操作：shutdown、reboot、systemctl stop/start/restart 关键服务、iptables/ufw 防火墙规则变更",
+            "包管理：npm install -g、pip install、apt remove/purge，特别是带 --force 或 --yes 自动确认的命令",
+            "环境变量和配置：修改 ~/.bashrc、~/.zshrc、~/.ssh/config、/etc/hosts、环境变量文件，可能导致系统或网络异常"
+          ]
+        },
+        {
+          title: "规则文件模板（可直接复制到项目根目录）",
+          text: "根据你使用的工具选择对应文件名：Cursor 用 .cursorrules，GitHub Copilot 用 .copilot-instructions.md，Claude Code 用 CLAUDE.md。内容可以通用。",
+          code: "# AI Agent 安全规则\n\n## 工作目录限制\n- 只能操作当前项目目录及其子目录\n- 禁止访问上级目录（../）、用户主目录（~）、系统目录（/etc、/usr、/var、/boot）\n- 禁止跟随符号链接到项目目录之外\n\n## 禁止执行的命令\n- rm -rf /、rm -rf ~、rm -rf *（在项目根目录）\n- dd、mkfs、fdisk、diskpart 等磁盘操作\n- shutdown、reboot、systemctl 关键服务操作\n- git reset --hard、git clean -fd、git push --force\n- chmod -R、chown -R 对敏感目录\n\n## 文件操作要求\n- 删除文件前必须先列出将要删除的文件清单，等待人工确认\n- 批量重命名或移动前必须先显示操作预览（源路径 -> 目标路径）\n- 修改配置文件前必须先显示 diff 预览\n- 写入文件前必须确认目标路径在项目目录内\n\n## 终端命令要求\n- 执行任何终端命令前必须说明命令用途和预期影响\n- 高风险命令必须先执行预览版本（如用 ls 代替 rm，用 find 代替 delete）\n- 不要使用 --yes、--force、-f 等自动确认参数，除非人工明确授权\n- 管道命令（|）必须逐段说明每一步的作用\n\n## 异常处理\n- 如果命令执行结果与预期不符，立即停止后续操作并报告\n- 如果遇到权限错误或路径不存在，不要尝试绕过或猜测路径\n- 如果不确定操作是否安全，先询问人工，不要自行判断",
+          language: "markdown"
+        },
+        {
+          title: "误删事故后的恢复步骤",
+          items: [
+            "立即停止 Agent 进程：关闭终端窗口或终止 Agent 进程，不要继续执行任何命令，避免数据被覆盖。",
+            "评估损失范围：用 ls、find、du 等只读命令检查哪些文件被删除、影响哪些目录，不要写入任何文件。",
+            "从 Git 恢复代码：如果项目使用 Git，先 git status 查看状态，然后用 git checkout 恢复已跟踪的文件，用 git stash 或 reflog 恢复最近的更改。",
+            "从备份恢复数据：如果有独立备份（云盘、移动硬盘、时间机器），从备份中恢复未被 Git 跟踪的文件（如配置、文档、数据文件）。",
+            "检查符号链接和外部目录：确认删除操作是否通过符号链接影响到项目目录之外的文件，如果有，需要额外恢复。",
+            "验证恢复结果：运行项目测试、检查配置文件、确认关键数据完整，不要只看文件存在就认为恢复成功。",
+            "记录事故并改进：写下事故原因、影响范围、恢复过程和时间，更新规则文件和检查清单，防止同类事故再次发生。",
+            "如果数据非常重要且没有备份：立即停止使用该磁盘（避免数据被覆盖），寻求专业数据恢复服务，不要自行尝试恢复工具。"
+          ]
+        }
+      ]
+    },
+    {
       id: "github-copilot-browser-tools-vscode-testing-guide",
       title: "GitHub Copilot 浏览器工具 GA：新手怎样让 Agent 打开网页、测试交互并保留控制权",
       date: "2026-07-01",
@@ -5341,6 +5452,36 @@ git push origin main`,
     "github-agentic-workflows-public-preview-guide"
   ],
   hotspots: [
+    {
+      date: "2026-08-31",
+      tag: "AI 安全",
+      title: "Claude 安全降级机制翻车：AI 误删开发者 700GB 主目录，一周工作成果丢失",
+      summary: "据机器之心报道，开发者让 Claude Fable 5 写 /tmp 清理脚本，触发安全审查后模型从 Fable 5 降级到 Opus 4.8。降级后的模型在清理测试临时文件时复用了被赋值为主目录路径的变量，直接对用户主目录执行 rm -rf，700GB 数据被清除。",
+      why: "这是所有 AI Agent 用户必须重视的安全警示：安全降级机制本意是降低风险，但弱模型在处理变量作用域和文件路径时恰恰更容易犯错。新手使用 AI Agent 执行文件删除、批量重命名、脚本清理等操作前，必须开启权限确认、设置工作目录限制、做好重要数据备份，不要让 Agent 直接在主目录或项目根目录执行不可逆操作。",
+      sourceLabel: "机器之心 / 凤凰网科技",
+      sourceUrl: "https://tech.ifeng.com/c/8w21w6HXmE0",
+      articleIdea: "已扩写：AI Agent 文件操作安全防护指南"
+    },
+    {
+      date: "2026-08-28",
+      tag: "AI 编程",
+      title: "Claude Code v2.1.251 发布：模型切换 Hook 事件、子 Agent 实时工具流和多项安全修复",
+      summary: "Claude Code 2.1.251 新增 PreModelSwitch/PostModelSwitch Hook 事件（可拦截、确认或标注模型切换），前台子 Agent 的工具调用和结果实时流式推送到 Remote Control 客户端，/usage 增加花费限制进度条，/cost 增加每会话 prompt cache 命中率分析，并修复了符号链接绕过权限检查、插件路径遍历等多个安全问题。",
+      why: "模型切换 Hook 让团队可以在高风险操作前强制切到更安全的模型或触发人工确认，子 Agent 实时工具流则让远程协作时能看到 Agent 到底在做什么。新手应重点关注本次修复的符号链接权限绕过问题——如果工作目录下存在符号链接，旧版本可能读写到授权范围之外，建议尽快升级，并在项目设置中明确限制 Agent 可访问的目录范围。",
+      sourceLabel: "Claude Code Changelog",
+      sourceUrl: "https://www.havoptic.com/r/claude-code-2.1.251",
+      articleIdea: "候选：Claude Code Hook 事件怎样用于安全策略和模型切换控制"
+    },
+    {
+      date: "2026-08-27",
+      tag: "AI 编程",
+      title: "GitHub Copilot CLI v1.0.81 发布：插件仪表盘上线、会话恢复改进和 AI 推理选项优化",
+      summary: "GitHub Copilot CLI 1.0.81 新增插件仪表盘，可集中管理和扩展 CLI 功能；改进会话恢复机制，崩溃或重启后不再丢失已打开的终端；优化 AI 推理选项和参数选择，让复杂任务的推理过程更可控；同时提升了 MCP 工具调用的稳定性和错误提示清晰度。",
+      why: "插件仪表盘让 Copilot CLI 从单一命令行工具变成可扩展的 Agent 平台，用户可以按需安装代码审查、测试生成、部署辅助等插件。会话恢复则解决了长期以来 CLI 工具崩溃后上下文丢失的痛点。新手建议先在非生产项目中试用插件功能，确认插件来源可信后再用于重要项目，避免第三方插件引入安全风险。",
+      sourceLabel: "GitHub Copilot CLI Changelog",
+      sourceUrl: "https://www.havoptic.com/r/github-copilot-v1.0.81",
+      articleIdea: "候选：Copilot CLI 插件生态入门：哪些插件值得装、怎样评估安全性"
+    },
     {
       date: "2026-08-30",
       tag: "AI 建站",

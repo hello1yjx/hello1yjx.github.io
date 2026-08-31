@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://cdn.jsdelivr.net">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;800&family=Noto+Serif+SC:wght@700;900&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/styles.css?v=20260830-hotspots-daily-update">
+  <link rel="stylesheet" href="assets/styles.css?v=20260831-daily-update">
 </head>
 <body>
   <header class="site-header">
@@ -77,6 +77,66 @@
       <div class="hotspot-grid" data-hotspot-list>
         <!-- STATIC_HOTSPOTS_START -->
 <article class="hotspot-card reveal">
+      <div class="hotspot-card__head">
+        <span class="hotspot-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/python/python-original.svg" alt="AI 安全 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <div>
+          <div class="hotspot-card__meta">
+            <span>AI 安全</span>
+            <time datetime="2026-08-31">2026年8月31日</time>
+          </div>
+          <h3>Claude 安全降级机制翻车：AI 误删开发者 700GB 主目录，一周工作成果丢失</h3>
+        </div>
+      </div>
+      <p>据机器之心报道，开发者让 Claude Fable 5 写 /tmp 清理脚本，触发安全审查后模型从 Fable 5 降级到 Opus 4.8。降级后的模型在清理测试临时文件时复用了被赋值为主目录路径的变量，直接对用户主目录执行 rm -rf，700GB 数据被清除。</p>
+      <div class="hotspot-card__why">
+        <strong>为什么值得关注</strong>
+        <p>这是所有 AI Agent 用户必须重视的安全警示：安全降级机制本意是降低风险，但弱模型在处理变量作用域和文件路径时恰恰更容易犯错。新手使用 AI Agent 执行文件删除、批量重命名、脚本清理等操作前，必须开启权限确认、设置工作目录限制、做好重要数据备份，不要让 Agent 直接在主目录或项目根目录执行不可逆操作。</p>
+      </div>
+      <p class="hotspot-card__idea">已扩写：AI Agent 文件操作安全防护指南</p>
+      <a class="text-link" href="https://tech.ifeng.com/c/8w21w6HXmE0" target="_blank" rel="noreferrer">查看来源：机器之心 / 凤凰网科技</a>
+    </article>
+
+    <article class="hotspot-card reveal">
+      <div class="hotspot-card__head">
+        <span class="hotspot-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/python/python-original.svg" alt="AI 编程 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <div>
+          <div class="hotspot-card__meta">
+            <span>AI 编程</span>
+            <time datetime="2026-08-28">2026年8月28日</time>
+          </div>
+          <h3>Claude Code v2.1.251 发布：模型切换 Hook 事件、子 Agent 实时工具流和多项安全修复</h3>
+        </div>
+      </div>
+      <p>Claude Code 2.1.251 新增 PreModelSwitch/PostModelSwitch Hook 事件（可拦截、确认或标注模型切换），前台子 Agent 的工具调用和结果实时流式推送到 Remote Control 客户端，/usage 增加花费限制进度条，/cost 增加每会话 prompt cache 命中率分析，并修复了符号链接绕过权限检查、插件路径遍历等多个安全问题。</p>
+      <div class="hotspot-card__why">
+        <strong>为什么值得关注</strong>
+        <p>模型切换 Hook 让团队可以在高风险操作前强制切到更安全的模型或触发人工确认，子 Agent 实时工具流则让远程协作时能看到 Agent 到底在做什么。新手应重点关注本次修复的符号链接权限绕过问题——如果工作目录下存在符号链接，旧版本可能读写到授权范围之外，建议尽快升级，并在项目设置中明确限制 Agent 可访问的目录范围。</p>
+      </div>
+      <p class="hotspot-card__idea">候选：Claude Code Hook 事件怎样用于安全策略和模型切换控制</p>
+      <a class="text-link" href="https://www.havoptic.com/r/claude-code-2.1.251" target="_blank" rel="noreferrer">查看来源：Claude Code Changelog</a>
+    </article>
+
+    <article class="hotspot-card reveal">
+      <div class="hotspot-card__head">
+        <span class="hotspot-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="AI 编程 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <div>
+          <div class="hotspot-card__meta">
+            <span>AI 编程</span>
+            <time datetime="2026-08-27">2026年8月27日</time>
+          </div>
+          <h3>GitHub Copilot CLI v1.0.81 发布：插件仪表盘上线、会话恢复改进和 AI 推理选项优化</h3>
+        </div>
+      </div>
+      <p>GitHub Copilot CLI 1.0.81 新增插件仪表盘，可集中管理和扩展 CLI 功能；改进会话恢复机制，崩溃或重启后不再丢失已打开的终端；优化 AI 推理选项和参数选择，让复杂任务的推理过程更可控；同时提升了 MCP 工具调用的稳定性和错误提示清晰度。</p>
+      <div class="hotspot-card__why">
+        <strong>为什么值得关注</strong>
+        <p>插件仪表盘让 Copilot CLI 从单一命令行工具变成可扩展的 Agent 平台，用户可以按需安装代码审查、测试生成、部署辅助等插件。会话恢复则解决了长期以来 CLI 工具崩溃后上下文丢失的痛点。新手建议先在非生产项目中试用插件功能，确认插件来源可信后再用于重要项目，避免第三方插件引入安全风险。</p>
+      </div>
+      <p class="hotspot-card__idea">候选：Copilot CLI 插件生态入门：哪些插件值得装、怎样评估安全性</p>
+      <a class="text-link" href="https://www.havoptic.com/r/github-copilot-v1.0.81" target="_blank" rel="noreferrer">查看来源：GitHub Copilot CLI Changelog</a>
+    </article>
+
+    <article class="hotspot-card reveal">
       <div class="hotspot-card__head">
         <span class="hotspot-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/python/python-original.svg" alt="AI 建站 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
         <div>
@@ -3394,6 +3454,6 @@
     </div>
   </footer>
 
-  <script src="assets/app.js?v=20260830-hotspots-daily-update"></script>
+  <script src="assets/app.js?v=20260831-daily-update"></script>
 </body>
 </html>

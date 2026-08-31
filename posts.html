@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://cdn.jsdelivr.net">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;800&family=Noto+Serif+SC:wght@700;900&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/styles.css?v=20260830-hotspots-daily-update">
+  <link rel="stylesheet" href="assets/styles.css?v=20260831-daily-update">
 </head>
 <body>
   <header class="site-header">
@@ -68,6 +68,23 @@
       <div class="content-grid" data-post-list>
         <!-- STATIC_POSTS_START -->
 <article class="article-card reveal">
+      <a class="article-card__media article-card__media--github" href="articles/ai-agent-file-operation-safety-guide.html">
+        <span class="article-card__badge">AI 安全</span>
+        <span class="article-card__icon"><img class="visual-icon visual-icon--card" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/python/python-original.svg" alt="AI 安全 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <strong>AI 安全</strong>
+      </a>
+      <div class="article-card__body">
+        <div class="meta-row">
+          <span>AI 安全</span>
+          <span>11 分钟</span>
+          <time datetime="2026-08-31">2026年8月31日</time>
+        </div>
+        <h3><a href="articles/ai-agent-file-operation-safety-guide.html">AI Agent 文件操作安全防护指南：从 Claude 误删 700GB 事件看怎样保护你的代码和数据</a></h3>
+        <p>2026 年 8 月 31 日，一名开发者让 Claude 写 /tmp 清理脚本，触发安全降级后模型在清理测试临时文件时复用了被赋值为主目录路径的变量，直接对用户主目录执行 rm -rf，700GB 数据被清除。这不是某个工具的孤例，而是所有 AI Agent 用户都必须面对的系统性风险：Agent 能力越强，文件操作范围越大，一次变量复用、路径拼接错误或权限配置遗漏就可能造成不可逆损失。这篇指南从事件复盘出发，给出可直接落地的防护措施：工作目录隔离、权限确认机制、危险命令拦截、备份策略、各工具安全配置和发布前检查清单。</p>
+      </div>
+    </article>
+
+    <article class="article-card reveal">
       <a class="article-card__media article-card__media--ai" href="articles/github-copilot-browser-tools-vscode-testing-guide.html">
         <span class="article-card__badge">推荐</span>
         <span class="article-card__icon"><img class="visual-icon visual-icon--card" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="AI 编程 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
@@ -1071,6 +1088,6 @@
     </div>
   </footer>
 
-  <script src="assets/app.js?v=20260830-hotspots-daily-update"></script>
+  <script src="assets/app.js?v=20260831-daily-update"></script>
 </body>
 </html>

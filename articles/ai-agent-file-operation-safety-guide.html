@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AI Agent 文件操作安全防护指南：从 Claude 误删 700GB 事件看怎样保护你的代码和数据 | 学习资源库</title>
+  <meta name="description" content="2026 年 8 月 31 日，一名开发者让 Claude 写 /tmp 清理脚本，触发安全降级后模型在清理测试临时文件时复用了被赋值为主目录路径的变量，直接对用户主目录执行 rm -rf，700GB 数据被清除。这不是某个工具的孤例，而是所有 AI Agent 用户都必须面对的系统性风险：Agent 能力越强，文件操作范围越大，一次变量复用、路径拼接错误或权限配置遗漏就可能造成不可逆损失。这篇指南从事件复盘出发，给出可直接落地的防护措施：工作目录隔离、权限确认机制、危险命令拦截、备份策略、各工具安全配置和发布前检查清单。">
+  <meta name="robots" content="index,follow,max-image-preview:large">
+  <link rel="canonical" href="https://hello1yjx.github.io/articles/ai-agent-file-operation-safety-guide.html">
+  <link rel="icon" type="image/png" href="../assets/images/brand-book-line.png">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"AI Agent 文件操作安全防护指南：从 Claude 误删 700GB 事件看怎样保护你的代码和数据","description":"2026 年 8 月 31 日，一名开发者让 Claude 写 /tmp 清理脚本，触发安全降级后模型在清理测试临时文件时复用了被赋值为主目录路径的变量，直接对用户主目录执行 rm -rf，700GB 数据被清除。这不是某个工具的孤例，而是所有 AI Agent 用户都必须面对的系统性风险：Agent 能力越强，文件操作范围越大，一次变量复用、路径拼接错误或权限配置遗漏就可能造成不可逆损失。这篇指南从事件复盘出发，给出可直接落地的防护措施：工作目录隔离、权限确认机制、危险命令拦截、备份策略、各工具安全配置和发布前检查清单。","datePublished":"2026-08-31","dateModified":"2026-08-31","author":{"@type":"Person","name":"Avery Lin","url":"https://hello1yjx.github.io/about.html"},"publisher":{"@type":"Organization","name":"学习资源库","url":"https://hello1yjx.github.io/"},"mainEntityOfPage":"https://hello1yjx.github.io/articles/ai-agent-file-operation-safety-guide.html","inLanguage":"zh-CN"}</script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6621999105936318" crossorigin="anonymous"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;800&family=Noto+Serif+SC:wght@700;900&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/styles.css?v=20260831-daily-update">
+</head>
+<body>
+  <header class="site-header">
+    <div class="page-shell site-header__inner">
+      <a class="brand" href="../index.html" aria-label="返回首页">
+        <span class="brand-mark" aria-hidden="true"><img src="../assets/images/brand-book-line.png" alt="" width="36" height="33"></span>
+        <span class="brand-copy"><strong>学习资源库</strong><span>分享知识 · 提升自己 · 成就未来</span></span>
+      </a>
+      <button class="menu-button" data-menu-button aria-expanded="false" aria-label="切换导航菜单">☰</button>
+      <nav class="site-nav" data-mobile-nav>
+        <a href="../index.html">首页</a>
+        <a class="is-active" href="../posts.html" aria-current="page">教程</a>
+        <a href="../resources.html">资源下载</a>
+        <a href="../resources.html#official-resources">工具导航</a>
+        <a href="../hotspots.html">技术资讯</a>
+        <a href="../projects.html">开源项目</a>
+        <a href="../about.html">关于我们</a>
+      </nav>
+      <form class="header-search" action="../posts.html" method="get">
+        <input type="search" name="q" placeholder="搜索教程、资源、工具或关键词...">
+        <button type="submit" aria-label="搜索">/</button>
+      </form>
+      <a class="header-github" href="https://github.com/hello1yjx/hello1yjx.github.io" target="_blank" rel="noreferrer" aria-label="GitHub">
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="" width="24" height="24">
+      </a>
+      <a class="header-cta" href="../posts.html">开始学习</a>
+    </div>
+  </header>
+
+  <main class="page-shell section article-page">
+    <header class="detail-hero">
+      <span class="pill">AI 安全</span>
+      <h1>AI Agent 文件操作安全防护指南：从 Claude 误删 700GB 事件看怎样保护你的代码和数据</h1>
+      <div class="detail-hero__meta">
+        <time datetime="2026-08-31">2026年8月31日</time>
+        <span>11 分钟</span>
+        <span>作者：Avery Lin</span>
+      </div>
+      <p>2026 年 8 月 31 日，一名开发者让 Claude 写 /tmp 清理脚本，触发安全降级后模型在清理测试临时文件时复用了被赋值为主目录路径的变量，直接对用户主目录执行 rm -rf，700GB 数据被清除。这不是某个工具的孤例，而是所有 AI Agent 用户都必须面对的系统性风险：Agent 能力越强，文件操作范围越大，一次变量复用、路径拼接错误或权限配置遗漏就可能造成不可逆损失。这篇指南从事件复盘出发，给出可直接落地的防护措施：工作目录隔离、权限确认机制、危险命令拦截、备份策略、各工具安全配置和发布前检查清单。</p>
+    </header>
+    <div class="article-layout">
+      <article class="article-body">
+        <div class="inline-promo">
+          <p class="label">来源与增量价值</p>
+          <h3>本文基于官方资料整理，并补充适用场景、限制条件和实践检查步骤。</h3>
+          <p>首要来源：<a href="https://tech.ifeng.com/c/8w21w6HXmE0" target="_blank" rel="noreferrer">机器之心：Claude 安全机制大翻车，AI 怒删开发者 700GB 主目录</a>。事实以原始来源为准，本站建议需结合自己的环境验证。</p>
+        </div>
+
+    <p>AI Agent 已经从只补全代码发展到能读写文件、执行终端命令、批量重命名、自动清理和部署发布。能力提升的同时，风险边界也在扩大。2026 年 8 月 31 日曝光的 Claude 误删事件最值得警惕的地方，不是 Agent 执行了 rm -rf，而是安全机制本身出了问题：系统判定任务太危险，把模型从高能力版本降级到更保守的版本，但降级后的模型在处理变量作用域和文件路径时恰恰更容易犯错，最终在清理测试临时文件的步骤中删除了整个主目录。</p><p>这类事件不会因为换一个工具就消失。Claude Code、GitHub Copilot、Cursor、Qwen Code、OpenAI Codex 都具备文件修改和终端执行能力，任何一个都可能因为提示词歧义、路径拼接错误、符号链接绕过或权限配置遗漏而操作到不该碰的文件。新手最容易犯的错误是觉得“Agent 很聪明，不会犯这种低级错误”，或者把安全完全交给工具内置的确认机制。正确的做法是多层防护：从工作目录隔离、权限最小化、危险命令拦截、定期备份，到每次高风险操作前的人工复核，每一层都不能省。</p>
+    <h2>这篇内容适合谁</h2>
+    <ul><li>正在使用 Claude Code、GitHub Copilot、Cursor、Qwen Code 等 AI 编程工具，且已经让 Agent 执行文件修改、终端命令或批量操作的新手开发者。</li><li>维护个人项目、课程作业或小型工具站，担心 Agent 误删代码、配置文件或重要数据的学生和独立开发者。</li><li>准备在团队中推广 AI Agent，但需要先建立文件安全规范、权限边界和事故恢复流程的技术负责人或学生团队管理者。</li></ul>
+    <h2>实践与验证步骤</h2>
+    <ul><li>先理解事件的完整链路，而不是只记住“不要用 rm -rf”。这次事故的关键不是删除命令本身，而是安全降级后模型在测试清理步骤中复用了被错误赋值的变量。这意味着即使你不让 Agent 直接写 rm -rf，它也可能在脚本、循环或测试清理中间接执行危险操作。</li><li>建立第一层防护：工作目录隔离。永远不要在用户主目录、系统目录或包含多个重要项目的父目录中启动 Agent。每个项目应该有独立的工作目录，Agent 只能访问该目录及其子目录。Claude Code 支持通过配置限制可访问路径，Copilot 和 Cursor 也应在项目级工作区中运行，不要用“打开文件夹”的方式加载整个磁盘。</li><li>建立第二层防护：权限最小化和确认机制。检查你使用的工具是否支持权限模式（如 Claude Code 的 permission 模式、Copilot 的审批设置）。对于文件写入、终端命令、删除操作，至少设置为“每次确认”，不要为了省事开启全自动模式。特别要拦截 rm、mv、cp -r、chmod -R、chown -R、git reset --hard、git clean -fd 等高风险命令。</li><li>建立第三层防护：危险命令和路径的显式拦截。大多数 AI Agent 工具支持自定义规则文件（如 .cursorrules、.copilot-instructions.md、Claude Code 的 CLAUDE.md）。在项目根目录创建规则文件，明确列出禁止操作的目录（如 ../、~、/etc、/usr）、禁止执行的命令（如 rm -rf /、rm -rf ~、dd、mkfs）、以及执行删除或批量操作前必须先执行的预览命令（如 ls、find、git status）。</li><li>建立第四层防护：备份和版本控制。这是最后一道防线，也是最有效的一道。所有重要项目必须使用 Git 并定期推送到远程仓库，重要数据（文档、配置、数据库导出）应有独立备份。对于本地项目，配置 .gitignore 时不要把重要文件排除在外；对于 Agent 可能修改的配置文件，修改前先让 Agent 输出 diff 预览，确认后再应用。</li><li>建立第五层防护：高风险操作前的人工复核流程。当你需要让 Agent 执行删除、批量重命名、脚本清理、依赖升级、部署发布等高风险操作时，不要直接说“帮我清理一下”，而是写清楚操作范围、目标路径、排除规则和验证方式。要求 Agent 先列出将要操作的文件清单（用 find 或 ls），你确认无误后再让它执行。执行后要求 Agent 验证结果（如检查文件是否还在、目录大小是否符合预期）。</li><li>最后建立事故恢复预案。即使做了所有防护，也要假设最坏情况会发生。定期测试备份恢复流程，确认 Git 远程仓库可克隆、备份文件可读取。如果发生误删，立即停止 Agent 进程，不要继续执行任何可能覆盖数据的操作，然后从 Git 恢复代码、从备份恢复数据。记录事故原因和改进措施，更新规则文件和检查清单。</li></ul>
+    <h2>官方资料入口</h2>
+
+    <ul>
+
+            <li>
+              <a href="https://tech.ifeng.com/c/8w21w6HXmE0" target="_blank" rel="noreferrer">机器之心：Claude 安全机制大翻车，AI 怒删开发者 700GB 主目录</a>
+              <span>：2026 年 8 月 31 日报道，详细复盘了开发者让 Claude 写 /tmp 清理脚本、触发安全降级、模型在测试清理步骤中复用变量误删主目录的完整过程。</span>
+            </li>
+
+            <li>
+              <a href="https://docs.anthropic.com/en/docs/claude-code/permissions" target="_blank" rel="noreferrer">Claude Code Docs：Permissions</a>
+              <span>：官方文档说明 Claude Code 的权限模式、可访问路径限制、工具审批和自定义权限配置，是配置第一层防护的核心参考。</span>
+            </li>
+
+            <li>
+              <a href="https://docs.github.com/en/copilot/customizing-copilot/privacy-settings" target="_blank" rel="noreferrer">GitHub Docs：Configuring GitHub Copilot settings</a>
+              <span>：说明 Copilot 的审批设置、建议接受方式和企业级策略配置，可用于配置文件修改和终端命令的确认机制。</span>
+            </li>
+
+            <li>
+              <a href="https://owasp.org/www-project-ai-agent-security-top-10/" target="_blank" rel="noreferrer">OWASP：AI Agent Security Top 10</a>
+              <span>：OWASP 发布的 AI Agent 安全风险 Top 10，涵盖权限提升、工具滥用、数据泄露、提示注入等系统性风险，适合团队建立安全规范时参考。</span>
+            </li>
+
+    </ul>
+
+    <h2>重点判断与使用建议</h2>
+    <ul><li>这次事故的核心教训不是“不要用 rm -rf”，而是安全降级机制本身可能引入新风险：弱模型在处理变量作用域和路径时更容易犯错。</li><li>多层防护是唯一可靠的策略：工作目录隔离、权限最小化、危险命令拦截、定期备份、人工复核，每一层都不能省。</li><li>不要在主目录、系统目录或包含多个重要项目的父目录中启动 Agent，每个项目应有独立工作目录。</li><li>高风险操作前必须让 Agent 先输出文件清单和操作预览，人工确认后再执行，执行后必须验证结果。</li><li>Git 远程仓库和独立备份是最后一道防线，定期测试恢复流程比备份本身更重要。</li></ul>
+
+        <h2>10 分钟安全配置练习</h2>
+
+        <ul><li>确认你当前使用的 AI Agent 运行在独立项目目录中，而不是主目录或包含多个项目的父目录。</li><li>检查工具的权限设置，将文件写入和终端命令设置为“每次确认”，关闭全自动模式。</li><li>在项目根目录创建规则文件（.cursorrules 或 .copilot-instructions.md 或 CLAUDE.md），写入禁止操作的目录和禁止执行的危险命令。</li><li>配置 Git 远程仓库，确认当前项目的所有重要文件都已提交并推送，.gitignore 没有误排除重要文件。</li><li>用一个低风险任务测试确认机制：让 Agent 执行一个简单的文件删除操作，确认它会先请求批准、显示操作预览，而不是直接执行。</li><li>测试规则文件是否生效：在提示词中故意要求 Agent 操作上级目录或执行 rm -rf，确认它会拒绝或先请求人工确认。</li><li>记录你的配置：工具名称、权限模式、规则文件路径、Git 远程地址、备份位置，作为项目安全配置的基线。</li></ul>
+
+
+
+        <h2>必须拦截的高风险命令和操作</h2>
+
+        <ul><li>文件删除：rm -rf、rm -r、del /s /q（Windows）、Remove-Item -Recurse -Force（PowerShell）</li><li>批量移动/复制：mv -r、cp -r，特别是目标路径为上级目录或系统目录时</li><li>权限变更：chmod -R、chown -R，特别是对 /etc、/usr、~/.ssh 等敏感目录</li><li>Git 危险操作：git reset --hard、git clean -fd、git push --force、git rebase 后强推</li><li>磁盘操作：dd、mkfs、fdisk、diskpart（Windows），任何涉及原始磁盘写入的命令</li><li>系统操作：shutdown、reboot、systemctl stop/start/restart 关键服务、iptables/ufw 防火墙规则变更</li><li>包管理：npm install -g、pip install、apt remove/purge，特别是带 --force 或 --yes 自动确认的命令</li><li>环境变量和配置：修改 ~/.bashrc、~/.zshrc、~/.ssh/config、/etc/hosts、环境变量文件，可能导致系统或网络异常</li></ul>
+
+
+
+        <h2>规则文件模板（可直接复制到项目根目录）</h2>
+        <p>根据你使用的工具选择对应文件名：Cursor 用 .cursorrules，GitHub Copilot 用 .copilot-instructions.md，Claude Code 用 CLAUDE.md。内容可以通用。</p>
+
+
+        <pre><code class="language-markdown"># AI Agent 安全规则
+
+## 工作目录限制
+- 只能操作当前项目目录及其子目录
+- 禁止访问上级目录（../）、用户主目录（~）、系统目录（/etc、/usr、/var、/boot）
+- 禁止跟随符号链接到项目目录之外
+
+## 禁止执行的命令
+- rm -rf /、rm -rf ~、rm -rf *（在项目根目录）
+- dd、mkfs、fdisk、diskpart 等磁盘操作
+- shutdown、reboot、systemctl 关键服务操作
+- git reset --hard、git clean -fd、git push --force
+- chmod -R、chown -R 对敏感目录
+
+## 文件操作要求
+- 删除文件前必须先列出将要删除的文件清单，等待人工确认
+- 批量重命名或移动前必须先显示操作预览（源路径 -&gt; 目标路径）
+- 修改配置文件前必须先显示 diff 预览
+- 写入文件前必须确认目标路径在项目目录内
+
+## 终端命令要求
+- 执行任何终端命令前必须说明命令用途和预期影响
+- 高风险命令必须先执行预览版本（如用 ls 代替 rm，用 find 代替 delete）
+- 不要使用 --yes、--force、-f 等自动确认参数，除非人工明确授权
+- 管道命令（|）必须逐段说明每一步的作用
+
+## 异常处理
+- 如果命令执行结果与预期不符，立即停止后续操作并报告
+- 如果遇到权限错误或路径不存在，不要尝试绕过或猜测路径
+- 如果不确定操作是否安全，先询问人工，不要自行判断</code></pre>
+
+        <h2>误删事故后的恢复步骤</h2>
+
+        <ul><li>立即停止 Agent 进程：关闭终端窗口或终止 Agent 进程，不要继续执行任何命令，避免数据被覆盖。</li><li>评估损失范围：用 ls、find、du 等只读命令检查哪些文件被删除、影响哪些目录，不要写入任何文件。</li><li>从 Git 恢复代码：如果项目使用 Git，先 git status 查看状态，然后用 git checkout 恢复已跟踪的文件，用 git stash 或 reflog 恢复最近的更改。</li><li>从备份恢复数据：如果有独立备份（云盘、移动硬盘、时间机器），从备份中恢复未被 Git 跟踪的文件（如配置、文档、数据文件）。</li><li>检查符号链接和外部目录：确认删除操作是否通过符号链接影响到项目目录之外的文件，如果有，需要额外恢复。</li><li>验证恢复结果：运行项目测试、检查配置文件、确认关键数据完整，不要只看文件存在就认为恢复成功。</li><li>记录事故并改进：写下事故原因、影响范围、恢复过程和时间，更新规则文件和检查清单，防止同类事故再次发生。</li><li>如果数据非常重要且没有备份：立即停止使用该磁盘（避免数据被覆盖），寻求专业数据恢复服务，不要自行尝试恢复工具。</li></ul>
+
+
+
+
+        <div class="inline-promo">
+          <p class="label">更正与更新</p>
+          <h3>发现版本变化、来源失效或事实错误时，请通过联系页反馈。</h3>
+          <p>本站会核对一手来源后更新内容，不使用无来源转载填充文章。</p>
+          <a class="button button--secondary" href="../editorial.html">查看内容标准</a>
+        </div>
+      </article>
+      <aside class="article-sidebar">
+        <div class="sidebar-card">
+          <p class="label">本页标签</p>
+          <div class="tag-row"><span>AI Agent</span><span>文件安全</span><span>权限控制</span></div>
+        </div>
+        <div class="sidebar-card">
+          <p class="label">继续阅读</p>
+          <a href="vercel-eve-agent-runs-observability-guide.html">Vercel eve Agent Runs：新手怎样给 AI Agent 留下可复查的观测记录</a><a href="vercel-web-analytics-cli-metrics-guide.html">Vercel Web Analytics CLI：新手怎样用 vercel metrics 查询访问数据并给 Agent 设置边界</a><a href="vercel-ai-sdk-7-upgrade-agent-checklist.html">Vercel AI SDK 7：新手怎样判断项目能不能升级到 Node 22、ESM 和生产级 Agent</a><a href="cloudflare-ai-search-cache-freshness-guide.html">Cloudflare AI Search 相似缓存新鲜度：新手怎样给站内 AI 搜索设置 TTL、清理缓存和验收答案</a>
+        </div>
+        <div class="sidebar-card sidebar-card--accent">
+          <p class="label">作者与方法</p>
+          <h3>了解本站如何选题、核验来源与处理更正。</h3>
+          <a class="button button--dark" href="../about.html">关于作者</a>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="page-shell footer__inner">
+      <div><strong>学习资源库</strong><p>分享知识 · 提升自己 · 成就未来</p></div>
+      <div>
+        <a href="../editorial.html">内容标准</a><br>
+        <a href="../privacy.html">隐私政策</a><br>
+        <a href="../contact.html">联系</a>
+      </div>
+    </div>
+  </footer>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      var button = document.querySelector("[data-menu-button]");
+      var nav = document.querySelector("[data-mobile-nav]");
+      if (!button || !nav) return;
+      button.addEventListener("click", function () {
+        var expanded = button.getAttribute("aria-expanded") === "true";
+        button.setAttribute("aria-expanded", String(!expanded));
+        nav.classList.toggle("site-nav--open", !expanded);
+      });
+    });
+  </script>
+</body>
+</html>
