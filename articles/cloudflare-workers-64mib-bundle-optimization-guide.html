@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cloudflare Workers 包体积上限提升到 64 MiB：新手部署优化与依赖裁剪指南 | 学习资源库</title>
+  <meta name="description" content="Cloudflare 在 2026 年 9 月 4 日调整 Workers 部署限制：取消压缩后体积上限（原免费 3MB、付费 10MB），所有计划统一只检查未压缩 bundle，上限 64 MiB。对新手来说，这不是“可以随便打包”的信号，而是一次重新理解 bundle 构成、冷启动和依赖裁剪的机会。这篇指南带你用 wrangler dry-run 看清包体积构成、区分业务代码与依赖、用动态导入和外部服务拆分大依赖、验证部署后的冷启动表现，并给出可直接照做的检查清单。">
+  <meta name="robots" content="index,follow,max-image-preview:large">
+  <link rel="canonical" href="https://hello1yjx.github.io/articles/cloudflare-workers-64mib-bundle-optimization-guide.html">
+  <link rel="icon" type="image/png" href="../assets/images/brand-book-line.png">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"Cloudflare Workers 包体积上限提升到 64 MiB：新手部署优化与依赖裁剪指南","description":"Cloudflare 在 2026 年 9 月 4 日调整 Workers 部署限制：取消压缩后体积上限（原免费 3MB、付费 10MB），所有计划统一只检查未压缩 bundle，上限 64 MiB。对新手来说，这不是“可以随便打包”的信号，而是一次重新理解 bundle 构成、冷启动和依赖裁剪的机会。这篇指南带你用 wrangler dry-run 看清包体积构成、区分业务代码与依赖、用动态导入和外部服务拆分大依赖、验证部署后的冷启动表现，并给出可直接照做的检查清单。","datePublished":"2026-09-07","dateModified":"2026-09-07","author":{"@type":"Person","name":"Avery Lin","url":"https://hello1yjx.github.io/about.html"},"publisher":{"@type":"Organization","name":"学习资源库","url":"https://hello1yjx.github.io/"},"mainEntityOfPage":"https://hello1yjx.github.io/articles/cloudflare-workers-64mib-bundle-optimization-guide.html","inLanguage":"zh-CN"}</script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6621999105936318" crossorigin="anonymous"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;800&family=Noto+Serif+SC:wght@700;900&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/styles.css?v=20260907-daily-update">
+</head>
+<body>
+  <header class="site-header">
+    <div class="page-shell site-header__inner">
+      <a class="brand" href="../index.html" aria-label="返回首页">
+        <span class="brand-mark" aria-hidden="true"><img src="../assets/images/brand-book-line.png" alt="" width="36" height="33"></span>
+        <span class="brand-copy"><strong>学习资源库</strong><span>分享知识 · 提升自己 · 成就未来</span></span>
+      </a>
+      <button class="menu-button" data-menu-button aria-expanded="false" aria-label="切换导航菜单">☰</button>
+      <nav class="site-nav" data-mobile-nav>
+        <a href="../index.html">首页</a>
+        <a class="is-active" href="../posts.html" aria-current="page">教程</a>
+        <a href="../resources.html">资源下载</a>
+        <a href="../resources.html#official-resources">工具导航</a>
+        <a href="../hotspots.html">技术资讯</a>
+        <a href="../projects.html">开源项目</a>
+        <a href="../about.html">关于我们</a>
+      </nav>
+      <form class="header-search" action="../posts.html" method="get">
+        <input type="search" name="q" placeholder="搜索教程、资源、工具或关键词...">
+        <button type="submit" aria-label="搜索">/</button>
+      </form>
+      <a class="header-github" href="https://github.com/hello1yjx/hello1yjx.github.io" target="_blank" rel="noreferrer" aria-label="GitHub">
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="" width="24" height="24">
+      </a>
+      <a class="header-cta" href="../posts.html">开始学习</a>
+    </div>
+  </header>
+
+  <main class="page-shell section article-page">
+    <header class="detail-hero">
+      <span class="pill">云端部署</span>
+      <h1>Cloudflare Workers 包体积上限提升到 64 MiB：新手部署优化与依赖裁剪指南</h1>
+      <div class="detail-hero__meta">
+        <time datetime="2026-09-07">2026年9月7日</time>
+        <span>10 分钟</span>
+        <span>作者：Avery Lin</span>
+      </div>
+      <p>Cloudflare 在 2026 年 9 月 4 日调整 Workers 部署限制：取消压缩后体积上限（原免费 3MB、付费 10MB），所有计划统一只检查未压缩 bundle，上限 64 MiB。对新手来说，这不是“可以随便打包”的信号，而是一次重新理解 bundle 构成、冷启动和依赖裁剪的机会。这篇指南带你用 wrangler dry-run 看清包体积构成、区分业务代码与依赖、用动态导入和外部服务拆分大依赖、验证部署后的冷启动表现，并给出可直接照做的检查清单。</p>
+    </header>
+    <div class="article-layout">
+      <article class="article-body">
+        <div class="inline-promo">
+          <p class="label">来源与增量价值</p>
+          <h3>本文基于官方资料整理，并补充适用场景、限制条件和实践检查步骤。</h3>
+          <p>首要来源：<a href="https://developers.cloudflare.com/changelog/post/2026-09-04-increased-worker-size-limit/" target="_blank" rel="noreferrer">Cloudflare Changelog：Deploy larger Workers — up to 64 MiB for both free and paid plans</a>。事实以原始来源为准，本站建议需结合自己的环境验证。</p>
+        </div>
+
+    <p>很多新手第一次在 Cloudflare Workers 上部署带 AI SDK、图像处理库或完整 Web 框架的应用时，会遇到部署失败：提示 worker 超过体积限制。旧规则检查的是 gzip 压缩后的体积，免费计划 3MB、付费计划 10MB，这对现代 Node 生态动辄几 MB 的依赖来说很容易触顶。9 月 4 日之后，Cloudflare 取消了压缩体积检查，改为所有计划统一检查未压缩 bundle，上限 64 MiB。</p><p>限制放宽是好事，但如果因此把 node_modules 整包打进去、把静态资源塞进 Worker、或者忽略动态导入，冷启动延迟、内存占用和部署速度都会变差，免费计划的 CPU 时间限制也更容易被触发。正确的做法是先看清当前 bundle 里到底有什么，再决定哪些依赖该保留、哪些该延迟加载、哪些应该放到 Workers Assets、KV、R2 或外部 API。</p>
+    <h2>这篇内容适合谁</h2>
+    <ul><li>正在学习 Cloudflare Workers，部署时遇到包体积超限或想提前理解 bundle 限制的新手开发者。</li><li>用 Workers 部署 AI 应用、API 服务或边缘函数，依赖了较大 npm 包，需要做依赖裁剪的个人站长。</li><li>从 Vercel/Netlify 迁移到 Cloudflare，需要理解两者函数限制差异并建立部署验收流程的开发者。</li></ul>
+    <h2>实践与验证步骤</h2>
+    <ul><li>先用 wrangler dry-run 看清现状。在项目根目录执行 `wrangler deploy --outdir bundled/ --dry-run`，输出中的 Total Upload 是未压缩体积（计入 64 MiB 限制），gzip 仅作参考不再是限制。把这两个数字记录下来，作为优化前的基线。</li><li>理解 bundle 是怎么来的。Wrangler 会用 esbuild 打包你的 Worker 代码和依赖，未使用的代码会被 tree-shaking 移除，但 CommonJS 依赖、动态 require 和副作用导入可能无法被有效裁剪。检查 package.json 的 dependencies，区分运行时必需和仅开发时需要（后者应放 devDependencies）。</li><li>找出体积大头。生成 sourcemap 或用 esbuild 的 metafile 分析依赖构成：`wrangler deploy --outdir bundled/ --dry-run --sourcemap`，或在 esbuild 配置中开启 metafile，再用 esbuild-analyzer 等工具可视化。通常 AI SDK、数据库驱动、模板引擎和 polyfill 是最常见的体积来源。</li><li>用动态导入延迟非首屏依赖。对于只在特定路由或任务中使用的大依赖（如 PDF 生成、图像处理、特定 AI provider），用 `const lib = await import('lib')` 改为动态导入，这样它只在被调用时加载，不占用初始 bundle 的关键路径。注意 Workers 的模块加载是一次性的，动态导入主要优化的是 bundle 组织而非运行时按需下载，但能帮助 tree-shaking 更激进地移除未用代码路径。</li><li>把静态资源移出 Worker。图片、字体、JSON 数据、前端构建产物不应该打进 Worker bundle，应使用 Workers Assets（静态资源）、KV（键值数据）、R2（大文件存储）或外部 CDN。检查代码中是否有 fs.readFileSync 读取大文件的逻辑，这类文件应改为绑定资源或运行时从 KV/R2 获取。</li><li>选择更轻量的依赖替代品。比如用轻量校验库代替完整 schema 框架、用原生 fetch 代替重型 HTTP 客户端、按需引入 AI SDK 的子模块而不是整包导入。替换后必须重新跑测试，确认功能一致，不要只看体积下降。</li><li>部署后验证冷启动和运行时表现。包体积下降不代表性能一定更好，动态导入过多也可能增加首次调用延迟。部署到测试环境后，用 wrangler tail 观察实际请求，记录冷启动时间、CPU 时间和内存峰值，确认在免费计划限制内（免费计划 CPU 时间限制更严格）。</li><li>最后建立持续检查机制。把 dry-run 体积检查写进 CI，设置体积告警阈值（比如未压缩超过 20 MiB 就提醒），避免依赖升级后 bundle 悄悄膨胀。每次新增大型依赖时，在提交记录中注明体积变化和优化方式。</li></ul>
+    <h2>官方资料入口</h2>
+
+    <ul>
+
+            <li>
+              <a href="https://developers.cloudflare.com/changelog/post/2026-09-04-increased-worker-size-limit/" target="_blank" rel="noreferrer">Cloudflare Changelog：Deploy larger Workers — up to 64 MiB for both free and paid plans</a>
+              <span>：2026 年 9 月 4 日发布，说明取消压缩体积限制、统一 64 MiB 未压缩上限，以及用 dry-run 检查体积的方法。</span>
+            </li>
+
+            <li>
+              <a href="https://developers.cloudflare.com/workers/platform/limits/#worker-size" target="_blank" rel="noreferrer">Cloudflare Docs：Worker size limits</a>
+              <span>：官方限制文档，列出未压缩 bundle 上限、各计划差异和压缩参考值的含义。</span>
+            </li>
+
+            <li>
+              <a href="https://developers.cloudflare.com/workers/wrangler/commands/#deploy" target="_blank" rel="noreferrer">Cloudflare Docs：Wrangler deploy</a>
+              <span>：wrangler deploy 命令文档，包含 --dry-run、--outdir、--sourcemap 等参数说明。</span>
+            </li>
+
+            <li>
+              <a href="https://developers.cloudflare.com/workers/configuration/bundling/" target="_blank" rel="noreferrer">Cloudflare Docs：Reduce Worker bundle size</a>
+              <span>：官方打包配置文档，说明模块格式、外部依赖和自定义打包的配置方式。</span>
+            </li>
+
+    </ul>
+
+    <h2>重点判断与使用建议</h2>
+    <ul><li>新限制检查的是未压缩体积（Total Upload），gzip 值仅作参考，不要用旧的压缩限制思维判断。</li><li>64 MiB 是上限不是目标：包越大冷启动越慢、内存压力越大，免费计划 CPU 时间也更容易触顶。</li><li>静态资源放 Workers Assets/KV/R2，运行时大依赖用动态导入，开发依赖放 devDependencies。</li><li>每次优化后都要重新跑功能测试和 wrangler tail，体积下降不能以功能缺失或延迟上升为代价。</li></ul>
+
+        <h2>10 分钟 bundle 体检流程</h2>
+
+        <ul><li>运行 `wrangler deploy --outdir bundled/ --dry-run`，记录 Total Upload 和 gzip 两个数值。</li><li>打开 package.json，逐个检查 dependencies：这个包运行时真的需要吗？能移到 devDependencies 吗？</li><li>用 esbuild metafile 或 bundle 分析工具找出体积排名前 5 的依赖。</li><li>对前 5 名逐个判断：能否换轻量替代、能否动态导入、能否移到 KV/R2/外部 API。</li><li>检查代码中是否有读取本地大文件、整包导入（import * as）或同步 require 的写法。</li><li>完成一轮优化后重新 dry-run，对比优化前后体积，记录减少了多少。</li><li>部署到测试环境，用 wrangler tail 观察一次真实请求的冷启动和 CPU 时间。</li></ul>
+
+
+
+        <h2>常见误判</h2>
+
+        <ul><li>以为取消压缩限制后 gzip 体积完全不重要——gzip 仍影响实际网络传输时间，只是不再作为拒绝部署的硬限制。</li><li>把前端构建产物、图片或 JSON 数据打进 Worker bundle——这些应走 Workers Assets 或 KV/R2。</li><li>看到 64 MiB 就不再做依赖裁剪——免费计划的 CPU 时间和内存限制没有变，臃肿的 bundle 仍会导致运行时问题。</li><li>只优化业务代码，忽略 node_modules——大部分体积通常来自依赖，业务代码本身往往很小。</li><li>动态导入后以为运行时会按需联网下载——Workers 的模块在部署时已打包，动态导入主要改善代码组织和 tree-shaking。</li></ul>
+
+
+
+        <h2>可直接使用的 CI 体积检查脚本</h2>
+        <p>把下面的脚本放进 CI，在部署前检查未压缩 bundle 体积，超过阈值就告警。阈值可按项目调整。</p>
+
+
+        <pre><code class="language-bash">#!/bin/bash
+# Workers bundle size check
+# 阈值：未压缩 20 MiB（20971520 字节）
+LIMIT=20971520
+
+OUTPUT=$(npx wrangler deploy --outdir bundled/ --dry-run 2&gt;&amp;1)
+SIZE_LINE=$(echo "$OUTPUT" | grep "Total Upload")
+echo "$SIZE_LINE"
+
+# 提取 KiB/MiB 数值并换算为字节（简化示例，可按实际输出格式调整）
+SIZE=$(echo "$SIZE_LINE" | grep -oP '\d+[.,]?\d*' | head -1)
+UNIT=$(echo "$SIZE_LINE" | grep -oP '(KiB|MiB|GiB)' | head -1)
+
+case $UNIT in
+  KiB) BYTES=$(echo "$SIZE * 1024" | bc) ;;
+  MiB) BYTES=$(echo "$SIZE * 1048576" | bc) ;;
+  *) BYTES=0 ;;
+esac
+
+if (( $(echo "$BYTES &gt; $LIMIT" | bc -l) )); then
+  echo "WARNING: Worker bundle ($SIZE $UNIT) exceeds threshold"
+  exit 1
+fi
+echo "Bundle size OK: $SIZE $UNIT"</code></pre>
+
+
+        <div class="inline-promo">
+          <p class="label">更正与更新</p>
+          <h3>发现版本变化、来源失效或事实错误时，请通过联系页反馈。</h3>
+          <p>本站会核对一手来源后更新内容，不使用无来源转载填充文章。</p>
+          <a class="button button--secondary" href="../editorial.html">查看内容标准</a>
+        </div>
+      </article>
+      <aside class="article-sidebar">
+        <div class="sidebar-card">
+          <p class="label">本页标签</p>
+          <div class="tag-row"><span>Cloudflare Workers</span><span>Wrangler</span><span>部署优化</span></div>
+        </div>
+        <div class="sidebar-card">
+          <p class="label">继续阅读</p>
+          <a href="qwen-code-0193-agent-stability-checklist.html">Qwen Code v0.19.3：新手怎样验收 WebFetch、流式超时、Skills 与 MCP 的稳定性更新</a><a href="vercel-eve-agent-runs-observability-guide.html">Vercel eve Agent Runs：新手怎样给 AI Agent 留下可复查的观测记录</a><a href="vercel-web-analytics-cli-metrics-guide.html">Vercel Web Analytics CLI：新手怎样用 vercel metrics 查询访问数据并给 Agent 设置边界</a><a href="vercel-ai-sdk-7-upgrade-agent-checklist.html">Vercel AI SDK 7：新手怎样判断项目能不能升级到 Node 22、ESM 和生产级 Agent</a>
+        </div>
+        <div class="sidebar-card sidebar-card--accent">
+          <p class="label">作者与方法</p>
+          <h3>了解本站如何选题、核验来源与处理更正。</h3>
+          <a class="button button--dark" href="../about.html">关于作者</a>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="page-shell footer__inner">
+      <div><strong>学习资源库</strong><p>分享知识 · 提升自己 · 成就未来</p></div>
+      <div>
+        <a href="../editorial.html">内容标准</a><br>
+        <a href="../privacy.html">隐私政策</a><br>
+        <a href="../contact.html">联系</a>
+      </div>
+    </div>
+  </footer>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      var button = document.querySelector("[data-menu-button]");
+      var nav = document.querySelector("[data-mobile-nav]");
+      if (!button || !nav) return;
+      button.addEventListener("click", function () {
+        var expanded = button.getAttribute("aria-expanded") === "true";
+        button.setAttribute("aria-expanded", String(!expanded));
+        nav.classList.toggle("site-nav--open", !expanded);
+      });
+    });
+  </script>
+</body>
+</html>

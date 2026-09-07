@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://cdn.jsdelivr.net">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;800&family=Noto+Serif+SC:wght@700;900&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/styles.css?v=20260831-daily-update">
+  <link rel="stylesheet" href="assets/styles.css?v=20260907-daily-update">
 </head>
 <body>
   <header class="site-header">
@@ -77,6 +77,66 @@
       <div class="hotspot-grid" data-hotspot-list>
         <!-- STATIC_HOTSPOTS_START -->
 <article class="hotspot-card reveal">
+      <div class="hotspot-card__head">
+        <span class="hotspot-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/docker/docker-original.svg" alt="云端部署 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <div>
+          <div class="hotspot-card__meta">
+            <span>云端部署</span>
+            <time datetime="2026-09-04">2026年9月4日</time>
+          </div>
+          <h3>Cloudflare Workers 部署上限提升到 64 MiB：取消压缩体积限制，免费和付费计划统一</h3>
+        </div>
+      </div>
+      <p>Cloudflare 官方 changelog 宣布，Workers 部署不再检查压缩后体积（原免费 3MB、付费 10MB 限制取消），统一只检查未压缩 bundle 大小，所有计划上限均为 64 MiB。部署前可用 wrangler deploy --outdir bundled/ --dry-run 查看 Total Upload（未压缩）和 gzip（参考值）。</p>
+      <div class="hotspot-card__why">
+        <strong>为什么值得关注</strong>
+        <p>这对用 Workers 部署较重框架、AI SDK 或大型依赖的开发者是直接利好，免费用户也能部署更大的应用。但限制放宽不等于可以不做依赖裁剪：未压缩 64 MiB 依然是硬上限，冷启动时间和内存占用仍会随包体积增长。新手应先用 dry-run 确认当前 bundle 构成，区分业务代码、依赖和静态资源，能动态导入的不要全量打包，避免为了新上限把无关文件一起塞进 Worker。</p>
+      </div>
+      <p class="hotspot-card__idea">已扩写：Cloudflare Workers 包体积优化与 64 MiB 新限制部署指南</p>
+      <a class="text-link" href="https://developers.cloudflare.com/changelog/post/2026-09-04-increased-worker-size-limit/" target="_blank" rel="noreferrer">查看来源：Cloudflare Changelog</a>
+    </article>
+
+    <article class="hotspot-card reveal">
+      <div class="hotspot-card__head">
+        <span class="hotspot-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/python/python-original.svg" alt="AI 编程 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <div>
+          <div class="hotspot-card__meta">
+            <span>AI 编程</span>
+            <time datetime="2026-09-02">2026年9月2日</time>
+          </div>
+          <h3>Claude Code 2.1.259：管理员可集中推送 MCP 服务器，headless 模式新增权限拒绝标志</h3>
+        </div>
+      </div>
+      <p>Claude Code 2.1.259 新增 managedMcpServers 托管设置，组织管理员可一次性向所有用户下发 HTTP/SSE MCP 服务器；新增 --permission-prompts none 标志，让无人值守的 headless 任务遇到权限请求时直接拒绝而不是挂起；allowedMcpServers 收窄为只管用户自行添加的服务器；同时修复了多会话并发时 ~/.claude.json 配置互相覆盖的问题。</p>
+      <div class="hotspot-card__why">
+        <strong>为什么值得关注</strong>
+        <p>企业级 MCP 集中下发解决了团队每人手动配置内部工具的问题，也让工具清单可审计；--permission-prompts none 对 CI/CD 和定时任务很关键，避免 Agent 卡在权限提示上无限等待。个人用户应重点关注并发会话配置覆盖的修复——旧版本同时开多个 Claude Code 会话可能静默丢失配置编辑，建议升级后检查工作区信任和自定义设置是否仍然正确。</p>
+      </div>
+      <p class="hotspot-card__idea">候选：Claude Code headless 无人值守模式怎样配置权限策略和失败恢复</p>
+      <a class="text-link" href="https://ai-tldr.dev/releases/anthropic-claude-code-2-1-259/" target="_blank" rel="noreferrer">查看来源：Claude Code Release Notes</a>
+    </article>
+
+    <article class="hotspot-card reveal">
+      <div class="hotspot-card__head">
+        <span class="hotspot-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="AI 编程 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <div>
+          <div class="hotspot-card__meta">
+            <span>AI 编程</span>
+            <time datetime="2026-09-04">2026年9月4日</time>
+          </div>
+          <h3>GitHub Copilot 将于 10 月 2 日弃用 Gemini 3.5/3.6 Flash、Kimi K2.7 Code 和 Claude Opus 4.7</h3>
+        </div>
+      </div>
+      <p>GitHub 发布模型弃用通知：Copilot 全平台将于 2026 年 10 月 2 日停止提供 Gemini 3.5 Flash、Gemini 3.6 Flash、Kimi K2.7 Code 和 Claude Opus 4.7 四款模型，建议替代方案为 Gemini 3.8 Flash、Kimi K3 和 Claude Opus 5。组织管理员可能需要在弃用日期前通过 Copilot model policies 启用替代模型。</p>
+      <div class="hotspot-card__why">
+        <strong>为什么值得关注</strong>
+        <p>如果你的团队或个人工作流固定使用了上述模型，10 月 2 日后会被自动切换，可能导致代码风格、推理深度和响应速度变化。新手应现在就检查自己常用的模型是否在弃用列表中，提前用替代模型跑一遍典型任务（补全、Agent、代码审查）对比效果；团队管理员需要确认 model policies 中替代模型已启用，避免当天出现模型不可用的中断。同期 Gemini 3.8 Flash 已上线 Copilot 和 Vercel AI Gateway，1M 上下文且年底前半价，是最平滑的迁移选择之一。</p>
+      </div>
+      <p class="hotspot-card__idea">候选：Copilot 模型弃用迁移：怎样对比替代模型并固定团队默认选择</p>
+      <a class="text-link" href="https://releases.sh/github" target="_blank" rel="noreferrer">查看来源：GitHub Copilot Changelog</a>
+    </article>
+
+    <article class="hotspot-card reveal">
       <div class="hotspot-card__head">
         <span class="hotspot-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/python/python-original.svg" alt="AI 安全 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
         <div>
@@ -3454,6 +3514,6 @@
     </div>
   </footer>
 
-  <script src="assets/app.js?v=20260831-daily-update"></script>
+  <script src="assets/app.js?v=20260907-daily-update"></script>
 </body>
 </html>

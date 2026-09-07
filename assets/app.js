@@ -8,8 +8,8 @@
     newsletter: "#newsletter",
     bio: "把官方入口、学习路线、示例代码和可扩展资料放进同一张地图里，让第一次来的人也能马上知道从哪里开始。",
     heroStats: [
-      { value: "8", label: "原创下载包" },
-      { value: "58", label: "新手专题" },
+      { value: "9", label: "原创下载包" },
+      { value: "60", label: "新手专题" },
       { value: "持续", label: "更新与核验" }
     ],
     valueCards: [
@@ -28,6 +28,101 @@
     ]
   },
   posts: [
+    {
+      id: "cloudflare-workers-64mib-bundle-optimization-guide",
+      title: "Cloudflare Workers 包体积上限提升到 64 MiB：新手部署优化与依赖裁剪指南",
+      date: "2026-09-07",
+      category: "云端部署",
+      readTime: "10 分钟",
+      excerpt: "Cloudflare 在 2026 年 9 月 4 日调整 Workers 部署限制：取消压缩后体积上限（原免费 3MB、付费 10MB），所有计划统一只检查未压缩 bundle，上限 64 MiB。对新手来说，这不是“可以随便打包”的信号，而是一次重新理解 bundle 构成、冷启动和依赖裁剪的机会。这篇指南带你用 wrangler dry-run 看清包体积构成、区分业务代码与依赖、用动态导入和外部服务拆分大依赖、验证部署后的冷启动表现，并给出可直接照做的检查清单。",
+      tags: ["Cloudflare Workers", "Wrangler", "部署优化"],
+      featured: false,
+      intro: [
+        "很多新手第一次在 Cloudflare Workers 上部署带 AI SDK、图像处理库或完整 Web 框架的应用时，会遇到部署失败：提示 worker 超过体积限制。旧规则检查的是 gzip 压缩后的体积，免费计划 3MB、付费计划 10MB，这对现代 Node 生态动辄几 MB 的依赖来说很容易触顶。9 月 4 日之后，Cloudflare 取消了压缩体积检查，改为所有计划统一检查未压缩 bundle，上限 64 MiB。",
+        "限制放宽是好事，但如果因此把 node_modules 整包打进去、把静态资源塞进 Worker、或者忽略动态导入，冷启动延迟、内存占用和部署速度都会变差，免费计划的 CPU 时间限制也更容易被触发。正确的做法是先看清当前 bundle 里到底有什么，再决定哪些依赖该保留、哪些该延迟加载、哪些应该放到 Workers Assets、KV、R2 或外部 API。"
+      ],
+      audience: [
+        "正在学习 Cloudflare Workers，部署时遇到包体积超限或想提前理解 bundle 限制的新手开发者。",
+        "用 Workers 部署 AI 应用、API 服务或边缘函数，依赖了较大 npm 包，需要做依赖裁剪的个人站长。",
+        "从 Vercel/Netlify 迁移到 Cloudflare，需要理解两者函数限制差异并建立部署验收流程的开发者。"
+      ],
+      format: [
+        "适合整理成“依赖名称 / 体积 / 是否必需 / 加载方式（静态/动态/外部）/ 优化后体积”的 bundle 分析表。",
+        "可配套一份部署检查清单，记录 dry-run 输出、未压缩体积、gzip 体积、冷启动耗时和回滚方式。"
+      ],
+      roadmap: [
+        "先用 wrangler dry-run 看清现状。在项目根目录执行 `wrangler deploy --outdir bundled/ --dry-run`，输出中的 Total Upload 是未压缩体积（计入 64 MiB 限制），gzip 仅作参考不再是限制。把这两个数字记录下来，作为优化前的基线。",
+        "理解 bundle 是怎么来的。Wrangler 会用 esbuild 打包你的 Worker 代码和依赖，未使用的代码会被 tree-shaking 移除，但 CommonJS 依赖、动态 require 和副作用导入可能无法被有效裁剪。检查 package.json 的 dependencies，区分运行时必需和仅开发时需要（后者应放 devDependencies）。",
+        "找出体积大头。生成 sourcemap 或用 esbuild 的 metafile 分析依赖构成：`wrangler deploy --outdir bundled/ --dry-run --sourcemap`，或在 esbuild 配置中开启 metafile，再用 esbuild-analyzer 等工具可视化。通常 AI SDK、数据库驱动、模板引擎和 polyfill 是最常见的体积来源。",
+        "用动态导入延迟非首屏依赖。对于只在特定路由或任务中使用的大依赖（如 PDF 生成、图像处理、特定 AI provider），用 `const lib = await import('lib')` 改为动态导入，这样它只在被调用时加载，不占用初始 bundle 的关键路径。注意 Workers 的模块加载是一次性的，动态导入主要优化的是 bundle 组织而非运行时按需下载，但能帮助 tree-shaking 更激进地移除未用代码路径。",
+        "把静态资源移出 Worker。图片、字体、JSON 数据、前端构建产物不应该打进 Worker bundle，应使用 Workers Assets（静态资源）、KV（键值数据）、R2（大文件存储）或外部 CDN。检查代码中是否有 fs.readFileSync 读取大文件的逻辑，这类文件应改为绑定资源或运行时从 KV/R2 获取。",
+        "选择更轻量的依赖替代品。比如用轻量校验库代替完整 schema 框架、用原生 fetch 代替重型 HTTP 客户端、按需引入 AI SDK 的子模块而不是整包导入。替换后必须重新跑测试，确认功能一致，不要只看体积下降。",
+        "部署后验证冷启动和运行时表现。包体积下降不代表性能一定更好，动态导入过多也可能增加首次调用延迟。部署到测试环境后，用 wrangler tail 观察实际请求，记录冷启动时间、CPU 时间和内存峰值，确认在免费计划限制内（免费计划 CPU 时间限制更严格）。",
+        "最后建立持续检查机制。把 dry-run 体积检查写进 CI，设置体积告警阈值（比如未压缩超过 20 MiB 就提醒），避免依赖升级后 bundle 悄悄膨胀。每次新增大型依赖时，在提交记录中注明体积变化和优化方式。"
+      ],
+      officialLinks: [
+        {
+          label: "Cloudflare Changelog：Deploy larger Workers — up to 64 MiB for both free and paid plans",
+          url: "https://developers.cloudflare.com/changelog/post/2026-09-04-increased-worker-size-limit/",
+          note: "2026 年 9 月 4 日发布，说明取消压缩体积限制、统一 64 MiB 未压缩上限，以及用 dry-run 检查体积的方法。"
+        },
+        {
+          label: "Cloudflare Docs：Worker size limits",
+          url: "https://developers.cloudflare.com/workers/platform/limits/#worker-size",
+          note: "官方限制文档，列出未压缩 bundle 上限、各计划差异和压缩参考值的含义。"
+        },
+        {
+          label: "Cloudflare Docs：Wrangler deploy",
+          url: "https://developers.cloudflare.com/workers/wrangler/commands/#deploy",
+          note: "wrangler deploy 命令文档，包含 --dry-run、--outdir、--sourcemap 等参数说明。"
+        },
+        {
+          label: "Cloudflare Docs：Reduce Worker bundle size",
+          url: "https://developers.cloudflare.com/workers/configuration/bundling/",
+          note: "官方打包配置文档，说明模块格式、外部依赖和自定义打包的配置方式。"
+        }
+      ],
+      curatedLinks: [
+        "新限制检查的是未压缩体积（Total Upload），gzip 值仅作参考，不要用旧的压缩限制思维判断。",
+        "64 MiB 是上限不是目标：包越大冷启动越慢、内存压力越大，免费计划 CPU 时间也更容易触顶。",
+        "静态资源放 Workers Assets/KV/R2，运行时大依赖用动态导入，开发依赖放 devDependencies。",
+        "每次优化后都要重新跑功能测试和 wrangler tail，体积下降不能以功能缺失或延迟上升为代价。"
+      ],
+      downloadIdeas: [
+        "建议整理一份 Workers bundle 分析表，字段包括依赖名、版本、体积、是否必需、加载方式、优化措施和优化后体积。",
+        "建议配一份部署前检查清单，覆盖 dry-run 体积、依赖分类、静态资源位置、冷启动验证和 CI 体积告警阈值。"
+      ],
+      extraSections: [
+        {
+          title: "10 分钟 bundle 体检流程",
+          items: [
+            "运行 `wrangler deploy --outdir bundled/ --dry-run`，记录 Total Upload 和 gzip 两个数值。",
+            "打开 package.json，逐个检查 dependencies：这个包运行时真的需要吗？能移到 devDependencies 吗？",
+            "用 esbuild metafile 或 bundle 分析工具找出体积排名前 5 的依赖。",
+            "对前 5 名逐个判断：能否换轻量替代、能否动态导入、能否移到 KV/R2/外部 API。",
+            "检查代码中是否有读取本地大文件、整包导入（import * as）或同步 require 的写法。",
+            "完成一轮优化后重新 dry-run，对比优化前后体积，记录减少了多少。",
+            "部署到测试环境，用 wrangler tail 观察一次真实请求的冷启动和 CPU 时间。"
+          ]
+        },
+        {
+          title: "常见误判",
+          items: [
+            "以为取消压缩限制后 gzip 体积完全不重要——gzip 仍影响实际网络传输时间，只是不再作为拒绝部署的硬限制。",
+            "把前端构建产物、图片或 JSON 数据打进 Worker bundle——这些应走 Workers Assets 或 KV/R2。",
+            "看到 64 MiB 就不再做依赖裁剪——免费计划的 CPU 时间和内存限制没有变，臃肿的 bundle 仍会导致运行时问题。",
+            "只优化业务代码，忽略 node_modules——大部分体积通常来自依赖，业务代码本身往往很小。",
+            "动态导入后以为运行时会按需联网下载——Workers 的模块在部署时已打包，动态导入主要改善代码组织和 tree-shaking。"
+          ]
+        },
+        {
+          title: "可直接使用的 CI 体积检查脚本",
+          text: "把下面的脚本放进 CI，在部署前检查未压缩 bundle 体积，超过阈值就告警。阈值可按项目调整。",
+          code: "#!/bin/bash\n# Workers bundle size check\n# 阈值：未压缩 20 MiB（20971520 字节）\nLIMIT=20971520\n\nOUTPUT=$(npx wrangler deploy --outdir bundled/ --dry-run 2>&1)\nSIZE_LINE=$(echo \"$OUTPUT\" | grep \"Total Upload\")\necho \"$SIZE_LINE\"\n\n# 提取 KiB/MiB 数值并换算为字节（简化示例，可按实际输出格式调整）\nSIZE=$(echo \"$SIZE_LINE\" | grep -oP '\\d+[.,]?\\d*' | head -1)\nUNIT=$(echo \"$SIZE_LINE\" | grep -oP '(KiB|MiB|GiB)' | head -1)\n\ncase $UNIT in\n  KiB) BYTES=$(echo \"$SIZE * 1024\" | bc) ;;\n  MiB) BYTES=$(echo \"$SIZE * 1048576\" | bc) ;;\n  *) BYTES=0 ;;\nesac\n\nif (( $(echo \"$BYTES > $LIMIT\" | bc -l) )); then\n  echo \"WARNING: Worker bundle ($SIZE $UNIT) exceeds threshold\"\n  exit 1\nfi\necho \"Bundle size OK: $SIZE $UNIT\"",
+          language: "bash"
+        }
+      ]
+    },
     {
       id: "ai-agent-file-operation-safety-guide",
       title: "AI Agent 文件操作安全防护指南：从 Claude 误删 700GB 事件看怎样保护你的代码和数据",
@@ -5452,6 +5547,36 @@ git push origin main`,
     "github-agentic-workflows-public-preview-guide"
   ],
   hotspots: [
+    {
+      date: "2026-09-04",
+      tag: "云端部署",
+      title: "Cloudflare Workers 部署上限提升到 64 MiB：取消压缩体积限制，免费和付费计划统一",
+      summary: "Cloudflare 官方 changelog 宣布，Workers 部署不再检查压缩后体积（原免费 3MB、付费 10MB 限制取消），统一只检查未压缩 bundle 大小，所有计划上限均为 64 MiB。部署前可用 wrangler deploy --outdir bundled/ --dry-run 查看 Total Upload（未压缩）和 gzip（参考值）。",
+      why: "这对用 Workers 部署较重框架、AI SDK 或大型依赖的开发者是直接利好，免费用户也能部署更大的应用。但限制放宽不等于可以不做依赖裁剪：未压缩 64 MiB 依然是硬上限，冷启动时间和内存占用仍会随包体积增长。新手应先用 dry-run 确认当前 bundle 构成，区分业务代码、依赖和静态资源，能动态导入的不要全量打包，避免为了新上限把无关文件一起塞进 Worker。",
+      sourceLabel: "Cloudflare Changelog",
+      sourceUrl: "https://developers.cloudflare.com/changelog/post/2026-09-04-increased-worker-size-limit/",
+      articleIdea: "已扩写：Cloudflare Workers 包体积优化与 64 MiB 新限制部署指南"
+    },
+    {
+      date: "2026-09-02",
+      tag: "AI 编程",
+      title: "Claude Code 2.1.259：管理员可集中推送 MCP 服务器，headless 模式新增权限拒绝标志",
+      summary: "Claude Code 2.1.259 新增 managedMcpServers 托管设置，组织管理员可一次性向所有用户下发 HTTP/SSE MCP 服务器；新增 --permission-prompts none 标志，让无人值守的 headless 任务遇到权限请求时直接拒绝而不是挂起；allowedMcpServers 收窄为只管用户自行添加的服务器；同时修复了多会话并发时 ~/.claude.json 配置互相覆盖的问题。",
+      why: "企业级 MCP 集中下发解决了团队每人手动配置内部工具的问题，也让工具清单可审计；--permission-prompts none 对 CI/CD 和定时任务很关键，避免 Agent 卡在权限提示上无限等待。个人用户应重点关注并发会话配置覆盖的修复——旧版本同时开多个 Claude Code 会话可能静默丢失配置编辑，建议升级后检查工作区信任和自定义设置是否仍然正确。",
+      sourceLabel: "Claude Code Release Notes",
+      sourceUrl: "https://ai-tldr.dev/releases/anthropic-claude-code-2-1-259/",
+      articleIdea: "候选：Claude Code headless 无人值守模式怎样配置权限策略和失败恢复"
+    },
+    {
+      date: "2026-09-04",
+      tag: "AI 编程",
+      title: "GitHub Copilot 将于 10 月 2 日弃用 Gemini 3.5/3.6 Flash、Kimi K2.7 Code 和 Claude Opus 4.7",
+      summary: "GitHub 发布模型弃用通知：Copilot 全平台将于 2026 年 10 月 2 日停止提供 Gemini 3.5 Flash、Gemini 3.6 Flash、Kimi K2.7 Code 和 Claude Opus 4.7 四款模型，建议替代方案为 Gemini 3.8 Flash、Kimi K3 和 Claude Opus 5。组织管理员可能需要在弃用日期前通过 Copilot model policies 启用替代模型。",
+      why: "如果你的团队或个人工作流固定使用了上述模型，10 月 2 日后会被自动切换，可能导致代码风格、推理深度和响应速度变化。新手应现在就检查自己常用的模型是否在弃用列表中，提前用替代模型跑一遍典型任务（补全、Agent、代码审查）对比效果；团队管理员需要确认 model policies 中替代模型已启用，避免当天出现模型不可用的中断。同期 Gemini 3.8 Flash 已上线 Copilot 和 Vercel AI Gateway，1M 上下文且年底前半价，是最平滑的迁移选择之一。",
+      sourceLabel: "GitHub Copilot Changelog",
+      sourceUrl: "https://releases.sh/github",
+      articleIdea: "候选：Copilot 模型弃用迁移：怎样对比替代模型并固定团队默认选择"
+    },
     {
       date: "2026-08-31",
       tag: "AI 安全",

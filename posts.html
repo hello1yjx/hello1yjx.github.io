@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://cdn.jsdelivr.net">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;800&family=Noto+Serif+SC:wght@700;900&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/styles.css?v=20260831-daily-update">
+  <link rel="stylesheet" href="assets/styles.css?v=20260907-daily-update">
 </head>
 <body>
   <header class="site-header">
@@ -68,6 +68,23 @@
       <div class="content-grid" data-post-list>
         <!-- STATIC_POSTS_START -->
 <article class="article-card reveal">
+      <a class="article-card__media article-card__media--github" href="articles/cloudflare-workers-64mib-bundle-optimization-guide.html">
+        <span class="article-card__badge">云端部署</span>
+        <span class="article-card__icon"><img class="visual-icon visual-icon--card" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/docker/docker-original.svg" alt="云端部署 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <strong>云端部署</strong>
+      </a>
+      <div class="article-card__body">
+        <div class="meta-row">
+          <span>云端部署</span>
+          <span>10 分钟</span>
+          <time datetime="2026-09-07">2026年9月7日</time>
+        </div>
+        <h3><a href="articles/cloudflare-workers-64mib-bundle-optimization-guide.html">Cloudflare Workers 包体积上限提升到 64 MiB：新手部署优化与依赖裁剪指南</a></h3>
+        <p>Cloudflare 在 2026 年 9 月 4 日调整 Workers 部署限制：取消压缩后体积上限（原免费 3MB、付费 10MB），所有计划统一只检查未压缩 bundle，上限 64 MiB。对新手来说，这不是“可以随便打包”的信号，而是一次重新理解 bundle 构成、冷启动和依赖裁剪的机会。这篇指南带你用 wrangler dry-run 看清包体积构成、区分业务代码与依赖、用动态导入和外部服务拆分大依赖、验证部署后的冷启动表现，并给出可直接照做的检查清单。</p>
+      </div>
+    </article>
+
+    <article class="article-card reveal">
       <a class="article-card__media article-card__media--github" href="articles/ai-agent-file-operation-safety-guide.html">
         <span class="article-card__badge">AI 安全</span>
         <span class="article-card__icon"><img class="visual-icon visual-icon--card" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/python/python-original.svg" alt="AI 安全 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
@@ -1088,6 +1105,6 @@
     </div>
   </footer>
 
-  <script src="assets/app.js?v=20260831-daily-update"></script>
+  <script src="assets/app.js?v=20260907-daily-update"></script>
 </body>
 </html>
