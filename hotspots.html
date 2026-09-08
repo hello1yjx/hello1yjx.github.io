@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://cdn.jsdelivr.net">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;800&family=Noto+Serif+SC:wght@700;900&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/styles.css?v=20260907-daily-update">
+  <link rel="stylesheet" href="assets/styles.css?v=20260908-daily-update">
 </head>
 <body>
   <header class="site-header">
@@ -77,6 +77,66 @@
       <div class="hotspot-grid" data-hotspot-list>
         <!-- STATIC_HOTSPOTS_START -->
 <article class="hotspot-card reveal">
+      <div class="hotspot-card__head">
+        <span class="hotspot-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="AI 编程 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <div>
+          <div class="hotspot-card__meta">
+            <span>AI 编程</span>
+            <time datetime="2026-09-07">2026年9月7日</time>
+          </div>
+          <h3>GitHub 推出 HydraFusion 研究预览：Copilot 运行时自动编排多个模型，成本最高降 67%</h3>
+        </div>
+      </div>
+      <p>GitHub 在 Copilot 中上线 Project HydraFusion 研究预览，不再让单个模型跑完整任务，而是运行时按需选择和组合模型，提供 single（单模型直出）、cascade（低成本模型先答、不达标再升级强模型）、critique（一个模型起草、另一个只读审查、起草模型修订一次）三种模式。预览通过 CLI 实验设置开放，像选普通模型一样选择 HydraFusion 即可。</p>
+      <div class="hotspot-card__why">
+        <strong>为什么值得关注</strong>
+        <p>这解决了新手“不知道该选哪个模型、什么时候该换强模型”的痛点：系统根据推理、代码生成、调试和工具调用信号自动选择最省且能达标的工作流。官方基准显示相比 Claude Opus 5，TerminalBench 质量提升 4.9 个百分点同时成本降 67%。但预览按实际调用到的各模型标准费率计费，路由不同费用会波动，且首版只适合首轮单提示任务，新手应先在低风险任务上对比它与固定模型的结果质量和实际花费，不要直接用于生产关键路径。</p>
+      </div>
+      <p class="hotspot-card__idea">已扩写：HydraFusion 多模型编排入门：三种模式、成本权衡与试用验收</p>
+      <a class="text-link" href="https://itbrief.com.au/story/github-launches-hydrafusion-preview-for-copilot-coding" target="_blank" rel="noreferrer">查看来源：GitHub / IT Brief</a>
+    </article>
+
+    <article class="hotspot-card reveal">
+      <div class="hotspot-card__head">
+        <span class="hotspot-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="AI 编程 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <div>
+          <div class="hotspot-card__meta">
+            <span>AI 编程</span>
+            <time datetime="2026-09-01">2026年9月1日</time>
+          </div>
+          <h3>Claude Fable 5.1 在 GitHub Copilot 正式可用：面向长周期自主编码，默认需要数据留存</h3>
+        </div>
+      </div>
+      <p>GitHub 宣布 Anthropic Mythos 级模型 Claude Fable 5.1 在 Copilot 全端正式可用，面向深度代码库研究、功能开发和复杂 Agent 工作流等长周期任务，面向 Pro+、Max、Business、Enterprise 用户，Business/Enterprise 管理员需在设置中手动启用（默认关闭）。与其他 Claude 模型不同，Fable 5.1 默认要求 Anthropic 留存提示和输出以运行安全分类器（留存数据不用于训练），符合条件的企业可申请零数据留存豁免。</p>
+      <div class="hotspot-card__why">
+        <strong>为什么值得关注</strong>
+        <p>长周期自主任务能力对大型项目很有价值，但数据留存要求是新手和团队最容易忽略的合规点：它和其他默认零留存的 Claude 模型不同，启用策略本身就等于确认接受留存。涉及客户代码、商业机密或受合规约束代码的团队，启用前必须先评估数据政策，个人用户也要清楚哪些代码会被留存。管理员默认关闭的设计意味着需要主动开启，建议先在非敏感项目试用，确认长任务表现后再决定是否对组织开放。</p>
+      </div>
+      <p class="hotspot-card__idea">候选：Copilot 多模型选择指南：怎样按任务时长和数据政策选模型</p>
+      <a class="text-link" href="https://github.blog/changelog/2026-09-01-claude-fable-5-1-generally-available-in-github-copilot/" target="_blank" rel="noreferrer">查看来源：GitHub Changelog</a>
+    </article>
+
+    <article class="hotspot-card reveal">
+      <div class="hotspot-card__head">
+        <span class="hotspot-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="AI 编程 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <div>
+          <div class="hotspot-card__meta">
+            <span>AI 编程</span>
+            <time datetime="2026-09-01">2026年9月1日</time>
+          </div>
+          <h3>GitHub Copilot 代码审查现在可以直接批准 Pull Request</h3>
+        </div>
+      </div>
+      <p>GitHub 9 月 1 日更新显示，Copilot code review 新增批准 PR 的能力，AI 完成代码审查后可在满足条件时直接给出批准，配合同期上线的个人用户预算到期日设置、内容排除（content exclusions）在 Copilot app 和 CLI 正式可用等更新，进一步把审查到合并的流程自动化。</p>
+      <div class="hotspot-card__why">
+        <strong>为什么值得关注</strong>
+        <p>这把 AI 从“提建议”推进到“有合并决策权”，团队必须想清楚授权边界：让 AI 直接批准 PR 意味着代码质量门禁部分交给模型，一旦提示注入、依赖混淆或逻辑漏洞未被识别，问题代码会更快进入主干。新手个人项目可以用来加速，但团队环境建议保留人工最终批准，至少对安全敏感目录（认证、支付、权限、数据迁移）设置 AI 不可自动批准的规则，并在分支保护中明确哪些状态检查必须来自真人。</p>
+      </div>
+      <p class="hotspot-card__idea">候选：AI 代码审查授权边界：哪些 PR 可以自动批准、哪些必须人工</p>
+      <a class="text-link" href="https://github.blog/changelog/" target="_blank" rel="noreferrer">查看来源：GitHub Changelog</a>
+    </article>
+
+    <article class="hotspot-card reveal">
       <div class="hotspot-card__head">
         <span class="hotspot-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/docker/docker-original.svg" alt="云端部署 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
         <div>
@@ -3514,6 +3574,6 @@
     </div>
   </footer>
 
-  <script src="assets/app.js?v=20260907-daily-update"></script>
+  <script src="assets/app.js?v=20260908-daily-update"></script>
 </body>
 </html>

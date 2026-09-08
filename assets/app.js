@@ -9,7 +9,7 @@
     bio: "把官方入口、学习路线、示例代码和可扩展资料放进同一张地图里，让第一次来的人也能马上知道从哪里开始。",
     heroStats: [
       { value: "9", label: "原创下载包" },
-      { value: "60", label: "新手专题" },
+      { value: "61", label: "新手专题" },
       { value: "持续", label: "更新与核验" }
     ],
     valueCards: [
@@ -28,6 +28,99 @@
     ]
   },
   posts: [
+    {
+      id: "github-hydrafusion-model-orchestration-guide",
+      title: "GitHub HydraFusion 多模型编排入门：三种模式、成本权衡与新手试用验收",
+      date: "2026-09-08",
+      category: "AI 编程",
+      readTime: "10 分钟",
+      excerpt: "GitHub 在 2026 年 9 月 7 日把 Project HydraFusion 以研究预览形式带进 Copilot：不再让单个模型跑完整任务，而是在运行时按需选择和组合模型，通过 single、cascade、critique 三种工作流，在质量达标前提下尽量省钱。官方基准显示部分任务相比 Claude Opus 5 成本下降 36%-67%。这篇指南帮新手理解多模型编排到底在做什么、三种模式分别适合什么场景、预览阶段怎样开启、怎样对比它和固定模型的质量与实际花费，以及为什么不能只看官方跑分就直接用于生产。",
+      tags: ["GitHub Copilot", "HydraFusion", "多模型编排"],
+      featured: false,
+      intro: [
+        "过去用 AI 编程，新手最纠结的就是选模型：简单补全用贵模型浪费额度，复杂调试用便宜模型又搞不定，于是很多人养成了“先问一个模型，不满意再换强模型，最后再让另一个模型审查”的手动流程。这个流程有效，但很费精力，而且切换时机全靠感觉。GitHub 的 HydraFusion 本质上是把这套手动流程自动化：把工作流选择当成一个优化问题，根据推理、代码生成、调试和工具调用等信号，选择预计能达到质量门槛的最简单工作流。",
+        "需要强调的是，HydraFusion 目前是研究预览，不是稳定的生产特性。它通过 Copilot CLI 的实验设置开放，按实际调用到的每个模型的标准费率计费，路由不同费用就不同；官方也明确首版最适合首轮单提示编码任务，行为、模型池和可用性都可能变化。新手正确的打开方式是：先理解它的三种模式，再在一组可复现的低风险任务上做对照实验，用自己的质量和成本数据决定是否长期使用，而不是看到“成本降 67%”就全部切过去。"
+      ],
+      audience: [
+        "在 Copilot 中面对众多模型不知道怎么选，希望理解自动模型编排原理的新手开发者。",
+        "关心 AI 编程成本，想在保证任务质量的前提下降低 token 花费的个人开发者和学生。",
+        "准备在团队中评估多模型路由/编排方案，需要一套对照测试和验收方法的技术负责人。"
+      ],
+      format: [
+        "适合整理成“任务类型 / 固定模型结果 / HydraFusion 路由 / 质量对比 / 成本对比 / 结论”的对照实验表。",
+        "可配套一份试用检查清单，记录开启方式、测试任务集、质量评分标准、实际花费和是否继续使用的结论。"
+      ],
+      roadmap: [
+        "先理解它要解决的问题。HydraFusion 的基础是 GitHub 既有的自动模型选择：仅 6 月就有超过 90 亿次请求走自动模式，超过一半的付费用户让 GitHub 自动选模型。HydraFusion 是在这个基础上更进一步，不仅选一个模型，还能在一次任务内部组合多个模型。理解这个背景，才能明白它不是“又一个新模型”，而是一层编排系统。",
+        "掌握三种工作流模式。single 是一个选定模型直接完成；cascade 是低成本模型先出初稿，系统判断达标就采用、不达标就升级给更强模型；critique 是一个模型起草、第二个模型在只读上下文中审查、起草模型据此修订一次。审查阶段与仓库隔离，审查模型不能直接改代码，真正的解题步骤仍在共享工作区并遵循常规权限控制。",
+        "理解成本为什么能下降。cascade 的逻辑是“大多数简单任务便宜模型就能搞定，只有难任务才动用贵模型”；critique 用一次额外审查换取一次修订，避免昂贵模型从头做。官方在 TerminalBench 2.1、DeepSWE 和基于真实会话的 CheckpointBench 上对比 Claude Opus 5 和 GPT-5.6 Sol，报告了 36%-67% 的成本下降，但这些数字依赖基准版本、模型池和定价假设，不能直接等同于你的真实节省。",
+        "在 CLI 中以实验方式开启。预览通过 Copilot 命令行的实验设置开放，用户像选择普通模型一样选择 HydraFusion，底层系统自行决定每个请求怎么处理。开启前先确认你的套餐支持实验特性，并记录开启前的默认模型和用量基线，方便之后对比。",
+        "准备一组可复现的测试任务。不要用随机问题评估，应该选 5-10 个你日常真实会遇到的任务，覆盖三个难度档：简单补全/解释、中等 bug 修复、复杂多步重构或跨文件任务。每个任务都保留相同的提示词、上下文和验收标准，分别用固定模型和 HydraFusion 跑一遍。",
+        "同时评估质量和成本，不能只看一头。质量维度用统一标准打分（是否一次通过、是否需要人工返工、是否引入错误），成本维度查看每次工作流实际调用了哪些模型、各阶段 token 和总花费。HydraFusion 会在内部记录每阶段的角色、结果、成本、延迟和诊断，但只返回一个最终结果和一套变更，中间草稿不展示，所以成本要以用量账单为准。",
+        "认清预览阶段的边界再决定使用范围。首版最适合首轮单提示编码任务；多轮长对话、需要严格确定性的流程、安全敏感代码暂时不要完全依赖。设计原则里包含完整用量成本核算、带超时和取消的有界执行、隔离审查、代码变更的故障安全应用和执行前路由验证，这些是优点，但研究预览仍可能改变行为，建议只在非关键路径使用并保留人工复核。",
+        "最后形成自己的使用策略。常见的稳妥策略是：简单和中等任务默认交给 HydraFusion 控成本，复杂高风险任务手动指定最强模型并人工审查；定期（比如每两周）抽查 HydraFusion 的路由和账单，如果发现某些任务类型频繁升级却仍不达标，就把这类任务固定到更合适的模型。"
+      ],
+      officialLinks: [
+        {
+          label: "IT Brief：GitHub launches HydraFusion preview for Copilot coding",
+          url: "https://itbrief.com.au/story/github-launches-hydrafusion-preview-for-copilot-coding",
+          note: "2026 年 9 月 7 日报道，详细说明 single/cascade/critique 三种模式、隔离审查机制、三项基准的质量与成本数据，以及预览开放方式和计费规则。"
+        },
+        {
+          label: "GitHub Blog Changelog",
+          url: "https://github.blog/changelog/",
+          note: "GitHub 官方更新入口，可核对 HydraFusion 及同期 Copilot 模型更新的原始发布信息。"
+        },
+        {
+          label: "GitHub Docs：Models in GitHub Copilot",
+          url: "https://docs.github.com/en/copilot/concepts/agents/model-selection",
+          note: "Copilot 模型选择与自动模式文档，用于理解 HydraFusion 所基于的自动模型路由机制。"
+        }
+      ],
+      curatedLinks: [
+        "HydraFusion 是模型编排层而不是新模型：single 直出、cascade 先省后强、critique 起草-审查-修订。",
+        "审查模型在隔离只读环境运行、不能直接改代码，这是它相对“让一个模型既当运动员又当裁判”的关键安全设计。",
+        "官方成本下降 36%-67% 来自特定基准和定价假设，必须用自己的任务和账单重新验证。",
+        "预览按实际调用模型分别计费、路由不同费用波动，且首版只适合首轮单提示任务，暂不建议用于安全敏感和生产关键路径。"
+      ],
+      downloadIdeas: [
+        "建议整理一份 HydraFusion 对照实验表，字段包括任务、难度、固定模型结果与花费、HydraFusion 路由与花费、质量评分和最终选择。",
+        "建议配一份模型选择决策卡，按任务复杂度、安全敏感度和成本敏感度三维，标注什么时候用自动编排、什么时候手动指定强模型。"
+      ],
+      extraSections: [
+        {
+          title: "三种模式速查表",
+          items: [
+            "single（单模型）：一个模型直接完成全部任务，适合你已经判断很简单、想避免额外调用的场景。",
+            "cascade（级联升级）：便宜模型先答，达标即采用、不达标升级强模型；适合任务难度参差不齐、整体想控成本的场景。",
+            "critique（起草-审查-修订）：起草模型出方案，审查模型只读挑错，起草模型修订一次；适合对正确性要求较高、值得多花一次审查的中等任务。",
+            "三种模式都只返回一个最终结果和一套变更，中间草稿不展示，内部会记录每阶段角色、成本、延迟和诊断。"
+          ]
+        },
+        {
+          title: "10 分钟对照实验流程",
+          items: [
+            "记录当前默认模型和近期用量，作为成本基线。",
+            "在 Copilot CLI 实验设置中开启 HydraFusion。",
+            "选 3 个任务：一个简单补全、一个中等 bug 修复、一个多步重构，写清提示词和验收标准。",
+            "先用固定模型逐个完成，记录结果质量和花费。",
+            "再用 HydraFusion 逐个完成，记录最终质量、实际路由到的模型和总花费。",
+            "对比两组：HydraFusion 在哪些任务上又好又省，在哪些任务上反而更贵或更差。",
+            "写下结论：哪些任务类型以后默认交给它，哪些继续手动指定模型。"
+          ]
+        },
+        {
+          title: "常见误判",
+          items: [
+            "把 HydraFusion 当成一个更强的新模型——它是编排层，最终质量仍取决于模型池里的模型。",
+            "只看官方“成本降 67%”就全量切换——基准数据不等于你的真实任务分布和花费。",
+            "以为 critique 的审查模型会直接改代码——审查是只读隔离的，改代码的还是起草模型。",
+            "在多轮长对话或安全敏感代码上完全依赖预览版——首版定位是首轮单提示任务，且行为可能变化。",
+            "忽略按模型分别计费——一次 cascade/critique 可能调用多个模型，账单要看清每阶段用量。"
+          ]
+        }
+      ]
+    },
     {
       id: "cloudflare-workers-64mib-bundle-optimization-guide",
       title: "Cloudflare Workers 包体积上限提升到 64 MiB：新手部署优化与依赖裁剪指南",
@@ -5547,6 +5640,36 @@ git push origin main`,
     "github-agentic-workflows-public-preview-guide"
   ],
   hotspots: [
+    {
+      date: "2026-09-07",
+      tag: "AI 编程",
+      title: "GitHub 推出 HydraFusion 研究预览：Copilot 运行时自动编排多个模型，成本最高降 67%",
+      summary: "GitHub 在 Copilot 中上线 Project HydraFusion 研究预览，不再让单个模型跑完整任务，而是运行时按需选择和组合模型，提供 single（单模型直出）、cascade（低成本模型先答、不达标再升级强模型）、critique（一个模型起草、另一个只读审查、起草模型修订一次）三种模式。预览通过 CLI 实验设置开放，像选普通模型一样选择 HydraFusion 即可。",
+      why: "这解决了新手“不知道该选哪个模型、什么时候该换强模型”的痛点：系统根据推理、代码生成、调试和工具调用信号自动选择最省且能达标的工作流。官方基准显示相比 Claude Opus 5，TerminalBench 质量提升 4.9 个百分点同时成本降 67%。但预览按实际调用到的各模型标准费率计费，路由不同费用会波动，且首版只适合首轮单提示任务，新手应先在低风险任务上对比它与固定模型的结果质量和实际花费，不要直接用于生产关键路径。",
+      sourceLabel: "GitHub / IT Brief",
+      sourceUrl: "https://itbrief.com.au/story/github-launches-hydrafusion-preview-for-copilot-coding",
+      articleIdea: "已扩写：HydraFusion 多模型编排入门：三种模式、成本权衡与试用验收"
+    },
+    {
+      date: "2026-09-01",
+      tag: "AI 编程",
+      title: "Claude Fable 5.1 在 GitHub Copilot 正式可用：面向长周期自主编码，默认需要数据留存",
+      summary: "GitHub 宣布 Anthropic Mythos 级模型 Claude Fable 5.1 在 Copilot 全端正式可用，面向深度代码库研究、功能开发和复杂 Agent 工作流等长周期任务，面向 Pro+、Max、Business、Enterprise 用户，Business/Enterprise 管理员需在设置中手动启用（默认关闭）。与其他 Claude 模型不同，Fable 5.1 默认要求 Anthropic 留存提示和输出以运行安全分类器（留存数据不用于训练），符合条件的企业可申请零数据留存豁免。",
+      why: "长周期自主任务能力对大型项目很有价值，但数据留存要求是新手和团队最容易忽略的合规点：它和其他默认零留存的 Claude 模型不同，启用策略本身就等于确认接受留存。涉及客户代码、商业机密或受合规约束代码的团队，启用前必须先评估数据政策，个人用户也要清楚哪些代码会被留存。管理员默认关闭的设计意味着需要主动开启，建议先在非敏感项目试用，确认长任务表现后再决定是否对组织开放。",
+      sourceLabel: "GitHub Changelog",
+      sourceUrl: "https://github.blog/changelog/2026-09-01-claude-fable-5-1-generally-available-in-github-copilot/",
+      articleIdea: "候选：Copilot 多模型选择指南：怎样按任务时长和数据政策选模型"
+    },
+    {
+      date: "2026-09-01",
+      tag: "AI 编程",
+      title: "GitHub Copilot 代码审查现在可以直接批准 Pull Request",
+      summary: "GitHub 9 月 1 日更新显示，Copilot code review 新增批准 PR 的能力，AI 完成代码审查后可在满足条件时直接给出批准，配合同期上线的个人用户预算到期日设置、内容排除（content exclusions）在 Copilot app 和 CLI 正式可用等更新，进一步把审查到合并的流程自动化。",
+      why: "这把 AI 从“提建议”推进到“有合并决策权”，团队必须想清楚授权边界：让 AI 直接批准 PR 意味着代码质量门禁部分交给模型，一旦提示注入、依赖混淆或逻辑漏洞未被识别，问题代码会更快进入主干。新手个人项目可以用来加速，但团队环境建议保留人工最终批准，至少对安全敏感目录（认证、支付、权限、数据迁移）设置 AI 不可自动批准的规则，并在分支保护中明确哪些状态检查必须来自真人。",
+      sourceLabel: "GitHub Changelog",
+      sourceUrl: "https://github.blog/changelog/",
+      articleIdea: "候选：AI 代码审查授权边界：哪些 PR 可以自动批准、哪些必须人工"
+    },
     {
       date: "2026-09-04",
       tag: "云端部署",
