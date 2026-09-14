@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://cdn.jsdelivr.net">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;800&family=Noto+Serif+SC:wght@700;900&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/styles.css?v=20260908-daily-update">
+  <link rel="stylesheet" href="assets/styles.css?v=20260914-daily-update">
 </head>
 <body>
   <header class="site-header">
@@ -68,6 +68,57 @@
       <div class="content-grid" data-post-list>
         <!-- STATIC_POSTS_START -->
 <article class="article-card reveal">
+      <a class="article-card__media article-card__media--github" href="articles/claude-code-deny-rules-security-audit-guide.html">
+        <span class="article-card__badge">AI 终端</span>
+        <span class="article-card__icon"><img class="visual-icon visual-icon--card" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/python/python-original.svg" alt="AI 终端 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <strong>AI 终端</strong>
+      </a>
+      <div class="article-card__body">
+        <div class="meta-row">
+          <span>AI 终端</span>
+          <span>11 分钟</span>
+          <time datetime="2026-09-12">2026年9月12日</time>
+        </div>
+        <h3><a href="articles/claude-code-deny-rules-security-audit-guide.html">Claude Code 权限规则配置与安全自查指南：deny 为什么会失效，怎样确认保护真的生效</a></h3>
+        <p>Claude Code 2.1.268 在 9 月 12 日修复了两类 deny/ask 权限规则被静默绕过的问题：作用于符号链接目录的规则在按真实路径访问时失效，以及一行命令里混入 env -C、eval 等无法静态分析的片段时同条 Read/Edit 规则不生效；同期还堵住了 ${VAR} 密钥被打印到屏幕的泄露。这篇指南带你理解 Claude Code 权限规则的匹配顺序，把 .env、密钥和系统目录真正保护起来，并给出一套升级后逐条验证规则是否生效的自查清单。</p>
+      </div>
+    </article>
+
+    <article class="article-card reveal">
+      <a class="article-card__media article-card__media--debug" href="articles/github-copilot-code-review-workflow-guide.html">
+        <span class="article-card__badge">代码质量</span>
+        <span class="article-card__icon"><img class="visual-icon visual-icon--card" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="代码质量 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <strong>代码质量</strong>
+      </a>
+      <div class="article-card__body">
+        <div class="meta-row">
+          <span>代码质量</span>
+          <span>10 分钟</span>
+          <time datetime="2026-09-11">2026年9月11日</time>
+        </div>
+        <h3><a href="articles/github-copilot-code-review-workflow-guide.html">Copilot 代码审查实战：自动解决评论、Shell 验证与审查级别怎么选</a></h3>
+        <p>GitHub 在 9 月 11 日升级 Copilot 代码审查：后续提交解决了某条意见会自动关闭对应评论，应用修改建议时生成智能提交信息；审查过程可在 Agent 防火墙后调用 shell 工具跑构建和测试来验证代码，Lite 级别改为多智能体合奏。这篇教程讲清楚怎样把这些能力接进真实 PR 流程，怎样区分 Lite/标准审查的适用场景，以及为什么 AI 跑过测试也不能替代最终人工判断。</p>
+      </div>
+    </article>
+
+    <article class="article-card reveal">
+      <a class="article-card__media article-card__media--github" href="articles/vercel-openai-agents-long-running-deploy-guide.html">
+        <span class="article-card__badge">云端部署</span>
+        <span class="article-card__icon"><img class="visual-icon visual-icon--card" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/python/python-original.svg" alt="云端部署 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <strong>云端部署</strong>
+      </a>
+      <div class="article-card__body">
+        <div class="meta-row">
+          <span>云端部署</span>
+          <span>12 分钟</span>
+          <time datetime="2026-09-10">2026年9月10日</time>
+        </div>
+        <h3><a href="articles/vercel-openai-agents-long-running-deploy-guide.html">在 Vercel 上部署长时运行 AI Agent 入门：OpenAI Agents API + Sandbox + Queues 最小闭环</a></h3>
+        <p>Vercel 在 9 月 10 日支持直接构建和部署基于 OpenAI Agents API 的长时运行、会调用工具的 Agent：Agent 循环与会话状态由 OpenAI 托管，Vercel 承载应用，用签名 webhook 和 Queues 为每个会话连接独立的 Sandbox 执行代码、访问文件，并提供跨多轮保留文件的持久工作区和缩容到零能力。这篇教程面向新手，讲清三方职责、最小部署步骤、成本与安全验收点，帮你跑通第一个线上 Agent。</p>
+      </div>
+    </article>
+
+    <article class="article-card reveal">
       <a class="article-card__media article-card__media--ai" href="articles/github-hydrafusion-model-orchestration-guide.html">
         <span class="article-card__badge">AI 编程</span>
         <span class="article-card__icon"><img class="visual-icon visual-icon--card" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="AI 编程 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
@@ -1122,6 +1173,6 @@
     </div>
   </footer>
 
-  <script src="assets/app.js?v=20260908-daily-update"></script>
+  <script src="assets/app.js?v=20260914-daily-update"></script>
 </body>
 </html>

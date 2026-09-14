@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>在 Vercel 上部署长时运行 AI Agent 入门：OpenAI Agents API + Sandbox + Queues 最小闭环 | 学习资源库</title>
+  <meta name="description" content="Vercel 在 9 月 10 日支持直接构建和部署基于 OpenAI Agents API 的长时运行、会调用工具的 Agent：Agent 循环与会话状态由 OpenAI 托管，Vercel 承载应用，用签名 webhook 和 Queues 为每个会话连接独立的 Sandbox 执行代码、访问文件，并提供跨多轮保留文件的持久工作区和缩容到零能力。这篇教程面向新手，讲清三方职责、最小部署步骤、成本与安全验收点，帮你跑通第一个线上 Agent。">
+  <meta name="robots" content="index,follow,max-image-preview:large">
+  <link rel="canonical" href="https://hello1yjx.github.io/articles/vercel-openai-agents-long-running-deploy-guide.html">
+  <link rel="icon" type="image/png" href="../assets/images/brand-book-line.png">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"在 Vercel 上部署长时运行 AI Agent 入门：OpenAI Agents API + Sandbox + Queues 最小闭环","description":"Vercel 在 9 月 10 日支持直接构建和部署基于 OpenAI Agents API 的长时运行、会调用工具的 Agent：Agent 循环与会话状态由 OpenAI 托管，Vercel 承载应用，用签名 webhook 和 Queues 为每个会话连接独立的 Sandbox 执行代码、访问文件，并提供跨多轮保留文件的持久工作区和缩容到零能力。这篇教程面向新手，讲清三方职责、最小部署步骤、成本与安全验收点，帮你跑通第一个线上 Agent。","datePublished":"2026-09-10","dateModified":"2026-09-10","author":{"@type":"Person","name":"Avery Lin","url":"https://hello1yjx.github.io/about.html"},"publisher":{"@type":"Organization","name":"学习资源库","url":"https://hello1yjx.github.io/"},"mainEntityOfPage":"https://hello1yjx.github.io/articles/vercel-openai-agents-long-running-deploy-guide.html","inLanguage":"zh-CN"}</script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6621999105936318" crossorigin="anonymous"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;800&family=Noto+Serif+SC:wght@700;900&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/styles.css?v=20260914-daily-update">
+</head>
+<body>
+  <header class="site-header">
+    <div class="page-shell site-header__inner">
+      <a class="brand" href="../index.html" aria-label="返回首页">
+        <span class="brand-mark" aria-hidden="true"><img src="../assets/images/brand-book-line.png" alt="" width="36" height="33"></span>
+        <span class="brand-copy"><strong>学习资源库</strong><span>分享知识 · 提升自己 · 成就未来</span></span>
+      </a>
+      <button class="menu-button" data-menu-button aria-expanded="false" aria-label="切换导航菜单">☰</button>
+      <nav class="site-nav" data-mobile-nav>
+        <a href="../index.html">首页</a>
+        <a class="is-active" href="../posts.html" aria-current="page">教程</a>
+        <a href="../resources.html">资源下载</a>
+        <a href="../resources.html#official-resources">工具导航</a>
+        <a href="../hotspots.html">技术资讯</a>
+        <a href="../projects.html">开源项目</a>
+        <a href="../about.html">关于我们</a>
+      </nav>
+      <form class="header-search" action="../posts.html" method="get">
+        <input type="search" name="q" placeholder="搜索教程、资源、工具或关键词...">
+        <button type="submit" aria-label="搜索">/</button>
+      </form>
+      <a class="header-github" href="https://github.com/hello1yjx/hello1yjx.github.io" target="_blank" rel="noreferrer" aria-label="GitHub">
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="" width="24" height="24">
+      </a>
+      <a class="header-cta" href="../posts.html">开始学习</a>
+    </div>
+  </header>
+
+  <main class="page-shell section article-page">
+    <header class="detail-hero">
+      <span class="pill">云端部署</span>
+      <h1>在 Vercel 上部署长时运行 AI Agent 入门：OpenAI Agents API + Sandbox + Queues 最小闭环</h1>
+      <div class="detail-hero__meta">
+        <time datetime="2026-09-10">2026年9月10日</time>
+        <span>12 分钟</span>
+        <span>作者：Avery Lin</span>
+      </div>
+      <p>Vercel 在 9 月 10 日支持直接构建和部署基于 OpenAI Agents API 的长时运行、会调用工具的 Agent：Agent 循环与会话状态由 OpenAI 托管，Vercel 承载应用，用签名 webhook 和 Queues 为每个会话连接独立的 Sandbox 执行代码、访问文件，并提供跨多轮保留文件的持久工作区和缩容到零能力。这篇教程面向新手，讲清三方职责、最小部署步骤、成本与安全验收点，帮你跑通第一个线上 Agent。</p>
+    </header>
+    <div class="article-layout">
+      <article class="article-body">
+        <div class="inline-promo">
+          <p class="label">来源与增量价值</p>
+          <h3>本文基于官方资料整理，并补充适用场景、限制条件和实践检查步骤。</h3>
+          <p>首要来源：<a href="https://vercel.com/changelog/build-with-openai-agents-api-on-vercel" target="_blank" rel="noreferrer">Vercel Changelog：Build with OpenAI Agents API on Vercel</a>。事实以原始来源为准，本站建议需结合自己的环境验证。</p>
+        </div>
+
+    <p>新手部署 AI Agent 最常卡在“长时运行”上：普通 Serverless 函数有执行时长上限，Agent 要思考、调工具、执行代码往往超过这个时间；自己维护常驻服务器又要管进程保活、并发隔离和空闲成本。Vercel 与 OpenAI Agents API 的这套集成给出了一种分工：让 OpenAI 管 Agent 的“大脑”和会话记忆，让 Vercel 用沙箱和队列管“手脚”和运行环境，空闲时自动缩容到零。</p><p>理解这套架构的关键是分清职责边界和数据流，而不是照抄示例。每个 Agent 会话对应一个隔离的 Firecracker 微虚拟机沙箱，会话之间互不可见；OpenAI 通过签名 webhook 回调你的应用，Queues 负责可靠地创建和重连沙箱。这篇教程带你从最小闭环跑通，再逐步加上持久文件、错误重试和成本监控，避免一上来就把示例直接暴露到生产。</p>
+    <h2>这篇内容适合谁</h2>
+    <ul><li>想把会调用工具、能执行代码的 AI Agent 部署成线上服务，但不想自己管服务器的新手。</li><li>用过 Vercel 部署普通网站、第一次接触长时运行 Agent 和沙箱队列的前端/全栈开发者。</li><li>需要评估 OpenAI Agents API 与 Vercel Sandbox/Queues 组合是否适合业务的技术负责人。</li></ul>
+    <h2>实践与验证步骤</h2>
+    <ul><li>先理解整体架构。OpenAI Agents API 负责 Agent 循环（决定下一步调什么工具）和会话状态；Vercel 承载你的应用（通常是 Next.js），通过 Vercel Sandbox 为每个会话提供隔离执行环境，用 Vercel Queues 处理 webhook 和沙箱创建/重连。先画出数据流：用户请求→应用→OpenAI 决策→签名 webhook 回来→Queues→Sandbox 执行→结果回传，理解后再动手。</li><li>准备账号和前置条件。确认有 OpenAI 平台账号和 API Key、Vercel 账号并安装好 CLI（npm i -g vercel、vercel login），本地 Node 版本满足要求。把两类密钥分别准备好，注意 OpenAI Key 只在服务端使用，绝不能暴露到浏览器。</li><li>用官方示例跑通最小闭环。从 Vercel 提供的 step-by-step guide 和 sample application 开始，先部署一个能接收消息、由 OpenAI 决策、在 Sandbox 里执行简单命令并返回结果的最小 Agent，验证整条链路通畅，再做个性化改造，不要一开始就写复杂业务。</li><li>配好签名 webhook 与队列。OpenAI 通过签名 webhook 回调你的应用，必须在服务端校验签名，防止伪造请求触发沙箱；Queues 保证沙箱创建和重连的可靠性，即使某次回调失败也能重试。理解为什么需要队列：沙箱启动是异步的，直接在请求里同步等待会超时。</li><li>用好隔离沙箱与持久工作区。每个会话一个独立 Firecracker 微虚拟机，会话之间文件和进程互不可见；持久工作区让同一 Agent 在多轮指令之间保留文件。要明确哪些文件需要跨轮保留、哪些用完即弃，并在会话结束时清理，避免残留数据和持续计费。</li><li>理解缩容到零与成本模型。没有任务时不需要常驻 worker，空闲自动缩容，计费来自函数调用、队列、沙箱运行时长和持久存储。新手要在 Vercel 与 OpenAI 两个后台分别看用量，给沙箱设置空闲超时，给整体花费设预算和告警，避免一个死循环 Agent 持续烧钱。</li><li>做上线前安全与稳定性验收：校验所有 webhook 签名、确认沙箱之间无法互访、给 Agent 可执行的操作设最小权限、为外部调用设置超时和重试、验证断网或沙箱启动失败时用户能收到明确错误而不是一直挂起。</li><li>最后逐步扩展并观测。最小闭环稳定后再加多工具、文件上传、并发会话；接入日志和链路追踪观察每一步耗时与失败率，把 Agent 的决策、工具调用和沙箱执行都记录下来，便于排查“为什么这一步没执行对”。</li></ul>
+    <h2>官方资料入口</h2>
+
+    <ul>
+
+            <li>
+              <a href="https://vercel.com/changelog/build-with-openai-agents-api-on-vercel" target="_blank" rel="noreferrer">Vercel Changelog：Build with OpenAI Agents API on Vercel</a>
+              <span>：2026 年 9 月 10 日官方发布，说明 OpenAI 托管 Agent 循环与会话状态、Vercel Sandbox/Queues 分工、持久工作区和缩容到零，并附 step-by-step guide 与示例应用入口。</span>
+            </li>
+
+            <li>
+              <a href="https://vercel.com/docs/sandbox" target="_blank" rel="noreferrer">Vercel Sandbox 文档</a>
+              <span>：隔离微虚拟机沙箱的能力、生命周期和使用限制官方文档。</span>
+            </li>
+
+            <li>
+              <a href="https://platform.openai.com/docs/guides/agents" target="_blank" rel="noreferrer">OpenAI Agents API 文档</a>
+              <span>：Agent 循环、工具调用和会话状态的官方说明，用于理解 OpenAI 侧职责。</span>
+            </li>
+
+    </ul>
+
+    <h2>重点判断与使用建议</h2>
+    <ul><li>职责分工：OpenAI 管 Agent 大脑和会话状态，Vercel 管应用承载、沙箱执行和队列调度。</li><li>每个会话一个隔离 Firecracker 微虚拟机，会话间互不可见，这是安全隔离的基础。</li><li>签名 webhook 必须在服务端校验，Queues 用来异步、可靠地创建和重连沙箱。</li><li>缩容到零省空闲成本，但要分别在 Vercel 和 OpenAI 监控用量并设置沙箱超时与预算告警。</li></ul>
+
+        <h2>三方职责速查</h2>
+
+        <ul><li>OpenAI Agents API：Agent 循环、工具选择、会话状态（大脑与记忆）。</li><li>Vercel 应用层：你的 Next.js/Functions 代码、鉴权、请求编排。</li><li>Vercel Sandbox：每个会话一个隔离微虚拟机，执行代码和访问文件。</li><li>Vercel Queues：经签名 webhook 异步、可靠地创建与重连沙箱，支持缩容到零。</li></ul>
+
+
+
+        <h2>上线前验收清单</h2>
+
+        <ul><li>OpenAI Key 只在服务端使用，浏览器端不可见。</li><li>所有回调都校验 webhook 签名，伪造请求无法触发沙箱。</li><li>验证两个并发会话的沙箱互不可见、文件不串。</li><li>沙箱设置空闲超时，会话结束清理持久工作区中不再需要的文件。</li><li>外部调用和 Agent 执行都有超时与重试，失败时返回明确错误。</li><li>Vercel 与 OpenAI 两边都配置用量预算和超支告警。</li></ul>
+
+
+
+        <h2>常见误判</h2>
+
+        <ul><li>把长时任务直接塞进普通 Serverless 函数——会撞执行时长上限，需要队列+沙箱模式。</li><li>以为持久工作区等于永久存储——它服务于同一会话多轮，长期数据要落到专门数据库。</li><li>忽略 webhook 签名校验——等于任何人都能伪造请求启动沙箱。</li><li>只看一边账单——Agent 花费同时来自 OpenAI 调用和 Vercel 沙箱/队列。</li><li>示例没加固就上生产——最小闭环跑通后必须补最小权限、超时和监控。</li></ul>
+
+
+
+
+        <div class="inline-promo">
+          <p class="label">更正与更新</p>
+          <h3>发现版本变化、来源失效或事实错误时，请通过联系页反馈。</h3>
+          <p>本站会核对一手来源后更新内容，不使用无来源转载填充文章。</p>
+          <a class="button button--secondary" href="../editorial.html">查看内容标准</a>
+        </div>
+      </article>
+      <aside class="article-sidebar">
+        <div class="sidebar-card">
+          <p class="label">本页标签</p>
+          <div class="tag-row"><span>Vercel</span><span>AI Agent</span><span>云端部署</span></div>
+        </div>
+        <div class="sidebar-card">
+          <p class="label">继续阅读</p>
+          <a href="ai-agent-file-operation-safety-guide.html">AI Agent 文件操作安全防护指南：从 Claude 误删 700GB 事件看怎样保护你的代码和数据</a><a href="github-copilot-browser-tools-vscode-testing-guide.html">GitHub Copilot 浏览器工具 GA：新手怎样让 Agent 打开网页、测试交互并保留控制权</a><a href="vercel-services-polyglot-monorepo-checklist.html">Vercel Services Beta：新手怎样把前端、后端和内部调用放进同一个项目验收</a><a href="vercel-large-functions-5gb-beta-checklist.html">Vercel Large Functions 5GB Beta：新手怎样判断大依赖、AI 库和浏览器自动化能不能安全部署</a>
+        </div>
+        <div class="sidebar-card sidebar-card--accent">
+          <p class="label">作者与方法</p>
+          <h3>了解本站如何选题、核验来源与处理更正。</h3>
+          <a class="button button--dark" href="../about.html">关于作者</a>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="page-shell footer__inner">
+      <div><strong>学习资源库</strong><p>分享知识 · 提升自己 · 成就未来</p></div>
+      <div>
+        <a href="../editorial.html">内容标准</a><br>
+        <a href="../privacy.html">隐私政策</a><br>
+        <a href="../contact.html">联系</a>
+      </div>
+    </div>
+  </footer>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      var button = document.querySelector("[data-menu-button]");
+      var nav = document.querySelector("[data-mobile-nav]");
+      if (!button || !nav) return;
+      button.addEventListener("click", function () {
+        var expanded = button.getAttribute("aria-expanded") === "true";
+        button.setAttribute("aria-expanded", String(!expanded));
+        nav.classList.toggle("site-nav--open", !expanded);
+      });
+    });
+  </script>
+</body>
+</html>

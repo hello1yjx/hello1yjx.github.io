@@ -8,6 +8,9 @@
   <url><loc>https://hello1yjx.github.io/editorial.html</loc><lastmod>2026-06-29</lastmod><priority>0.7</priority></url>
   <url><loc>https://hello1yjx.github.io/contact.html</loc><lastmod>2026-06-29</lastmod><priority>0.5</priority></url>
   <url><loc>https://hello1yjx.github.io/privacy.html</loc><lastmod>2026-06-29</lastmod><priority>0.5</priority></url>
+  <url><loc>https://hello1yjx.github.io/articles/claude-code-deny-rules-security-audit-guide.html</loc><lastmod>2026-09-12</lastmod><priority>0.8</priority></url>
+  <url><loc>https://hello1yjx.github.io/articles/github-copilot-code-review-workflow-guide.html</loc><lastmod>2026-09-11</lastmod><priority>0.8</priority></url>
+  <url><loc>https://hello1yjx.github.io/articles/vercel-openai-agents-long-running-deploy-guide.html</loc><lastmod>2026-09-10</lastmod><priority>0.8</priority></url>
   <url><loc>https://hello1yjx.github.io/articles/github-hydrafusion-model-orchestration-guide.html</loc><lastmod>2026-09-08</lastmod><priority>0.8</priority></url>
   <url><loc>https://hello1yjx.github.io/articles/cloudflare-workers-64mib-bundle-optimization-guide.html</loc><lastmod>2026-09-07</lastmod><priority>0.8</priority></url>
   <url><loc>https://hello1yjx.github.io/articles/ai-agent-file-operation-safety-guide.html</loc><lastmod>2026-08-31</lastmod><priority>0.8</priority></url>

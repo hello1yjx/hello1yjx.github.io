@@ -9,7 +9,7 @@
     bio: "把官方入口、学习路线、示例代码和可扩展资料放进同一张地图里，让第一次来的人也能马上知道从哪里开始。",
     heroStats: [
       { value: "9", label: "原创下载包" },
-      { value: "61", label: "新手专题" },
+      { value: "64", label: "新手专题" },
       { value: "持续", label: "更新与核验" }
     ],
     valueCards: [
@@ -28,6 +28,279 @@
     ]
   },
   posts: [
+    {
+      id: "claude-code-deny-rules-security-audit-guide",
+      title: "Claude Code 权限规则配置与安全自查指南：deny 为什么会失效，怎样确认保护真的生效",
+      date: "2026-09-12",
+      category: "AI 终端",
+      readTime: "11 分钟",
+      excerpt: "Claude Code 2.1.268 在 9 月 12 日修复了两类 deny/ask 权限规则被静默绕过的问题：作用于符号链接目录的规则在按真实路径访问时失效，以及一行命令里混入 env -C、eval 等无法静态分析的片段时同条 Read/Edit 规则不生效；同期还堵住了 ${VAR} 密钥被打印到屏幕的泄露。这篇指南带你理解 Claude Code 权限规则的匹配顺序，把 .env、密钥和系统目录真正保护起来，并给出一套升级后逐条验证规则是否生效的自查清单。",
+      tags: ["Claude Code", "权限安全", "终端 Agent"],
+      featured: false,
+      intro: [
+        "很多人用 Claude Code 时都会写 deny 规则，比如“不许读 .env”“不许改系统目录”，以为写了就安全。但 2.1.268 修复的问题说明，权限规则不是写上就一定生效：当目标路径是符号链接、或者命令行里夹带了权限检查器分析不了的片段时，你以为锁上的门其实一直开着。这类问题最危险的地方在于它不报错、不提示，Agent 照常运行，直到某次真的读到了密钥才暴露。",
+        "这篇教程不只是告诉你“升级到最新版”，更重要的是建立一套可复现的验证方法：写完每条 deny 规则后，用一个明确的探针动作去试，确认它确实被拦下。权限安全的核心不是配置写得多全，而是每一条关键规则都经过“预期被拦、实际也被拦”的验证。无论你用 Claude Code、Codex 还是其他终端 Agent，这套思路都通用。"
+      ],
+      audience: [
+        "在 Claude Code 中配置过 settings.json 权限规则、想确认保护是否真正生效的开发者。",
+        "在项目里存放 .env、密钥、证书，担心被 AI Agent 误读或泄露的个人开发者和学生。",
+        "需要为团队制定终端 Agent 安全基线、要做权限审计的技术负责人。"
+      ],
+      format: [
+        "适合整理成“规则目标 / 配置写法 / 探针验证动作 / 升级前结果 / 升级后结果”的权限自查表。",
+        "可配套一份可直接复用的 settings.json 权限模板，覆盖密钥文件、系统目录、危险命令三类常见保护对象。"
+      ],
+      roadmap: [
+        "先升级到安全版本。两类 deny 绕过在 2.1.268 修复，2.1.269 又修复了以 ! 开头的 deny/ask 规则越出其设置来源生效的问题；如果你通过 ANTHROPIC_BASE_URL 接第三方兼容端点，2.1.265-2.1.267 还存在每轮 HTTP 400 的问题，必须升到 2.1.268 或以上。用 claude --version 确认当前版本。",
+        "理解权限规则的来源和优先级。Claude Code 的设置分为企业策略、用户设置、项目设置等多个来源，企业策略优先级最高且不能被下级放宽；普通项目里则要清楚 deny、ask、allow 三类规则的关系，deny 是硬禁止。先搞清楚规则写在哪个文件、对哪些目录生效，再谈具体规则。",
+        "补上符号链接这个盲区。旧版本里，对 /etc、/tmp、/var（macOS）或 /bin（Linux）这类符号链接目录写的 deny，按真实路径访问时不生效，Bash 命令用符号链接写法也会绕过。升级后重新检查：凡是规则目标可能是软链的，要同时覆盖链接路径和真实路径，并实际用两种写法各测一次。",
+        "避免一行命令混入无法分析的片段。旧版本中同一行出现 env -C 或 eval 这类检查器无法静态判断的内容时，同行的 Read/Edit deny 可能失效。实践上要把复杂命令拆开写、避免用 eval 动态拼接，对必须使用的场景显式补一条更宽的 deny，并在自查时专门构造这种复合命令验证。",
+        "保护密钥文件，顺手堵住密钥回显。用 deny 规则禁止读取 **/.env、**/*.pem、**/credentials 等敏感文件；2.1.268 还修复了 /mcp、/plugin 详情、claude mcp list/get 和 MCP 登录错误把 ${VAR} 解析后的密钥直接打印出来的问题，以及 git 源 URL 里 token 被显示的问题。通过环境变量给 MCP 传凭证的，要确认升级后这些命令不再回显明文。",
+        "为每条关键规则写一个“探针”验证。不要只看配置文件，要实际触发：比如 deny 了 .env，就让 Agent 尝试读取它，预期是被拒绝；用 Bash 的 cat、用 Read 工具、通过符号链接三种路径分别试。只有三种都被拦，才算这条规则真的生效，把结果记录到自查表。",
+        "建立基线并纳入日常。把验证通过的 settings.json 作为团队模板，新增一条 deny 就同步加一条探针；Claude Code、Codex、Gemini CLI 本周都在收紧权限（如 Gemini 0.59 对未信任工作区 fail-closed），可以把“升级版本→回归权限探针”固化成每次工具更新后的固定动作。",
+        "最后形成应急预案。明确如果发现规则失效或密钥可能被读取，要立即轮换相关密钥、检查 shell 历史和 Agent 会话记录、用 git 审计被改动的文件。安全配置的最后一道防线不是规则本身，而是假设它可能失效时的快速响应。"
+      ],
+      officialLinks: [
+        {
+          label: "This week in Claude Code, Codex and Gemini CLI（含 2.1.268/2.1.269 修复明细）",
+          url: "https://dev.to/aicoding-guide/this-week-in-claude-code-codex-and-gemini-cli-week-of-september-13-2026-1ob5",
+          note: "2026 年 9 月 12 日发布的本周工具更新汇总，逐条列出符号链接、env -C/eval、! 规则越界、密钥回显等修复，以及升级自查清单。"
+        },
+        {
+          label: "Claude Code 官方权限文档（settings.json permissions）",
+          url: "https://code.claude.com/docs/en/settings",
+          note: "权限规则的官方配置说明，用于核对 deny/ask/allow 语法与设置来源优先级。"
+        },
+        {
+          label: "anthropics/claude-code Releases",
+          url: "https://github.com/anthropics/claude-code/releases",
+          note: "各版本发布说明原始来源，可核对 2.1.268、2.1.269 的具体修复条目与版本号。"
+        }
+      ],
+      curatedLinks: [
+        "deny 规则失效时不会报错，必须用探针动作主动验证，不能只凭配置文件判断安全。",
+        "两类经典绕过：符号链接按真实路径访问、同行混入 env -C/eval 等无法静态分析的命令。",
+        "密钥保护要双管齐下：deny 禁止读取 + 确认 MCP 命令不再把 ${VAR} 解析后的明文打印出来。",
+        "企业策略优先级最高且不可被个人设置、自动批准放宽，这一思路在 Copilot、Gemini 等工具上一致。"
+      ],
+      downloadIdeas: [
+        "建议整理一份 settings.json 权限模板，预置密钥文件、系统目录、危险命令三类 deny 规则及对应探针。",
+        "建议做一张“终端 Agent 升级安全回归清单”，覆盖版本确认、符号链接、复合命令、密钥回显、未信任工作区五项。"
+      ],
+      extraSections: [
+        {
+          title: "权限自查清单（逐条打勾）",
+          items: [
+            "claude --version 已达到 2.1.268 或以上（第三方端点用户避开 2.1.265-2.1.267）。",
+            "对 .env、*.pem、credentials 等密钥文件的 deny，用 Read、Bash cat、符号链接三种方式都被拦截。",
+            "对 /tmp、/var、/etc 等符号链接目录的 deny，同时覆盖链接路径与真实路径并各测一次。",
+            "构造含 env -C、eval 的复合命令，确认同行 Read/Edit deny 仍然生效。",
+            "运行 /mcp、claude mcp list，确认 ${VAR} 解析出的密钥不再以明文显示。",
+            "以 ! 开头的否定规则只在其所属设置来源内生效，没有越权作用到其他范围。"
+          ]
+        },
+        {
+          title: "常见误判",
+          items: [
+            "以为写了 deny 就一定生效——符号链接和复合命令都可能让它静默失效。",
+            "只测最顺手的一种访问方式——必须覆盖不同工具和不同路径写法。",
+            "把密钥回显当成小问题——屏幕、录屏、日志都可能因此泄露凭证。",
+            "升级后不回归权限——版本更新可能改变规则行为，每次升级都要重跑探针。",
+            "用 eval 拼接命令图省事——这正是让权限检查器失效的高危写法。"
+          ]
+        },
+        {
+          title: "延伸：本周另外两个工具的安全收紧",
+          items: [
+            "Codex CLI 0.154.0：建立工作区信任前不运行工作区自带辅助程序，macOS 沙箱阻止终端输入注入。",
+            "Gemini CLI 0.59.0：修复 MCP OAuth 元数据发现的 SSRF，未信任工作区 fail-closed 且不加载其中的 mcpServers。",
+            "共同趋势是 fail-closed：系统无法确定是否允许时默认拒绝，而不是放行。"
+          ]
+        }
+      ]
+    },
+    {
+      id: "github-copilot-code-review-workflow-guide",
+      title: "Copilot 代码审查实战：自动解决评论、Shell 验证与审查级别怎么选",
+      date: "2026-09-11",
+      category: "代码质量",
+      readTime: "10 分钟",
+      excerpt: "GitHub 在 9 月 11 日升级 Copilot 代码审查：后续提交解决了某条意见会自动关闭对应评论，应用修改建议时生成智能提交信息；审查过程可在 Agent 防火墙后调用 shell 工具跑构建和测试来验证代码，Lite 级别改为多智能体合奏。这篇教程讲清楚怎样把这些能力接进真实 PR 流程，怎样区分 Lite/标准审查的适用场景，以及为什么 AI 跑过测试也不能替代最终人工判断。",
+      tags: ["GitHub Copilot", "代码审查", "Pull Request"],
+      featured: false,
+      intro: [
+        "代码审查最耗精力的往往不是发现问题，而是往返：你提了意见、作者改了、再确认、手动关掉已解决的评论，评论一多就容易遗漏。Copilot 这次更新的核心是让“已处理的自动收起、没处理的保持打开”，并用更强的验证手段和多智能体合奏提升意见质量，让开发者把注意力集中在真正还没解决的反馈上。",
+        "但工具越强，越要清楚它的边界。Copilot 现在能在隔离环境里跑构建和测试，不代表它跑的测试就覆盖了你的改动；Lite 多智能体更全面，也不意味着可以跳过人工审查。这篇教程帮你把新能力用在正确的位置，建立一条“AI 先审、人来兜底”的可复用流程，而不是把合并决策完全交给模型。"
+      ],
+      audience: [
+        "在 GitHub 上用 Pull Request 协作、想让 AI 审查减少重复往返的开发者。",
+        "纠结 Copilot 审查级别（Lite/标准）怎么选、想理解多智能体合奏原理的用户。",
+        "需要为团队设计 AI 代码审查流程和质量门禁的技术负责人。"
+      ],
+      format: [
+        "适合整理成“提交改动 → 自动解决旧评论 → 处理剩余意见 → 应用建议并核对智能提交信息 → 合并”的 PR 流程图。",
+        "可配套一张审查级别选择表，按改动规模、风险等级、成本敏感度给出 Lite/标准/人工的组合建议。"
+      ],
+      roadmap: [
+        "先确认功能可用范围。这些更新面向 Copilot Pro、Pro+、Max、Business、Enterprise，代码审查在 PR 页面或通过 Copilot 应用、CLI、VS Code 触发；先在自己的一个测试 PR 上确认账号能看到“Copilot resolved this conversation as Addressed”这类自动解决标记。",
+        "理解自动解决的触发逻辑。当你推送的后续提交确实处理了某条审查意见，Copilot 在复审时会自动把该评论标记为已解决；仍然存在的问题保持打开。关键是“由后续提交驱动”，所以要让每个修复对应清晰的提交，避免一个提交混太多无关改动，否则自动判断可能不准。",
+        "用好智能提交信息。应用 Copilot 的 autofix 建议时，它会根据实际改动生成提交信息，而不是套模板。采纳前仍要读一遍，确认信息准确描述了改动范围，必要时补上关联的 issue 或任务编号，不要不加检查直接提交。",
+        "理解 shell 工具验证是怎么回事。审查 Agent 现在能在 Copilot Agent 防火墙后调用完整 shell 工具，跑构建、测试、定向脚本、查询工具和 API，用来验证被审代码。它运行在受控隔离环境中，你应关注它实际执行了什么命令、测试是否真的覆盖改动路径，而不是只看“已验证”的结论。",
+        "选对审查级别。Lite 现在用多个智能体各自给出视角再汇总成一份审查，官方实验显示高严重度问题平均被处理数提升 47%、中等 31%、低 11%，成本还降约 8%。日常小改动用 Lite 性价比高；涉及认证、支付、数据迁移等高风险改动，用更强的审查级别并叠加人工。",
+        "建立标准 PR 处理流程：先让 Copilot 全量审查 → 根据自动解决标记快速过掉已处理项 → 逐条处理仍打开的评论 → 对 autofix 建议核对后应用并审阅提交信息 → 本地或 CI 再跑一遍完整测试 → 最后由人做整体把关再合并。",
+        "守住人工底线。结合 9 月 1 日“Copilot 可被授权批准 PR”的能力，要明确哪些目录（认证、权限、资金、数据安全）永远需要真人批准；AI 的验证结果作为输入而非结论，合并决策权和责任始终在人。",
+        "定期回看审查效果。每隔一段时间统计 Copilot 提出意见的有效率、自动解决是否准确、有没有漏掉的严重问题，据此调整审查级别和人工介入点，让流程持续收敛而不是一成不变。"
+      ],
+      officialLinks: [
+        {
+          label: "Auto-resolution and analysis updates in Copilot code review",
+          url: "https://github.blog/changelog/2026-09-11-auto-resolution-and-analysis-updates-in-copilot-code-review/",
+          note: "2026 年 9 月 11 日官方更新，说明自动解决、智能提交信息、shell 工具验证和 Lite 多智能体合奏，以及 47%/31%/11% 和成本降 8% 的实验数据。"
+        },
+        {
+          label: "Copilot code review can now approve pull requests",
+          url: "https://github.blog/changelog/2026-09-01-copilot-code-review-can-now-approve-pull-requests/",
+          note: "9 月 1 日相关更新，说明 AI 批准 PR 默认关闭、可在企业/组织/仓库层配置，用于设计授权边界。"
+        },
+        {
+          label: "GitHub Docs：Copilot code review",
+          url: "https://docs.github.com/en/copilot/concepts/agents/copilot-code-review",
+          note: "代码审查的触发方式、审查级别和配置说明官方文档。"
+        }
+      ],
+      curatedLinks: [
+        "自动解决由“后续提交确实处理了意见”驱动，提交越聚焦、判断越准确。",
+        "shell 验证运行在 Agent 防火墙后的隔离环境，但你仍要确认测试覆盖了改动，而不是只看结论。",
+        "Lite 多智能体在成本更低的同时显著提升高严重度问题发现，适合日常改动。",
+        "AI 审查是输入不是结论，高风险目录必须保留真人批准。"
+      ],
+      downloadIdeas: [
+        "建议整理一张 PR 审查流程卡，把自动解决、剩余意见、autofix、CI 回归、人工把关固化成固定步骤。",
+        "建议做一份审查级别选择表，按改动风险和成本选择 Lite、标准或人工组合。"
+      ],
+      extraSections: [
+        {
+          title: "Lite 与标准审查怎么选",
+          items: [
+            "Lite（多智能体合奏）：日常小改动、文案、样式、低风险重构，成本低且高严重度问题发现能力提升明显。",
+            "标准/更强级别：核心业务逻辑、并发、错误处理复杂的改动。",
+            "必须叠加人工：认证授权、支付计费、权限模型、数据迁移、对外 API 兼容。",
+            "无论哪种级别，合并前 CI 全量测试和真人整体审查都不应省略。"
+          ]
+        },
+        {
+          title: "自动解决不准确时怎么办",
+          items: [
+            "如果评论被错误自动解决，可在 PR 上手动 Reopen，保持问题可见。",
+            "让修复提交尽量单一职责，一个提交只解决一类意见，能提高自动判断准确率。",
+            "对争议性意见在评论里说明为什么不改，避免被后续提交误判为已处理。",
+            "定期抽查自动解决的评论，确认没有“假解决”。"
+          ]
+        },
+        {
+          title: "常见误判",
+          items: [
+            "看到评论自动关闭就以为问题真解决了——要打开对应提交核对。",
+            "以为 AI 跑过测试就不用再跑——它跑的范围可能和你的 CI 不同。",
+            "所有 PR 都用同一档级别——高风险改动需要更强审查和人工。",
+            "直接采用智能提交信息——提交前仍要核对它是否准确描述改动。",
+            "把 AI 批准 PR 当成省事开关——授权范围要按目录风险精确收敛。"
+          ]
+        }
+      ]
+    },
+    {
+      id: "vercel-openai-agents-long-running-deploy-guide",
+      title: "在 Vercel 上部署长时运行 AI Agent 入门：OpenAI Agents API + Sandbox + Queues 最小闭环",
+      date: "2026-09-10",
+      category: "云端部署",
+      readTime: "12 分钟",
+      excerpt: "Vercel 在 9 月 10 日支持直接构建和部署基于 OpenAI Agents API 的长时运行、会调用工具的 Agent：Agent 循环与会话状态由 OpenAI 托管，Vercel 承载应用，用签名 webhook 和 Queues 为每个会话连接独立的 Sandbox 执行代码、访问文件，并提供跨多轮保留文件的持久工作区和缩容到零能力。这篇教程面向新手，讲清三方职责、最小部署步骤、成本与安全验收点，帮你跑通第一个线上 Agent。",
+      tags: ["Vercel", "AI Agent", "云端部署"],
+      featured: false,
+      intro: [
+        "新手部署 AI Agent 最常卡在“长时运行”上：普通 Serverless 函数有执行时长上限，Agent 要思考、调工具、执行代码往往超过这个时间；自己维护常驻服务器又要管进程保活、并发隔离和空闲成本。Vercel 与 OpenAI Agents API 的这套集成给出了一种分工：让 OpenAI 管 Agent 的“大脑”和会话记忆，让 Vercel 用沙箱和队列管“手脚”和运行环境，空闲时自动缩容到零。",
+        "理解这套架构的关键是分清职责边界和数据流，而不是照抄示例。每个 Agent 会话对应一个隔离的 Firecracker 微虚拟机沙箱，会话之间互不可见；OpenAI 通过签名 webhook 回调你的应用，Queues 负责可靠地创建和重连沙箱。这篇教程带你从最小闭环跑通，再逐步加上持久文件、错误重试和成本监控，避免一上来就把示例直接暴露到生产。"
+      ],
+      audience: [
+        "想把会调用工具、能执行代码的 AI Agent 部署成线上服务，但不想自己管服务器的新手。",
+        "用过 Vercel 部署普通网站、第一次接触长时运行 Agent 和沙箱队列的前端/全栈开发者。",
+        "需要评估 OpenAI Agents API 与 Vercel Sandbox/Queues 组合是否适合业务的技术负责人。"
+      ],
+      format: [
+        "适合整理成“OpenAI 管什么 / Vercel 管什么 / 开发者要配什么”的三方职责图加部署步骤清单。",
+        "可配套一份上线前验收表，覆盖 webhook 签名校验、沙箱隔离、会话持久化、缩容行为和成本告警。"
+      ],
+      roadmap: [
+        "先理解整体架构。OpenAI Agents API 负责 Agent 循环（决定下一步调什么工具）和会话状态；Vercel 承载你的应用（通常是 Next.js），通过 Vercel Sandbox 为每个会话提供隔离执行环境，用 Vercel Queues 处理 webhook 和沙箱创建/重连。先画出数据流：用户请求→应用→OpenAI 决策→签名 webhook 回来→Queues→Sandbox 执行→结果回传，理解后再动手。",
+        "准备账号和前置条件。确认有 OpenAI 平台账号和 API Key、Vercel 账号并安装好 CLI（npm i -g vercel、vercel login），本地 Node 版本满足要求。把两类密钥分别准备好，注意 OpenAI Key 只在服务端使用，绝不能暴露到浏览器。",
+        "用官方示例跑通最小闭环。从 Vercel 提供的 step-by-step guide 和 sample application 开始，先部署一个能接收消息、由 OpenAI 决策、在 Sandbox 里执行简单命令并返回结果的最小 Agent，验证整条链路通畅，再做个性化改造，不要一开始就写复杂业务。",
+        "配好签名 webhook 与队列。OpenAI 通过签名 webhook 回调你的应用，必须在服务端校验签名，防止伪造请求触发沙箱；Queues 保证沙箱创建和重连的可靠性，即使某次回调失败也能重试。理解为什么需要队列：沙箱启动是异步的，直接在请求里同步等待会超时。",
+        "用好隔离沙箱与持久工作区。每个会话一个独立 Firecracker 微虚拟机，会话之间文件和进程互不可见；持久工作区让同一 Agent 在多轮指令之间保留文件。要明确哪些文件需要跨轮保留、哪些用完即弃，并在会话结束时清理，避免残留数据和持续计费。",
+        "理解缩容到零与成本模型。没有任务时不需要常驻 worker，空闲自动缩容，计费来自函数调用、队列、沙箱运行时长和持久存储。新手要在 Vercel 与 OpenAI 两个后台分别看用量，给沙箱设置空闲超时，给整体花费设预算和告警，避免一个死循环 Agent 持续烧钱。",
+        "做上线前安全与稳定性验收：校验所有 webhook 签名、确认沙箱之间无法互访、给 Agent 可执行的操作设最小权限、为外部调用设置超时和重试、验证断网或沙箱启动失败时用户能收到明确错误而不是一直挂起。",
+        "最后逐步扩展并观测。最小闭环稳定后再加多工具、文件上传、并发会话；接入日志和链路追踪观察每一步耗时与失败率，把 Agent 的决策、工具调用和沙箱执行都记录下来，便于排查“为什么这一步没执行对”。"
+      ],
+      officialLinks: [
+        {
+          label: "Vercel Changelog：Build with OpenAI Agents API on Vercel",
+          url: "https://vercel.com/changelog/build-with-openai-agents-api-on-vercel",
+          note: "2026 年 9 月 10 日官方发布，说明 OpenAI 托管 Agent 循环与会话状态、Vercel Sandbox/Queues 分工、持久工作区和缩容到零，并附 step-by-step guide 与示例应用入口。"
+        },
+        {
+          label: "Vercel Sandbox 文档",
+          url: "https://vercel.com/docs/sandbox",
+          note: "隔离微虚拟机沙箱的能力、生命周期和使用限制官方文档。"
+        },
+        {
+          label: "OpenAI Agents API 文档",
+          url: "https://platform.openai.com/docs/guides/agents",
+          note: "Agent 循环、工具调用和会话状态的官方说明，用于理解 OpenAI 侧职责。"
+        }
+      ],
+      curatedLinks: [
+        "职责分工：OpenAI 管 Agent 大脑和会话状态，Vercel 管应用承载、沙箱执行和队列调度。",
+        "每个会话一个隔离 Firecracker 微虚拟机，会话间互不可见，这是安全隔离的基础。",
+        "签名 webhook 必须在服务端校验，Queues 用来异步、可靠地创建和重连沙箱。",
+        "缩容到零省空闲成本，但要分别在 Vercel 和 OpenAI 监控用量并设置沙箱超时与预算告警。"
+      ],
+      downloadIdeas: [
+        "建议整理一张三方职责与数据流图，标注每一步由谁负责、密钥在哪、可能在哪里失败。",
+        "建议做一份长时运行 Agent 上线验收表，覆盖签名校验、沙箱隔离、持久化、超时重试、成本告警。"
+      ],
+      extraSections: [
+        {
+          title: "三方职责速查",
+          items: [
+            "OpenAI Agents API：Agent 循环、工具选择、会话状态（大脑与记忆）。",
+            "Vercel 应用层：你的 Next.js/Functions 代码、鉴权、请求编排。",
+            "Vercel Sandbox：每个会话一个隔离微虚拟机，执行代码和访问文件。",
+            "Vercel Queues：经签名 webhook 异步、可靠地创建与重连沙箱，支持缩容到零。"
+          ]
+        },
+        {
+          title: "上线前验收清单",
+          items: [
+            "OpenAI Key 只在服务端使用，浏览器端不可见。",
+            "所有回调都校验 webhook 签名，伪造请求无法触发沙箱。",
+            "验证两个并发会话的沙箱互不可见、文件不串。",
+            "沙箱设置空闲超时，会话结束清理持久工作区中不再需要的文件。",
+            "外部调用和 Agent 执行都有超时与重试，失败时返回明确错误。",
+            "Vercel 与 OpenAI 两边都配置用量预算和超支告警。"
+          ]
+        },
+        {
+          title: "常见误判",
+          items: [
+            "把长时任务直接塞进普通 Serverless 函数——会撞执行时长上限，需要队列+沙箱模式。",
+            "以为持久工作区等于永久存储——它服务于同一会话多轮，长期数据要落到专门数据库。",
+            "忽略 webhook 签名校验——等于任何人都能伪造请求启动沙箱。",
+            "只看一边账单——Agent 花费同时来自 OpenAI 调用和 Vercel 沙箱/队列。",
+            "示例没加固就上生产——最小闭环跑通后必须补最小权限、超时和监控。"
+          ]
+        }
+      ]
+    },
     {
       id: "github-hydrafusion-model-orchestration-guide",
       title: "GitHub HydraFusion 多模型编排入门：三种模式、成本权衡与新手试用验收",
@@ -5640,6 +5913,96 @@ git push origin main`,
     "github-agentic-workflows-public-preview-guide"
   ],
   hotspots: [
+    {
+      date: "2026-09-12",
+      tag: "AI 终端",
+      title: "Claude Code 2.1.268 修复两处 deny 权限规则被绕过：符号链接与同行命令可让保护失效",
+      summary: "Claude Code 2.1.268 修复了两类 deny/ask 规则静默失效的问题：一是规则作用于符号链接目录（如 macOS 的 /etc、/tmp、/var，Linux 的 /bin）时，按真实路径访问或在 Bash 命令里用符号链接写法都会绕过规则；二是当一行命令里出现权限检查器无法分析的 env -C 或 eval 时，同一条 Read/Edit deny 规则可能不生效。同期还修复了 /mcp、claude mcp list 把 ${VAR} 解析出的密钥直接打印出来的泄露问题。",
+      why: "这是本周优先级最高的更新：很多人靠 deny 规则保护 .env、密钥目录和系统路径，但旧版本里这些保护可能根本没生效，等于门没锁上。新手尤其容易以为“写了 deny 就安全”，实际符号链接和复合命令是两个隐蔽缺口。升级到 2.1.268 及以上后，要回头验证自己写的 deny 规则是否真的拦住了目标路径，并避免在同一行混入无法静态分析的命令。",
+      sourceLabel: "Claude Code Releases / DEV 周报",
+      sourceUrl: "https://dev.to/aicoding-guide/this-week-in-claude-code-codex-and-gemini-cli-week-of-september-13-2026-1ob5",
+      articleIdea: "已扩写：Claude Code 权限规则配置与安全自查指南"
+    },
+    {
+      date: "2026-09-12",
+      tag: "AI 终端",
+      title: "开源编程 Agent OpenCode 进入 v2：v2.0.2 发布，升级前需核对 Agent/MCP/配置兼容性",
+      summary: "开源终端编程 Agent OpenCode 在 9 月 12 日发布 v2.0.2，v2 大版本后很快打了两个补丁。v2 对 Agent 抽象、MCP 接入方式和配置文件结构做了调整，属于不向后兼容的大版本升级。",
+      why: "开源、可自托管的编程 Agent 是新手理解 Agent 内部机制、避免被单一商业工具锁定的好选择，但大版本升级最容易踩“配置突然失效、MCP 连不上、自定义 Agent 报错”的坑。正确做法是先在一个测试目录或分支上验证 v2 的 Agent、MCP、config 全部正常，再把主力环境切过去，并保留 v1 配置备份以便回滚，不要在赶项目时直接原地升级。",
+      sourceLabel: "OpenCode Releases / aicoder",
+      sourceUrl: "https://aicoder.com/news/news-20260913-opencode-v2",
+      articleIdea: "候选：开源编程 Agent 横向对比与大版本升级清单"
+    },
+    {
+      date: "2026-09-11",
+      tag: "代码质量",
+      title: "Copilot 代码审查升级：已处理意见自动关闭，Lite 级别改用多智能体合奏",
+      summary: "GitHub 9 月 11 日更新 Copilot code review：当后续提交解决了某条审查意见，复审时会自动把对应评论标记为已解决，仍未处理的保持打开；应用 Copilot 修改建议时会生成更贴切的智能提交信息。底层审查现在可在 Agent 防火墙后调用完整 shell 工具（跑构建、测试、定向脚本）来验证代码，Lite 级别从单智能体改为多智能体合奏后汇总成一份审查。",
+      why: "自动解决减少了手动关闭过期评论的负担，让打开的评论始终代表“还没处理完的事”，对 PR 多、审查往返频繁的团队是明显提效。Lite 多智能体让低成本档位也能更全面：官方实验显示高严重度问题被处理数提升 47%、成本还降约 8%。新手要注意 shell 工具验证是在防火墙隔离环境内运行的，仍需自己确认测试是否真的覆盖了改动，不能因为“AI 跑过测试”就放弃人工判断。",
+      sourceLabel: "GitHub Changelog",
+      sourceUrl: "https://github.blog/changelog/2026-09-11-auto-resolution-and-analysis-updates-in-copilot-code-review/",
+      articleIdea: "已扩写：Copilot 代码审查实战：自动解决、Shell 验证与审查级别选择"
+    },
+    {
+      date: "2026-09-10",
+      tag: "AI 编程",
+      title: "Vercel 支持直接部署 OpenAI Agents API：长时运行、会用工具的 Agent 可托管上线",
+      summary: "Vercel 9 月 10 日上线与 OpenAI Agents API 的集成：Agent 循环和会话状态由 OpenAI 托管，Vercel 负责承载应用，并通过签名 webhook 和 Vercel Queues 为每个会话连接独立的 Vercel Sandbox 执行代码和访问文件，支持跨多轮指令保留文件的持久工作区，以及没有常驻 worker 的缩容到零架构。",
+      why: "这让新手不用自己管服务器和进程保活，就能把“能长时间运行、会调用工具、多轮之间记得文件”的 Agent 真正部署成线上服务，特别适合做代码执行型助手、自动化工作流。但要理解职责边界：Agent 大脑在 OpenAI、执行沙箱和队列在 Vercel，两边都要配置好密钥和 webhook，且每个会话一个隔离沙箱会带来相应的用量成本，上线前要先用官方示例跑通最小闭环再扩展。",
+      sourceLabel: "Vercel Changelog",
+      sourceUrl: "https://vercel.com/changelog/build-with-openai-agents-api-on-vercel",
+      articleIdea: "已扩写：在 Vercel 上部署长时运行 AI Agent 入门"
+    },
+    {
+      date: "2026-09-10",
+      tag: "云端部署",
+      title: "Cloudflare Workflows 新实例默认保留期从 30 天缩短到 7 天，降低默认存储成本",
+      summary: "Cloudflare 宣布 9 月 10 日起，Workers Paid 计划上新创建的 Workflows，其已完成和失败实例状态默认只保留 7 天（此前为 30 天），最长保留上限仍是 30 天；已有 Workflows 的保留期不受影响。",
+      why: "默认保留期缩短能减少状态存储开销，但如果你依赖 Workflows 实例历史做事后排查、审计或失败重放，7 天后这些状态就查不到了。新手需要知道这是“新实例默认值变了”而不是功能下线：有合规或排障需求的，应在创建 Workflow 时显式把保留期设回需要的天数，并把关键结果在实例结束时主动落到 D1、KV 或外部存储，不要只依赖 Workflows 自带的实例状态。",
+      sourceLabel: "Cloudflare Changelog",
+      sourceUrl: "https://developers.cloudflare.com/changelog/",
+      articleIdea: "候选：Cloudflare Workflows 状态持久化与保留期设置清单"
+    },
+    {
+      date: "2026-09-09",
+      tag: "AI 编程",
+      title: "GitHub 推出 Copilot Agent 操作的企业托管权限：集中管控命令、文件和网络，用户无法放宽",
+      summary: "GitHub 9 月 9 日面向 Copilot Business/Enterprise 正式开放 agent operations 托管权限，管理员可集中设定 shell 命令、文件读写、网络域名三类操作是“阻止、需人工批准还是免提示放行”，并能为不同场景下发专门策略。托管限制优先级最高，用户设置、工作区设置、自动批准或此前保存的批准都不能把它放宽。",
+      why: "Agent 能自己跑命令、改文件、发网络请求，权限边界一直是企业最担心的点。这个更新让管理员能在 Copilot 应用、CLI 和 VS Code（Agent Host）会话里强制统一护栏，且不会被个人“点过允许”绕过。个人开发者也应理解这套“策略优先、不可下放”的思路：团队协作时本地自动批准不等于真的放行，涉及敏感目录和命令仍以组织策略为准；新手在公司环境遇到 Agent 某操作被拦，应知道这是管理员策略而非软件故障。",
+      sourceLabel: "GitHub Changelog",
+      sourceUrl: "https://github.blog/changelog/2026-09-09-enterprise-managed-permissions-for-github-copilot-agent-operations/",
+      articleIdea: "候选：AI Agent 权限分层模型：从个人自动批准到企业强制策略"
+    },
+    {
+      date: "2026-09-09",
+      tag: "AI 终端",
+      title: "OpenAI Codex CLI 0.154.0：移除 codex mcp-server，新增 GPT-6-Astra 与实验性 worktree 隔离",
+      summary: "Codex CLI 0.154.0（9 月 9 日）包含一项破坏性变更：已废弃的 codex mcp-server 入口被彻底移除；同时模型选择器和 Amazon Bedrock 目录新增 GPT-6-Astra，新增 --worktree / /worktree 实验性工作树隔离（为新会话或分叉会话创建独立检出）、工作进行中可内联回答问题、Windows 共享后台服务。信任机制也收紧：建立信任前不运行工作区自带的辅助程序，macOS 沙箱阻止终端输入注入。",
+      why: "破坏性变更是升级前最该检查的：任何脚本、服务定义或编辑器集成如果还在调用 codex mcp-server，升级后会直接报错，必须先全局搜索替换。worktree 隔离则让你能让多个 Agent 任务在不同检出里并行、互不污染，是值得学的安全实践。新手升级前先 grep 一遍旧命令、在一个非关键项目验证信任与沙箱行为，再推广到主力环境。",
+      sourceLabel: "Codex CLI Releases / DEV 周报",
+      sourceUrl: "https://dev.to/aicoding-guide/this-week-in-claude-code-codex-and-gemini-cli-week-of-september-13-2026-1ob5",
+      articleIdea: "候选：用 Git Worktree 给 AI Agent 做任务隔离的实操方法"
+    },
+    {
+      date: "2026-09-08",
+      tag: "云端部署",
+      title: "Cloudflare Python Workers 默认升级到 Python 3.14，Pyodide 运行时更新到 314.0.6",
+      summary: "Cloudflare 宣布兼容日期为 2026-09-08 及之后的新建 Python Worker 默认使用 Python 3.14，底层 Pyodide 运行时升级到 314.0.6；已有 Worker 按其锁定的兼容日期保持不变。",
+      why: "新运行时带来语言新特性和性能改进，但也可能改变部分标准库行为。新手要抓住“按兼容日期决定版本”这个机制：想立刻用 3.14 就新建 Worker 或调整 wrangler.toml 的 compatibility_date；担心稳定性的老项目不动兼容日期即可继续跑旧版本。升级后应在 wrangler dev 本地完整回归一遍依赖和边缘场景，再改兼容日期部署，避免运行时静默变化导致线上报错。",
+      sourceLabel: "Cloudflare Changelog",
+      sourceUrl: "https://developers.cloudflare.com/changelog/product/workers/",
+      articleIdea: "候选：Cloudflare Workers 兼容日期机制与运行时升级验证流程"
+    },
+    {
+      date: "2026-09-08",
+      tag: "AI 编程",
+      title: "Copilot for JetBrains 支持企业托管沙箱，并加入跨文件跳转与全局项目上下文",
+      summary: "GitHub 9 月 8 日为 JetBrains 系列 IDE 中的 Copilot 带来企业托管沙箱策略，同时新增下一处编辑建议的跨文件光标跳转、聊天中的全局项目上下文、企业策略诊断，以及终端 Copilot 与编辑器的新连接能力。",
+      why: "用 IDEA、PyCharm、WebStorm 等 JetBrains IDE 的开发者这次补齐了和 VS Code 侧接近的 Agent 能力：全局项目上下文让 Copilot 回答时能参考整个工程而不只是当前文件，跨文件跳转让多文件改动更连贯。企业用户则可以由管理员统一约束沙箱行为。新手升级插件后应先在一个熟悉的小项目里体验“引用整个项目”的回答差异，并留意企业策略诊断面板，确认哪些能力被组织策略限制。",
+      sourceLabel: "GitHub Changelog",
+      sourceUrl: "https://github.blog/changelog/label/copilot/",
+      articleIdea: "候选：JetBrains 与 VS Code 中 Copilot Agent 能力对照"
+    },
     {
       date: "2026-09-07",
       tag: "AI 编程",

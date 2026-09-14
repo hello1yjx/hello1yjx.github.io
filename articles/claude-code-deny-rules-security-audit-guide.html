@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Claude Code 权限规则配置与安全自查指南：deny 为什么会失效，怎样确认保护真的生效 | 学习资源库</title>
+  <meta name="description" content="Claude Code 2.1.268 在 9 月 12 日修复了两类 deny/ask 权限规则被静默绕过的问题：作用于符号链接目录的规则在按真实路径访问时失效，以及一行命令里混入 env -C、eval 等无法静态分析的片段时同条 Read/Edit 规则不生效；同期还堵住了 ${VAR} 密钥被打印到屏幕的泄露。这篇指南带你理解 Claude Code 权限规则的匹配顺序，把 .env、密钥和系统目录真正保护起来，并给出一套升级后逐条验证规则是否生效的自查清单。">
+  <meta name="robots" content="index,follow,max-image-preview:large">
+  <link rel="canonical" href="https://hello1yjx.github.io/articles/claude-code-deny-rules-security-audit-guide.html">
+  <link rel="icon" type="image/png" href="../assets/images/brand-book-line.png">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"Claude Code 权限规则配置与安全自查指南：deny 为什么会失效，怎样确认保护真的生效","description":"Claude Code 2.1.268 在 9 月 12 日修复了两类 deny/ask 权限规则被静默绕过的问题：作用于符号链接目录的规则在按真实路径访问时失效，以及一行命令里混入 env -C、eval 等无法静态分析的片段时同条 Read/Edit 规则不生效；同期还堵住了 ${VAR} 密钥被打印到屏幕的泄露。这篇指南带你理解 Claude Code 权限规则的匹配顺序，把 .env、密钥和系统目录真正保护起来，并给出一套升级后逐条验证规则是否生效的自查清单。","datePublished":"2026-09-12","dateModified":"2026-09-12","author":{"@type":"Person","name":"Avery Lin","url":"https://hello1yjx.github.io/about.html"},"publisher":{"@type":"Organization","name":"学习资源库","url":"https://hello1yjx.github.io/"},"mainEntityOfPage":"https://hello1yjx.github.io/articles/claude-code-deny-rules-security-audit-guide.html","inLanguage":"zh-CN"}</script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6621999105936318" crossorigin="anonymous"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;800&family=Noto+Serif+SC:wght@700;900&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/styles.css?v=20260914-daily-update">
+</head>
+<body>
+  <header class="site-header">
+    <div class="page-shell site-header__inner">
+      <a class="brand" href="../index.html" aria-label="返回首页">
+        <span class="brand-mark" aria-hidden="true"><img src="../assets/images/brand-book-line.png" alt="" width="36" height="33"></span>
+        <span class="brand-copy"><strong>学习资源库</strong><span>分享知识 · 提升自己 · 成就未来</span></span>
+      </a>
+      <button class="menu-button" data-menu-button aria-expanded="false" aria-label="切换导航菜单">☰</button>
+      <nav class="site-nav" data-mobile-nav>
+        <a href="../index.html">首页</a>
+        <a class="is-active" href="../posts.html" aria-current="page">教程</a>
+        <a href="../resources.html">资源下载</a>
+        <a href="../resources.html#official-resources">工具导航</a>
+        <a href="../hotspots.html">技术资讯</a>
+        <a href="../projects.html">开源项目</a>
+        <a href="../about.html">关于我们</a>
+      </nav>
+      <form class="header-search" action="../posts.html" method="get">
+        <input type="search" name="q" placeholder="搜索教程、资源、工具或关键词...">
+        <button type="submit" aria-label="搜索">/</button>
+      </form>
+      <a class="header-github" href="https://github.com/hello1yjx/hello1yjx.github.io" target="_blank" rel="noreferrer" aria-label="GitHub">
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="" width="24" height="24">
+      </a>
+      <a class="header-cta" href="../posts.html">开始学习</a>
+    </div>
+  </header>
+
+  <main class="page-shell section article-page">
+    <header class="detail-hero">
+      <span class="pill">AI 终端</span>
+      <h1>Claude Code 权限规则配置与安全自查指南：deny 为什么会失效，怎样确认保护真的生效</h1>
+      <div class="detail-hero__meta">
+        <time datetime="2026-09-12">2026年9月12日</time>
+        <span>11 分钟</span>
+        <span>作者：Avery Lin</span>
+      </div>
+      <p>Claude Code 2.1.268 在 9 月 12 日修复了两类 deny/ask 权限规则被静默绕过的问题：作用于符号链接目录的规则在按真实路径访问时失效，以及一行命令里混入 env -C、eval 等无法静态分析的片段时同条 Read/Edit 规则不生效；同期还堵住了 ${VAR} 密钥被打印到屏幕的泄露。这篇指南带你理解 Claude Code 权限规则的匹配顺序，把 .env、密钥和系统目录真正保护起来，并给出一套升级后逐条验证规则是否生效的自查清单。</p>
+    </header>
+    <div class="article-layout">
+      <article class="article-body">
+        <div class="inline-promo">
+          <p class="label">来源与增量价值</p>
+          <h3>本文基于官方资料整理，并补充适用场景、限制条件和实践检查步骤。</h3>
+          <p>首要来源：<a href="https://dev.to/aicoding-guide/this-week-in-claude-code-codex-and-gemini-cli-week-of-september-13-2026-1ob5" target="_blank" rel="noreferrer">This week in Claude Code, Codex and Gemini CLI（含 2.1.268/2.1.269 修复明细）</a>。事实以原始来源为准，本站建议需结合自己的环境验证。</p>
+        </div>
+
+    <p>很多人用 Claude Code 时都会写 deny 规则，比如“不许读 .env”“不许改系统目录”，以为写了就安全。但 2.1.268 修复的问题说明，权限规则不是写上就一定生效：当目标路径是符号链接、或者命令行里夹带了权限检查器分析不了的片段时，你以为锁上的门其实一直开着。这类问题最危险的地方在于它不报错、不提示，Agent 照常运行，直到某次真的读到了密钥才暴露。</p><p>这篇教程不只是告诉你“升级到最新版”，更重要的是建立一套可复现的验证方法：写完每条 deny 规则后，用一个明确的探针动作去试，确认它确实被拦下。权限安全的核心不是配置写得多全，而是每一条关键规则都经过“预期被拦、实际也被拦”的验证。无论你用 Claude Code、Codex 还是其他终端 Agent，这套思路都通用。</p>
+    <h2>这篇内容适合谁</h2>
+    <ul><li>在 Claude Code 中配置过 settings.json 权限规则、想确认保护是否真正生效的开发者。</li><li>在项目里存放 .env、密钥、证书，担心被 AI Agent 误读或泄露的个人开发者和学生。</li><li>需要为团队制定终端 Agent 安全基线、要做权限审计的技术负责人。</li></ul>
+    <h2>实践与验证步骤</h2>
+    <ul><li>先升级到安全版本。两类 deny 绕过在 2.1.268 修复，2.1.269 又修复了以 ! 开头的 deny/ask 规则越出其设置来源生效的问题；如果你通过 ANTHROPIC_BASE_URL 接第三方兼容端点，2.1.265-2.1.267 还存在每轮 HTTP 400 的问题，必须升到 2.1.268 或以上。用 claude --version 确认当前版本。</li><li>理解权限规则的来源和优先级。Claude Code 的设置分为企业策略、用户设置、项目设置等多个来源，企业策略优先级最高且不能被下级放宽；普通项目里则要清楚 deny、ask、allow 三类规则的关系，deny 是硬禁止。先搞清楚规则写在哪个文件、对哪些目录生效，再谈具体规则。</li><li>补上符号链接这个盲区。旧版本里，对 /etc、/tmp、/var（macOS）或 /bin（Linux）这类符号链接目录写的 deny，按真实路径访问时不生效，Bash 命令用符号链接写法也会绕过。升级后重新检查：凡是规则目标可能是软链的，要同时覆盖链接路径和真实路径，并实际用两种写法各测一次。</li><li>避免一行命令混入无法分析的片段。旧版本中同一行出现 env -C 或 eval 这类检查器无法静态判断的内容时，同行的 Read/Edit deny 可能失效。实践上要把复杂命令拆开写、避免用 eval 动态拼接，对必须使用的场景显式补一条更宽的 deny，并在自查时专门构造这种复合命令验证。</li><li>保护密钥文件，顺手堵住密钥回显。用 deny 规则禁止读取 **/.env、**/*.pem、**/credentials 等敏感文件；2.1.268 还修复了 /mcp、/plugin 详情、claude mcp list/get 和 MCP 登录错误把 ${VAR} 解析后的密钥直接打印出来的问题，以及 git 源 URL 里 token 被显示的问题。通过环境变量给 MCP 传凭证的，要确认升级后这些命令不再回显明文。</li><li>为每条关键规则写一个“探针”验证。不要只看配置文件，要实际触发：比如 deny 了 .env，就让 Agent 尝试读取它，预期是被拒绝；用 Bash 的 cat、用 Read 工具、通过符号链接三种路径分别试。只有三种都被拦，才算这条规则真的生效，把结果记录到自查表。</li><li>建立基线并纳入日常。把验证通过的 settings.json 作为团队模板，新增一条 deny 就同步加一条探针；Claude Code、Codex、Gemini CLI 本周都在收紧权限（如 Gemini 0.59 对未信任工作区 fail-closed），可以把“升级版本→回归权限探针”固化成每次工具更新后的固定动作。</li><li>最后形成应急预案。明确如果发现规则失效或密钥可能被读取，要立即轮换相关密钥、检查 shell 历史和 Agent 会话记录、用 git 审计被改动的文件。安全配置的最后一道防线不是规则本身，而是假设它可能失效时的快速响应。</li></ul>
+    <h2>官方资料入口</h2>
+
+    <ul>
+
+            <li>
+              <a href="https://dev.to/aicoding-guide/this-week-in-claude-code-codex-and-gemini-cli-week-of-september-13-2026-1ob5" target="_blank" rel="noreferrer">This week in Claude Code, Codex and Gemini CLI（含 2.1.268/2.1.269 修复明细）</a>
+              <span>：2026 年 9 月 12 日发布的本周工具更新汇总，逐条列出符号链接、env -C/eval、! 规则越界、密钥回显等修复，以及升级自查清单。</span>
+            </li>
+
+            <li>
+              <a href="https://code.claude.com/docs/en/settings" target="_blank" rel="noreferrer">Claude Code 官方权限文档（settings.json permissions）</a>
+              <span>：权限规则的官方配置说明，用于核对 deny/ask/allow 语法与设置来源优先级。</span>
+            </li>
+
+            <li>
+              <a href="https://github.com/anthropics/claude-code/releases" target="_blank" rel="noreferrer">anthropics/claude-code Releases</a>
+              <span>：各版本发布说明原始来源，可核对 2.1.268、2.1.269 的具体修复条目与版本号。</span>
+            </li>
+
+    </ul>
+
+    <h2>重点判断与使用建议</h2>
+    <ul><li>deny 规则失效时不会报错，必须用探针动作主动验证，不能只凭配置文件判断安全。</li><li>两类经典绕过：符号链接按真实路径访问、同行混入 env -C/eval 等无法静态分析的命令。</li><li>密钥保护要双管齐下：deny 禁止读取 + 确认 MCP 命令不再把 ${VAR} 解析后的明文打印出来。</li><li>企业策略优先级最高且不可被个人设置、自动批准放宽，这一思路在 Copilot、Gemini 等工具上一致。</li></ul>
+
+        <h2>权限自查清单（逐条打勾）</h2>
+
+        <ul><li>claude --version 已达到 2.1.268 或以上（第三方端点用户避开 2.1.265-2.1.267）。</li><li>对 .env、*.pem、credentials 等密钥文件的 deny，用 Read、Bash cat、符号链接三种方式都被拦截。</li><li>对 /tmp、/var、/etc 等符号链接目录的 deny，同时覆盖链接路径与真实路径并各测一次。</li><li>构造含 env -C、eval 的复合命令，确认同行 Read/Edit deny 仍然生效。</li><li>运行 /mcp、claude mcp list，确认 ${VAR} 解析出的密钥不再以明文显示。</li><li>以 ! 开头的否定规则只在其所属设置来源内生效，没有越权作用到其他范围。</li></ul>
+
+
+
+        <h2>常见误判</h2>
+
+        <ul><li>以为写了 deny 就一定生效——符号链接和复合命令都可能让它静默失效。</li><li>只测最顺手的一种访问方式——必须覆盖不同工具和不同路径写法。</li><li>把密钥回显当成小问题——屏幕、录屏、日志都可能因此泄露凭证。</li><li>升级后不回归权限——版本更新可能改变规则行为，每次升级都要重跑探针。</li><li>用 eval 拼接命令图省事——这正是让权限检查器失效的高危写法。</li></ul>
+
+
+
+        <h2>延伸：本周另外两个工具的安全收紧</h2>
+
+        <ul><li>Codex CLI 0.154.0：建立工作区信任前不运行工作区自带辅助程序，macOS 沙箱阻止终端输入注入。</li><li>Gemini CLI 0.59.0：修复 MCP OAuth 元数据发现的 SSRF，未信任工作区 fail-closed 且不加载其中的 mcpServers。</li><li>共同趋势是 fail-closed：系统无法确定是否允许时默认拒绝，而不是放行。</li></ul>
+
+
+
+
+        <div class="inline-promo">
+          <p class="label">更正与更新</p>
+          <h3>发现版本变化、来源失效或事实错误时，请通过联系页反馈。</h3>
+          <p>本站会核对一手来源后更新内容，不使用无来源转载填充文章。</p>
+          <a class="button button--secondary" href="../editorial.html">查看内容标准</a>
+        </div>
+      </article>
+      <aside class="article-sidebar">
+        <div class="sidebar-card">
+          <p class="label">本页标签</p>
+          <div class="tag-row"><span>Claude Code</span><span>权限安全</span><span>终端 Agent</span></div>
+        </div>
+        <div class="sidebar-card">
+          <p class="label">继续阅读</p>
+          <a href="ai-agent-file-operation-safety-guide.html">AI Agent 文件操作安全防护指南：从 Claude 误删 700GB 事件看怎样保护你的代码和数据</a><a href="github-copilot-browser-tools-vscode-testing-guide.html">GitHub Copilot 浏览器工具 GA：新手怎样让 Agent 打开网页、测试交互并保留控制权</a><a href="vercel-services-polyglot-monorepo-checklist.html">Vercel Services Beta：新手怎样把前端、后端和内部调用放进同一个项目验收</a><a href="vercel-large-functions-5gb-beta-checklist.html">Vercel Large Functions 5GB Beta：新手怎样判断大依赖、AI 库和浏览器自动化能不能安全部署</a>
+        </div>
+        <div class="sidebar-card sidebar-card--accent">
+          <p class="label">作者与方法</p>
+          <h3>了解本站如何选题、核验来源与处理更正。</h3>
+          <a class="button button--dark" href="../about.html">关于作者</a>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="page-shell footer__inner">
+      <div><strong>学习资源库</strong><p>分享知识 · 提升自己 · 成就未来</p></div>
+      <div>
+        <a href="../editorial.html">内容标准</a><br>
+        <a href="../privacy.html">隐私政策</a><br>
+        <a href="../contact.html">联系</a>
+      </div>
+    </div>
+  </footer>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      var button = document.querySelector("[data-menu-button]");
+      var nav = document.querySelector("[data-mobile-nav]");
+      if (!button || !nav) return;
+      button.addEventListener("click", function () {
+        var expanded = button.getAttribute("aria-expanded") === "true";
+        button.setAttribute("aria-expanded", String(!expanded));
+        nav.classList.toggle("site-nav--open", !expanded);
+      });
+    });
+  </script>
+</body>
+</html>
