@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Claude Projects 多线程协作入门：设定目标、并行线程与共享记忆 | 学习资源库</title>
+  <meta name="description" content="Claude Code 9 月 17 日推出重新设计的 Projects（beta）：不再是文件夹，而是一个由 coordinator 调度多个并行 thread 的对话式项目。这篇教程讲清楚 Projects 适合什么任务、怎样设定目标和上下文、并行线程如何分工、共享记忆和文件库怎么用，以及 beta 阶段的限制和上线前的检查清单。适合已经在用 Claude Code、想把多仓库多任务交给 AI 并行处理的开发者。">
+  <meta name="robots" content="index,follow,max-image-preview:large">
+  <link rel="canonical" href="https://hello1yjx.github.io/articles/claude-projects-multi-thread-collaboration-guide.html">
+  <link rel="icon" type="image/png" href="../assets/images/brand-book-line.png">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"Claude Projects 多线程协作入门：设定目标、并行线程与共享记忆","description":"Claude Code 9 月 17 日推出重新设计的 Projects（beta）：不再是文件夹，而是一个由 coordinator 调度多个并行 thread 的对话式项目。这篇教程讲清楚 Projects 适合什么任务、怎样设定目标和上下文、并行线程如何分工、共享记忆和文件库怎么用，以及 beta 阶段的限制和上线前的检查清单。适合已经在用 Claude Code、想把多仓库多任务交给 AI 并行处理的开发者。","datePublished":"2026-09-17","dateModified":"2026-09-17","author":{"@type":"Person","name":"Avery Lin","url":"https://hello1yjx.github.io/about.html"},"publisher":{"@type":"Organization","name":"学习资源库","url":"https://hello1yjx.github.io/"},"mainEntityOfPage":"https://hello1yjx.github.io/articles/claude-projects-multi-thread-collaboration-guide.html","inLanguage":"zh-CN"}</script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6621999105936318" crossorigin="anonymous"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;800&family=Noto+Serif+SC:wght@700;900&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/styles.css?v=20260922-daily-update">
+</head>
+<body>
+  <header class="site-header">
+    <div class="page-shell site-header__inner">
+      <a class="brand" href="../index.html" aria-label="返回首页">
+        <span class="brand-mark" aria-hidden="true"><img src="../assets/images/brand-book-line.png" alt="" width="36" height="33"></span>
+        <span class="brand-copy"><strong>学习资源库</strong><span>分享知识 · 提升自己 · 成就未来</span></span>
+      </a>
+      <button class="menu-button" data-menu-button aria-expanded="false" aria-label="切换导航菜单">☰</button>
+      <nav class="site-nav" data-mobile-nav>
+        <a href="../index.html">首页</a>
+        <a class="is-active" href="../posts.html" aria-current="page">教程</a>
+        <a href="../resources.html">资源下载</a>
+        <a href="../resources.html#official-resources">工具导航</a>
+        <a href="../hotspots.html">技术资讯</a>
+        <a href="../projects.html">开源项目</a>
+        <a href="../about.html">关于我们</a>
+      </nav>
+      <form class="header-search" action="../posts.html" method="get">
+        <input type="search" name="q" placeholder="搜索教程、资源、工具或关键词...">
+        <button type="submit" aria-label="搜索">/</button>
+      </form>
+      <a class="header-github" href="https://github.com/hello1yjx/hello1yjx.github.io" target="_blank" rel="noreferrer" aria-label="GitHub">
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="" width="24" height="24">
+      </a>
+      <a class="header-cta" href="../posts.html">开始学习</a>
+    </div>
+  </header>
+
+  <main class="page-shell section article-page">
+    <header class="detail-hero">
+      <span class="pill">AI 编程</span>
+      <h1>Claude Projects 多线程协作入门：设定目标、并行线程与共享记忆</h1>
+      <div class="detail-hero__meta">
+        <time datetime="2026-09-17">2026年9月17日</time>
+        <span>10 分钟</span>
+        <span>作者：Avery Lin</span>
+      </div>
+      <p>Claude Code 9 月 17 日推出重新设计的 Projects（beta）：不再是文件夹，而是一个由 coordinator 调度多个并行 thread 的对话式项目。这篇教程讲清楚 Projects 适合什么任务、怎样设定目标和上下文、并行线程如何分工、共享记忆和文件库怎么用，以及 beta 阶段的限制和上线前的检查清单。适合已经在用 Claude Code、想把多仓库多任务交给 AI 并行处理的开发者。</p>
+    </header>
+    <div class="article-layout">
+      <article class="article-body">
+        <div class="inline-promo">
+          <p class="label">来源与增量价值</p>
+          <h3>本文基于官方资料整理，并补充适用场景、限制条件和实践检查步骤。</h3>
+          <p>首要来源：<a href="https://claude.com/blog/projects-redesigned" target="_blank" rel="noreferrer">Projects redesigned: from folder to conversation</a>。事实以原始来源为准，本站建议需结合自己的环境验证。</p>
+        </div>
+
+    <p>过去用 Claude Code 做一个涉及多个仓库或多组改动的任务，你需要自己拆分工作、分别开会话、手动交接结果、最后再拼到一起。9 月 17 日 Anthropic 在 Claude Code 推出重新设计的 Projects（beta），把这个流程变成：你描述目标，Claude 自动规划、拆分、并行执行、审查并汇总。</p><p>这篇教程不讲概念堆砌，而是带你走一遍从创建项目到拿到结果的完整流程，重点讲清楚哪些任务适合用 Projects、并行线程的分工逻辑、共享记忆和文件库的实际用法，以及 beta 阶段必须注意的限制和成本。读完你能判断自己的任务该不该用 Projects，并知道怎样设置才能让结果可控。</p>
+    <h2>这篇内容适合谁</h2>
+    <ul><li>已经在用 Claude Code、经常同时处理多个仓库或多组改动的开发者</li><li>想把重复性的迁移、测试、PR 批量任务交给 AI 并行执行的团队成员</li><li>对 AI Agent 多线程协作机制感兴趣、想理解 coordinator 和 thread 如何分工的学习者</li></ul>
+    <h2>实践与验证步骤</h2>
+    <ul><li>判断任务是否适合 Projects：多仓库、多组改动、可并行、有明确目标</li><li>创建项目：设定目标、选择仓库/上下文、配置云环境和模型</li><li>理解 coordinator 和 thread：coordinator 调度，thread 在独立分支干活</li><li>监控和引导：在主对话看进度，深入单个 thread 调整细节</li><li>利用共享记忆和文件库：让跨线程的决策和产物可复用</li><li>处理合并冲突：多个 thread 改同一代码时按 PR 冲突处理</li><li>审查结果并合并：检查每个 thread 的 PR，按依赖顺序合并</li><li>复盘成本和限制：beta 阶段的额度消耗、云端运行、本地运行即将推出</li></ul>
+    <h2>官方资料入口</h2>
+
+    <ul>
+
+            <li>
+              <a href="https://claude.com/blog/projects-redesigned" target="_blank" rel="noreferrer">Projects redesigned: from folder to conversation</a>
+              <span>：官方公告，含 beta 开放范围和 threads/coordinator 机制说明</span>
+            </li>
+
+            <li>
+              <a href="https://code.claude.com/docs" target="_blank" rel="noreferrer">Claude Code 文档</a>
+              <span>：Projects 的具体操作和配置参考</span>
+            </li>
+
+    </ul>
+
+    <h2>重点判断与使用建议</h2>
+    <ul><li>并行线程越多消耗额度越快，项目设置里可分别指定 coordinator 和 worker thread 的模型与 effort 级别</li><li>每个 thread 是独立的 Claude Code 云会话，在自己的分支和仓库副本上工作，不会直接污染主分支</li><li>线程目前在云端运行，本地运行（使用你本地工具和代码、在你网络后）即将推出</li><li>beta 目前面向部分 Pro/Max 云会话用户且无现有 projects，可加入 waitlist；Team/Enterprise 后续支持</li></ul>
+
+        <h2>一、什么样的任务适合 Projects</h2>
+
+        <ul><li>多仓库联动：比如同时改 API、web、mobile 三个仓库来废弃一个旧端点，每个仓库一个 thread 并行迁移</li><li>可并行的批量任务：比如给多个服务加同一类配置、批量跑测试并开 PR，thread 之间互不依赖</li><li>有明确完成标准的目标：比如“把 checkout p75 延迟降到 X 以下”，Claude 可以 profiling、优化、测试循环推进</li><li>不适合：单文件小改动（直接普通会话更快）、需要你实时盯着每一步调试的任务、代码不允许离开本地的敏感项目</li></ul>
+
+
+
+        <h2>二、创建项目的关键设置</h2>
+
+        <ul><li>目标要具体可衡量：不要写“优化性能”，写“把 checkout 接口 p75 从 800ms 降到 500ms 以下，不改变 API 契约”</li><li>上下文选择准确：只连需要的仓库和文档，过多上下文会增加 token 消耗并可能让 Claude 分心</li><li>云环境配置：可配置 connectors、plugins、instructions，这些会被所有 thread 共享，提前配好能减少重复设置</li><li>模型和 effort：coordinator 用较强模型做规划和审查，worker thread 可根据任务复杂度选，项目设置里可分别指定</li></ul>
+
+
+
+        <h2>三、并行线程怎样分工和监控</h2>
+
+        <ul><li>Claude 会自动建议可以立即开始的工作，你可以确认或调整分工，也可以在主对话随时追加新需求</li><li>主项目对话显示整体进度和 coordinator 的汇总，想深入细节就点进单个 thread 看具体执行过程</li><li>每个 thread 可以进一步用 subagents、loops、workflows 拆分自己的任务，大任务能更快完成</li><li>thread 之间如果改了同一处代码，重叠会像普通 PR 一样产生合并冲突，需要你或 Claude 解决，不要假设并行就一定无冲突</li></ul>
+
+
+
+        <h2>四、共享记忆和文件库</h2>
+
+        <ul><li>所有 thread 共享一份项目记忆：Claude 会记住发布时间改到周五、为什么砍掉某个功能、改 billing 前要找谁确认</li><li>记忆是逐步积累的，项目跑越久 Claude 越了解项目细节，减少了你每次重复交代背景的负担</li><li>文件库收集你添加的文件和 Claude 产生的产物，新工作可以基于过去的产物继续，不用从头找材料</li><li>注意：记忆是 AI 的理解摘要，关键决策和精确参数建议你自己也记录一份，不要完全依赖记忆不丢失</li></ul>
+
+
+
+        <h2>五、beta 阶段的限制和成本</h2>
+
+        <ul><li>额度消耗：Projects 可以同时跑多个 thread，每个都是完整 Claude Code 会话，会比单会话更快达到使用上限</li><li>运行位置：目前 thread 在云端运行，意味着代码会在云环境处理；本地运行（用你本地工具和网络）即将推出</li><li>开放范围：beta 目前面向部分 Pro/Max 云会话用户，且要求没有现有 projects；Team/Enterprise 计划后续支持</li><li>行为可能变化：beta 功能的接口和行为可能调整，重要项目不要完全依赖 beta 功能作为唯一工作流</li></ul>
+
+
+
+        <h2>六、上线前检查清单</h2>
+
+        <ul><li>任务适用性确认：是多仓库/可并行/有明确目标吗？单仓库小改动直接用普通会话</li><li>目标具体可衡量：有明确的完成标准和不改变的约束（如 API 契约、性能基线）</li><li>上下文最小化：只连需要的仓库和文档，避免无关上下文增加消耗和干扰</li><li>模型档位合理：coordinator 用强模型，worker 按任务复杂度选，定期检查项目级用量</li><li>合并顺序明确：多个 PR 之间有依赖时，先合底层再合上层，不要一次性全合并</li><li>敏感代码评估：代码不允许离开本地吗？如果是，等本地运行推出后再用</li><li>结果人工审查：每个 thread 的 PR 都要自己过一遍，AI 并行执行不等于 AI 对结果负责</li></ul>
+
+
+
+
+        <div class="inline-promo">
+          <p class="label">更正与更新</p>
+          <h3>发现版本变化、来源失效或事实错误时，请通过联系页反馈。</h3>
+          <p>本站会核对一手来源后更新内容，不使用无来源转载填充文章。</p>
+          <a class="button button--secondary" href="../editorial.html">查看内容标准</a>
+        </div>
+      </article>
+      <aside class="article-sidebar">
+        <div class="sidebar-card">
+          <p class="label">本页标签</p>
+          <div class="tag-row"><span>Claude Code</span><span>Projects</span><span>多线程</span><span>AI Agent</span><span>并行协作</span></div>
+        </div>
+        <div class="sidebar-card">
+          <p class="label">继续阅读</p>
+          <a href="vercel-openai-agents-long-running-deploy-guide.html">在 Vercel 上部署长时运行 AI Agent 入门：OpenAI Agents API + Sandbox + Queues 最小闭环</a><a href="github-hydrafusion-model-orchestration-guide.html">GitHub HydraFusion 多模型编排入门：三种模式、成本权衡与新手试用验收</a><a href="cloudflare-workers-64mib-bundle-optimization-guide.html">Cloudflare Workers 包体积上限提升到 64 MiB：新手部署优化与依赖裁剪指南</a><a href="ai-agent-file-operation-safety-guide.html">AI Agent 文件操作安全防护指南：从 Claude 误删 700GB 事件看怎样保护你的代码和数据</a>
+        </div>
+        <div class="sidebar-card sidebar-card--accent">
+          <p class="label">作者与方法</p>
+          <h3>了解本站如何选题、核验来源与处理更正。</h3>
+          <a class="button button--dark" href="../about.html">关于作者</a>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="page-shell footer__inner">
+      <div><strong>学习资源库</strong><p>分享知识 · 提升自己 · 成就未来</p></div>
+      <div>
+        <a href="../editorial.html">内容标准</a><br>
+        <a href="../privacy.html">隐私政策</a><br>
+        <a href="../contact.html">联系</a>
+      </div>
+    </div>
+  </footer>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      var button = document.querySelector("[data-menu-button]");
+      var nav = document.querySelector("[data-mobile-nav]");
+      if (!button || !nav) return;
+      button.addEventListener("click", function () {
+        var expanded = button.getAttribute("aria-expanded") === "true";
+        button.setAttribute("aria-expanded", String(!expanded));
+        nav.classList.toggle("site-nav--open", !expanded);
+      });
+    });
+  </script>
+</body>
+</html>

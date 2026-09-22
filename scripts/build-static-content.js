@@ -1,10 +1,10 @@
-﻿const fs = require("fs");
+const fs = require("fs");
 const path = require("path");
 const vm = require("vm");
 
 const root = path.resolve(__dirname, "..");
 const appPath = path.join(root, "assets", "app.js");
-const version = "20260914-daily-update";
+const version = "20260922-daily-update";
 const siteUrl = "https://hello1yjx.github.io";
 
 function loadSiteRuntime() {

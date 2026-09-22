@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://cdn.jsdelivr.net">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;800&family=Noto+Serif+SC:wght@700;900&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/styles.css?v=20260914-daily-update">
+  <link rel="stylesheet" href="assets/styles.css?v=20260922-daily-update">
 </head>
 <body>
   <header class="site-header">
@@ -77,6 +77,226 @@
       <div class="hotspot-grid" data-hotspot-list>
         <!-- STATIC_HOTSPOTS_START -->
 <article class="hotspot-card reveal">
+      <div class="hotspot-card__head">
+        <span class="hotspot-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="AI 编程 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <div>
+          <div class="hotspot-card__meta">
+            <span>AI 编程</span>
+            <time datetime="2026-09-21">2026年9月21日</time>
+          </div>
+          <h3>Grok 4.7 上线 GitHub Copilot：SpaceXAI 最强编码模型，主打速度与性价比</h3>
+        </div>
+      </div>
+      <p>GitHub 9 月 21 日宣布 Grok 4.7 在 Copilot 可用。SpaceXAI 同日发布该模型，采用更大规模基础模型并经过更长时间强化学习，定位为其目前最强的编码和知识处理模型，官方称速度是同类模型两倍、价格只有一半，针对编程和知识工作场景优化。</p>
+      <div class="hotspot-card__why">
+        <strong>为什么值得关注</strong>
+        <p>Copilot 的模型池持续扩容，新手又多了一个高性价比选项，尤其适合对响应速度敏感、预算有限的编码场景。但新模型刚上线，稳定性和代码质量还需要在自己的真实任务上验证，不要因为宣传参数就直接切到主力；建议先在低风险任务上和常用模型做对比，确认质量达标后再决定是否长期使用。</p>
+      </div>
+      <p class="hotspot-card__idea">候选：Copilot 多模型横评：怎样按任务类型和预算选模型</p>
+      <a class="text-link" href="https://github.blog/changelog/label/copilot/" target="_blank" rel="noreferrer">查看来源：GitHub Changelog</a>
+    </article>
+
+    <article class="hotspot-card reveal">
+      <div class="hotspot-card__head">
+        <span class="hotspot-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="代码质量 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <div>
+          <div class="hotspot-card__meta">
+            <span>代码质量</span>
+            <time datetime="2026-09-18">2026年9月18日</time>
+          </div>
+          <h3>Copilot 代码审查改进体验正式可用：进度一目了然，自动解决更智能，批量建议生成提交信息</h3>
+        </div>
+      </div>
+      <p>GitHub 9 月 18 日将 Copilot 代码审查改进体验转为正式可用：刷新后的概览评论按 Open（未处理，含 new 标记）、Resolved since last review（已验证修复）、Previously missed（复审新发现的存量问题）分组展示，并标注审查级别和严重度；每条评论新增简短标题；自动解决改进为尊重“保持打开”的回复，并按 Won't Fix 或 Incorrect 给出解决原因；批量应用建议时生成相关提交标题和描述。</p>
+      <div class="hotspot-card__why">
+        <strong>为什么值得关注</strong>
+        <p>这让 PR 审查从“一堆评论里找重点”变成“按状态分组、一眼看清还剩什么”，对多轮往返的 PR 尤其提效。Previously missed 分组提醒我们：复审可能发现之前漏掉的问题，不能因为第一轮没报就认为代码没问题。新手要善用概览评论的分组和严重度排序优先处理高危项，同时对 Won't Fix 的结论自己再确认一次，避免 AI 误判导致真实问题被关闭。</p>
+      </div>
+      <p class="hotspot-card__idea">候选：Copilot 代码审查进阶：用分组概览和自动解决管理多轮 PR</p>
+      <a class="text-link" href="https://github.blog/changelog/2026-09-18-copilot-code-review-an-improved-review-experience/" target="_blank" rel="noreferrer">查看来源：GitHub Changelog</a>
+    </article>
+
+    <article class="hotspot-card reveal">
+      <div class="hotspot-card__head">
+        <span class="hotspot-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/docker/docker-original.svg" alt="云端部署 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <div>
+          <div class="hotspot-card__meta">
+            <span>云端部署</span>
+            <time datetime="2026-09-18">2026年9月18日</time>
+          </div>
+          <h3>Vercel Spend Management 扩展到企业灵活承诺计划：可设预算、告警，甚至自动暂停生产部署</h3>
+        </div>
+      </div>
+      <p>Vercel 9 月 18 日宣布 Spend Management 支持 Enterprise Flexible Commitment 计划，企业团队可为项目设置花费预算，配套邮件告警、webhook 通知，并可选在超支时自动暂停生产部署。同日 WebMCP 支持也已上线。</p>
+      <div class="hotspot-card__why">
+        <strong>为什么值得关注</strong>
+        <p>AI Agent 和 Serverless 应用的花费容易失控（长时运行任务、并发沙箱、大流量都会快速烧钱），Spend Management 把“事后看账单”变成“事前设上限、事中告警、极端情况自动止损”。新手和小团队尤其要在上线前就配置预算和告警，不要等收到超支账单才发现；自动暂停生产部署是强力手段，建议先从告警开始，确认阈值合理后再考虑自动暂停，避免误伤正常业务。</p>
+      </div>
+      <p class="hotspot-card__idea">候选：Serverless 与 AI Agent 应用成本控制清单</p>
+      <a class="text-link" href="https://vercel.com/changelog" target="_blank" rel="noreferrer">查看来源：Vercel Changelog</a>
+    </article>
+
+    <article class="hotspot-card reveal">
+      <div class="hotspot-card__head">
+        <span class="hotspot-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="AI 编程 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <div>
+          <div class="hotspot-card__meta">
+            <span>AI 编程</span>
+            <time datetime="2026-09-17">2026年9月17日</time>
+          </div>
+          <h3>Claude Projects 重新设计（beta）：从文件夹变成对话，Claude 自动拆分并行线程并汇总结果</h3>
+        </div>
+      </div>
+      <p>Anthropic 9 月 17 日在 Claude Code 推出重新设计的 Projects（beta）：用户设定目标和仓库/上下文后，Claude 自动规划范围、拆分工作、协调并行线程、审查输出并组装最终结果。每个线程是一个独立的 Claude Code 云会话，在自己的分支和仓库副本上工作，重叠部分按合并冲突处理；项目内所有线程共享记忆和文件库，Claude 会逐步学习项目细节和你的沟通风格。目前面向部分 Pro/Max 云会话用户开放。</p>
+      <div class="hotspot-card__why">
+        <strong>为什么值得关注</strong>
+        <p>这把“一个会话干一件事”推进到“一个项目自动并行干多件事”，对需要同时改多个仓库、跑多组测试、开多个 PR 的任务非常有价值，新手不用自己手动拆分和交接。但要注意：并行线程越多消耗额度越快，且线程在云端运行（本地运行即将推出），涉及敏感代码要先确认云环境合规；beta 阶段行为可能变化，建议先用一个非关键小项目体验并行流程，再用于重要工作。</p>
+      </div>
+      <p class="hotspot-card__idea">已扩写：Claude Projects 多线程协作入门：设定目标、并行线程与共享记忆</p>
+      <a class="text-link" href="https://claude.com/blog/projects-redesigned" target="_blank" rel="noreferrer">查看来源：Anthropic Blog</a>
+    </article>
+
+    <article class="hotspot-card reveal">
+      <div class="hotspot-card__head">
+        <span class="hotspot-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="AI 编程 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <div>
+          <div class="hotspot-card__meta">
+            <span>AI 编程</span>
+            <time datetime="2026-09-17">2026年9月17日</time>
+          </div>
+          <h3>Copilot 自动模型选择新增三档：efficiency / balance / intelligence，按成本与质量偏好选</h3>
+        </div>
+      </div>
+      <p>GitHub 更新 Copilot 自动模型选择，提供 efficiency（效率优先）、balance（平衡）、intelligence（智能优先）三个档位，用户可根据对成本和质量的偏好选择档位，系统在该档位内自动路由到合适模型。</p>
+      <div class="hotspot-card__why">
+        <strong>为什么值得关注</strong>
+        <p>自动选模型的痛点是“不知道系统在省钱还是在追求质量”，三档把这个权衡显性化了：日常简单补全用 efficiency 省额度，复杂重构和调试用 intelligence 保质量，中间场景用 balance。新手要理解档位不是“越强越好”，而是按任务类型匹配——全用 intelligence 会显著增加花费，全用 efficiency 可能在复杂任务上质量不足。建议按项目或任务类型设置默认档，并定期看用量报告确认实际路由是否符合预期。</p>
+      </div>
+      <p class="hotspot-card__idea">已扩写：Copilot 自动模型选择三档配置与成本控制指南</p>
+      <a class="text-link" href="https://github.blog/search/copilot/" target="_blank" rel="noreferrer">查看来源：GitHub Blog</a>
+    </article>
+
+    <article class="hotspot-card reveal">
+      <div class="hotspot-card__head">
+        <span class="hotspot-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/python/python-original.svg" alt="AI 终端 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <div>
+          <div class="hotspot-card__meta">
+            <span>AI 终端</span>
+            <time datetime="2026-09-17">2026年9月17日</time>
+          </div>
+          <h3>Codex CLI 0.155.0：实验性语音对话、Touch ID 验证 MCP 请求、实时推理摘要</h3>
+        </div>
+      </div>
+      <p>OpenAI Codex CLI 0.155.0 发布：新增实验性 /voice 语音对话（开启 /experimental 后可用，带实时转写和麦克风控制）；状态栏显示实时推理摘要和轮次完成时间戳；Mac 上支持用 Touch ID（Secure Enclave 签名）验证 MCP 请求，减少敏感工具调用的确认摩擦；agents 概览新增任务隐藏、归档和删除；另有 worktree 所有权和守护进程更新改进。</p>
+      <div class="hotspot-card__why">
+        <strong>为什么值得关注</strong>
+        <p>语音对话让终端 Agent 可以脱离键盘输入，适合边走边想方案或口述需求的场景；Touch ID 验证 MCP 是安全与体验的平衡——既不每次弹窗打断，又用生物识别保证敏感操作有确认。新手要注意 /voice 是实验性功能，需手动开启且可能不稳定；Touch ID 只在支持的 Mac 上可用，Windows/Linux 用户仍用常规确认。升级前和之前一样要检查是否有脚本依赖已移除的旧入口。</p>
+      </div>
+      <p class="hotspot-card__idea">已扩写：Codex CLI 0.155 新功能上手：语音对话与 Touch ID MCP 安全验证</p>
+      <a class="text-link" href="https://aicoder.com/news/news-20260918-codex-cli-0155-voice" target="_blank" rel="noreferrer">查看来源：Codex CLI Releases / AICoder</a>
+    </article>
+
+    <article class="hotspot-card reveal">
+      <div class="hotspot-card__head">
+        <span class="hotspot-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/docker/docker-original.svg" alt="云端部署 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <div>
+          <div class="hotspot-card__meta">
+            <span>云端部署</span>
+            <time datetime="2026-09-17">2026年9月17日</time>
+          </div>
+          <h3>Vercel CLI 支持亚秒级静态产物部署：静态文件上传不到一秒</h3>
+        </div>
+      </div>
+      <p>Vercel 9 月 17 日宣布 Vercel CLI 支持 sub-second artifact deployments，可将静态产物部署到 Vercel 耗时不到一秒，适合频繁迭代静态内容、文档站和资源文件的场景。</p>
+      <div class="hotspot-card__why">
+        <strong>为什么值得关注</strong>
+        <p>部署速度从“等几十秒”变成“几乎即时”，对需要频繁验证静态页面效果、快速回滚或批量更新资源的开发者体验提升明显。但要注意这是针对静态产物的优化，含 Serverless Functions、Edge Functions 或构建步骤的部署仍需正常构建时间；新手不要因为部署快就跳过本地验证，快不等于对，部署后仍要检查实际渲染结果。</p>
+      </div>
+      <p class="hotspot-card__idea">候选：静态站点快速部署与回滚操作清单</p>
+      <a class="text-link" href="https://vercel.com/changelog" target="_blank" rel="noreferrer">查看来源：Vercel Changelog</a>
+    </article>
+
+    <article class="hotspot-card reveal">
+      <div class="hotspot-card__head">
+        <span class="hotspot-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/python/python-original.svg" alt="云端部署 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <div>
+          <div class="hotspot-card__meta">
+            <span>云端部署</span>
+            <time datetime="2026-09-17">2026年9月17日</time>
+          </div>
+          <h3>Cloudflare Workers AI 新增 rejectIfBusy：同步推理请求忙时直接拒绝而非排队</h3>
+        </div>
+      </div>
+      <p>Cloudflare 9 月 17 日为 Workers AI 同步推理新增 rejectIfBusy 选项，当推理资源繁忙时，请求会被直接拒绝而不是排队等待，调用方可据此快速降级或切换到其他模型/回退方案。</p>
+      <div class="hotspot-card__why">
+        <strong>为什么值得关注</strong>
+        <p>AI 推理在高峰时段可能排队，rejectIfBusy 让你主动选择“不等了”，配合回退逻辑可以保证用户体验——比如忙时切换到更小更快的模型或返回缓存结果，而不是让用户干等。新手要理解这是“快速失败”设计，必须在代码里处理被拒绝的情况（捕获错误、执行降级），否则用户会看到报错；建议同时配置好回退模型和超时，不要只依赖单一推理路径。</p>
+      </div>
+      <p class="hotspot-card__idea">候选：Workers AI 推理降级与回退设计</p>
+      <a class="text-link" href="https://developers.cloudflare.com/changelog/product-group/ai/" target="_blank" rel="noreferrer">查看来源：Cloudflare Changelog</a>
+    </article>
+
+    <article class="hotspot-card reveal">
+      <div class="hotspot-card__head">
+        <span class="hotspot-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="AI 编程 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <div>
+          <div class="hotspot-card__meta">
+            <span>AI 编程</span>
+            <time datetime="2026-09-16">2026年9月16日</time>
+          </div>
+          <h3>Copilot 预算增加请求正式可用：用户可申请提升额度，批准后立即恢复 AI 访问</h3>
+        </div>
+      </div>
+      <p>GitHub 9 月 16 日宣布 Copilot budget increase requests 正式可用，面向 usage-based billing 的 Business 和 Enterprise 计划。当用户 AI credits 用完时，可直接在 Copilot 中提交增加预算的请求，管理员批准后立即恢复访问，无需等待账单周期。托管用户（managed users）暂不支持。</p>
+      <div class="hotspot-card__why">
+        <strong>为什么值得关注</strong>
+        <p>之前额度用完只能等下个周期或找管理员手动调，现在用户可以自助申请、批准即生效，减少了“正做到一半被打断”的尴尬。对团队管理员来说，这也意味着会收到更多预算申请，需要提前设定好审批标准和预算上限，避免无节制增加。个人用户如果频繁遇到额度耗尽，应回顾是哪些任务消耗大（长时 Agent、多模型审查），考虑用更省的档位或拆分任务，而不是一味加预算。</p>
+      </div>
+      <p class="hotspot-card__idea">候选：AI 编程工具额度管理与成本优化实践</p>
+      <a class="text-link" href="https://github.blog/changelog/2026-09-16-copilot-budget-increase-requests-are-generally-available/" target="_blank" rel="noreferrer">查看来源：GitHub Changelog</a>
+    </article>
+
+    <article class="hotspot-card reveal">
+      <div class="hotspot-card__head">
+        <span class="hotspot-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/docker/docker-original.svg" alt="云端部署 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <div>
+          <div class="hotspot-card__meta">
+            <span>云端部署</span>
+            <time datetime="2026-09-15">2026年9月15日</time>
+          </div>
+          <h3>Cloudflare WAF 新增 SSRF 与命令注入检测：云元数据 SSRF 从记录改为拦截，9 月 22 日生效</h3>
+        </div>
+      </div>
+      <p>Cloudflare 9 月 15 日发布 WAF 规则更新（9 月 22 日生效）：Managed Ruleset 新增针对云元数据的 SSRF 检测（SSRF - Cloud - 3，从 Log 改为 Block）、命令注入尝试新检测，以及针对版本控制历史信息泄露的检测；另有针对 jar HTTP loopback payload 的 SSRF 新规则（先 Log）。</p>
+      <div class="hotspot-card__why">
+        <strong>为什么值得关注</strong>
+        <p>SSRF（服务端请求伪造）是云环境最高危的漏洞之一，攻击者可通过它访问云元数据服务窃取凭证。Cloudflare 把云元数据 SSRF 从“只记录”升级为“直接拦截”，等于默认帮你挡住这类攻击。但 WAF 是外围防护，不能替代应用层修复——新手仍需在代码里校验所有用户可控的 URL，禁止访问内网和元数据地址（169.254.169.254），并关注 9/22 生效后是否有误拦截正常请求。</p>
+      </div>
+      <p class="hotspot-card__idea">候选：SSRF 防护清单：从 WAF 到应用层校验</p>
+      <a class="text-link" href="https://developers.cloudflare.com/changelog/" target="_blank" rel="noreferrer">查看来源：Cloudflare Changelog</a>
+    </article>
+
+    <article class="hotspot-card reveal">
+      <div class="hotspot-card__head">
+        <span class="hotspot-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/python/python-original.svg" alt="AI 编程 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <div>
+          <div class="hotspot-card__meta">
+            <span>AI 编程</span>
+            <time datetime="2026-09-14">2026年9月14日</time>
+          </div>
+          <h3>Claude Messages API 支持按需压缩对话（beta）：后台压缩、保留最近轮次、可携带反思</h3>
+        </div>
+      </div>
+      <p>Anthropic 9 月 14 日宣布 Messages API 新增按需对话压缩能力（beta，需 compact-2026-09-04 请求头）：传入 compaction 参数后，API 返回一个签名的 compaction 块，对之前的消息做摘要；后续请求把该块放在最前面替代原消息即可。压缩可在后台执行，你可以选择何时压缩，并在摘要后逐字保留最近若干轮；对支持反思保留的模型，被保留轮次中的反思仍然有效。</p>
+      <div class="hotspot-card__why">
+        <strong>为什么值得关注</strong>
+        <p>长对话的 token 消耗和上下文窗口限制是使用大模型 API 的常见痛点，按需压缩让你自己控制“什么时候压、压后保留多少”，而不是等模型自动截断。对做长时 Agent、多轮对话应用的开发者很有价值。新手要注意这是 beta 功能，接口可能变化；压缩是有损摘要，关键细节（如凭证、精确参数）不应只存在于被压缩的部分，要单独持久化；并测试压缩后模型对历史细节的回忆是否符合预期。</p>
+      </div>
+      <p class="hotspot-card__idea">候选：长对话 API 压缩与上下文管理实践</p>
+      <a class="text-link" href="https://platform.claude.com/docs/en/release-notes/overview" target="_blank" rel="noreferrer">查看来源：Claude Platform Release Notes</a>
+    </article>
+
+    <article class="hotspot-card reveal">
       <div class="hotspot-card__head">
         <span class="hotspot-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/python/python-original.svg" alt="AI 终端 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
         <div>
@@ -3754,6 +3974,6 @@
     </div>
   </footer>
 
-  <script src="assets/app.js?v=20260914-daily-update"></script>
+  <script src="assets/app.js?v=20260922-daily-update"></script>
 </body>
 </html>

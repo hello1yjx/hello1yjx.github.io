@@ -1,4 +1,4 @@
-﻿const siteData = {
+const siteData = {
   site: {
     name: "学习资源库",
     tagline: "分享知识 · 提升自己 · 成就未来",
@@ -9,7 +9,7 @@
     bio: "把官方入口、学习路线、示例代码和可扩展资料放进同一张地图里，让第一次来的人也能马上知道从哪里开始。",
     heroStats: [
       { value: "9", label: "原创下载包" },
-      { value: "64", label: "新手专题" },
+      { value: "67", label: "新手专题" },
       { value: "持续", label: "更新与核验" }
     ],
     valueCards: [
@@ -28,6 +28,324 @@
     ]
   },
   posts: [
+    {
+      id: "claude-projects-multi-thread-collaboration-guide",
+      title: "Claude Projects 多线程协作入门：设定目标、并行线程与共享记忆",
+      date: "2026-09-17",
+      category: "AI 编程",
+      readTime: "10 分钟",
+      excerpt: "Claude Code 9 月 17 日推出重新设计的 Projects（beta）：不再是文件夹，而是一个由 coordinator 调度多个并行 thread 的对话式项目。这篇教程讲清楚 Projects 适合什么任务、怎样设定目标和上下文、并行线程如何分工、共享记忆和文件库怎么用，以及 beta 阶段的限制和上线前的检查清单。适合已经在用 Claude Code、想把多仓库多任务交给 AI 并行处理的开发者。",
+      tags: ["Claude Code", "Projects", "多线程", "AI Agent", "并行协作"],
+      featured: false,
+      intro: [
+        "过去用 Claude Code 做一个涉及多个仓库或多组改动的任务，你需要自己拆分工作、分别开会话、手动交接结果、最后再拼到一起。9 月 17 日 Anthropic 在 Claude Code 推出重新设计的 Projects（beta），把这个流程变成：你描述目标，Claude 自动规划、拆分、并行执行、审查并汇总。",
+        "这篇教程不讲概念堆砌，而是带你走一遍从创建项目到拿到结果的完整流程，重点讲清楚哪些任务适合用 Projects、并行线程的分工逻辑、共享记忆和文件库的实际用法，以及 beta 阶段必须注意的限制和成本。读完你能判断自己的任务该不该用 Projects，并知道怎样设置才能让结果可控。"
+      ],
+      audience: [
+        "已经在用 Claude Code、经常同时处理多个仓库或多组改动的开发者",
+        "想把重复性的迁移、测试、PR 批量任务交给 AI 并行执行的团队成员",
+        "对 AI Agent 多线程协作机制感兴趣、想理解 coordinator 和 thread 如何分工的学习者"
+      ],
+      format: [
+        "全文按“适用场景 → 创建项目 → 并行线程 → 共享记忆 → 限制与成本 → 检查清单”组织",
+        "每一步都给出具体操作和验证要点，不只是翻译官方文档"
+      ],
+      roadmap: [
+        "判断任务是否适合 Projects：多仓库、多组改动、可并行、有明确目标",
+        "创建项目：设定目标、选择仓库/上下文、配置云环境和模型",
+        "理解 coordinator 和 thread：coordinator 调度，thread 在独立分支干活",
+        "监控和引导：在主对话看进度，深入单个 thread 调整细节",
+        "利用共享记忆和文件库：让跨线程的决策和产物可复用",
+        "处理合并冲突：多个 thread 改同一代码时按 PR 冲突处理",
+        "审查结果并合并：检查每个 thread 的 PR，按依赖顺序合并",
+        "复盘成本和限制：beta 阶段的额度消耗、云端运行、本地运行即将推出"
+      ],
+      officialLinks: [
+        { label: "Projects redesigned: from folder to conversation", url: "https://claude.com/blog/projects-redesigned", note: "官方公告，含 beta 开放范围和 threads/coordinator 机制说明" },
+        { label: "Claude Code 文档", url: "https://code.claude.com/docs", note: "Projects 的具体操作和配置参考" }
+      ],
+      curatedLinks: [
+        "并行线程越多消耗额度越快，项目设置里可分别指定 coordinator 和 worker thread 的模型与 effort 级别",
+        "每个 thread 是独立的 Claude Code 云会话，在自己的分支和仓库副本上工作，不会直接污染主分支",
+        "线程目前在云端运行，本地运行（使用你本地工具和代码、在你网络后）即将推出",
+        "beta 目前面向部分 Pro/Max 云会话用户且无现有 projects，可加入 waitlist；Team/Enterprise 后续支持"
+      ],
+      downloadIdeas: [
+        "做一个 Projects 使用检查清单：任务适用性、目标设定、线程数、模型档位、合并顺序",
+        "整理一份“哪些任务不该用 Projects”清单：单仓库小改动、需要实时交互调试、敏感代码不允许云端"
+      ],
+      extraSections: [
+        {
+          title: "一、什么样的任务适合 Projects",
+          items: [
+            "多仓库联动：比如同时改 API、web、mobile 三个仓库来废弃一个旧端点，每个仓库一个 thread 并行迁移",
+            "可并行的批量任务：比如给多个服务加同一类配置、批量跑测试并开 PR，thread 之间互不依赖",
+            "有明确完成标准的目标：比如“把 checkout p75 延迟降到 X 以下”，Claude 可以 profiling、优化、测试循环推进",
+            "不适合：单文件小改动（直接普通会话更快）、需要你实时盯着每一步调试的任务、代码不允许离开本地的敏感项目"
+          ]
+        },
+        {
+          title: "二、创建项目的关键设置",
+          items: [
+            "目标要具体可衡量：不要写“优化性能”，写“把 checkout 接口 p75 从 800ms 降到 500ms 以下，不改变 API 契约”",
+            "上下文选择准确：只连需要的仓库和文档，过多上下文会增加 token 消耗并可能让 Claude 分心",
+            "云环境配置：可配置 connectors、plugins、instructions，这些会被所有 thread 共享，提前配好能减少重复设置",
+            "模型和 effort：coordinator 用较强模型做规划和审查，worker thread 可根据任务复杂度选，项目设置里可分别指定"
+          ]
+        },
+        {
+          title: "三、并行线程怎样分工和监控",
+          items: [
+            "Claude 会自动建议可以立即开始的工作，你可以确认或调整分工，也可以在主对话随时追加新需求",
+            "主项目对话显示整体进度和 coordinator 的汇总，想深入细节就点进单个 thread 看具体执行过程",
+            "每个 thread 可以进一步用 subagents、loops、workflows 拆分自己的任务，大任务能更快完成",
+            "thread 之间如果改了同一处代码，重叠会像普通 PR 一样产生合并冲突，需要你或 Claude 解决，不要假设并行就一定无冲突"
+          ]
+        },
+        {
+          title: "四、共享记忆和文件库",
+          items: [
+            "所有 thread 共享一份项目记忆：Claude 会记住发布时间改到周五、为什么砍掉某个功能、改 billing 前要找谁确认",
+            "记忆是逐步积累的，项目跑越久 Claude 越了解项目细节，减少了你每次重复交代背景的负担",
+            "文件库收集你添加的文件和 Claude 产生的产物，新工作可以基于过去的产物继续，不用从头找材料",
+            "注意：记忆是 AI 的理解摘要，关键决策和精确参数建议你自己也记录一份，不要完全依赖记忆不丢失"
+          ]
+        },
+        {
+          title: "五、beta 阶段的限制和成本",
+          items: [
+            "额度消耗：Projects 可以同时跑多个 thread，每个都是完整 Claude Code 会话，会比单会话更快达到使用上限",
+            "运行位置：目前 thread 在云端运行，意味着代码会在云环境处理；本地运行（用你本地工具和网络）即将推出",
+            "开放范围：beta 目前面向部分 Pro/Max 云会话用户，且要求没有现有 projects；Team/Enterprise 计划后续支持",
+            "行为可能变化：beta 功能的接口和行为可能调整，重要项目不要完全依赖 beta 功能作为唯一工作流"
+          ]
+        },
+        {
+          title: "六、上线前检查清单",
+          items: [
+            "任务适用性确认：是多仓库/可并行/有明确目标吗？单仓库小改动直接用普通会话",
+            "目标具体可衡量：有明确的完成标准和不改变的约束（如 API 契约、性能基线）",
+            "上下文最小化：只连需要的仓库和文档，避免无关上下文增加消耗和干扰",
+            "模型档位合理：coordinator 用强模型，worker 按任务复杂度选，定期检查项目级用量",
+            "合并顺序明确：多个 PR 之间有依赖时，先合底层再合上层，不要一次性全合并",
+            "敏感代码评估：代码不允许离开本地吗？如果是，等本地运行推出后再用",
+            "结果人工审查：每个 thread 的 PR 都要自己过一遍，AI 并行执行不等于 AI 对结果负责"
+          ]
+        }
+      ]
+    },
+    {
+      id: "github-copilot-auto-model-selection-cost-guide",
+      title: "Copilot 自动模型选择三档配置与成本控制指南：efficiency / balance / intelligence 怎么选",
+      date: "2026-09-17",
+      category: "AI 编程",
+      readTime: "9 分钟",
+      excerpt: "GitHub 更新 Copilot 自动模型选择，新增 efficiency（效率优先）、balance（平衡）、intelligence（智能优先）三个档位，把“系统在省钱还是在追求质量”这个黑盒显性化了。这篇教程讲清楚三档的适用场景、怎样按项目和任务类型设置默认档、如何结合用量报告做成本优化，以及新手常见的“全用最强档”误区。适合用 Copilot 做日常编码、想在质量和花费之间找平衡的开发者和小团队。",
+      tags: ["GitHub Copilot", "模型选择", "成本控制", "AI 编程", "效率工具"],
+      featured: false,
+      intro: [
+        "用 Copilot 自动选模型时，很多人有个疑问：系统到底是在给我用最强的模型保证质量，还是在挑便宜的模型省额度？GitHub 这次更新把这个权衡显性化了——自动模型选择新增 efficiency、balance、intelligence 三个档位，你选档位，系统在档内自动路由。",
+        "这篇教程不讲参数翻译，而是讲清楚三档分别适合什么任务、怎样按项目类型设置默认档、如何用量报告验证实际路由是否符合预期，以及怎样避免“全用 intelligence 导致花费飙升”或“全用 efficiency 导致复杂任务质量不足”的极端。读完你能给自己的常用任务匹配合理档位，并建立一套成本监控习惯。"
+      ],
+      audience: [
+        "日常用 Copilot 编码、想在质量和花费之间找平衡的个人开发者",
+        "管理团队 Copilot 用量、需要设定档位规范和预算的技术负责人",
+        "对 AI 编程工具的模型路由和成本优化机制感兴趣的学习者"
+      ],
+      format: [
+        "全文按“三档区别 → 按任务匹配 → 项目级设置 → 用量监控 → 常见误区 → 检查清单”组织",
+        "给出具体的档位选择建议和成本优化动作，不只是概念解释"
+      ],
+      roadmap: [
+        "理解三档区别：efficiency 省额度、balance 均衡、intelligence 保质量",
+        "按任务类型匹配档位：简单补全、常规开发、复杂重构分别用什么",
+        "设置项目级默认档：不同项目的复杂度和预算不同，不要全局一刀切",
+        "查看用量报告：确认实际路由的模型和消耗是否符合预期",
+        "结合预算增加请求：额度用完时的自助申请和审批流程",
+        "避免常见误区：全用最强档、频繁切换档、不看用量",
+        "建立成本监控习惯：定期回顾、按项目调整、设定预警"
+      ],
+      officialLinks: [
+        { label: "Configure cost and quality in Copilot auto model selection", url: "https://github.blog/search/copilot/", note: "官方公告，三档自动模型选择说明" },
+        { label: "Copilot budget increase requests GA", url: "https://github.blog/changelog/2026-09-16-copilot-budget-increase-requests-are-generally-available/", note: "额度用完时的自助增加预算流程" }
+      ],
+      curatedLinks: [
+        "三档是“偏好”而非“固定模型”：系统在你选的档内自动路由到合适模型，具体用哪个模型可能随时间变化",
+        "efficiency 适合日常简单补全和样板代码，intelligence 适合复杂重构、架构设计和疑难调试，balance 是中间默认",
+        "档位可以按项目设置，不需要全局统一：个人项目用 efficiency 省额度，客户项目用 intelligence 保质量",
+        "usage-based billing 的 Business/Enterprise 用户额度用完可自助申请增加预算，管理员批准后立即恢复，不用等账单周期"
+      ],
+      downloadIdeas: [
+        "做一张“任务类型 → 推荐档位”速查表，贴在编辑器旁边",
+        "整理一份团队 Copilot 用量周报模板：各项目消耗、档位分布、异常预警"
+      ],
+      extraSections: [
+        {
+          title: "一、三档的核心区别",
+          items: [
+            "efficiency（效率优先）：优先选响应快、成本低的模型，适合日常补全、写样板代码、简单函数实现，质量够用但复杂任务可能不够深入",
+            "balance（平衡）：在成本和质量之间取中间，是大多数常规开发任务的默认选择，系统会根据任务复杂度在档内动态调整",
+            "intelligence（智能优先）：优先选能力最强的模型，适合复杂重构、架构设计、疑难 bug 调试、跨文件大改动，质量最高但花费也最大",
+            "关键理解：档位是偏好不是固定模型，系统在档内自动路由，你不需要关心具体用了哪个模型，只需要选对档位方向"
+          ]
+        },
+        {
+          title: "二、按任务类型匹配档位",
+          items: [
+            "简单补全/样板代码：写 getter/setter、组件模板、重复配置 → efficiency，省额度且质量足够",
+            "常规功能开发：写业务逻辑、CRUD、常规工具函数 → balance，默认选择，质量和花费均衡",
+            "复杂重构/架构设计：改核心模块、设计接口、跨文件大改动 → intelligence，保证方案质量",
+            "疑难调试：排查偶发 bug、性能问题、复杂错误 → intelligence，强模型的推理能力更可能找到根因",
+            "代码审查：可以用 Copilot code review 的级别设置（Lite/标准），和模型档位是两个维度，配合使用"
+          ]
+        },
+        {
+          title: "三、项目级设置和切换策略",
+          items: [
+            "不要全局一刀切：个人学习项目可以全用 efficiency，客户交付项目建议 intelligence，内部工具用 balance",
+            "按项目设默认档：在 Copilot 设置里为不同仓库/项目指定默认档位，打开项目自动用对应档位",
+            "临时切换：遇到复杂任务时临时切到 intelligence，完成后切回默认档，不要长期停在最强档",
+            "团队规范：如果是团队使用，建议制定档位使用规范（如生产代码必须 intelligence、原型可以 efficiency），避免个人随意选择导致质量不一致"
+          ]
+        },
+        {
+          title: "四、用量监控和成本优化",
+          items: [
+            "定期看 Copilot 用量报告：关注各项目的消耗分布、实际路由的模型、是否有异常高消耗",
+            "识别高消耗任务：长时运行的 Agent、多轮代码审查、大文件上下文是消耗大户，考虑用更省档位或拆分任务",
+            "设置预算预警：Business/Enterprise 用户可配置花费预算和邮件告警，超支时及时收到通知",
+            "额度用完的处理：usage-based billing 用户可在 Copilot 里自助提交预算增加请求，管理员批准后立即恢复，不用等下个周期",
+            "成本优化不是一味降档：关键任务用 intelligence 虽然单次贵，但如果能减少返工和 bug，总成本可能更低"
+          ]
+        },
+        {
+          title: "五、常见误区",
+          items: [
+            "误区一：全用 intelligence 就是最好——日常简单任务用最强档是浪费，花费会显著增加且质量提升不明显",
+            "误区二：全用 efficiency 最省钱——复杂任务用弱模型可能产出低质量代码，返工成本远超省下的额度",
+            "误区三：频繁切换档位——档位切换有 overhead，建议按项目设默认档，只在遇到明显复杂/简单任务时临时调整",
+            "误区四：不看用量报告——选了档位不代表实际路由符合预期，定期检查才能发现异常消耗和路由偏差"
+          ]
+        },
+        {
+          title: "六、检查清单",
+          items: [
+            "理解三档区别：efficiency 省、balance 均衡、intelligence 强",
+            "按项目设默认档：个人项目 efficiency、内部工具 balance、交付项目 intelligence",
+            "临时切换策略：复杂任务临时升档，完成后切回默认",
+            "定期看用量报告：每周/每月检查消耗分布和实际路由",
+            "设置预算预警：配置花费上限和邮件告警",
+            "团队有档位规范：生产代码和原型代码用不同档位，质量一致",
+            "成本优化有依据：降档前确认任务确实简单，不要为了省钱牺牲关键任务质量"
+          ]
+        }
+      ]
+    },
+    {
+      id: "codex-cli-0155-voice-touchid-mcp-guide",
+      title: "Codex CLI 0.155 新功能上手：语音对话与 Touch ID MCP 安全验证",
+      date: "2026-09-17",
+      category: "AI 终端",
+      readTime: "9 分钟",
+      excerpt: "OpenAI Codex CLI 0.155.0 带来三个值得关注的新能力：实验性 /voice 语音对话（实时转写+麦克风控制）、状态栏实时推理摘要和完成时间戳、Mac 上用 Touch ID（Secure Enclave 签名）验证 MCP 请求。这篇教程讲清楚每个功能怎么开启、适合什么场景、有什么限制，以及升级前的兼容性检查。适合用 Codex CLI 做终端编码、想体验语音输入和更安全 MCP 验证的开发者。",
+      tags: ["Codex CLI", "OpenAI", "语音对话", "Touch ID", "MCP", "AI 终端"],
+      featured: false,
+      intro: [
+        "Codex CLI 0.155.0 是一次体验导向的更新：语音对话让你可以不用键盘口述需求，Touch ID 验证 MCP 把“每次弹窗确认”变成“手指一按就过”，状态栏实时推理摘要让长时运行的任务不再是黑盒。这三个功能看似零散，但都指向同一个方向——让终端 Agent 的日常使用更顺手、更安全、更可观测。",
+        "这篇教程带你逐个上手：/voice 怎么开启、语音输入适合什么场景、Touch ID MCP 验证的安全原理是什么、实时推理摘要怎么帮你监控长任务，以及升级 0.155 前需要检查哪些兼容性。读完你能判断哪些功能值得立即开启、哪些需要等稳定后再用，并知道怎样安全地体验实验性功能。"
+      ],
+      audience: [
+        "用 Codex CLI 做日常终端编码、想体验语音输入的开发者",
+        "Mac 用户、对 MCP 工具调用的安全验证感兴趣的开发者",
+        "经常跑长时 Agent 任务、想更好监控执行进度的用户"
+      ],
+      format: [
+        "全文按“升级检查 → /voice 语音对话 → Touch ID MCP → 实时推理摘要 → 其他改进 → 检查清单”组织",
+        "每个功能讲清楚开启方法、适用场景、限制条件，不只是列更新日志"
+      ],
+      roadmap: [
+        "升级前兼容性检查：旧命令依赖、配置文件、MCP 服务器",
+        "升级到 0.155.0 并验证版本",
+        "开启 /experimental 模式，体验 /voice 语音对话",
+        "在支持的 Mac 上启用 Touch ID MCP 验证",
+        "利用状态栏实时推理摘要监控长任务",
+        "了解 agents 概览的任务管理和 worktree 所有权改进",
+        "评估哪些功能日常使用、哪些等稳定后再开启"
+      ],
+      officialLinks: [
+        { label: "Codex CLI 0.155.0 更新说明（AICoder）", url: "https://aicoder.com/news/news-20260918-codex-cli-0155-voice", note: "第三方整理的 0.155.0 新功能要点，含 PR 编号" },
+        { label: "Codex CLI GitHub Releases", url: "https://github.com/openai/codex/releases", note: "官方发布页，以官方 changelog 为准" }
+      ],
+      curatedLinks: [
+        "/voice 是实验性功能，需要先输入 /experimental 开启实验模式，且只在支持的构建上可用，可能不稳定",
+        "Touch ID MCP 验证只在支持 Secure Enclave 的 Mac 上可用，Windows/Linux 用户仍用常规确认方式",
+        "实时推理摘要显示在状态栏，长时运行任务能看到当前在想什么和每轮完成时间，不用盯着完整输出",
+        "agents 概览新增任务隐藏、归档和删除，worktree 所有权改进让多任务并行更清晰"
+      ],
+      downloadIdeas: [
+        "做一份 Codex CLI 实验性功能开启/关闭速查表",
+        "整理一份 MCP 安全验证对比：常规确认 vs Touch ID vs 自动批准的适用场景"
+      ],
+      extraSections: [
+        {
+          title: "一、升级前兼容性检查",
+          items: [
+            "检查脚本是否依赖旧命令：0.154 移除了 codex mcp-server，0.155 继续清理旧入口，全局搜索一下脚本里是否有已废弃命令",
+            "备份配置文件：升级前备份 ~/.codex 目录下的配置和 MCP 设置，出问题可以回滚",
+            "验证 MCP 服务器兼容性：升级后逐个测试常用 MCP 服务器是否正常连接，特别是自定义 MCP",
+            "在非关键项目先验证：不要直接在主力项目升级，先在一个测试项目确认所有功能正常再推广"
+          ]
+        },
+        {
+          title: "二、/voice 语音对话上手",
+          items: [
+            "开启方式：先输入 /experimental 开启实验模式，然后输入 /voice 启动语音对话，界面会显示语音条和实时转写",
+            "适用场景：边走边想方案、口述需求和设计思路、不方便打字时（如在看纸质笔记）、快速记录想法让 Codex 整理",
+            "不适用场景：需要精确输入代码或命令时（语音识别容易出错）、安静的办公环境（会打扰同事）、需要反复修改的复杂指令",
+            "限制：实验性功能，识别准确率和稳定性可能不足；只在支持的构建上可用；麦克风权限需要授权；建议语音输入后看一眼转写文本再确认执行"
+          ]
+        },
+        {
+          title: "三、Touch ID MCP 安全验证",
+          items: [
+            "原理：在支持 Secure Enclave 的 Mac 上，MCP 请求可以用 Touch ID 验证，验证由 Secure Enclave 签名，比纯密码确认更安全且更快捷",
+            "适用场景：频繁调用 MCP 工具但又不想全部自动批准的场景——手指一按就过，既保证每次敏感操作有确认，又不打断工作流",
+            "安全考量：Touch ID 验证是“你在场”的证明，比自动批准安全；但如果别人能解锁你的 Mac，也能通过验证，所以 Mac 本身的锁屏安全仍然重要",
+            "限制：只在支持的 Mac 上可用，Windows/Linux 没有这个功能；不是所有 MCP 请求都支持 Touch ID，具体取决于请求类型和配置"
+          ]
+        },
+        {
+          title: "四、实时推理摘要和任务监控",
+          items: [
+            "状态栏显示：Codex 在思考时，状态栏会显示实时推理摘要，告诉你当前在分析什么、打算做什么，长任务不再是黑盒",
+            "完成时间戳：每轮任务完成后显示时间戳，方便你评估任务耗时、识别哪些步骤特别慢",
+            "适用场景：跑长时重构、批量测试、多文件改动时，不用盯着完整输出滚动，看状态栏摘要就知道进度",
+            "使用建议：如果状态栏摘要显示 Codex 在某个步骤卡住或反复尝试，可以及时中断并调整指令，不要等它自己绕出来"
+          ]
+        },
+        {
+          title: "五、其他值得注意的改进",
+          items: [
+            "agents 概览任务管理：可以隐藏、归档、删除任务，任务列表更整洁，不再被已完成的旧任务占满",
+            "worktree 所有权改进：多个 Agent 任务在不同 worktree 并行时，所有权管理更清晰，减少任务间互相干扰",
+            "守护进程更新改进：codex app-server daemon update 更新独立安装并重启，更新流程更可靠",
+            "Windows 隐藏临时控制台：CLI 启动辅助进程时不再弹出临时控制台窗口，Windows 用户体验更干净"
+          ]
+        },
+        {
+          title: "六、检查清单",
+          items: [
+            "升级前检查：旧命令依赖、配置备份、MCP 兼容性、非关键项目先验证",
+            "/voice 使用：先 /experimental 开启，语音输入后检查转写文本，复杂指令仍用键盘",
+            "Touch ID MCP：确认 Mac 支持 Secure Enclave，敏感 MCP 调用用 Touch ID 而非自动批准",
+            "实时摘要：长任务看状态栏监控进度，发现卡住及时中断调整",
+            "任务管理：定期归档/删除已完成任务，保持 agents 概览整洁",
+            "实验性功能评估：/voice 等实验功能可能不稳定，重要任务不要完全依赖",
+            "回滚准备：保留旧版本安装包和配置备份，出问题能快速回滚"
+          ]
+        }
+      ]
+    },
     {
       id: "claude-code-deny-rules-security-audit-guide",
       title: "Claude Code 权限规则配置与安全自查指南：deny 为什么会失效，怎样确认保护真的生效",
@@ -5913,6 +6231,116 @@ git push origin main`,
     "github-agentic-workflows-public-preview-guide"
   ],
   hotspots: [
+    {
+      date: "2026-09-21",
+      tag: "AI 编程",
+      title: "Grok 4.7 上线 GitHub Copilot：SpaceXAI 最强编码模型，主打速度与性价比",
+      summary: "GitHub 9 月 21 日宣布 Grok 4.7 在 Copilot 可用。SpaceXAI 同日发布该模型，采用更大规模基础模型并经过更长时间强化学习，定位为其目前最强的编码和知识处理模型，官方称速度是同类模型两倍、价格只有一半，针对编程和知识工作场景优化。",
+      why: "Copilot 的模型池持续扩容，新手又多了一个高性价比选项，尤其适合对响应速度敏感、预算有限的编码场景。但新模型刚上线，稳定性和代码质量还需要在自己的真实任务上验证，不要因为宣传参数就直接切到主力；建议先在低风险任务上和常用模型做对比，确认质量达标后再决定是否长期使用。",
+      sourceLabel: "GitHub Changelog",
+      sourceUrl: "https://github.blog/changelog/label/copilot/",
+      articleIdea: "候选：Copilot 多模型横评：怎样按任务类型和预算选模型"
+    },
+    {
+      date: "2026-09-18",
+      tag: "代码质量",
+      title: "Copilot 代码审查改进体验正式可用：进度一目了然，自动解决更智能，批量建议生成提交信息",
+      summary: "GitHub 9 月 18 日将 Copilot 代码审查改进体验转为正式可用：刷新后的概览评论按 Open（未处理，含 new 标记）、Resolved since last review（已验证修复）、Previously missed（复审新发现的存量问题）分组展示，并标注审查级别和严重度；每条评论新增简短标题；自动解决改进为尊重“保持打开”的回复，并按 Won't Fix 或 Incorrect 给出解决原因；批量应用建议时生成相关提交标题和描述。",
+      why: "这让 PR 审查从“一堆评论里找重点”变成“按状态分组、一眼看清还剩什么”，对多轮往返的 PR 尤其提效。Previously missed 分组提醒我们：复审可能发现之前漏掉的问题，不能因为第一轮没报就认为代码没问题。新手要善用概览评论的分组和严重度排序优先处理高危项，同时对 Won't Fix 的结论自己再确认一次，避免 AI 误判导致真实问题被关闭。",
+      sourceLabel: "GitHub Changelog",
+      sourceUrl: "https://github.blog/changelog/2026-09-18-copilot-code-review-an-improved-review-experience/",
+      articleIdea: "候选：Copilot 代码审查进阶：用分组概览和自动解决管理多轮 PR"
+    },
+    {
+      date: "2026-09-18",
+      tag: "云端部署",
+      title: "Vercel Spend Management 扩展到企业灵活承诺计划：可设预算、告警，甚至自动暂停生产部署",
+      summary: "Vercel 9 月 18 日宣布 Spend Management 支持 Enterprise Flexible Commitment 计划，企业团队可为项目设置花费预算，配套邮件告警、webhook 通知，并可选在超支时自动暂停生产部署。同日 WebMCP 支持也已上线。",
+      why: "AI Agent 和 Serverless 应用的花费容易失控（长时运行任务、并发沙箱、大流量都会快速烧钱），Spend Management 把“事后看账单”变成“事前设上限、事中告警、极端情况自动止损”。新手和小团队尤其要在上线前就配置预算和告警，不要等收到超支账单才发现；自动暂停生产部署是强力手段，建议先从告警开始，确认阈值合理后再考虑自动暂停，避免误伤正常业务。",
+      sourceLabel: "Vercel Changelog",
+      sourceUrl: "https://vercel.com/changelog",
+      articleIdea: "候选：Serverless 与 AI Agent 应用成本控制清单"
+    },
+    {
+      date: "2026-09-17",
+      tag: "AI 编程",
+      title: "Claude Projects 重新设计（beta）：从文件夹变成对话，Claude 自动拆分并行线程并汇总结果",
+      summary: "Anthropic 9 月 17 日在 Claude Code 推出重新设计的 Projects（beta）：用户设定目标和仓库/上下文后，Claude 自动规划范围、拆分工作、协调并行线程、审查输出并组装最终结果。每个线程是一个独立的 Claude Code 云会话，在自己的分支和仓库副本上工作，重叠部分按合并冲突处理；项目内所有线程共享记忆和文件库，Claude 会逐步学习项目细节和你的沟通风格。目前面向部分 Pro/Max 云会话用户开放。",
+      why: "这把“一个会话干一件事”推进到“一个项目自动并行干多件事”，对需要同时改多个仓库、跑多组测试、开多个 PR 的任务非常有价值，新手不用自己手动拆分和交接。但要注意：并行线程越多消耗额度越快，且线程在云端运行（本地运行即将推出），涉及敏感代码要先确认云环境合规；beta 阶段行为可能变化，建议先用一个非关键小项目体验并行流程，再用于重要工作。",
+      sourceLabel: "Anthropic Blog",
+      sourceUrl: "https://claude.com/blog/projects-redesigned",
+      articleIdea: "已扩写：Claude Projects 多线程协作入门：设定目标、并行线程与共享记忆"
+    },
+    {
+      date: "2026-09-17",
+      tag: "AI 编程",
+      title: "Copilot 自动模型选择新增三档：efficiency / balance / intelligence，按成本与质量偏好选",
+      summary: "GitHub 更新 Copilot 自动模型选择，提供 efficiency（效率优先）、balance（平衡）、intelligence（智能优先）三个档位，用户可根据对成本和质量的偏好选择档位，系统在该档位内自动路由到合适模型。",
+      why: "自动选模型的痛点是“不知道系统在省钱还是在追求质量”，三档把这个权衡显性化了：日常简单补全用 efficiency 省额度，复杂重构和调试用 intelligence 保质量，中间场景用 balance。新手要理解档位不是“越强越好”，而是按任务类型匹配——全用 intelligence 会显著增加花费，全用 efficiency 可能在复杂任务上质量不足。建议按项目或任务类型设置默认档，并定期看用量报告确认实际路由是否符合预期。",
+      sourceLabel: "GitHub Blog",
+      sourceUrl: "https://github.blog/search/copilot/",
+      articleIdea: "已扩写：Copilot 自动模型选择三档配置与成本控制指南"
+    },
+    {
+      date: "2026-09-17",
+      tag: "AI 终端",
+      title: "Codex CLI 0.155.0：实验性语音对话、Touch ID 验证 MCP 请求、实时推理摘要",
+      summary: "OpenAI Codex CLI 0.155.0 发布：新增实验性 /voice 语音对话（开启 /experimental 后可用，带实时转写和麦克风控制）；状态栏显示实时推理摘要和轮次完成时间戳；Mac 上支持用 Touch ID（Secure Enclave 签名）验证 MCP 请求，减少敏感工具调用的确认摩擦；agents 概览新增任务隐藏、归档和删除；另有 worktree 所有权和守护进程更新改进。",
+      why: "语音对话让终端 Agent 可以脱离键盘输入，适合边走边想方案或口述需求的场景；Touch ID 验证 MCP 是安全与体验的平衡——既不每次弹窗打断，又用生物识别保证敏感操作有确认。新手要注意 /voice 是实验性功能，需手动开启且可能不稳定；Touch ID 只在支持的 Mac 上可用，Windows/Linux 用户仍用常规确认。升级前和之前一样要检查是否有脚本依赖已移除的旧入口。",
+      sourceLabel: "Codex CLI Releases / AICoder",
+      sourceUrl: "https://aicoder.com/news/news-20260918-codex-cli-0155-voice",
+      articleIdea: "已扩写：Codex CLI 0.155 新功能上手：语音对话与 Touch ID MCP 安全验证"
+    },
+    {
+      date: "2026-09-17",
+      tag: "云端部署",
+      title: "Vercel CLI 支持亚秒级静态产物部署：静态文件上传不到一秒",
+      summary: "Vercel 9 月 17 日宣布 Vercel CLI 支持 sub-second artifact deployments，可将静态产物部署到 Vercel 耗时不到一秒，适合频繁迭代静态内容、文档站和资源文件的场景。",
+      why: "部署速度从“等几十秒”变成“几乎即时”，对需要频繁验证静态页面效果、快速回滚或批量更新资源的开发者体验提升明显。但要注意这是针对静态产物的优化，含 Serverless Functions、Edge Functions 或构建步骤的部署仍需正常构建时间；新手不要因为部署快就跳过本地验证，快不等于对，部署后仍要检查实际渲染结果。",
+      sourceLabel: "Vercel Changelog",
+      sourceUrl: "https://vercel.com/changelog",
+      articleIdea: "候选：静态站点快速部署与回滚操作清单"
+    },
+    {
+      date: "2026-09-17",
+      tag: "云端部署",
+      title: "Cloudflare Workers AI 新增 rejectIfBusy：同步推理请求忙时直接拒绝而非排队",
+      summary: "Cloudflare 9 月 17 日为 Workers AI 同步推理新增 rejectIfBusy 选项，当推理资源繁忙时，请求会被直接拒绝而不是排队等待，调用方可据此快速降级或切换到其他模型/回退方案。",
+      why: "AI 推理在高峰时段可能排队，rejectIfBusy 让你主动选择“不等了”，配合回退逻辑可以保证用户体验——比如忙时切换到更小更快的模型或返回缓存结果，而不是让用户干等。新手要理解这是“快速失败”设计，必须在代码里处理被拒绝的情况（捕获错误、执行降级），否则用户会看到报错；建议同时配置好回退模型和超时，不要只依赖单一推理路径。",
+      sourceLabel: "Cloudflare Changelog",
+      sourceUrl: "https://developers.cloudflare.com/changelog/product-group/ai/",
+      articleIdea: "候选：Workers AI 推理降级与回退设计"
+    },
+    {
+      date: "2026-09-16",
+      tag: "AI 编程",
+      title: "Copilot 预算增加请求正式可用：用户可申请提升额度，批准后立即恢复 AI 访问",
+      summary: "GitHub 9 月 16 日宣布 Copilot budget increase requests 正式可用，面向 usage-based billing 的 Business 和 Enterprise 计划。当用户 AI credits 用完时，可直接在 Copilot 中提交增加预算的请求，管理员批准后立即恢复访问，无需等待账单周期。托管用户（managed users）暂不支持。",
+      why: "之前额度用完只能等下个周期或找管理员手动调，现在用户可以自助申请、批准即生效，减少了“正做到一半被打断”的尴尬。对团队管理员来说，这也意味着会收到更多预算申请，需要提前设定好审批标准和预算上限，避免无节制增加。个人用户如果频繁遇到额度耗尽，应回顾是哪些任务消耗大（长时 Agent、多模型审查），考虑用更省的档位或拆分任务，而不是一味加预算。",
+      sourceLabel: "GitHub Changelog",
+      sourceUrl: "https://github.blog/changelog/2026-09-16-copilot-budget-increase-requests-are-generally-available/",
+      articleIdea: "候选：AI 编程工具额度管理与成本优化实践"
+    },
+    {
+      date: "2026-09-15",
+      tag: "云端部署",
+      title: "Cloudflare WAF 新增 SSRF 与命令注入检测：云元数据 SSRF 从记录改为拦截，9 月 22 日生效",
+      summary: "Cloudflare 9 月 15 日发布 WAF 规则更新（9 月 22 日生效）：Managed Ruleset 新增针对云元数据的 SSRF 检测（SSRF - Cloud - 3，从 Log 改为 Block）、命令注入尝试新检测，以及针对版本控制历史信息泄露的检测；另有针对 jar HTTP loopback payload 的 SSRF 新规则（先 Log）。",
+      why: "SSRF（服务端请求伪造）是云环境最高危的漏洞之一，攻击者可通过它访问云元数据服务窃取凭证。Cloudflare 把云元数据 SSRF 从“只记录”升级为“直接拦截”，等于默认帮你挡住这类攻击。但 WAF 是外围防护，不能替代应用层修复——新手仍需在代码里校验所有用户可控的 URL，禁止访问内网和元数据地址（169.254.169.254），并关注 9/22 生效后是否有误拦截正常请求。",
+      sourceLabel: "Cloudflare Changelog",
+      sourceUrl: "https://developers.cloudflare.com/changelog/",
+      articleIdea: "候选：SSRF 防护清单：从 WAF 到应用层校验"
+    },
+    {
+      date: "2026-09-14",
+      tag: "AI 编程",
+      title: "Claude Messages API 支持按需压缩对话（beta）：后台压缩、保留最近轮次、可携带反思",
+      summary: "Anthropic 9 月 14 日宣布 Messages API 新增按需对话压缩能力（beta，需 compact-2026-09-04 请求头）：传入 compaction 参数后，API 返回一个签名的 compaction 块，对之前的消息做摘要；后续请求把该块放在最前面替代原消息即可。压缩可在后台执行，你可以选择何时压缩，并在摘要后逐字保留最近若干轮；对支持反思保留的模型，被保留轮次中的反思仍然有效。",
+      why: "长对话的 token 消耗和上下文窗口限制是使用大模型 API 的常见痛点，按需压缩让你自己控制“什么时候压、压后保留多少”，而不是等模型自动截断。对做长时 Agent、多轮对话应用的开发者很有价值。新手要注意这是 beta 功能，接口可能变化；压缩是有损摘要，关键细节（如凭证、精确参数）不应只存在于被压缩的部分，要单独持久化；并测试压缩后模型对历史细节的回忆是否符合预期。",
+      sourceLabel: "Claude Platform Release Notes",
+      sourceUrl: "https://platform.claude.com/docs/en/release-notes/overview",
+      articleIdea: "候选：长对话 API 压缩与上下文管理实践"
+    },
     {
       date: "2026-09-12",
       tag: "AI 终端",

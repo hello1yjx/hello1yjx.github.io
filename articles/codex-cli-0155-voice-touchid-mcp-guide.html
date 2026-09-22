@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Codex CLI 0.155 新功能上手：语音对话与 Touch ID MCP 安全验证 | 学习资源库</title>
+  <meta name="description" content="OpenAI Codex CLI 0.155.0 带来三个值得关注的新能力：实验性 /voice 语音对话（实时转写+麦克风控制）、状态栏实时推理摘要和完成时间戳、Mac 上用 Touch ID（Secure Enclave 签名）验证 MCP 请求。这篇教程讲清楚每个功能怎么开启、适合什么场景、有什么限制，以及升级前的兼容性检查。适合用 Codex CLI 做终端编码、想体验语音输入和更安全 MCP 验证的开发者。">
+  <meta name="robots" content="index,follow,max-image-preview:large">
+  <link rel="canonical" href="https://hello1yjx.github.io/articles/codex-cli-0155-voice-touchid-mcp-guide.html">
+  <link rel="icon" type="image/png" href="../assets/images/brand-book-line.png">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"Codex CLI 0.155 新功能上手：语音对话与 Touch ID MCP 安全验证","description":"OpenAI Codex CLI 0.155.0 带来三个值得关注的新能力：实验性 /voice 语音对话（实时转写+麦克风控制）、状态栏实时推理摘要和完成时间戳、Mac 上用 Touch ID（Secure Enclave 签名）验证 MCP 请求。这篇教程讲清楚每个功能怎么开启、适合什么场景、有什么限制，以及升级前的兼容性检查。适合用 Codex CLI 做终端编码、想体验语音输入和更安全 MCP 验证的开发者。","datePublished":"2026-09-17","dateModified":"2026-09-17","author":{"@type":"Person","name":"Avery Lin","url":"https://hello1yjx.github.io/about.html"},"publisher":{"@type":"Organization","name":"学习资源库","url":"https://hello1yjx.github.io/"},"mainEntityOfPage":"https://hello1yjx.github.io/articles/codex-cli-0155-voice-touchid-mcp-guide.html","inLanguage":"zh-CN"}</script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6621999105936318" crossorigin="anonymous"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;800&family=Noto+Serif+SC:wght@700;900&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/styles.css?v=20260922-daily-update">
+</head>
+<body>
+  <header class="site-header">
+    <div class="page-shell site-header__inner">
+      <a class="brand" href="../index.html" aria-label="返回首页">
+        <span class="brand-mark" aria-hidden="true"><img src="../assets/images/brand-book-line.png" alt="" width="36" height="33"></span>
+        <span class="brand-copy"><strong>学习资源库</strong><span>分享知识 · 提升自己 · 成就未来</span></span>
+      </a>
+      <button class="menu-button" data-menu-button aria-expanded="false" aria-label="切换导航菜单">☰</button>
+      <nav class="site-nav" data-mobile-nav>
+        <a href="../index.html">首页</a>
+        <a class="is-active" href="../posts.html" aria-current="page">教程</a>
+        <a href="../resources.html">资源下载</a>
+        <a href="../resources.html#official-resources">工具导航</a>
+        <a href="../hotspots.html">技术资讯</a>
+        <a href="../projects.html">开源项目</a>
+        <a href="../about.html">关于我们</a>
+      </nav>
+      <form class="header-search" action="../posts.html" method="get">
+        <input type="search" name="q" placeholder="搜索教程、资源、工具或关键词...">
+        <button type="submit" aria-label="搜索">/</button>
+      </form>
+      <a class="header-github" href="https://github.com/hello1yjx/hello1yjx.github.io" target="_blank" rel="noreferrer" aria-label="GitHub">
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="" width="24" height="24">
+      </a>
+      <a class="header-cta" href="../posts.html">开始学习</a>
+    </div>
+  </header>
+
+  <main class="page-shell section article-page">
+    <header class="detail-hero">
+      <span class="pill">AI 终端</span>
+      <h1>Codex CLI 0.155 新功能上手：语音对话与 Touch ID MCP 安全验证</h1>
+      <div class="detail-hero__meta">
+        <time datetime="2026-09-17">2026年9月17日</time>
+        <span>9 分钟</span>
+        <span>作者：Avery Lin</span>
+      </div>
+      <p>OpenAI Codex CLI 0.155.0 带来三个值得关注的新能力：实验性 /voice 语音对话（实时转写+麦克风控制）、状态栏实时推理摘要和完成时间戳、Mac 上用 Touch ID（Secure Enclave 签名）验证 MCP 请求。这篇教程讲清楚每个功能怎么开启、适合什么场景、有什么限制，以及升级前的兼容性检查。适合用 Codex CLI 做终端编码、想体验语音输入和更安全 MCP 验证的开发者。</p>
+    </header>
+    <div class="article-layout">
+      <article class="article-body">
+        <div class="inline-promo">
+          <p class="label">来源与增量价值</p>
+          <h3>本文基于官方资料整理，并补充适用场景、限制条件和实践检查步骤。</h3>
+          <p>首要来源：<a href="https://aicoder.com/news/news-20260918-codex-cli-0155-voice" target="_blank" rel="noreferrer">Codex CLI 0.155.0 更新说明（AICoder）</a>。事实以原始来源为准，本站建议需结合自己的环境验证。</p>
+        </div>
+
+    <p>Codex CLI 0.155.0 是一次体验导向的更新：语音对话让你可以不用键盘口述需求，Touch ID 验证 MCP 把“每次弹窗确认”变成“手指一按就过”，状态栏实时推理摘要让长时运行的任务不再是黑盒。这三个功能看似零散，但都指向同一个方向——让终端 Agent 的日常使用更顺手、更安全、更可观测。</p><p>这篇教程带你逐个上手：/voice 怎么开启、语音输入适合什么场景、Touch ID MCP 验证的安全原理是什么、实时推理摘要怎么帮你监控长任务，以及升级 0.155 前需要检查哪些兼容性。读完你能判断哪些功能值得立即开启、哪些需要等稳定后再用，并知道怎样安全地体验实验性功能。</p>
+    <h2>这篇内容适合谁</h2>
+    <ul><li>用 Codex CLI 做日常终端编码、想体验语音输入的开发者</li><li>Mac 用户、对 MCP 工具调用的安全验证感兴趣的开发者</li><li>经常跑长时 Agent 任务、想更好监控执行进度的用户</li></ul>
+    <h2>实践与验证步骤</h2>
+    <ul><li>升级前兼容性检查：旧命令依赖、配置文件、MCP 服务器</li><li>升级到 0.155.0 并验证版本</li><li>开启 /experimental 模式，体验 /voice 语音对话</li><li>在支持的 Mac 上启用 Touch ID MCP 验证</li><li>利用状态栏实时推理摘要监控长任务</li><li>了解 agents 概览的任务管理和 worktree 所有权改进</li><li>评估哪些功能日常使用、哪些等稳定后再开启</li></ul>
+    <h2>官方资料入口</h2>
+
+    <ul>
+
+            <li>
+              <a href="https://aicoder.com/news/news-20260918-codex-cli-0155-voice" target="_blank" rel="noreferrer">Codex CLI 0.155.0 更新说明（AICoder）</a>
+              <span>：第三方整理的 0.155.0 新功能要点，含 PR 编号</span>
+            </li>
+
+            <li>
+              <a href="https://github.com/openai/codex/releases" target="_blank" rel="noreferrer">Codex CLI GitHub Releases</a>
+              <span>：官方发布页，以官方 changelog 为准</span>
+            </li>
+
+    </ul>
+
+    <h2>重点判断与使用建议</h2>
+    <ul><li>/voice 是实验性功能，需要先输入 /experimental 开启实验模式，且只在支持的构建上可用，可能不稳定</li><li>Touch ID MCP 验证只在支持 Secure Enclave 的 Mac 上可用，Windows/Linux 用户仍用常规确认方式</li><li>实时推理摘要显示在状态栏，长时运行任务能看到当前在想什么和每轮完成时间，不用盯着完整输出</li><li>agents 概览新增任务隐藏、归档和删除，worktree 所有权改进让多任务并行更清晰</li></ul>
+
+        <h2>一、升级前兼容性检查</h2>
+
+        <ul><li>检查脚本是否依赖旧命令：0.154 移除了 codex mcp-server，0.155 继续清理旧入口，全局搜索一下脚本里是否有已废弃命令</li><li>备份配置文件：升级前备份 ~/.codex 目录下的配置和 MCP 设置，出问题可以回滚</li><li>验证 MCP 服务器兼容性：升级后逐个测试常用 MCP 服务器是否正常连接，特别是自定义 MCP</li><li>在非关键项目先验证：不要直接在主力项目升级，先在一个测试项目确认所有功能正常再推广</li></ul>
+
+
+
+        <h2>二、/voice 语音对话上手</h2>
+
+        <ul><li>开启方式：先输入 /experimental 开启实验模式，然后输入 /voice 启动语音对话，界面会显示语音条和实时转写</li><li>适用场景：边走边想方案、口述需求和设计思路、不方便打字时（如在看纸质笔记）、快速记录想法让 Codex 整理</li><li>不适用场景：需要精确输入代码或命令时（语音识别容易出错）、安静的办公环境（会打扰同事）、需要反复修改的复杂指令</li><li>限制：实验性功能，识别准确率和稳定性可能不足；只在支持的构建上可用；麦克风权限需要授权；建议语音输入后看一眼转写文本再确认执行</li></ul>
+
+
+
+        <h2>三、Touch ID MCP 安全验证</h2>
+
+        <ul><li>原理：在支持 Secure Enclave 的 Mac 上，MCP 请求可以用 Touch ID 验证，验证由 Secure Enclave 签名，比纯密码确认更安全且更快捷</li><li>适用场景：频繁调用 MCP 工具但又不想全部自动批准的场景——手指一按就过，既保证每次敏感操作有确认，又不打断工作流</li><li>安全考量：Touch ID 验证是“你在场”的证明，比自动批准安全；但如果别人能解锁你的 Mac，也能通过验证，所以 Mac 本身的锁屏安全仍然重要</li><li>限制：只在支持的 Mac 上可用，Windows/Linux 没有这个功能；不是所有 MCP 请求都支持 Touch ID，具体取决于请求类型和配置</li></ul>
+
+
+
+        <h2>四、实时推理摘要和任务监控</h2>
+
+        <ul><li>状态栏显示：Codex 在思考时，状态栏会显示实时推理摘要，告诉你当前在分析什么、打算做什么，长任务不再是黑盒</li><li>完成时间戳：每轮任务完成后显示时间戳，方便你评估任务耗时、识别哪些步骤特别慢</li><li>适用场景：跑长时重构、批量测试、多文件改动时，不用盯着完整输出滚动，看状态栏摘要就知道进度</li><li>使用建议：如果状态栏摘要显示 Codex 在某个步骤卡住或反复尝试，可以及时中断并调整指令，不要等它自己绕出来</li></ul>
+
+
+
+        <h2>五、其他值得注意的改进</h2>
+
+        <ul><li>agents 概览任务管理：可以隐藏、归档、删除任务，任务列表更整洁，不再被已完成的旧任务占满</li><li>worktree 所有权改进：多个 Agent 任务在不同 worktree 并行时，所有权管理更清晰，减少任务间互相干扰</li><li>守护进程更新改进：codex app-server daemon update 更新独立安装并重启，更新流程更可靠</li><li>Windows 隐藏临时控制台：CLI 启动辅助进程时不再弹出临时控制台窗口，Windows 用户体验更干净</li></ul>
+
+
+
+        <h2>六、检查清单</h2>
+
+        <ul><li>升级前检查：旧命令依赖、配置备份、MCP 兼容性、非关键项目先验证</li><li>/voice 使用：先 /experimental 开启，语音输入后检查转写文本，复杂指令仍用键盘</li><li>Touch ID MCP：确认 Mac 支持 Secure Enclave，敏感 MCP 调用用 Touch ID 而非自动批准</li><li>实时摘要：长任务看状态栏监控进度，发现卡住及时中断调整</li><li>任务管理：定期归档/删除已完成任务，保持 agents 概览整洁</li><li>实验性功能评估：/voice 等实验功能可能不稳定，重要任务不要完全依赖</li><li>回滚准备：保留旧版本安装包和配置备份，出问题能快速回滚</li></ul>
+
+
+
+
+        <div class="inline-promo">
+          <p class="label">更正与更新</p>
+          <h3>发现版本变化、来源失效或事实错误时，请通过联系页反馈。</h3>
+          <p>本站会核对一手来源后更新内容，不使用无来源转载填充文章。</p>
+          <a class="button button--secondary" href="../editorial.html">查看内容标准</a>
+        </div>
+      </article>
+      <aside class="article-sidebar">
+        <div class="sidebar-card">
+          <p class="label">本页标签</p>
+          <div class="tag-row"><span>Codex CLI</span><span>OpenAI</span><span>语音对话</span><span>Touch ID</span><span>MCP</span><span>AI 终端</span></div>
+        </div>
+        <div class="sidebar-card">
+          <p class="label">继续阅读</p>
+          <a href="vercel-openai-agents-long-running-deploy-guide.html">在 Vercel 上部署长时运行 AI Agent 入门：OpenAI Agents API + Sandbox + Queues 最小闭环</a><a href="github-hydrafusion-model-orchestration-guide.html">GitHub HydraFusion 多模型编排入门：三种模式、成本权衡与新手试用验收</a><a href="cloudflare-workers-64mib-bundle-optimization-guide.html">Cloudflare Workers 包体积上限提升到 64 MiB：新手部署优化与依赖裁剪指南</a><a href="ai-agent-file-operation-safety-guide.html">AI Agent 文件操作安全防护指南：从 Claude 误删 700GB 事件看怎样保护你的代码和数据</a>
+        </div>
+        <div class="sidebar-card sidebar-card--accent">
+          <p class="label">作者与方法</p>
+          <h3>了解本站如何选题、核验来源与处理更正。</h3>
+          <a class="button button--dark" href="../about.html">关于作者</a>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="page-shell footer__inner">
+      <div><strong>学习资源库</strong><p>分享知识 · 提升自己 · 成就未来</p></div>
+      <div>
+        <a href="../editorial.html">内容标准</a><br>
+        <a href="../privacy.html">隐私政策</a><br>
+        <a href="../contact.html">联系</a>
+      </div>
+    </div>
+  </footer>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      var button = document.querySelector("[data-menu-button]");
+      var nav = document.querySelector("[data-mobile-nav]");
+      if (!button || !nav) return;
+      button.addEventListener("click", function () {
+        var expanded = button.getAttribute("aria-expanded") === "true";
+        button.setAttribute("aria-expanded", String(!expanded));
+        nav.classList.toggle("site-nav--open", !expanded);
+      });
+    });
+  </script>
+</body>
+</html>
