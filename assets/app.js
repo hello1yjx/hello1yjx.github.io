@@ -9,7 +9,7 @@ const siteData = {
     bio: "把官方入口、学习路线、示例代码和可扩展资料放进同一张地图里，让第一次来的人也能马上知道从哪里开始。",
     heroStats: [
       { value: "9", label: "原创下载包" },
-      { value: "67", label: "新手专题" },
+      { value: "70", label: "新手专题" },
       { value: "持续", label: "更新与核验" }
     ],
     valueCards: [
@@ -28,6 +28,329 @@ const siteData = {
     ]
   },
   posts: [
+    {
+      id: "copilot-app-local-sandbox-setup-guide",
+      title: "Copilot app 本地沙箱配置指南：文件、网络与凭证的最小权限设置",
+      date: "2026-09-23",
+      category: "AI 编程",
+      readTime: "10 分钟",
+      excerpt: "GitHub Copilot app 9 月 23 日推出本地沙箱（public preview）：为本地仓库会话按项目限制文件系统、网络和凭证访问，且在操作系统无法执行策略时直接拒绝运行而非裸奔。这篇教程讲清楚沙箱的三类策略怎么配、怎样从最小权限开始逐步放开、如何验证沙箱真的生效，以及 public preview 的限制。适合让 Copilot Agent 在自己机器上跑命令、又担心误操作影响系统的开发者。",
+      tags: ["GitHub Copilot", "本地沙箱", "最小权限", "安全", "AI Agent"],
+      featured: false,
+      intro: [
+        "让 AI Agent 在你自己的电脑上执行命令，最大的顾虑是：它会不会误删文件、把数据发到奇怪的地址、或者动用你的 Git 凭证？9 月 23 日 GitHub 在 Copilot app 推出本地沙箱（public preview），给本地会话加上一层可按项目配置的隔离，把 Agent 能访问的文件、网络和凭证限制在你允许的范围内。",
+        "这篇教程带你完整配置一遍：沙箱的三类策略分别是什么、怎样从最小权限开始、配置太严或太松怎么调整、如何确认沙箱真的在起作用，以及 fail closed 设计为什么重要。读完你能为自己的项目配一套既不影响正常工作、又能拦住误操作的沙箱策略。"
+      ],
+      audience: [
+        "让 Copilot Agent 在本地机器跑命令、担心误操作影响文件或系统的开发者",
+        "想为不同项目设置不同访问边界（如限制只能碰项目目录）的用户",
+        "对 AI Agent 本地隔离和最小权限机制感兴趣的学习者"
+      ],
+      format: [
+        "全文按“沙箱三类策略 → 开启方式 → 最小权限配置 → 验证生效 → 限制 → 检查清单”组织",
+        "每步给出具体配置建议和验证动作，不只是翻译官方文档"
+      ],
+      roadmap: [
+        "理解本地沙箱作用：限制文件、网络、凭证，缩小误操作影响范围",
+        "确认适用范围：本地仓库/工作树会话，不适用云沙箱和远程主机",
+        "按项目开启：项目设置里打开 Sandbox new sessions，或会话内 /sandbox on",
+        "配置文件系统策略：额外读写、只读、拒绝目录",
+        "配置网络策略：外网和本地网络访问边界",
+        "配置凭证策略：Git HTTPS 和 GitHub CLI 凭证",
+        "从最小权限开始：先严格，按任务失败逐步放开",
+        "验证沙箱生效：测试越界访问被拒，理解 fail closed"
+      ],
+      officialLinks: [
+        { label: "Local sandboxing in the GitHub Copilot app", url: "https://github.blog/changelog/2026-09-23-local-sandboxing-in-the-github-copilot-app/", note: "官方公告，含三类策略和开启方式" },
+        { label: "Configuring local sandboxing（文档）", url: "https://docs.github.com/", note: "沙箱配置的详细参考，以官方文档为准" }
+      ],
+      curatedLinks: [
+        "沙箱默认关闭，需要在项目设置主动开启；只对新会话生效，已有会话要用 /sandbox on",
+        "若操作系统无法执行所请求的策略，沙箱 shell 会报错而不是无沙箱运行（fail closed），不会悄悄裸奔",
+        "企业托管策略可能让实际生效的策略比你设置的更严格，个人无法放宽",
+        "本地沙箱不适用于云沙箱会话和远程主机会话；Copilot app 和 CLI 的沙箱分别配置"
+      ],
+      downloadIdeas: [
+        "做一张项目沙箱策略模板：文件目录白名单、网络边界、凭证需求",
+        "整理一份“沙箱配置排错清单”：任务失败时如何判断是哪类策略拦截"
+      ],
+      extraSections: [
+        {
+          title: "一、沙箱的三类策略",
+          items: [
+            "文件系统：可配置“额外读写目录”（项目目录之外但任务需要的）、“额外只读目录”（可读不可写）、“拒绝目录”（完全不可访问，如其他项目、密钥目录）",
+            "网络：配置出站互联网访问（是否允许访问外网、允许哪些域名）和本地网络访问（是否允许访问局域网、localhost 服务）",
+            "凭证：配置是否向会话提供 Git 凭证（用于认证的 HTTPS git 操作）和 GitHub CLI 凭证（gh 命令认证）",
+            "关键理解：这些是会话启动时 app 请求的策略；企业托管设置可能让实际策略更严格，个人配置不能突破企业边界"
+          ]
+        },
+        {
+          title: "二、开启方式",
+          items: [
+            "项目级默认开启：打开 app 设置 → 选择项目 → 在 Sandbox 下打开 Sandbox new sessions，之后该项目的新会话默认在沙箱中",
+            "单个会话临时开启：在活动的本地会话输入 /sandbox on，只改变当前会话，不改变项目默认",
+            "生效时机：文件/网络/凭证设置的变更对新会话或会话重启后生效，已在运行的会话不会自动应用",
+            "关闭方式：项目设置里关闭 Sandbox new sessions，或会话内 /sandbox off；关闭后会话将无沙箱运行，要确认风险"
+          ]
+        },
+        {
+          title: "三、最小权限配置建议",
+          items: [
+            "文件系统从“只允许项目目录”开始：默认只给项目根目录读写，任务报权限不足时再按需添加额外目录，不要一开始就给整个用户目录",
+            "敏感目录显式拒绝：把 .ssh、其他项目目录、云凭证目录加入拒绝列表，即使 Agent 被诱导也访问不到",
+            "网络默认最小：不需要联网的任务直接关闭外网；需要联网时尽量限定到必要域名（如包管理器、API 端点），本地网络按需开放",
+            "凭证按需提供：只有需要 push 或调用 gh API 的任务才提供对应凭证，纯本地分析任务不提供，减少凭证被滥用风险",
+            "逐步放开原则：每次因任务需要放开一类权限，放开后验证确实是必要的，避免一次性给过宽权限"
+          ]
+        },
+        {
+          title: "四、怎样验证沙箱真的生效",
+          items: [
+            "测试文件越界：让 Agent 尝试读取拒绝目录（如其他项目或 .ssh），应该被拒绝；如果能读到，说明沙箱未生效或配置有误",
+            "测试网络边界：尝试访问未授权的外网地址或本地服务，应该被拦截；能访问则网络策略未生效",
+            "测试凭证隔离：在未提供凭证的会话里执行需要认证的 git push 或 gh 命令，应该提示无凭证而非直接成功",
+            "确认 fail closed：如果启动会话时报“操作系统无法执行策略”的错误，这是正常保护，不要为了跑通而关闭沙箱，应调整策略或排查系统支持情况"
+          ]
+        },
+        {
+          title: "五、public preview 的限制",
+          items: [
+            "功能处于 public preview，策略选项和行为可能调整，重要工作流不要完全依赖",
+            "只适用于本地仓库和工作树会话，云沙箱会话、远程主机会话不适用",
+            "依赖操作系统的隔离能力，不同系统能执行的策略粒度可能不同，无法执行时会 fail closed",
+            "Copilot app 和 Copilot CLI 的沙箱设置是分开的，需要分别配置"
+          ]
+        },
+        {
+          title: "六、检查清单",
+          items: [
+            "确认会话类型：是本地仓库会话吗？云/远程会话不适用本地沙箱",
+            "项目级开启：Sandbox new sessions 已打开，新会话默认受保护",
+            "文件最小权限：只给项目目录，敏感目录显式拒绝",
+            "网络最小边界：按任务需要开放，默认不联网或限定域名",
+            "凭证按需提供：只有必要任务才给 Git/gh 凭证",
+            "三类越界测试通过：文件、网络、凭证的越界访问都被拒绝",
+            "遇到 fail closed 不关闭沙箱：调整策略或排查系统，而非裸奔",
+            "定期回顾策略：项目演进后重新评估权限是否仍最小"
+          ]
+        }
+      ]
+    },
+    {
+      id: "claude-opus-5-5-long-context-cost-guide",
+      title: "Claude Opus 5.5 上手指南：1M 长上下文、agentic 任务与成本优化",
+      date: "2026-09-22",
+      category: "AI 编程",
+      readTime: "10 分钟",
+      excerpt: "Anthropic 9 月 22 日发布 Claude Opus 5.5：5.5 家族首个模型，大多数任务达到 Fable 5.1 水平，比 Opus 5 便宜 40%，默认 1M token 上下文、最大 128k 输出，面向长时运行 agentic 任务。这篇教程讲清楚 Opus 5.5 适合什么场景、1M 上下文怎么用才划算、长输出如何分段验证、怎样和更便宜的模型搭配控制成本。适合想用顶级模型又在意花费的开发者。",
+      tags: ["Claude Opus", "长上下文", "成本优化", "agentic", "AI 编程"],
+      featured: false,
+      intro: [
+        "Claude Opus 5.5 是一次“能力不降、价格下探”的更新：官方称大多数任务达到 Fable 5.1 水平，运行成本比 Opus 5 低 40%，还默认带 1M token 上下文和最大 128k token 输出，专门面向长时运行的 agentic 编程和知识工作。",
+        "这篇教程不讲参数罗列，而是讲清楚：什么任务值得用 Opus 5.5、1M 上下文应该装什么、长输入为什么仍可能很贵、128k 输出怎样安全使用，以及如何用模型搭配把成本控制住。读完你能判断哪些任务该切到 Opus 5.5，并建立一套长上下文和成本管理习惯。"
+      ],
+      audience: [
+        "需要理解大型代码库或长文档、被上下文窗口限制困扰的开发者",
+        "跑长时运行 agentic 任务、想要强模型但在意花费的用户",
+        "想理解长上下文的成本结构和模型搭配策略的学习者"
+      ],
+      format: [
+        "全文按“适用场景 → 1M 上下文用法 → 长输出验证 → 成本结构 → 模型搭配 → 检查清单”组织",
+        "给出具体的使用和成本优化建议，不只是翻译发布说明"
+      ],
+      roadmap: [
+        "理解 Opus 5.5 定位：Fable 5.1 水平、比 Opus 5 便宜 40%、长时 agentic",
+        "判断适用场景：大型代码库、长文档、多步 agentic、大改动生成",
+        "用好 1M 上下文：该装什么、不该装什么",
+        "理解长输入成本：上下文大不等于免费，按 token 计费",
+        "安全使用 128k 输出：分段生成、逐段验证",
+        "模型搭配控成本：简单任务用便宜模型，复杂任务才上 Opus",
+        "对比验证：在真实任务上比较质量和花费再决定默认",
+        "建立用量监控：关注长任务消耗，设置预算告警"
+      ],
+      officialLinks: [
+        { label: "Claude Opus 5.5 launch（Release Notes）", url: "https://support.claude.com/en/articles/12138966-release-notes", note: "官方发布说明，含能力和价格对比" },
+        { label: "Claude on Vercel AI Gateway", url: "https://vercel.com/changelog", note: "Opus 5.5 在 AI Gateway 的能力（adaptive thinking、区域推理等）" }
+      ],
+      curatedLinks: [
+        "默认 1M token 上下文窗口、最大 128k token 输出，支持 adaptive thinking",
+        "运行成本比 Opus 5 低 40%，但长输入仍按 token 计费，塞满 1M 上下文成本可能很高",
+        "已上线 GitHub Copilot 和 Vercel AI Gateway，后者支持 fast mode、区域推理、max effort",
+        "面向长时运行 agentic 任务，多线程/多步骤场景会更快达到使用上限，需要监控"
+      ],
+      downloadIdeas: [
+        "做一张“任务 → 推荐模型”对照表：Opus 5.5 / Sonnet / Haiku 按复杂度分配",
+        "整理一份长上下文成本估算表：不同上下文长度的大致花费和优化建议"
+      ],
+      extraSections: [
+        {
+          title: "一、什么任务适合 Opus 5.5",
+          items: [
+            "大型代码库理解：需要同时参考几十个文件、跨模块追踪调用关系时，1M 上下文能装下更多代码，减少遗漏",
+            "长文档/规范分析：处理长篇技术文档、合同、规范书，需要全局理解和跨章节推理",
+            "长时运行 agentic 任务：多步骤、需要持续规划和工具调用的任务，强模型更不容易跑偏",
+            "大改动生成：需要一次性产出大量代码（如批量迁移、脚手架），128k 输出能覆盖更大改动",
+            "不必用：单文件小改动、简单问答、样板代码——这些用更便宜的 Sonnet/Haiku 就够，用 Opus 是浪费"
+          ]
+        },
+        {
+          title: "二、1M 上下文应该装什么",
+          items: [
+            "装真正相关的内容：任务涉及的核心源码、接口定义、配置文件、相关文档，按相关度筛选，不要无脑全塞",
+            "善用代码库检索：先用检索工具找到相关文件，再把结果放进上下文，比把整个仓库塞进去更省、更聚焦",
+            "避免重复和冗余：重复的日志、生成的依赖文件（node_modules）、无关历史不应占用上下文",
+            "关键信息单独持久化：凭证、精确参数、重要决策不要只存在上下文里，应写入文件或笔记，避免长对话后丢失",
+            "记住上下文是按 token 计费的：1M 是“能装”的上限，不是“建议装”的量，装得越多每次请求越贵"
+          ]
+        },
+        {
+          title: "三、长输入的成本结构",
+          items: [
+            "输入 token 计费：每次请求都会对上下文中的全部内容计费，长上下文在多轮对话中会反复计费，成本累积很快",
+            "缓存能降低成本：对重复使用的长上下文，使用 prompt caching 可降低重复部分的费用，长文档场景值得配置",
+            "及时压缩：对话变长后，用 Messages API 的按需压缩（compaction）或 Claude Code 的 summarize 功能把旧内容摘要化，减少持续计费",
+            "成本对比：虽然比 Opus 5 便宜 40%，但如果上下文长度是原来的几十倍，总成本仍可能更高，便宜不等于可以不看用量"
+          ]
+        },
+        {
+          title: "四、安全使用 128k 输出",
+          items: [
+            "分段生成更可控：超大改动建议分模块/分文件生成，每段验证后再继续，比一次生成几万 token 更易发现问题",
+            "逐段验证：每段输出检查逻辑、接口一致性、是否引入错误，不要等全部生成完才发现早期就跑偏",
+            "警惕“看起来合理”的大段代码：长输出中模型可能编造不存在的 API 或前后不一致，要对照真实依赖核实",
+            "生成后跑测试：大改动必须靠测试和构建验证，不能以“模型写得很完整”作为质量依据"
+          ]
+        },
+        {
+          title: "五、模型搭配控制成本",
+          items: [
+            "按任务复杂度分层：简单补全/样板用 Haiku，常规开发用 Sonnet，复杂架构/长 agentic 才用 Opus 5.5",
+            "用便宜模型做初筛：代码检索、文档摘要、格式处理等预处理用小模型，把需要深度推理的部分交给 Opus",
+            "Copilot 档位配合：在 Copilot 里日常用 efficiency/balance，遇到复杂任务再切 intelligence（对应强模型）",
+            "定期复盘用量：看哪些任务消耗最大，评估是否可以用更便宜模型或拆分任务，而不是一味升级模型"
+          ]
+        },
+        {
+          title: "六、检查清单",
+          items: [
+            "任务复杂度匹配：是大型代码库/长文档/长 agentic 吗？简单任务用便宜模型",
+            "上下文内容筛选：只装相关核心文件，用检索定位而非全塞",
+            "长输入成本预估：评估上下文长度和多轮计费，配置缓存和压缩",
+            "关键信息持久化：凭证和决策单独保存，不依赖长上下文",
+            "长输出分段：分模块生成、逐段验证、跑测试",
+            "模型分层搭配：Haiku/Sonnet/Opus 按任务分配",
+            "真实任务对比：比较质量与花费后再设为默认",
+            "用量监控：设置预算告警，定期复盘高消耗任务"
+          ]
+        }
+      ]
+    },
+    {
+      id: "cloudflare-worker-previews-parallel-workflow-guide",
+      title: "Cloudflare Worker Previews 并行预览工作流：让 Agent 的每次改动都安全验证",
+      date: "2026-09-22",
+      category: "云端部署",
+      readTime: "9 分钟",
+      excerpt: "Cloudflare 9 月 22 日推出 Worker Previews：每个分支都有独立的 URL、配置、状态和可观测性，开发者和 AI Agent 能并行测试多个改动而不影响生产。这篇教程讲清楚 Worker Previews 的隔离机制、怎样配合 Agent 多分支工作流、预览与生产环境差异如何核对，以及合并前的验证清单。适合用 AI Agent 并行开发、希望每个改动都有独立预览地址的开发者。",
+      tags: ["Cloudflare Workers", "预览环境", "AI Agent", "并行开发", "持续部署"],
+      featured: false,
+      intro: [
+        "AI Agent 可以同时在多个分支上改不同功能，但如果没有独立的验证环境，这些改动要么互相污染、要么只能在本地猜效果、要么冒着风险直接碰生产。9 月 22 日 Cloudflare 推出 Worker Previews，让每个分支都拥有独立的 URL、配置、状态和监控，改动可以并行验证、互不影响。",
+        "这篇教程带你把 Worker Previews 用进 Agent 工作流：预览环境隔离了什么、怎样为每个分支生成预览、如何核对预览与生产的环境差异、合并前要验证哪些内容。读完你能让 Agent 的每次改动都有可访问、可验证的预览地址，把“合并后才发现问题”变成“合并前就确认无误”。"
+      ],
+      audience: [
+        "用 AI Agent 并行开发多个功能、需要独立验证环境的开发者",
+        "想为每个分支提供可访问预览地址、方便团队评审的用户",
+        "对隔离预览环境和持续部署工作流感兴趣的学习者"
+      ],
+      format: [
+        "全文按“隔离机制 → 生成预览 → Agent 工作流 → 环境差异核对 → 合并验证 → 检查清单”组织",
+        "给出具体操作和验证要点，不只是翻译公告"
+      ],
+      roadmap: [
+        "理解 Worker Previews：分支各自独立 URL、配置、状态、可观测性",
+        "确认前提：项目接入 Workers 构建/部署，分支推送触发预览",
+        "为分支生成预览：推送分支或让 Agent 创建分支后自动获得地址",
+        "配合 Agent 并行：多个 Agent 在不同分支干活，各自预览独立",
+        "核对环境差异：预览的环境变量、绑定、数据与生产的区别",
+        "在预览中验证：功能、边界情况、性能和日志",
+        "评审与合并：基于预览地址评审，确认后合并触发生产部署",
+        "清理预览：合并/删除分支后清理不再需要的预览环境"
+      ],
+      officialLinks: [
+        { label: "Introducing Worker Previews", url: "https://blog.cloudflare.com/", note: "官方公告，含隔离预览环境机制" },
+        { label: "Cloudflare Workers 文档", url: "https://developers.cloudflare.com/workers/", note: "预览部署和分支配置参考" }
+      ],
+      curatedLinks: [
+        "每个分支有独立 URL、配置、状态和可观测性，预览之间以及与生产之间相互隔离",
+        "适合 Agent 在不同分支并行修改、分别验证，不会互相污染或影响生产",
+        "预览环境可能使用不同的环境变量和绑定（如测试数据库），验证前要确认与生产的差异",
+        "配合 Workers Builds，推送分支可自动构建预览，合并到生产分支才部署生产"
+      ],
+      downloadIdeas: [
+        "做一份“预览环境验证清单”：功能、边界、环境变量、数据隔离",
+        "整理一份 Agent 多分支 + 预览的标准工作流图"
+      ],
+      extraSections: [
+        {
+          title: "一、Worker Previews 隔离了什么",
+          items: [
+            "独立 URL：每个分支有专属预览地址，可直接访问、分享给团队评审，不需要本地运行",
+            "独立配置：预览可以有自己的环境变量和绑定，与生产和其他分支隔离，改配置不影响别人",
+            "独立状态：预览使用独立的数据状态（如测试 KV/D1/R2），测试产生的数据不会污染生产",
+            "独立可观测性：每个预览有自己的日志和监控，定位问题时能区分是哪个分支的改动"
+          ]
+        },
+        {
+          title: "二、怎样生成预览",
+          items: [
+            "接入构建部署：项目配置 Workers Builds 后，推送到非生产分支可自动构建并生成预览",
+            "获取预览地址：分支构建完成后得到该分支的预览 URL，通常在 PR 或构建状态中可找到",
+            "Agent 创建分支：让 Agent 为每个功能创建独立分支并推送，自动获得对应预览，无需手动部署",
+            "更新预览：分支继续推送会刷新对应预览，始终反映该分支的最新改动"
+          ]
+        },
+        {
+          title: "三、配合 Agent 并行工作流",
+          items: [
+            "一个功能一个分支：让 Agent 为每个任务创建独立分支，避免多个功能混在一个分支难以验证",
+            "并行验证：多个 Agent 同时改不同功能时，各自预览独立，你可以逐个打开地址验证，互不干扰",
+            "分别评审：把预览地址贴进 PR 或评审文档，评审者直接体验改动效果，而不只是看代码",
+            "控制并行数量：虽然可以并行，但预览环境和 Agent 都消耗资源，按团队能力控制同时进行的任务数"
+          ]
+        },
+        {
+          title: "四、核对预览与生产的环境差异",
+          items: [
+            "环境变量：确认预览使用的 API 端点、密钥、功能开关是什么，避免预览连到生产服务造成误操作",
+            "数据绑定：预览应使用测试数据库/存储，确认不会读写生产数据；测试数据要能代表真实场景",
+            "依赖一致性：预览的依赖版本、运行时配置应与生产一致，否则可能“预览正常、生产报错”",
+            "差异记录：把预览与生产的已知差异（如测试数据、限流关闭）记录下来，验证时纳入考虑"
+          ]
+        },
+        {
+          title: "五、合并前验证清单",
+          items: [
+            "功能验证：在预览地址完整走一遍核心功能流程，确认主路径正常",
+            "边界情况：测试异常输入、空数据、权限不足等边界，不只是验证理想路径",
+            "日志检查：查看预览日志确认无报错、警告或异常外部调用",
+            "数据隔离确认：确认测试没有写入生产数据、没有使用真实凭证做危险操作",
+            "性能基线：关键改动在预览做基本性能检查，确认没有明显退化",
+            "环境差异复核：确认所有预览与生产的差异都已评估，合并后生产能正常运行",
+            "合并后验证：合并触发生产部署后，在生产环境再做一次冒烟检查"
+          ]
+        },
+        {
+          title: "六、预览环境清理",
+          items: [
+            "合并后清理：分支合并后，对应的预览环境如不再需要应清理，避免残留测试环境和数据",
+            "删除分支联动：删除已废弃分支时，确认相关预览和资源一并处理",
+            "定期审计：定期检查是否有长期遗留的预览环境占用资源或包含敏感测试数据",
+            "测试数据处理：预览环境的测试数据在清理时一并删除，避免残留"
+          ]
+        }
+      ]
+    },
     {
       id: "claude-projects-multi-thread-collaboration-guide",
       title: "Claude Projects 多线程协作入门：设定目标、并行线程与共享记忆",
@@ -6231,6 +6554,106 @@ git push origin main`,
     "github-agentic-workflows-public-preview-guide"
   ],
   hotspots: [
+    {
+      date: "2026-09-24",
+      tag: "云端部署",
+      title: "Cloudflare 修复 Containers 跨租户数据暴露漏洞：残留磁盘数据可能泄露前一个工作负载",
+      summary: "Cloudflare 9 月 24 日披露，外部安全研究员在 Containers 产品中发现一个跨租户数据暴露漏洞：容器实例可能在磁盘上残留前一个工作负载的数据，新实例在特定条件下能读到这些残留内容。Cloudflare 说明了漏洞原理、调查过程，并已完成修复。",
+      why: "这是多租户云环境最敏感的问题之一——你以为自己拿到的是干净的容器，实际可能读到别人残留的数据，反之亦然。新手要理解：共享基础设施上的“隔离”不是绝对的，敏感数据在容器停止后要主动清理（擦除临时文件、不把密钥写磁盘），并关注云厂商的安全公告确认自己是否受影响。修复后仍建议：不在容器里持久化高敏感数据、依赖云厂商密钥管理而非本地文件、定期审计容器镜像和存储卷。",
+      sourceLabel: "Cloudflare Blog",
+      sourceUrl: "https://blog.cloudflare.com/",
+      articleIdea: "候选：容器与 Serverless 多租户环境的数据残留与清理清单"
+    },
+    {
+      date: "2026-09-23",
+      tag: "AI 编程",
+      title: "GitHub Copilot app 推出本地沙箱（public preview）：按项目限制文件、网络和凭证访问",
+      summary: "GitHub 9 月 23 日在 Copilot app 推出本地沙箱（public preview）：为本地仓库和工作树会话按项目配置沙箱，包括文件系统（额外读写/只读/拒绝目录）、网络（外网和本地网络）、凭证（Git HTTPS 和 GitHub CLI 凭证）。默认关闭，可在项目设置开启 Sandbox new sessions，或在活动会话用 /sandbox on。若操作系统无法执行所请求的策略，沙箱 shell 会直接报错而不是无沙箱运行。",
+      why: "这是“AI Agent 在你机器上跑命令”的关键安全护栏：即使 Agent 误执行了危险命令，沙箱也能把它限制在允许的文件、网络和凭证范围内。fail closed（无法隔离就拒绝运行）的设计尤其重要，不会悄悄裸奔。新手要注意沙箱默认关闭，需要主动开启；配置太严会让正常任务失败，太松又失去保护意义，建议从最小权限开始，按任务需要逐步放开。不适用于云沙箱和远程主机会话。",
+      sourceLabel: "GitHub Changelog",
+      sourceUrl: "https://github.blog/changelog/2026-09-23-local-sandboxing-in-the-github-copilot-app/",
+      articleIdea: "已扩写：Copilot app 本地沙箱配置指南：文件、网络与凭证的最小权限设置"
+    },
+    {
+      date: "2026-09-23",
+      tag: "代码质量",
+      title: "Copilot 代码审查配置扩展到所有计划：个人自动审查设置页 + 企业默认审查级别",
+      summary: "GitHub 9 月 23 日将 Copilot 代码审查配置扩展为正式可用：所有 Copilot 计划（含 Business/Enterprise）都有专门的个人代码审查设置页，可开启自动审查（创建 PR、共同创作、移出 draft 时触发）、新推送和 draft PR 的自动审查，并设置默认审查级别（Lite/Balanced）。企业管理员可为整个企业设置一个默认审查级别，组织和仓库仍可覆盖。",
+      why: "之前个人审查设置只在 Pro/Pro+/Max 上有且只有一个开关，现在把“什么时候自动审、用什么级别审”细化了，Business/Enterprise 用户也能自助配置。新手要理解 Lite 和 Balanced 的取舍：Lite 便宜快、适合日常，Balanced 更全面、适合关键改动；自动审查能保证每个 PR 都过一遍，但不代表可以不看结果。企业默认级别能统一质量底线，建议关键仓库强制 Balanced。",
+      sourceLabel: "GitHub Changelog",
+      sourceUrl: "https://github.blog/changelog/2026-09-23-copilot-code-review-more-ways-to-request-and-configure-reviews/",
+      articleIdea: "候选：团队 Copilot 代码审查策略：自动触发、级别选择与企业默认值"
+    },
+    {
+      date: "2026-09-22",
+      tag: "AI 编程",
+      title: "Claude Opus 5.5 发布：5.5 家族首个模型，Fable 5.1 水平，比 Opus 5 便宜 40%",
+      summary: "Anthropic 9 月 22 日发布 Claude Opus 5.5（claude-opus-5-5），是新 Claude 5.5 家族的首个模型，面向长时运行的 agentic 编程和知识工作。官方称其在大多数任务上达到 Claude Fable 5.1 水平，运行成本比 Opus 5 低 40%；默认 1M token 上下文窗口、最大 128k token 输出，支持 adaptive thinking。同日上线 GitHub Copilot 和 Vercel AI Gateway。",
+      why: "Opus 5.5 把“顶级能力”和“更低价格”结合，且 1M 上下文适合大型代码库理解、长文档分析和多轮 agentic 任务，对需要强模型但又被 Opus 价格劝退的开发者是好消息。新手要注意：1M 上下文不等于要塞满，长输入仍按 token 计费，成本可能不低；128k 输出适合大改动生成，但要分段验证。建议先在需要长上下文的任务上和旧模型对比质量与花费，再决定默认使用。",
+      sourceLabel: "Anthropic Release Notes",
+      sourceUrl: "https://support.claude.com/en/articles/12138966-release-notes",
+      articleIdea: "已扩写：Claude Opus 5.5 上手指南：1M 长上下文、agentic 任务与成本优化"
+    },
+    {
+      date: "2026-09-22",
+      tag: "AI 编程",
+      title: "OpenAI GPT-6 Sol 与 GPT-6 Luna 上线 Copilot：GPT-6 家族中最快、成本最低的选项",
+      summary: "GitHub 9 月 22 日宣布 OpenAI GPT-6 Sol 和 GPT-6 Luna 在 Copilot 可用，是 GPT-6 家族中面向更快任务和最低成本的模型，按 usage-based billing 计费。Codex CLI 随后在 v0.156.1（9/23）把这两个模型引入稳定版，可在 /model 选择器中找到。Vercel AI Gateway 也已支持。",
+      why: "GPT-6 家族补齐了“快速低价”档位，和最强模型形成梯度：日常简单任务用 Sol/Luna 控制成本，复杂任务再用 Astra 等强模型。新手要避免两个极端：全用强模型浪费额度，或全用低价模型在复杂任务上质量不足。建议按任务复杂度选择，并在真实任务上验证低价模型的质量是否达标；模型刚上线时稳定性可能波动，重要任务先观察一段时间。",
+      sourceLabel: "GitHub Changelog",
+      sourceUrl: "https://github.blog/changelog/2026-09-22-openais-gpt-6-sol-and-gpt-6-luna-now-available/",
+      articleIdea: "候选：GPT-6 家族模型怎么选：Astra/Sol/Luna 按任务匹配"
+    },
+    {
+      date: "2026-09-22",
+      tag: "云端部署",
+      title: "Cloudflare 推出 Worker Previews：Agent 的每次改动都有独立预览环境，分支各自带 URL、配置、状态和监控",
+      summary: "Cloudflare 9 月 22 日推出 Worker Previews：每个分支都有独立的 URL、配置、状态和可观测性，开发者和 AI Agent 可以并行测试多个改动而不影响生产。预览环境彼此隔离，适合 Agent 在不同分支上同时修改、分别验证。",
+      why: "AI Agent 并行改多个功能时，最大的风险是改动互相污染或在没验证的情况下影响生产。Worker Previews 让每个分支改动都有独立可访问的预览地址，你可以逐个验证、对比效果，确认无误再合并，是 AI 编程工作流的重要基础设施。新手要注意：预览环境的配置和状态可能与生产不同（如用测试数据库），验证时要确认环境变量和依赖一致，避免“预览正常、生产报错”。",
+      sourceLabel: "Cloudflare Blog",
+      sourceUrl: "https://blog.cloudflare.com/",
+      articleIdea: "已扩写：Cloudflare Worker Previews 并行预览工作流：让 Agent 改动安全验证"
+    },
+    {
+      date: "2026-09-22",
+      tag: "云端部署",
+      title: "Cloudflare WAF 新增 SSRF 非标准 IP 写法与 SSTI 检测：覆盖 link-local、jar loopback 和 Jinja 危险链",
+      summary: "Cloudflare 9 月 22 日 WAF 更新上线：新增针对使用非标准 IP 表示法（link-local、local）和 jar loopback payload 的 SSRF 检测，以及针对服务端模板注入（SSTI）的 Jinja Dangerous Globals Chain 检测。这些规则在 9/15 预告、9/22 生效，部分先以 Log 模式观察。",
+      why: "攻击者常用非标准 IP 写法（如十进制/八进制 IP、短格式）绕过简单的 SSRF 黑名单，SSTI 则可通过模板引擎危险全局变量执行代码。Cloudflare 补上这些绕过手法的检测，等于默认帮你挡住更多变种。新手要理解 WAF 规则是外围兜底，应用层仍需做规范的 URL 校验和模板沙箱；新规则 Log 阶段要关注是否误拦截正常请求，Block 后及时排查。",
+      sourceLabel: "Cloudflare Changelog",
+      sourceUrl: "https://developers.cloudflare.com/changelog/",
+      articleIdea: "候选：SSRF/SSTI 绕过手法与多层防护清单"
+    },
+    {
+      date: "2026-09-22",
+      tag: "云端部署",
+      title: "Cloudflare 缓存支持 HTTP Vary：可规范化协商头、透传精确值或在变化不可预测时绕过缓存",
+      summary: "Cloudflare 9 月 22 日在 Cache Rules 中支持 HTTP Vary（所有计划可用）：可以规范化已知的内容协商头，在小差异确实重要时把精确值透传给源站，或在变化过于不可预测时绕过缓存。",
+      why: "Vary 是 HTTP 缓存里最容易出错的部分——配置不当会导致缓存命中率暴跌（每个变体一份缓存）或把错误变体返回给用户（如把移动端页面给桌面端）。新手要理解 Vary 的作用是告诉缓存“哪些请求头会影响响应”，应只对真正影响内容的头（如 Accept-Encoding、Accept-Language）启用，并优先规范化而非无限增加变体，避免缓存膨胀。",
+      sourceLabel: "Cloudflare Blog",
+      sourceUrl: "https://blog.cloudflare.com/",
+      articleIdea: "候选：HTTP 缓存 Vary 配置与命中率优化实践"
+    },
+    {
+      date: "2026-09-22",
+      tag: "AI 编程",
+      title: "Copilot C++ 代码智能提速：全库索引默认开启，跨文件符号信息可复用",
+      summary: "GitHub 9 月 22 日为 Copilot 带来更快的 C++ 代码智能：C++ 全库索引（whole codebase indexing）默认在 Copilot CLI 开启，为当前未打开的文件构建持久化符号索引，Microsoft C++ Language Server 可复用这些符号信息而不必每次重新发现，跨文件跳转和补全更快。",
+      why: "C++ 大型项目的代码智能一直受限于头文件多、符号关系复杂、跨文件解析慢。全库索引把符号信息持久化后，跳转定义、查找引用、自动补全的响应明显变快，对大型 C++ 代码库的开发者体验提升明显。新手要注意首次建立索引需要时间并占用磁盘，超大项目可能要等索引完成后才能享受提速；索引需要随代码变化更新，切换分支后若结果异常可尝试重建索引。",
+      sourceLabel: "GitHub Changelog / releases.sh",
+      sourceUrl: "https://github.blog/changelog/",
+      articleIdea: "候选：大型 C++ 项目代码智能与索引优化设置"
+    },
+    {
+      date: "2026-09-23",
+      tag: "AI 终端",
+      title: "Codex CLI v0.156.1：GPT-6 Sol 和 Luna 进入稳定版，模型选择器可直接切换",
+      summary: "Codex CLI v0.156.1 于 9 月 23 日发布，是一个单点补丁：把 GPT-6 Sol 和 GPT-6 Luna 引入稳定版 CLI，两个模型在 /model 选择器中显示在 GPT-6-Astra 之下，用户可直接切换，用于更快、更低成本的任务。",
+      why: "终端 Agent 用户无需等待即可用上 GPT-6 家族的快速低价模型，在脚本化、批量、简单任务上可以显著降低成本和等待时间。新手升级后建议：把日常简单任务默认模型设为 Sol/Luna，复杂任务再手动切 Astra，并观察低价模型在自己代码库上的实际表现；升级前仍按惯例检查配置和 MCP 兼容性。",
+      sourceLabel: "Codex CLI / blakecrosley",
+      sourceUrl: "https://blakecrosley.com/ja/guides/codex",
+      articleIdea: "候选：Codex CLI 模型切换与按任务分配模型实践"
+    },
     {
       date: "2026-09-21",
       tag: "AI 编程",

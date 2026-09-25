@@ -8,6 +8,9 @@
   <url><loc>https://hello1yjx.github.io/editorial.html</loc><lastmod>2026-06-29</lastmod><priority>0.7</priority></url>
   <url><loc>https://hello1yjx.github.io/contact.html</loc><lastmod>2026-06-29</lastmod><priority>0.5</priority></url>
   <url><loc>https://hello1yjx.github.io/privacy.html</loc><lastmod>2026-06-29</lastmod><priority>0.5</priority></url>
+  <url><loc>https://hello1yjx.github.io/articles/copilot-app-local-sandbox-setup-guide.html</loc><lastmod>2026-09-23</lastmod><priority>0.8</priority></url>
+  <url><loc>https://hello1yjx.github.io/articles/claude-opus-5-5-long-context-cost-guide.html</loc><lastmod>2026-09-22</lastmod><priority>0.8</priority></url>
+  <url><loc>https://hello1yjx.github.io/articles/cloudflare-worker-previews-parallel-workflow-guide.html</loc><lastmod>2026-09-22</lastmod><priority>0.8</priority></url>
   <url><loc>https://hello1yjx.github.io/articles/claude-projects-multi-thread-collaboration-guide.html</loc><lastmod>2026-09-17</lastmod><priority>0.8</priority></url>
   <url><loc>https://hello1yjx.github.io/articles/github-copilot-auto-model-selection-cost-guide.html</loc><lastmod>2026-09-17</lastmod><priority>0.8</priority></url>
   <url><loc>https://hello1yjx.github.io/articles/codex-cli-0155-voice-touchid-mcp-guide.html</loc><lastmod>2026-09-17</lastmod><priority>0.8</priority></url>

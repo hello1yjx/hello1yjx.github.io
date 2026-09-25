@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://cdn.jsdelivr.net">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;800&family=Noto+Serif+SC:wght@700;900&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/styles.css?v=20260922-daily-update">
+  <link rel="stylesheet" href="assets/styles.css?v=20260925-daily-update">
 </head>
 <body>
   <header class="site-header">
@@ -68,6 +68,57 @@
       <div class="content-grid" data-post-list>
         <!-- STATIC_POSTS_START -->
 <article class="article-card reveal">
+      <a class="article-card__media article-card__media--ai" href="articles/copilot-app-local-sandbox-setup-guide.html">
+        <span class="article-card__badge">AI 编程</span>
+        <span class="article-card__icon"><img class="visual-icon visual-icon--card" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="AI 编程 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <strong>AI 编程</strong>
+      </a>
+      <div class="article-card__body">
+        <div class="meta-row">
+          <span>AI 编程</span>
+          <span>10 分钟</span>
+          <time datetime="2026-09-23">2026年9月23日</time>
+        </div>
+        <h3><a href="articles/copilot-app-local-sandbox-setup-guide.html">Copilot app 本地沙箱配置指南：文件、网络与凭证的最小权限设置</a></h3>
+        <p>GitHub Copilot app 9 月 23 日推出本地沙箱（public preview）：为本地仓库会话按项目限制文件系统、网络和凭证访问，且在操作系统无法执行策略时直接拒绝运行而非裸奔。这篇教程讲清楚沙箱的三类策略怎么配、怎样从最小权限开始逐步放开、如何验证沙箱真的生效，以及 public preview 的限制。适合让 Copilot Agent 在自己机器上跑命令、又担心误操作影响系统的开发者。</p>
+      </div>
+    </article>
+
+    <article class="article-card reveal">
+      <a class="article-card__media article-card__media--ai" href="articles/claude-opus-5-5-long-context-cost-guide.html">
+        <span class="article-card__badge">AI 编程</span>
+        <span class="article-card__icon"><img class="visual-icon visual-icon--card" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/python/python-original.svg" alt="AI 编程 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <strong>AI 编程</strong>
+      </a>
+      <div class="article-card__body">
+        <div class="meta-row">
+          <span>AI 编程</span>
+          <span>10 分钟</span>
+          <time datetime="2026-09-22">2026年9月22日</time>
+        </div>
+        <h3><a href="articles/claude-opus-5-5-long-context-cost-guide.html">Claude Opus 5.5 上手指南：1M 长上下文、agentic 任务与成本优化</a></h3>
+        <p>Anthropic 9 月 22 日发布 Claude Opus 5.5：5.5 家族首个模型，大多数任务达到 Fable 5.1 水平，比 Opus 5 便宜 40%，默认 1M token 上下文、最大 128k 输出，面向长时运行 agentic 任务。这篇教程讲清楚 Opus 5.5 适合什么场景、1M 上下文怎么用才划算、长输出如何分段验证、怎样和更便宜的模型搭配控制成本。适合想用顶级模型又在意花费的开发者。</p>
+      </div>
+    </article>
+
+    <article class="article-card reveal">
+      <a class="article-card__media article-card__media--github" href="articles/cloudflare-worker-previews-parallel-workflow-guide.html">
+        <span class="article-card__badge">云端部署</span>
+        <span class="article-card__icon"><img class="visual-icon visual-icon--card" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/python/python-original.svg" alt="云端部署 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <strong>云端部署</strong>
+      </a>
+      <div class="article-card__body">
+        <div class="meta-row">
+          <span>云端部署</span>
+          <span>9 分钟</span>
+          <time datetime="2026-09-22">2026年9月22日</time>
+        </div>
+        <h3><a href="articles/cloudflare-worker-previews-parallel-workflow-guide.html">Cloudflare Worker Previews 并行预览工作流：让 Agent 的每次改动都安全验证</a></h3>
+        <p>Cloudflare 9 月 22 日推出 Worker Previews：每个分支都有独立的 URL、配置、状态和可观测性，开发者和 AI Agent 能并行测试多个改动而不影响生产。这篇教程讲清楚 Worker Previews 的隔离机制、怎样配合 Agent 多分支工作流、预览与生产环境差异如何核对，以及合并前的验证清单。适合用 AI Agent 并行开发、希望每个改动都有独立预览地址的开发者。</p>
+      </div>
+    </article>
+
+    <article class="article-card reveal">
       <a class="article-card__media article-card__media--ai" href="articles/claude-projects-multi-thread-collaboration-guide.html">
         <span class="article-card__badge">AI 编程</span>
         <span class="article-card__icon"><img class="visual-icon visual-icon--card" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/python/python-original.svg" alt="AI 编程 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
@@ -1224,6 +1275,6 @@
     </div>
   </footer>
 
-  <script src="assets/app.js?v=20260922-daily-update"></script>
+  <script src="assets/app.js?v=20260925-daily-update"></script>
 </body>
 </html>

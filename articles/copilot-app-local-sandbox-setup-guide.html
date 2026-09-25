@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Copilot app 本地沙箱配置指南：文件、网络与凭证的最小权限设置 | 学习资源库</title>
+  <meta name="description" content="GitHub Copilot app 9 月 23 日推出本地沙箱（public preview）：为本地仓库会话按项目限制文件系统、网络和凭证访问，且在操作系统无法执行策略时直接拒绝运行而非裸奔。这篇教程讲清楚沙箱的三类策略怎么配、怎样从最小权限开始逐步放开、如何验证沙箱真的生效，以及 public preview 的限制。适合让 Copilot Agent 在自己机器上跑命令、又担心误操作影响系统的开发者。">
+  <meta name="robots" content="index,follow,max-image-preview:large">
+  <link rel="canonical" href="https://hello1yjx.github.io/articles/copilot-app-local-sandbox-setup-guide.html">
+  <link rel="icon" type="image/png" href="../assets/images/brand-book-line.png">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"Copilot app 本地沙箱配置指南：文件、网络与凭证的最小权限设置","description":"GitHub Copilot app 9 月 23 日推出本地沙箱（public preview）：为本地仓库会话按项目限制文件系统、网络和凭证访问，且在操作系统无法执行策略时直接拒绝运行而非裸奔。这篇教程讲清楚沙箱的三类策略怎么配、怎样从最小权限开始逐步放开、如何验证沙箱真的生效，以及 public preview 的限制。适合让 Copilot Agent 在自己机器上跑命令、又担心误操作影响系统的开发者。","datePublished":"2026-09-23","dateModified":"2026-09-23","author":{"@type":"Person","name":"Avery Lin","url":"https://hello1yjx.github.io/about.html"},"publisher":{"@type":"Organization","name":"学习资源库","url":"https://hello1yjx.github.io/"},"mainEntityOfPage":"https://hello1yjx.github.io/articles/copilot-app-local-sandbox-setup-guide.html","inLanguage":"zh-CN"}</script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6621999105936318" crossorigin="anonymous"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;800&family=Noto+Serif+SC:wght@700;900&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/styles.css?v=20260925-daily-update">
+</head>
+<body>
+  <header class="site-header">
+    <div class="page-shell site-header__inner">
+      <a class="brand" href="../index.html" aria-label="返回首页">
+        <span class="brand-mark" aria-hidden="true"><img src="../assets/images/brand-book-line.png" alt="" width="36" height="33"></span>
+        <span class="brand-copy"><strong>学习资源库</strong><span>分享知识 · 提升自己 · 成就未来</span></span>
+      </a>
+      <button class="menu-button" data-menu-button aria-expanded="false" aria-label="切换导航菜单">☰</button>
+      <nav class="site-nav" data-mobile-nav>
+        <a href="../index.html">首页</a>
+        <a class="is-active" href="../posts.html" aria-current="page">教程</a>
+        <a href="../resources.html">资源下载</a>
+        <a href="../resources.html#official-resources">工具导航</a>
+        <a href="../hotspots.html">技术资讯</a>
+        <a href="../projects.html">开源项目</a>
+        <a href="../about.html">关于我们</a>
+      </nav>
+      <form class="header-search" action="../posts.html" method="get">
+        <input type="search" name="q" placeholder="搜索教程、资源、工具或关键词...">
+        <button type="submit" aria-label="搜索">/</button>
+      </form>
+      <a class="header-github" href="https://github.com/hello1yjx/hello1yjx.github.io" target="_blank" rel="noreferrer" aria-label="GitHub">
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="" width="24" height="24">
+      </a>
+      <a class="header-cta" href="../posts.html">开始学习</a>
+    </div>
+  </header>
+
+  <main class="page-shell section article-page">
+    <header class="detail-hero">
+      <span class="pill">AI 编程</span>
+      <h1>Copilot app 本地沙箱配置指南：文件、网络与凭证的最小权限设置</h1>
+      <div class="detail-hero__meta">
+        <time datetime="2026-09-23">2026年9月23日</time>
+        <span>10 分钟</span>
+        <span>作者：Avery Lin</span>
+      </div>
+      <p>GitHub Copilot app 9 月 23 日推出本地沙箱（public preview）：为本地仓库会话按项目限制文件系统、网络和凭证访问，且在操作系统无法执行策略时直接拒绝运行而非裸奔。这篇教程讲清楚沙箱的三类策略怎么配、怎样从最小权限开始逐步放开、如何验证沙箱真的生效，以及 public preview 的限制。适合让 Copilot Agent 在自己机器上跑命令、又担心误操作影响系统的开发者。</p>
+    </header>
+    <div class="article-layout">
+      <article class="article-body">
+        <div class="inline-promo">
+          <p class="label">来源与增量价值</p>
+          <h3>本文基于官方资料整理，并补充适用场景、限制条件和实践检查步骤。</h3>
+          <p>首要来源：<a href="https://github.blog/changelog/2026-09-23-local-sandboxing-in-the-github-copilot-app/" target="_blank" rel="noreferrer">Local sandboxing in the GitHub Copilot app</a>。事实以原始来源为准，本站建议需结合自己的环境验证。</p>
+        </div>
+
+    <p>让 AI Agent 在你自己的电脑上执行命令，最大的顾虑是：它会不会误删文件、把数据发到奇怪的地址、或者动用你的 Git 凭证？9 月 23 日 GitHub 在 Copilot app 推出本地沙箱（public preview），给本地会话加上一层可按项目配置的隔离，把 Agent 能访问的文件、网络和凭证限制在你允许的范围内。</p><p>这篇教程带你完整配置一遍：沙箱的三类策略分别是什么、怎样从最小权限开始、配置太严或太松怎么调整、如何确认沙箱真的在起作用，以及 fail closed 设计为什么重要。读完你能为自己的项目配一套既不影响正常工作、又能拦住误操作的沙箱策略。</p>
+    <h2>这篇内容适合谁</h2>
+    <ul><li>让 Copilot Agent 在本地机器跑命令、担心误操作影响文件或系统的开发者</li><li>想为不同项目设置不同访问边界（如限制只能碰项目目录）的用户</li><li>对 AI Agent 本地隔离和最小权限机制感兴趣的学习者</li></ul>
+    <h2>实践与验证步骤</h2>
+    <ul><li>理解本地沙箱作用：限制文件、网络、凭证，缩小误操作影响范围</li><li>确认适用范围：本地仓库/工作树会话，不适用云沙箱和远程主机</li><li>按项目开启：项目设置里打开 Sandbox new sessions，或会话内 /sandbox on</li><li>配置文件系统策略：额外读写、只读、拒绝目录</li><li>配置网络策略：外网和本地网络访问边界</li><li>配置凭证策略：Git HTTPS 和 GitHub CLI 凭证</li><li>从最小权限开始：先严格，按任务失败逐步放开</li><li>验证沙箱生效：测试越界访问被拒，理解 fail closed</li></ul>
+    <h2>官方资料入口</h2>
+
+    <ul>
+
+            <li>
+              <a href="https://github.blog/changelog/2026-09-23-local-sandboxing-in-the-github-copilot-app/" target="_blank" rel="noreferrer">Local sandboxing in the GitHub Copilot app</a>
+              <span>：官方公告，含三类策略和开启方式</span>
+            </li>
+
+            <li>
+              <a href="https://docs.github.com/" target="_blank" rel="noreferrer">Configuring local sandboxing（文档）</a>
+              <span>：沙箱配置的详细参考，以官方文档为准</span>
+            </li>
+
+    </ul>
+
+    <h2>重点判断与使用建议</h2>
+    <ul><li>沙箱默认关闭，需要在项目设置主动开启；只对新会话生效，已有会话要用 /sandbox on</li><li>若操作系统无法执行所请求的策略，沙箱 shell 会报错而不是无沙箱运行（fail closed），不会悄悄裸奔</li><li>企业托管策略可能让实际生效的策略比你设置的更严格，个人无法放宽</li><li>本地沙箱不适用于云沙箱会话和远程主机会话；Copilot app 和 CLI 的沙箱分别配置</li></ul>
+
+        <h2>一、沙箱的三类策略</h2>
+
+        <ul><li>文件系统：可配置“额外读写目录”（项目目录之外但任务需要的）、“额外只读目录”（可读不可写）、“拒绝目录”（完全不可访问，如其他项目、密钥目录）</li><li>网络：配置出站互联网访问（是否允许访问外网、允许哪些域名）和本地网络访问（是否允许访问局域网、localhost 服务）</li><li>凭证：配置是否向会话提供 Git 凭证（用于认证的 HTTPS git 操作）和 GitHub CLI 凭证（gh 命令认证）</li><li>关键理解：这些是会话启动时 app 请求的策略；企业托管设置可能让实际策略更严格，个人配置不能突破企业边界</li></ul>
+
+
+
+        <h2>二、开启方式</h2>
+
+        <ul><li>项目级默认开启：打开 app 设置 → 选择项目 → 在 Sandbox 下打开 Sandbox new sessions，之后该项目的新会话默认在沙箱中</li><li>单个会话临时开启：在活动的本地会话输入 /sandbox on，只改变当前会话，不改变项目默认</li><li>生效时机：文件/网络/凭证设置的变更对新会话或会话重启后生效，已在运行的会话不会自动应用</li><li>关闭方式：项目设置里关闭 Sandbox new sessions，或会话内 /sandbox off；关闭后会话将无沙箱运行，要确认风险</li></ul>
+
+
+
+        <h2>三、最小权限配置建议</h2>
+
+        <ul><li>文件系统从“只允许项目目录”开始：默认只给项目根目录读写，任务报权限不足时再按需添加额外目录，不要一开始就给整个用户目录</li><li>敏感目录显式拒绝：把 .ssh、其他项目目录、云凭证目录加入拒绝列表，即使 Agent 被诱导也访问不到</li><li>网络默认最小：不需要联网的任务直接关闭外网；需要联网时尽量限定到必要域名（如包管理器、API 端点），本地网络按需开放</li><li>凭证按需提供：只有需要 push 或调用 gh API 的任务才提供对应凭证，纯本地分析任务不提供，减少凭证被滥用风险</li><li>逐步放开原则：每次因任务需要放开一类权限，放开后验证确实是必要的，避免一次性给过宽权限</li></ul>
+
+
+
+        <h2>四、怎样验证沙箱真的生效</h2>
+
+        <ul><li>测试文件越界：让 Agent 尝试读取拒绝目录（如其他项目或 .ssh），应该被拒绝；如果能读到，说明沙箱未生效或配置有误</li><li>测试网络边界：尝试访问未授权的外网地址或本地服务，应该被拦截；能访问则网络策略未生效</li><li>测试凭证隔离：在未提供凭证的会话里执行需要认证的 git push 或 gh 命令，应该提示无凭证而非直接成功</li><li>确认 fail closed：如果启动会话时报“操作系统无法执行策略”的错误，这是正常保护，不要为了跑通而关闭沙箱，应调整策略或排查系统支持情况</li></ul>
+
+
+
+        <h2>五、public preview 的限制</h2>
+
+        <ul><li>功能处于 public preview，策略选项和行为可能调整，重要工作流不要完全依赖</li><li>只适用于本地仓库和工作树会话，云沙箱会话、远程主机会话不适用</li><li>依赖操作系统的隔离能力，不同系统能执行的策略粒度可能不同，无法执行时会 fail closed</li><li>Copilot app 和 Copilot CLI 的沙箱设置是分开的，需要分别配置</li></ul>
+
+
+
+        <h2>六、检查清单</h2>
+
+        <ul><li>确认会话类型：是本地仓库会话吗？云/远程会话不适用本地沙箱</li><li>项目级开启：Sandbox new sessions 已打开，新会话默认受保护</li><li>文件最小权限：只给项目目录，敏感目录显式拒绝</li><li>网络最小边界：按任务需要开放，默认不联网或限定域名</li><li>凭证按需提供：只有必要任务才给 Git/gh 凭证</li><li>三类越界测试通过：文件、网络、凭证的越界访问都被拒绝</li><li>遇到 fail closed 不关闭沙箱：调整策略或排查系统，而非裸奔</li><li>定期回顾策略：项目演进后重新评估权限是否仍最小</li></ul>
+
+
+
+
+        <div class="inline-promo">
+          <p class="label">更正与更新</p>
+          <h3>发现版本变化、来源失效或事实错误时，请通过联系页反馈。</h3>
+          <p>本站会核对一手来源后更新内容，不使用无来源转载填充文章。</p>
+          <a class="button button--secondary" href="../editorial.html">查看内容标准</a>
+        </div>
+      </article>
+      <aside class="article-sidebar">
+        <div class="sidebar-card">
+          <p class="label">本页标签</p>
+          <div class="tag-row"><span>GitHub Copilot</span><span>本地沙箱</span><span>最小权限</span><span>安全</span><span>AI Agent</span></div>
+        </div>
+        <div class="sidebar-card">
+          <p class="label">继续阅读</p>
+          <a href="codex-cli-0155-voice-touchid-mcp-guide.html">Codex CLI 0.155 新功能上手：语音对话与 Touch ID MCP 安全验证</a><a href="claude-code-deny-rules-security-audit-guide.html">Claude Code 权限规则配置与安全自查指南：deny 为什么会失效，怎样确认保护真的生效</a><a href="github-copilot-code-review-workflow-guide.html">Copilot 代码审查实战：自动解决评论、Shell 验证与审查级别怎么选</a><a href="vercel-openai-agents-long-running-deploy-guide.html">在 Vercel 上部署长时运行 AI Agent 入门：OpenAI Agents API + Sandbox + Queues 最小闭环</a>
+        </div>
+        <div class="sidebar-card sidebar-card--accent">
+          <p class="label">作者与方法</p>
+          <h3>了解本站如何选题、核验来源与处理更正。</h3>
+          <a class="button button--dark" href="../about.html">关于作者</a>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="page-shell footer__inner">
+      <div><strong>学习资源库</strong><p>分享知识 · 提升自己 · 成就未来</p></div>
+      <div>
+        <a href="../editorial.html">内容标准</a><br>
+        <a href="../privacy.html">隐私政策</a><br>
+        <a href="../contact.html">联系</a>
+      </div>
+    </div>
+  </footer>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      var button = document.querySelector("[data-menu-button]");
+      var nav = document.querySelector("[data-mobile-nav]");
+      if (!button || !nav) return;
+      button.addEventListener("click", function () {
+        var expanded = button.getAttribute("aria-expanded") === "true";
+        button.setAttribute("aria-expanded", String(!expanded));
+        nav.classList.toggle("site-nav--open", !expanded);
+      });
+    });
+  </script>
+</body>
+</html>
