@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Copilot computer use 上手：让 Agent 安全操作桌面应用 | 学习资源库</title>
+  <meta name="description" content="GitHub 10 月 1 日宣布 Copilot 支持 computer use，可以像人一样操作桌面客户端程序、跨多个应用完成任务。这篇教程讲清楚 computer use 能做什么、怎样在受控范围内启用、如何配合本地沙箱和逐步确认防止误操作、操作结果如何核对，以及当前的限制。适合想把跨程序重复操作交给 Copilot、又担心它“乱点”的开发者和效率用户。">
+  <meta name="robots" content="index,follow,max-image-preview:large">
+  <link rel="canonical" href="https://hello1yjx.github.io/articles/copilot-computer-use-desktop-apps-guide.html">
+  <link rel="icon" type="image/png" href="../assets/images/brand-book-line.png">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"Copilot computer use 上手：让 Agent 安全操作桌面应用","description":"GitHub 10 月 1 日宣布 Copilot 支持 computer use，可以像人一样操作桌面客户端程序、跨多个应用完成任务。这篇教程讲清楚 computer use 能做什么、怎样在受控范围内启用、如何配合本地沙箱和逐步确认防止误操作、操作结果如何核对，以及当前的限制。适合想把跨程序重复操作交给 Copilot、又担心它“乱点”的开发者和效率用户。","datePublished":"2026-10-01","dateModified":"2026-10-01","author":{"@type":"Person","name":"Avery Lin","url":"https://hello1yjx.github.io/about.html"},"publisher":{"@type":"Organization","name":"学习资源库","url":"https://hello1yjx.github.io/"},"mainEntityOfPage":"https://hello1yjx.github.io/articles/copilot-computer-use-desktop-apps-guide.html","inLanguage":"zh-CN"}</script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6621999105936318" crossorigin="anonymous"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;800&family=Noto+Serif+SC:wght@700;900&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/styles.css?v=20261002-daily-update">
+</head>
+<body>
+  <header class="site-header">
+    <div class="page-shell site-header__inner">
+      <a class="brand" href="../index.html" aria-label="返回首页">
+        <span class="brand-mark" aria-hidden="true"><img src="../assets/images/brand-book-line.png" alt="" width="36" height="33"></span>
+        <span class="brand-copy"><strong>学习资源库</strong><span>分享知识 · 提升自己 · 成就未来</span></span>
+      </a>
+      <button class="menu-button" data-menu-button aria-expanded="false" aria-label="切换导航菜单">☰</button>
+      <nav class="site-nav" data-mobile-nav>
+        <a href="../index.html">首页</a>
+        <a class="is-active" href="../posts.html" aria-current="page">教程</a>
+        <a href="../resources.html">资源下载</a>
+        <a href="../resources.html#official-resources">工具导航</a>
+        <a href="../hotspots.html">技术资讯</a>
+        <a href="../projects.html">开源项目</a>
+        <a href="../about.html">关于我们</a>
+      </nav>
+      <form class="header-search" action="../posts.html" method="get">
+        <input type="search" name="q" placeholder="搜索教程、资源、工具或关键词...">
+        <button type="submit" aria-label="搜索">/</button>
+      </form>
+      <a class="header-github" href="https://github.com/hello1yjx/hello1yjx.github.io" target="_blank" rel="noreferrer" aria-label="GitHub">
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="" width="24" height="24">
+      </a>
+      <a class="header-cta" href="../posts.html">开始学习</a>
+    </div>
+  </header>
+
+  <main class="page-shell section article-page">
+    <header class="detail-hero">
+      <span class="pill">AI 编程</span>
+      <h1>Copilot computer use 上手：让 Agent 安全操作桌面应用</h1>
+      <div class="detail-hero__meta">
+        <time datetime="2026-10-01">2026年10月1日</time>
+        <span>9 分钟</span>
+        <span>作者：Avery Lin</span>
+      </div>
+      <p>GitHub 10 月 1 日宣布 Copilot 支持 computer use，可以像人一样操作桌面客户端程序、跨多个应用完成任务。这篇教程讲清楚 computer use 能做什么、怎样在受控范围内启用、如何配合本地沙箱和逐步确认防止误操作、操作结果如何核对，以及当前的限制。适合想把跨程序重复操作交给 Copilot、又担心它“乱点”的开发者和效率用户。</p>
+    </header>
+    <div class="article-layout">
+      <article class="article-body">
+        <div class="inline-promo">
+          <p class="label">来源与增量价值</p>
+          <h3>本文基于官方资料整理，并补充适用场景、限制条件和实践检查步骤。</h3>
+          <p>首要来源：<a href="https://github.blog/changelog/2026/" target="_blank" rel="noreferrer">GitHub Copilot can now interact with desktop apps with computer use</a>。事实以原始来源为准，本站建议需结合自己的环境验证。</p>
+        </div>
+
+    <p>过去的 Copilot 主要在编辑器和聊天里给建议，真正“动手”还得你来。10 月 1 日 GitHub 让 Copilot 支持 computer use：它可以直接操作桌面应用，跨程序点击、输入、搬运数据，把一些重复的桌面端流程自动化。</p><p>能力越强，越要管得住。这篇教程带你在安全前提下上手：computer use 适合交什么任务、怎样用沙箱和逐步确认约束它、如何在每一步核对结果、哪些操作不该交给它。读完你能让 Copilot 帮你跑桌面流程，同时保持对机器的实际控制。</p>
+    <h2>这篇内容适合谁</h2>
+    <ul><li>有大量跨程序重复操作、想交给 Agent 自动完成的效率用户</li><li>想体验 Copilot 从“给建议”到“动手操作软件”的开发者</li><li>对桌面自动化和 Agent 权限控制感兴趣的学习者</li></ul>
+    <h2>实践与验证步骤</h2>
+    <ul><li>理解 computer use：操作桌面应用、跨程序完成任务</li><li>挑选适合任务：重复、规则明确、低风险的桌面流程</li><li>确认环境：更新到支持的 Copilot 版本和入口</li><li>配置本地沙箱：限制文件、网络、凭证</li><li>开启逐步确认：关键动作人工放行</li><li>先小范围试跑：非关键任务观察准确性</li><li>逐步核对结果：每步操作与预期一致</li><li>复盘与固化：稳定后再扩大自动化范围</li></ul>
+    <h2>官方资料入口</h2>
+
+    <ul>
+
+            <li>
+              <a href="https://github.blog/changelog/2026/" target="_blank" rel="noreferrer">GitHub Copilot can now interact with desktop apps with computer use</a>
+              <span>：官方公告（10 月 1 日）</span>
+            </li>
+
+            <li>
+              <a href="https://github.blog/changelog/2026-09-23-local-sandboxing-in-the-github-copilot-app/" target="_blank" rel="noreferrer">Local sandboxing in the GitHub Copilot app</a>
+              <span>：配合 computer use 使用的本地沙箱</span>
+            </li>
+
+    </ul>
+
+    <h2>重点判断与使用建议</h2>
+    <ul><li>computer use 让 Agent 拥有实际操作桌面的能力，误点、误提交、误改设置的风险随之增加</li><li>应配合本地沙箱（限制文件/网络/凭证）和逐步确认，先在非关键任务上验证</li><li>操作结果要逐步核对，发现偏离立即打断，不能完全放手让它自行执行</li><li>涉及付款、删除、发送、权限变更等高影响操作，应保留人工确认，不交给 Agent 自动完成</li></ul>
+
+        <h2>一、computer use 能做什么</h2>
+
+        <ul><li>操作桌面客户端：像人一样在桌面应用里点击、输入、选择菜单、切换窗口</li><li>跨程序完成流程：在多个应用之间搬运和处理信息，把需要手工串起来的步骤连起来</li><li>重复流程自动化：对规则明确、反复进行的桌面操作，可以交给它执行</li><li>关键区别：它不再只是“告诉你怎么做”，而是“直接去做”，因此风险和责任都不同</li></ul>
+
+
+
+        <h2>二、什么任务适合交给它</h2>
+
+        <ul><li>低风险、可重复：操作错了也容易撤销、不涉及不可逆后果的流程</li><li>规则明确：步骤清晰、判断条件少，Agent 不容易在歧义中乱选</li><li>结果易核对：每一步的预期结果明确，你能快速判断它做对没有</li><li>不适合：涉及付款、删除数据、对外发送、改权限/设置、处理他人隐私的任务——这些保留人工</li><li>起步建议：先从最机械、最无关紧要的流程开始，验证稳定后再逐步扩大</li></ul>
+
+
+
+        <h2>三、安全约束怎么配</h2>
+
+        <ul><li>叠加本地沙箱：用 Copilot app 的本地沙箱限制文件、网络、凭证，即使 Agent 误操作也被限制在边界内</li><li>开启逐步确认：对关键动作要求人工放行，而不是一次性授权它连续执行全部步骤</li><li>最小授权：只开放完成当前任务所必需的应用、目录和凭证，任务结束即收回</li><li>隔离测试环境：可能的话先在测试账号/测试数据上跑，避免直接操作真实工作环境</li><li>保持可打断：熟悉如何随时中断，发现它点错或走向不对时立即停下</li></ul>
+
+
+
+        <h2>四、怎样逐步核对结果</h2>
+
+        <ul><li>分步对照预期：每执行一步，确认界面变化、数据变化与预期一致后再让它继续</li><li>检查跨程序衔接：数据从一个应用搬到另一个应用时，确认没有遗漏、错位或格式错误</li><li>留意“看似完成”：它可能关掉窗口就以为完成了，要核实最终结果真正落地（如保存成功、提交成功）</li><li>记录异常操作：把它做错或犹豫的地方记下来，用于调整任务描述或判断该任务是否适合自动化</li></ul>
+
+
+
+        <h2>五、当前限制</h2>
+
+        <ul><li>新能力可能处于逐步推出阶段，不同入口（app/编辑器/CLI）、不同计划的可用性不同</li><li>面对动态界面、弹窗、网络延迟、非标准控件时，操作可能失败或点错位置</li><li>它依据屏幕内容做判断，界面语言、主题、分辨率变化都可能影响准确性</li><li>不能替代你对结果负责：自动化的是操作，不是判断和担责</li></ul>
+
+
+
+        <h2>六、检查清单</h2>
+
+        <ul><li>任务分级：低风险可自动，中风险需确认，高风险一律人工</li><li>沙箱已开启：文件、网络、凭证限制到位</li><li>逐步确认：关键动作人工放行，未一次性全权授权</li><li>先小范围试跑：在非关键任务/测试环境验证准确性</li><li>逐步核对：每步界面和数据变化与预期一致</li><li>最终结果落地：确认保存/提交/发送真正成功</li><li>可随时打断：知道如何中断并已验证有效</li><li>稳定后再扩大：复盘无误才增加自动化范围</li></ul>
+
+
+
+
+        <div class="inline-promo">
+          <p class="label">更正与更新</p>
+          <h3>发现版本变化、来源失效或事实错误时，请通过联系页反馈。</h3>
+          <p>本站会核对一手来源后更新内容，不使用无来源转载填充文章。</p>
+          <a class="button button--secondary" href="../editorial.html">查看内容标准</a>
+        </div>
+      </article>
+      <aside class="article-sidebar">
+        <div class="sidebar-card">
+          <p class="label">本页标签</p>
+          <div class="tag-row"><span>GitHub Copilot</span><span>computer use</span><span>桌面自动化</span><span>本地沙箱</span><span>AI Agent</span></div>
+        </div>
+        <div class="sidebar-card">
+          <p class="label">继续阅读</p>
+          <a href="cloudflare-worker-previews-parallel-workflow-guide.html">Cloudflare Worker Previews 并行预览工作流：让 Agent 的每次改动都安全验证</a><a href="claude-projects-multi-thread-collaboration-guide.html">Claude Projects 多线程协作入门：设定目标、并行线程与共享记忆</a><a href="github-copilot-auto-model-selection-cost-guide.html">Copilot 自动模型选择三档配置与成本控制指南：efficiency / balance / intelligence 怎么选</a><a href="codex-cli-0155-voice-touchid-mcp-guide.html">Codex CLI 0.155 新功能上手：语音对话与 Touch ID MCP 安全验证</a>
+        </div>
+        <div class="sidebar-card sidebar-card--accent">
+          <p class="label">作者与方法</p>
+          <h3>了解本站如何选题、核验来源与处理更正。</h3>
+          <a class="button button--dark" href="../about.html">关于作者</a>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="page-shell footer__inner">
+      <div><strong>学习资源库</strong><p>分享知识 · 提升自己 · 成就未来</p></div>
+      <div>
+        <a href="../editorial.html">内容标准</a><br>
+        <a href="../privacy.html">隐私政策</a><br>
+        <a href="../contact.html">联系</a>
+      </div>
+    </div>
+  </footer>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      var button = document.querySelector("[data-menu-button]");
+      var nav = document.querySelector("[data-mobile-nav]");
+      if (!button || !nav) return;
+      button.addEventListener("click", function () {
+        var expanded = button.getAttribute("aria-expanded") === "true";
+        button.setAttribute("aria-expanded", String(!expanded));
+        nav.classList.toggle("site-nav--open", !expanded);
+      });
+    });
+  </script>
+</body>
+</html>

@@ -9,7 +9,7 @@ const siteData = {
     bio: "把官方入口、学习路线、示例代码和可扩展资料放进同一张地图里，让第一次来的人也能马上知道从哪里开始。",
     heroStats: [
       { value: "9", label: "原创下载包" },
-      { value: "70", label: "新手专题" },
+      { value: "73", label: "新手专题" },
       { value: "持续", label: "更新与核验" }
     ],
     valueCards: [
@@ -28,6 +28,331 @@ const siteData = {
     ]
   },
   posts: [
+    {
+      id: "copilot-computer-use-desktop-apps-guide",
+      title: "Copilot computer use 上手：让 Agent 安全操作桌面应用",
+      date: "2026-10-01",
+      category: "AI 编程",
+      readTime: "9 分钟",
+      excerpt: "GitHub 10 月 1 日宣布 Copilot 支持 computer use，可以像人一样操作桌面客户端程序、跨多个应用完成任务。这篇教程讲清楚 computer use 能做什么、怎样在受控范围内启用、如何配合本地沙箱和逐步确认防止误操作、操作结果如何核对，以及当前的限制。适合想把跨程序重复操作交给 Copilot、又担心它“乱点”的开发者和效率用户。",
+      tags: ["GitHub Copilot", "computer use", "桌面自动化", "本地沙箱", "AI Agent"],
+      featured: false,
+      intro: [
+        "过去的 Copilot 主要在编辑器和聊天里给建议，真正“动手”还得你来。10 月 1 日 GitHub 让 Copilot 支持 computer use：它可以直接操作桌面应用，跨程序点击、输入、搬运数据，把一些重复的桌面端流程自动化。",
+        "能力越强，越要管得住。这篇教程带你在安全前提下上手：computer use 适合交什么任务、怎样用沙箱和逐步确认约束它、如何在每一步核对结果、哪些操作不该交给它。读完你能让 Copilot 帮你跑桌面流程，同时保持对机器的实际控制。"
+      ],
+      audience: [
+        "有大量跨程序重复操作、想交给 Agent 自动完成的效率用户",
+        "想体验 Copilot 从“给建议”到“动手操作软件”的开发者",
+        "对桌面自动化和 Agent 权限控制感兴趣的学习者"
+      ],
+      format: [
+        "全文按“能力边界 → 适合的任务 → 安全约束 → 逐步核对 → 限制 → 检查清单”组织",
+        "给出具体启用和验证建议，不只是翻译公告"
+      ],
+      roadmap: [
+        "理解 computer use：操作桌面应用、跨程序完成任务",
+        "挑选适合任务：重复、规则明确、低风险的桌面流程",
+        "确认环境：更新到支持的 Copilot 版本和入口",
+        "配置本地沙箱：限制文件、网络、凭证",
+        "开启逐步确认：关键动作人工放行",
+        "先小范围试跑：非关键任务观察准确性",
+        "逐步核对结果：每步操作与预期一致",
+        "复盘与固化：稳定后再扩大自动化范围"
+      ],
+      officialLinks: [
+        { label: "GitHub Copilot can now interact with desktop apps with computer use", url: "https://github.blog/changelog/2026/", note: "官方公告（10 月 1 日）" },
+        { label: "Local sandboxing in the GitHub Copilot app", url: "https://github.blog/changelog/2026-09-23-local-sandboxing-in-the-github-copilot-app/", note: "配合 computer use 使用的本地沙箱" }
+      ],
+      curatedLinks: [
+        "computer use 让 Agent 拥有实际操作桌面的能力，误点、误提交、误改设置的风险随之增加",
+        "应配合本地沙箱（限制文件/网络/凭证）和逐步确认，先在非关键任务上验证",
+        "操作结果要逐步核对，发现偏离立即打断，不能完全放手让它自行执行",
+        "涉及付款、删除、发送、权限变更等高影响操作，应保留人工确认，不交给 Agent 自动完成"
+      ],
+      downloadIdeas: [
+        "做一张“可交给 computer use 的任务”分级表：低风险自动 / 中风险确认 / 高风险人工",
+        "整理一份桌面自动化操作核对清单：每步预期、检查点、回滚方式"
+      ],
+      extraSections: [
+        {
+          title: "一、computer use 能做什么",
+          items: [
+            "操作桌面客户端：像人一样在桌面应用里点击、输入、选择菜单、切换窗口",
+            "跨程序完成流程：在多个应用之间搬运和处理信息，把需要手工串起来的步骤连起来",
+            "重复流程自动化：对规则明确、反复进行的桌面操作，可以交给它执行",
+            "关键区别：它不再只是“告诉你怎么做”，而是“直接去做”，因此风险和责任都不同"
+          ]
+        },
+        {
+          title: "二、什么任务适合交给它",
+          items: [
+            "低风险、可重复：操作错了也容易撤销、不涉及不可逆后果的流程",
+            "规则明确：步骤清晰、判断条件少，Agent 不容易在歧义中乱选",
+            "结果易核对：每一步的预期结果明确，你能快速判断它做对没有",
+            "不适合：涉及付款、删除数据、对外发送、改权限/设置、处理他人隐私的任务——这些保留人工",
+            "起步建议：先从最机械、最无关紧要的流程开始，验证稳定后再逐步扩大"
+          ]
+        },
+        {
+          title: "三、安全约束怎么配",
+          items: [
+            "叠加本地沙箱：用 Copilot app 的本地沙箱限制文件、网络、凭证，即使 Agent 误操作也被限制在边界内",
+            "开启逐步确认：对关键动作要求人工放行，而不是一次性授权它连续执行全部步骤",
+            "最小授权：只开放完成当前任务所必需的应用、目录和凭证，任务结束即收回",
+            "隔离测试环境：可能的话先在测试账号/测试数据上跑，避免直接操作真实工作环境",
+            "保持可打断：熟悉如何随时中断，发现它点错或走向不对时立即停下"
+          ]
+        },
+        {
+          title: "四、怎样逐步核对结果",
+          items: [
+            "分步对照预期：每执行一步，确认界面变化、数据变化与预期一致后再让它继续",
+            "检查跨程序衔接：数据从一个应用搬到另一个应用时，确认没有遗漏、错位或格式错误",
+            "留意“看似完成”：它可能关掉窗口就以为完成了，要核实最终结果真正落地（如保存成功、提交成功）",
+            "记录异常操作：把它做错或犹豫的地方记下来，用于调整任务描述或判断该任务是否适合自动化"
+          ]
+        },
+        {
+          title: "五、当前限制",
+          items: [
+            "新能力可能处于逐步推出阶段，不同入口（app/编辑器/CLI）、不同计划的可用性不同",
+            "面对动态界面、弹窗、网络延迟、非标准控件时，操作可能失败或点错位置",
+            "它依据屏幕内容做判断，界面语言、主题、分辨率变化都可能影响准确性",
+            "不能替代你对结果负责：自动化的是操作，不是判断和担责"
+          ]
+        },
+        {
+          title: "六、检查清单",
+          items: [
+            "任务分级：低风险可自动，中风险需确认，高风险一律人工",
+            "沙箱已开启：文件、网络、凭证限制到位",
+            "逐步确认：关键动作人工放行，未一次性全权授权",
+            "先小范围试跑：在非关键任务/测试环境验证准确性",
+            "逐步核对：每步界面和数据变化与预期一致",
+            "最终结果落地：确认保存/提交/发送真正成功",
+            "可随时打断：知道如何中断并已验证有效",
+            "稳定后再扩大：复盘无误才增加自动化范围"
+          ]
+        }
+      ]
+    },
+    {
+      id: "devday-gpt61-sol-instant-interrupt-codex-cloud-guide",
+      title: "DevDay 实战：GPT-6.1 Sol、instant interrupt 与 Codex Cloud 成本效率指南",
+      date: "2026-09-30",
+      category: "AI 终端",
+      readTime: "11 分钟",
+      excerpt: "9 月 29 日 OpenAI DevDay 带来三件与日常开发直接相关的更新：GPT-6.1 Sol 用更少 token 和步骤完成多步编码、Codex CLI 0.159 的 instant interrupt 让你在任务中途即时转向、Codex Cloud 让长任务在云端运行。这篇教程把三者串成一套“少花钱、少跑偏、能放手”的工作流，讲清楚各自怎么开、何时用本地何时用云端、如何验证效果。适合用终端 Agent 写代码、在意成本和长任务稳定性的开发者。",
+      tags: ["OpenAI DevDay", "GPT-6.1 Sol", "Codex CLI", "instant interrupt", "Codex Cloud", "成本优化"],
+      featured: false,
+      intro: [
+        "DevDay 2026 上和一线开发者最相关的，不是概念，而是三件能立刻改变工作方式的事：GPT-6.1 Sol 把多步编码做得更省 token、更少步骤；Codex CLI 的 instant interrupt 让你在模型响应或长任务中途就能打断纠偏；Codex Cloud 则把任务搬到云端，本地关机也能继续跑。",
+        "这篇教程把它们组合成一套完整工作流：用高效模型降低单次成本，用即时打断控制跑偏损失，用云端承接长时和并行任务。读完你能判断每个任务该用哪个模型、在本地还是云端跑，以及怎样量化自己到底省了多少。"
+      ],
+      audience: [
+        "用 Codex 等终端 Agent 写代码、关注 token 成本的开发者",
+        "经常跑长任务、希望中途能纠偏或放到云端运行的用户",
+        "想系统理解“模型效率 + 人工介入 + 云端环境”如何配合的学习者"
+      ],
+      format: [
+        "全文按“三件更新 → 高效模型用法 → 即时打断 → 本地/云端取舍 → 组合工作流 → 检查清单”组织",
+        "给出具体开启和验证方法，不只是翻译发布内容"
+      ],
+      roadmap: [
+        "理解三件更新：GPT-6.1 Sol、instant interrupt、Codex Cloud",
+        "升级并选择模型：在选择器中找到 GPT-6.1 Sol",
+        "验证效率：对比同类任务的 token、步骤和质量",
+        "开启 instant interrupt：opt-in 设置，熟悉打断时机",
+        "判断本地还是云端：按任务时长、文件、并行度选择",
+        "配置云端环境：环境变量、依赖、数据边界",
+        "建立组合工作流：高效模型+即时纠偏+云端长任务",
+        "量化与复盘：成本、成功率、跑偏率"
+      ],
+      officialLinks: [
+        { label: "GPT-6.1 Sol in GitHub Copilot", url: "https://github.blog/changelog/2026-09-29-gpt-6-1-sol-in-github-copilot/", note: "效率特性与可用入口" },
+        { label: "Codex CLI 0.159.0 instant interrupt", url: "https://ai-tldr.dev/releases/openai-codex-cli-0-159/", note: "即时打断与其他改动" },
+        { label: "Codex CLI 大改版与 Codex Cloud", url: "https://gigazine.net/gsc_news/en/20260930-openai-codex-cli-cloud/", note: "DevDay 综合报道" }
+      ],
+      curatedLinks: [
+        "GPT-6.1 Sol 早期测试用更少 token 和步骤可靠完成任务，但需在自己代码库上验证",
+        "instant interrupt 是 opt-in，开启后新输入可在响应/长任务中途即时引导方向",
+        "Codex Cloud 让任务在云端运行，适合长时、并行、需隔离环境的任务",
+        ".aws 目录在新版默认受保护，减少云凭证被误读风险"
+      ],
+      downloadIdeas: [
+        "做一张“任务 → 模型 → 本地/云端”决策表",
+        "建一个成本对比记录：同一任务在不同模型/环境下的 token、步骤、花费"
+      ],
+      extraSections: [
+        {
+          title: "一、GPT-6.1 Sol 怎么用才省",
+          items: [
+            "理解省在哪：多步任务用更少 token、更少步骤完成，既降低花费，也减少中间环节出错",
+            "按任务匹配：需要多轮工具调用的 agentic 任务收益最大；极简单任务差异不明显",
+            "自己做 A/B：挑几个有代表性的任务，和旧模型对比 token 数、步骤数、结果质量",
+            "别只看便宜：若质量下降导致返工，反而更贵，以“完成且正确”为前提评估"
+          ]
+        },
+        {
+          title: "二、instant interrupt 的使用时机",
+          items: [
+            "先开启：它是 opt-in，需要在设置里打开 instant_interrupt",
+            "发现跑偏立即打断：模型理解错需求、走向错误方案时，不必等它跑完，直接输入新指令转向",
+            "长任务中纠偏：在长时间 code-mode 调用里看到中间结果不对，可即时引导",
+            "避免滥用打断：方向正确时频繁打断会让任务反复重来，应在关键节点判断，而非每步都干预"
+          ]
+        },
+        {
+          title: "三、本地与云端如何取舍",
+          items: [
+            "用本地：快速迭代、需要访问本机文件和工具、短时任务",
+            "用云端（Codex Cloud）：长时运行、多任务并行、需要干净一致的隔离环境、希望本地关机也继续",
+            "云端配置核对：确认环境变量、依赖版本、可访问的数据与本地一致，避免“本地能跑、云端报错”",
+            "数据边界：敏感项目上云端前确认平台的数据处理和隔离策略，必要时先用非敏感项目熟悉"
+          ]
+        },
+        {
+          title: "四、组合工作流",
+          items: [
+            "默认高效模型：日常多步任务用 GPT-6.1 Sol 控制成本",
+            "关键节点盯紧：在容易跑偏的地方保持关注，用 instant interrupt 即时纠偏",
+            "长任务丢云端：把耗时长、可并行的任务交给 Codex Cloud，本地继续做别的",
+            "完成后统一验证：无论本地还是云端产出，都跑测试/构建，用结果而非过程判断质量",
+            "闭环复盘：记录每个任务的模型、环境、花费和结果，持续优化分配"
+          ]
+        },
+        {
+          title: "五、怎样量化效果",
+          items: [
+            "记录 token 与步骤：对比切换前后的消耗量，验证“更省”是否在你这里成立",
+            "统计一次通过率：多少任务无需返工就完成，衡量模型和工作流质量",
+            "记录打断次数：频繁打断说明任务描述或模型选择有问题，需要调整",
+            "关注云端成功率与时长：评估云端是否真的比本地更适合长任务"
+          ]
+        },
+        {
+          title: "六、检查清单",
+          items: [
+            "版本已升级：能在选择器找到 GPT-6.1 Sol，CLI 为支持版本",
+            "效率已验证：代表性任务对比了 token、步骤、质量",
+            "instant interrupt 已开启并试用：知道如何中途转向",
+            "本地/云端判断清晰：按时长、文件、并行度选择",
+            "云端环境核对：变量、依赖、数据边界一致",
+            "凭证保护：.aws 等敏感目录默认受保护，未泄露",
+            "产出统一验证：测试/构建通过",
+            "量化复盘：成本、一次通过率、打断次数有记录"
+          ]
+        }
+      ]
+    },
+    {
+      id: "claude-5-5-family-sonnet-opus-selection-guide",
+      title: "Claude 5.5 家族模型搭配：Sonnet 5.5 与 Opus 5.5 按任务选型",
+      date: "2026-09-28",
+      category: "AI 编程",
+      readTime: "9 分钟",
+      excerpt: "随着 9 月 28 日 Sonnet 5.5 发布，Claude 5.5 家族形成完整梯度：Opus 5.5（9/22，Fable 5.1 水平、1M 上下文）攻坚复杂任务，Sonnet 5.5 作为更快、更低成本的补充承接日常。这篇教程讲清楚两者各自适合什么、怎样按任务切换、如何在质量和花费间取得平衡，以及在 Copilot/API 中如何管理访问。适合在多个 Claude 模型间选择、想兼顾能力与成本的开发者。",
+      tags: ["Claude Sonnet 5.5", "Claude Opus 5.5", "模型选型", "成本优化", "AI 编程"],
+      featured: false,
+      intro: [
+        "9 月 22 日 Opus 5.5 打头阵，9 月 28 日 Sonnet 5.5 跟进，Claude 5.5 家族在一周内补齐了“强”和“快省”两档。Opus 5.5 在多数任务上达到 Fable 5.1 水平、比 Opus 5 便宜 40%，默认 1M 上下文；Sonnet 5.5 则是它更快、更低成本的补充。",
+        "模型多了，真正的问题是“这个任务该用哪个”。这篇教程给你一套可执行的选型方法：哪些任务值得 Opus、哪些交给 Sonnet、怎样验证切换后质量没有掉、花费是否真的降下来。读完你不必再纠结，也不会在简单任务上浪费额度。"
+      ],
+      audience: [
+        "在 Opus 和 Sonnet 之间反复切换、想明确选型标准的开发者",
+        "想在保证质量的前提下降低模型花费的个人和团队",
+        "需要为组织配置 Claude 模型访问策略的管理员"
+      ],
+      format: [
+        "全文按“家族梯度 → 选型标准 → 切换验证 → 成本平衡 → 访问管理 → 检查清单”组织",
+        "给出具体判断和验证方法，不只是罗列模型参数"
+      ],
+      roadmap: [
+        "理清家族：Opus 5.5 与 Sonnet 5.5 的定位",
+        "识别任务复杂度：哪些必须强模型",
+        "建立默认策略：日常用 Sonnet，攻坚用 Opus",
+        "验证质量：切换后结果是否仍达标",
+        "核算成本：对比两类任务的花费",
+        "在 Copilot/API 管理访问：模型策略配置",
+        "处理长上下文：1M 窗口何时真正需要",
+        "复盘固化：形成团队选型规范"
+      ],
+      officialLinks: [
+        { label: "Claude Sonnet 5.5 launch（Release Notes）", url: "https://support.claude.com/en/articles/12138966-release-notes", note: "Sonnet 5.5 发布与家族说明" },
+        { label: "Claude Sonnet 5.5 in GitHub Copilot", url: "https://github.blog/changelog/2026-09-28-claude-sonnet-5-5-in-github-copilot/", note: "在 Copilot 中的可用性与访问管理" }
+      ],
+      curatedLinks: [
+        "Sonnet 5.5 是 Opus 5.5 更快、更低成本的补充，二者构成 5.5 家族梯度",
+        "Opus 5.5 多数任务达 Fable 5.1 水平、比 Opus 5 便宜 40%、默认 1M 上下文",
+        "模型已上线 API、Bedrock、AWS、GCP、Microsoft Foundry 和 GitHub Copilot",
+        "Copilot Business/Enterprise 管理员通过模型策略管理访问"
+      ],
+      downloadIdeas: [
+        "做一张“任务复杂度 → Sonnet/Opus”选型速查表",
+        "整理一份两模型成本与质量对比记录模板"
+      ],
+      extraSections: [
+        {
+          title: "一、家族两档怎么定位",
+          items: [
+            "Opus 5.5：面向复杂架构、长时 agentic、大型代码库和长文档，默认 1M 上下文，能力最强",
+            "Sonnet 5.5：作为更快、更低成本的补充，承接大多数常规开发和知识工作",
+            "关系不是替代：Sonnet 负责高频日常，Opus 在 Sonnet 吃力时顶上",
+            "参数以官方模型页为准：上下文窗口、输出上限、价格会直接影响选型"
+          ]
+        },
+        {
+          title: "二、按任务复杂度选型",
+          items: [
+            "用 Sonnet：单文件或少量文件改动、常规功能开发、明确的样板代码、一般问答和摘要",
+            "用 Opus：跨多模块重构、复杂调试、需要全局理解大型代码库、长文档推理、多步且易跑偏的 agentic 任务",
+            "判断信号：当 Sonnet 反复返工、漏掉跨文件影响、或在长任务中失焦时，升级到 Opus",
+            "反向信号：Opus 在简单任务上“杀鸡用牛刀”，速度和花费都不划算，应降回 Sonnet"
+          ]
+        },
+        {
+          title: "三、切换后如何验证质量",
+          items: [
+            "用结果而非感觉判断：跑测试、构建，检查功能是否真正正确",
+            "关注跨文件一致性：Sonnet 在大型改动中更易遗漏关联影响，重点核查",
+            "设定返工阈值：如果某类任务用 Sonnet 经常返工，就把这类任务默认升到 Opus",
+            "保留典型样本：记录同类任务在两个模型下的表现，作为后续选型依据"
+          ]
+        },
+        {
+          title: "四、成本如何平衡",
+          items: [
+            "默认 Sonnet 控总量：把高频、量大的日常任务放在更低成本档位",
+            "Opus 用在刀刃上：只为真正需要强能力的任务付费，避免全程 Opus",
+            "长上下文也计费：即使模型便宜，1M 上下文在多轮中反复计费仍可能很贵，按需使用",
+            "定期复盘账单：看哪类任务花费最多，评估能否降级模型或拆分任务"
+          ]
+        },
+        {
+          title: "五、访问与策略管理",
+          items: [
+            "Copilot：Business/Enterprise 管理员在 Copilot 设置的模型策略中管理 Sonnet 5.5 访问",
+            "API/云平台：通过 API、Bedrock、AWS、GCP、Microsoft Foundry 按组织需要开通",
+            "团队默认值：可给团队设“默认 Sonnet、允许按需升级 Opus”的策略，兼顾成本与灵活性",
+            "用量监控：配合用量指标跟踪各模型使用比例，验证选型策略是否被执行"
+          ]
+        },
+        {
+          title: "六、检查清单",
+          items: [
+            "家族定位清楚：知道 Opus/Sonnet 各自档位",
+            "选型标准明确：按任务复杂度和返工信号切换",
+            "默认策略合理：日常 Sonnet、攻坚 Opus",
+            "质量已验证：测试/构建通过，跨文件影响已核查",
+            "成本已核算：对比两类任务花费，长上下文按需使用",
+            "访问策略配置：Copilot/API 中按组织需要开通",
+            "典型样本留存：为团队选型提供依据",
+            "账单定期复盘：高消耗任务持续优化"
+          ]
+        }
+      ]
+    },
     {
       id: "copilot-app-local-sandbox-setup-guide",
       title: "Copilot app 本地沙箱配置指南：文件、网络与凭证的最小权限设置",
@@ -6554,6 +6879,126 @@ git push origin main`,
     "github-agentic-workflows-public-preview-guide"
   ],
   hotspots: [
+    {
+      date: "2026-10-01",
+      tag: "AI 编程",
+      title: "GitHub Copilot 支持 computer use：可直接操作桌面应用，跨程序完成任务",
+      summary: "GitHub 10 月 1 日宣布 Copilot 现在可以通过 computer use 与桌面应用交互：不再只在编辑器或聊天里给建议，而是能像人一样操作桌面客户端程序，跨多个应用完成任务。",
+      why: "这标志着 Copilot 从“写代码/给建议”走向“直接动手操作软件”，把重复性的跨程序操作（如在不同工具间搬运数据、走一遍桌面端流程）自动化。新手要注意：computer use 让 Agent 拥有了实际操作桌面的能力，应配合本地沙箱和权限确认使用，先在非关键任务上观察它的操作是否准确，避免它误点、误提交或改动不该动的设置；操作结果要逐步核对，不能完全放手。",
+      sourceLabel: "GitHub Changelog",
+      sourceUrl: "https://github.blog/changelog/2026/",
+      articleIdea: "已扩写：Copilot computer use 上手：让 Agent 安全操作桌面应用"
+    },
+    {
+      date: "2026-09-30",
+      tag: "AI 终端",
+      title: "OpenAI DevDay 2026：Codex CLI 大改版（新外观+新能力），并推出云端运行的 Codex Cloud",
+      summary: "9 月 29 日 OpenAI DevDay 上，Codex CLI 迎来重大刷新：全新界面和一批强大新能力，同时推出 Codex Cloud，让 Codex 可以在云端环境运行，不必局限在本地终端。",
+      why: "这是本周开发者工具领域最大的事件：本地 CLI 与云端环境打通后，长任务可以放到云端跑、本地关机也不中断，团队也能共享一致的 Codex 环境。新手要理解本地与云端的取舍：本地适合快速、涉及本机文件的任务，云端适合长时、并行、需要隔离环境的任务；刚发布时要关注云端环境的配置、额度和数据边界，不要一上来就把敏感项目放上去。",
+      sourceLabel: "OpenAI DevDay / GIGAZINE",
+      sourceUrl: "https://gigazine.net/gsc_news/en/20260930-openai-codex-cli-cloud/",
+      articleIdea: "已扩写：DevDay 实战：GPT-6.1 Sol、instant interrupt 与 Codex Cloud 成本效率指南"
+    },
+    {
+      date: "2026-09-29",
+      tag: "AI 编程",
+      title: "GPT-6.1 Sol 上线 Copilot：多步编码更强，完成同样任务用的 token 和步骤明显更少",
+      summary: "GitHub 9 月 29 日宣布 GPT-6.1 Sol 可用，面向 agentic 编码和终端工作流，多步编码表现强、token 使用高效。早期测试中它能可靠完成任务，且比 GPT-6、GPT-5.6 家族的早期模型明显用更少的 token 和步骤，可在模型选择器中选择。",
+      why: "“用更少 token、更少步骤完成任务”直接等于更省钱、更少出错环节，尤其适合需要多轮工具调用的 agentic 任务——步骤越少，中途跑偏的概率越低。新手要注意：官方的“更少 token”是早期测试结论，应在自己的真实任务上对比质量和花费，再决定是否设为默认；模型刚上线时稳定性可能波动，关键任务先观察。",
+      sourceLabel: "GitHub Changelog",
+      sourceUrl: "https://github.blog/changelog/2026-09-29-gpt-6-1-sol-in-github-copilot/",
+      articleIdea: "已扩写：DevDay 实战：GPT-6.1 Sol、instant interrupt 与 Codex Cloud 成本效率指南"
+    },
+    {
+      date: "2026-09-29",
+      tag: "AI 终端",
+      title: "Codex CLI 0.159.0：新增 instant interrupt，模型响应或长任务中途可用新输入转向",
+      summary: "OpenAI 9 月 29 日发布 Codex CLI 0.159.0：新增可选 instant_interrupt 设置，开启后在模型响应或长时间 code-mode 调用过程中，新输入可以即时打断并引导 Codex；还带来紧凑欢迎屏、更丰富的 Mermaid 流程图，.aws 目录默认受保护，Windows 下 MCP 服务器不再弹出多余控制台窗口。",
+      why: "Agent 一旦理解错方向，过去只能等它把一大段跑完再纠正，浪费 token 和时间；instant interrupt 让你在发现跑偏的第一时间就介入，是控制长任务成本和质量的重要能力。新手要注意它是 opt-in（需手动开启），开启后熟悉打断的时机；.aws 目录默认保护则减少了云凭证被误读的风险。",
+      sourceLabel: "AI/TLDR",
+      sourceUrl: "https://ai-tldr.dev/releases/openai-codex-cli-0-159/",
+      articleIdea: "已扩写：DevDay 实战：GPT-6.1 Sol、instant interrupt 与 Codex Cloud 成本效率指南"
+    },
+    {
+      date: "2026-09-28",
+      tag: "AI 编程",
+      title: "Claude Sonnet 5.5 发布：5.5 家族第二个模型，Opus 5.5 更快、更低成本的补充",
+      summary: "Anthropic 9 月 28 日发布 Claude Sonnet 5.5（claude-sonnet-5-5），是 Claude 5.5 家族的第二个模型，作为 Opus 5.5 更快、更低成本的补充，已上线 Claude API、Amazon Bedrock、AWS、Google Cloud 和 Microsoft Foundry，同日进入 GitHub Copilot。",
+      why: "5.5 家族至此形成“Opus 攻坚、Sonnet 日常”的梯度：大多数常规任务用 Sonnet 5.5 就能获得接近的能力，同时更快更便宜，把 Opus 留给真正复杂的任务。新手要避免“只用最强模型”或“只用最便宜模型”两个极端，按任务复杂度在两者间切换；具体上下文窗口、输出上限和价格以官方模型页为准。",
+      sourceLabel: "Anthropic Release Notes",
+      sourceUrl: "https://support.claude.com/en/articles/12138966-release-notes",
+      articleIdea: "已扩写：Claude 5.5 家族模型搭配：Sonnet 5.5 与 Opus 5.5 按任务选型"
+    },
+    {
+      date: "2026-09-25",
+      tag: "效率工具",
+      title: "微软发布新版 Copilot 超级应用：Home/Code/Autopilot 三合一，聊天、编程、智能体集中到同一界面",
+      summary: "微软 9 月 25 日发布新版 Copilot 超级应用，把聊天、编程、智能体三类能力集中到同一界面，分为 Home、Code、Autopilot 三个标签页：Home 整合 Chat 和 Cowork，Code 底层与 GitHub Copilot 同源、可用自然语言搭建方案，Autopilot 是常驻主动的智能体。",
+      why: "这代表消费端/办公端 Copilot 与开发者技术栈进一步打通，不会写代码的人也能用自然语言做应用和仪表盘，开发者则能在同一入口衔接专业工具。新手要注意：Code 模块做低代码/原型很快，但生成的方案要检查可维护性和安全性，不能直接用于关键生产；Autopilot 这类常驻智能体应明确其权限边界，避免它在你不在时执行高影响操作。",
+      sourceLabel: "新浪科技 / IT之家",
+      sourceUrl: "https://finance.sina.com.cn/tech/digi/2026-09-25/doc-initaait7614237.shtml",
+      articleIdea: "候选：自然语言搭应用的验收清单：低代码原型到可用产品"
+    },
+    {
+      date: "2026-10-01",
+      tag: "云端部署",
+      title: "Cloudflare Basin 正式可用：开放的无服务器数据平台",
+      summary: "Cloudflare 10 月 1 日宣布 Basin 正式可用（GA），定位为一个开放、无服务器的数据平台。",
+      why: "无服务器数据平台降低了搭建数据管道和存储后端的门槛，与 Workers 生态结合可以快速构建数据驱动应用，不必自己运维数据库基础设施。新手要注意：GA 前的预览行为可能与正式版有差异，接入前应确认计费方式、数据模型和与现有存储（D1/R2/KV）的分工，避免重复建设；“开放”意味着要额外关注访问控制，避免数据暴露。",
+      sourceLabel: "Cloudflare Docs / Blog",
+      sourceUrl: "https://developers.cloudflare.com/changelog/",
+      articleIdea: "候选：无服务器数据平台选型：Basin/D1/R2/KV 分工"
+    },
+    {
+      date: "2026-09-29",
+      tag: "云端部署",
+      title: "Cloudflare 推出 Threat Signals：自动解析开源威胁情报并连接 WAF，对所有账户免费",
+      summary: "Cloudflare 9 月 29 日把 Cloudforce One 威胁事件平台开放给所有账户，并推出 Threat Signals：自动解析开源威胁报告、提取结构化指标（IOC），并把威胁上下文直接关联到你的 WAF 规则。",
+      why: "过去威胁情报主要面向专业安全团队，现在每个账户都能免费获得“情报 → 指标 → 防护规则”的自动化闭环，新手站长也能让防护跟上最新公开威胁。新手要注意：自动生成的规则上线前先以观察/日志模式验证是否误拦截正常流量；开源情报质量参差，应把它作为多层防护的一层，而非替代应用自身的安全措施。",
+      sourceLabel: "Cloudflare Blog",
+      sourceUrl: "https://blog.cloudflare.com/tag/agents/",
+      articleIdea: "候选：把开源威胁情报接入 WAF 的配置与误报排查"
+    },
+    {
+      date: "2026-09-30",
+      tag: "AI 编程",
+      title: "HydraFusion 进入 VS Code 和 Copilot app",
+      summary: "GitHub 9 月 30 日宣布 HydraFusion 在 VS Code 和 GitHub Copilot app 中可用。",
+      why: "新模型/能力持续进入开发者日常使用的编辑器和 app，用户无需切换工具即可体验。新手要注意：刚接入的能力在不同入口（VS Code、app、CLI）的功能和配置可能不一致，使用前确认自己的计划和入口是否支持，并在真实任务上评估其表现，而不是只看发布宣传。",
+      sourceLabel: "GitHub Changelog",
+      sourceUrl: "https://github.blog/changelog/2026/",
+      articleIdea: "候选：编辑器内多模型能力的选择与对比方法"
+    },
+    {
+      date: "2026-10-01",
+      tag: "云端部署",
+      title: "Cloudflare Web Crypto 增加 ML-KEM 和 ML-DSA：后量子密钥封装与数字签名落地",
+      summary: "Cloudflare 10 月 1 日在 Web Crypto 中加入对 ML-KEM（后量子密钥封装机制）和 ML-DSA（后量子数字签名算法）的支持。",
+      why: "量子计算威胁下，今天加密传输的数据可能被“先收集、后解密”，后量子算法的落地让应用可以提前迁移到抗量子的密钥交换和签名。新手要理解：这是面向未来的加密升级，普通应用短期不必急于全面改造，但涉及长期保密数据（如医疗、身份、长期密钥）的系统应关注迁移路径；新算法的浏览器/客户端兼容性需要验证，通常采用“经典+后量子”混合方案过渡。",
+      sourceLabel: "Cloudflare Docs Changelog",
+      sourceUrl: "https://developers.cloudflare.com/changelog/",
+      articleIdea: "候选：后量子加密迁移入门：混合密钥交换与兼容性"
+    },
+    {
+      date: "2026-09-24",
+      tag: "AI 编程",
+      title: "Copilot Business/Enterprise 功能默认启用新策略，高影响操作要求在场证明（proof of presence）",
+      summary: "GitHub 9 月 24 日为 Copilot Business 和 Enterprise 引入功能默认启用的全局默认策略；同日推出对高影响操作要求 proof of presence（在场证明），即执行敏感操作时需要确认操作者真实在场。",
+      why: "默认启用让企业新成员开箱获得 Copilot 能力、降低推广成本，而在场证明则防止 Agent 或自动化流程在无人确认的情况下执行高风险动作，二者分别解决“用起来”和“管得住”。管理员要注意：默认启用会增加使用量和费用，应配合预算和用量监控；高影响操作清单和确认方式要明确，既不能让确认流于形式，也不要过度打断正常工作。",
+      sourceLabel: "GitHub Changelog",
+      sourceUrl: "https://github.blog/changelog/2026/",
+      articleIdea: "候选：企业 Copilot 默认启用与高风险操作审批策略"
+    },
+    {
+      date: "2026-09-30",
+      tag: "云端部署",
+      title: "Vercel CDN 不再缓存带 Vary: Cookie 的响应，Edge Requests 更名为 CDN Requests",
+      summary: "Vercel 9 月 30 日宣布 CDN 不再存储 Vary 头包含 Cookie 的响应（仍正常提供，但不写缓存，返回 x-vercel-cache: MISS）；同时把 Edge Requests 指标更名为 CDN Requests，定价、限额和计量方式不变。",
+      why: "带 Cookie 的响应往往是用户私有的，缓存它们有误把 A 用户内容给 B 用户的风险，Vercel 直接不缓存是更安全的默认。新手要注意：如果你的页面依赖 CDN 缓存又带 Cookie，此改动会让命中率下降、回源增加，应把公开静态内容与带 Cookie 的私有响应分开；更名只影响指标名称，账单口径不变，但监控看板和告警里的旧名称要更新。",
+      sourceLabel: "Vercel Changelog",
+      sourceUrl: "https://vercel.com/changelog",
+      articleIdea: "候选：CDN 缓存与 Cookie 私有内容的隔离实践"
+    },
     {
       date: "2026-09-24",
       tag: "云端部署",

@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Claude 5.5 家族模型搭配：Sonnet 5.5 与 Opus 5.5 按任务选型 | 学习资源库</title>
+  <meta name="description" content="随着 9 月 28 日 Sonnet 5.5 发布，Claude 5.5 家族形成完整梯度：Opus 5.5（9/22，Fable 5.1 水平、1M 上下文）攻坚复杂任务，Sonnet 5.5 作为更快、更低成本的补充承接日常。这篇教程讲清楚两者各自适合什么、怎样按任务切换、如何在质量和花费间取得平衡，以及在 Copilot/API 中如何管理访问。适合在多个 Claude 模型间选择、想兼顾能力与成本的开发者。">
+  <meta name="robots" content="index,follow,max-image-preview:large">
+  <link rel="canonical" href="https://hello1yjx.github.io/articles/claude-5-5-family-sonnet-opus-selection-guide.html">
+  <link rel="icon" type="image/png" href="../assets/images/brand-book-line.png">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"Claude 5.5 家族模型搭配：Sonnet 5.5 与 Opus 5.5 按任务选型","description":"随着 9 月 28 日 Sonnet 5.5 发布，Claude 5.5 家族形成完整梯度：Opus 5.5（9/22，Fable 5.1 水平、1M 上下文）攻坚复杂任务，Sonnet 5.5 作为更快、更低成本的补充承接日常。这篇教程讲清楚两者各自适合什么、怎样按任务切换、如何在质量和花费间取得平衡，以及在 Copilot/API 中如何管理访问。适合在多个 Claude 模型间选择、想兼顾能力与成本的开发者。","datePublished":"2026-09-28","dateModified":"2026-09-28","author":{"@type":"Person","name":"Avery Lin","url":"https://hello1yjx.github.io/about.html"},"publisher":{"@type":"Organization","name":"学习资源库","url":"https://hello1yjx.github.io/"},"mainEntityOfPage":"https://hello1yjx.github.io/articles/claude-5-5-family-sonnet-opus-selection-guide.html","inLanguage":"zh-CN"}</script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6621999105936318" crossorigin="anonymous"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;800&family=Noto+Serif+SC:wght@700;900&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/styles.css?v=20261002-daily-update">
+</head>
+<body>
+  <header class="site-header">
+    <div class="page-shell site-header__inner">
+      <a class="brand" href="../index.html" aria-label="返回首页">
+        <span class="brand-mark" aria-hidden="true"><img src="../assets/images/brand-book-line.png" alt="" width="36" height="33"></span>
+        <span class="brand-copy"><strong>学习资源库</strong><span>分享知识 · 提升自己 · 成就未来</span></span>
+      </a>
+      <button class="menu-button" data-menu-button aria-expanded="false" aria-label="切换导航菜单">☰</button>
+      <nav class="site-nav" data-mobile-nav>
+        <a href="../index.html">首页</a>
+        <a class="is-active" href="../posts.html" aria-current="page">教程</a>
+        <a href="../resources.html">资源下载</a>
+        <a href="../resources.html#official-resources">工具导航</a>
+        <a href="../hotspots.html">技术资讯</a>
+        <a href="../projects.html">开源项目</a>
+        <a href="../about.html">关于我们</a>
+      </nav>
+      <form class="header-search" action="../posts.html" method="get">
+        <input type="search" name="q" placeholder="搜索教程、资源、工具或关键词...">
+        <button type="submit" aria-label="搜索">/</button>
+      </form>
+      <a class="header-github" href="https://github.com/hello1yjx/hello1yjx.github.io" target="_blank" rel="noreferrer" aria-label="GitHub">
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="" width="24" height="24">
+      </a>
+      <a class="header-cta" href="../posts.html">开始学习</a>
+    </div>
+  </header>
+
+  <main class="page-shell section article-page">
+    <header class="detail-hero">
+      <span class="pill">AI 编程</span>
+      <h1>Claude 5.5 家族模型搭配：Sonnet 5.5 与 Opus 5.5 按任务选型</h1>
+      <div class="detail-hero__meta">
+        <time datetime="2026-09-28">2026年9月28日</time>
+        <span>9 分钟</span>
+        <span>作者：Avery Lin</span>
+      </div>
+      <p>随着 9 月 28 日 Sonnet 5.5 发布，Claude 5.5 家族形成完整梯度：Opus 5.5（9/22，Fable 5.1 水平、1M 上下文）攻坚复杂任务，Sonnet 5.5 作为更快、更低成本的补充承接日常。这篇教程讲清楚两者各自适合什么、怎样按任务切换、如何在质量和花费间取得平衡，以及在 Copilot/API 中如何管理访问。适合在多个 Claude 模型间选择、想兼顾能力与成本的开发者。</p>
+    </header>
+    <div class="article-layout">
+      <article class="article-body">
+        <div class="inline-promo">
+          <p class="label">来源与增量价值</p>
+          <h3>本文基于官方资料整理，并补充适用场景、限制条件和实践检查步骤。</h3>
+          <p>首要来源：<a href="https://support.claude.com/en/articles/12138966-release-notes" target="_blank" rel="noreferrer">Claude Sonnet 5.5 launch（Release Notes）</a>。事实以原始来源为准，本站建议需结合自己的环境验证。</p>
+        </div>
+
+    <p>9 月 22 日 Opus 5.5 打头阵，9 月 28 日 Sonnet 5.5 跟进，Claude 5.5 家族在一周内补齐了“强”和“快省”两档。Opus 5.5 在多数任务上达到 Fable 5.1 水平、比 Opus 5 便宜 40%，默认 1M 上下文；Sonnet 5.5 则是它更快、更低成本的补充。</p><p>模型多了，真正的问题是“这个任务该用哪个”。这篇教程给你一套可执行的选型方法：哪些任务值得 Opus、哪些交给 Sonnet、怎样验证切换后质量没有掉、花费是否真的降下来。读完你不必再纠结，也不会在简单任务上浪费额度。</p>
+    <h2>这篇内容适合谁</h2>
+    <ul><li>在 Opus 和 Sonnet 之间反复切换、想明确选型标准的开发者</li><li>想在保证质量的前提下降低模型花费的个人和团队</li><li>需要为组织配置 Claude 模型访问策略的管理员</li></ul>
+    <h2>实践与验证步骤</h2>
+    <ul><li>理清家族：Opus 5.5 与 Sonnet 5.5 的定位</li><li>识别任务复杂度：哪些必须强模型</li><li>建立默认策略：日常用 Sonnet，攻坚用 Opus</li><li>验证质量：切换后结果是否仍达标</li><li>核算成本：对比两类任务的花费</li><li>在 Copilot/API 管理访问：模型策略配置</li><li>处理长上下文：1M 窗口何时真正需要</li><li>复盘固化：形成团队选型规范</li></ul>
+    <h2>官方资料入口</h2>
+
+    <ul>
+
+            <li>
+              <a href="https://support.claude.com/en/articles/12138966-release-notes" target="_blank" rel="noreferrer">Claude Sonnet 5.5 launch（Release Notes）</a>
+              <span>：Sonnet 5.5 发布与家族说明</span>
+            </li>
+
+            <li>
+              <a href="https://github.blog/changelog/2026-09-28-claude-sonnet-5-5-in-github-copilot/" target="_blank" rel="noreferrer">Claude Sonnet 5.5 in GitHub Copilot</a>
+              <span>：在 Copilot 中的可用性与访问管理</span>
+            </li>
+
+    </ul>
+
+    <h2>重点判断与使用建议</h2>
+    <ul><li>Sonnet 5.5 是 Opus 5.5 更快、更低成本的补充，二者构成 5.5 家族梯度</li><li>Opus 5.5 多数任务达 Fable 5.1 水平、比 Opus 5 便宜 40%、默认 1M 上下文</li><li>模型已上线 API、Bedrock、AWS、GCP、Microsoft Foundry 和 GitHub Copilot</li><li>Copilot Business/Enterprise 管理员通过模型策略管理访问</li></ul>
+
+        <h2>一、家族两档怎么定位</h2>
+
+        <ul><li>Opus 5.5：面向复杂架构、长时 agentic、大型代码库和长文档，默认 1M 上下文，能力最强</li><li>Sonnet 5.5：作为更快、更低成本的补充，承接大多数常规开发和知识工作</li><li>关系不是替代：Sonnet 负责高频日常，Opus 在 Sonnet 吃力时顶上</li><li>参数以官方模型页为准：上下文窗口、输出上限、价格会直接影响选型</li></ul>
+
+
+
+        <h2>二、按任务复杂度选型</h2>
+
+        <ul><li>用 Sonnet：单文件或少量文件改动、常规功能开发、明确的样板代码、一般问答和摘要</li><li>用 Opus：跨多模块重构、复杂调试、需要全局理解大型代码库、长文档推理、多步且易跑偏的 agentic 任务</li><li>判断信号：当 Sonnet 反复返工、漏掉跨文件影响、或在长任务中失焦时，升级到 Opus</li><li>反向信号：Opus 在简单任务上“杀鸡用牛刀”，速度和花费都不划算，应降回 Sonnet</li></ul>
+
+
+
+        <h2>三、切换后如何验证质量</h2>
+
+        <ul><li>用结果而非感觉判断：跑测试、构建，检查功能是否真正正确</li><li>关注跨文件一致性：Sonnet 在大型改动中更易遗漏关联影响，重点核查</li><li>设定返工阈值：如果某类任务用 Sonnet 经常返工，就把这类任务默认升到 Opus</li><li>保留典型样本：记录同类任务在两个模型下的表现，作为后续选型依据</li></ul>
+
+
+
+        <h2>四、成本如何平衡</h2>
+
+        <ul><li>默认 Sonnet 控总量：把高频、量大的日常任务放在更低成本档位</li><li>Opus 用在刀刃上：只为真正需要强能力的任务付费，避免全程 Opus</li><li>长上下文也计费：即使模型便宜，1M 上下文在多轮中反复计费仍可能很贵，按需使用</li><li>定期复盘账单：看哪类任务花费最多，评估能否降级模型或拆分任务</li></ul>
+
+
+
+        <h2>五、访问与策略管理</h2>
+
+        <ul><li>Copilot：Business/Enterprise 管理员在 Copilot 设置的模型策略中管理 Sonnet 5.5 访问</li><li>API/云平台：通过 API、Bedrock、AWS、GCP、Microsoft Foundry 按组织需要开通</li><li>团队默认值：可给团队设“默认 Sonnet、允许按需升级 Opus”的策略，兼顾成本与灵活性</li><li>用量监控：配合用量指标跟踪各模型使用比例，验证选型策略是否被执行</li></ul>
+
+
+
+        <h2>六、检查清单</h2>
+
+        <ul><li>家族定位清楚：知道 Opus/Sonnet 各自档位</li><li>选型标准明确：按任务复杂度和返工信号切换</li><li>默认策略合理：日常 Sonnet、攻坚 Opus</li><li>质量已验证：测试/构建通过，跨文件影响已核查</li><li>成本已核算：对比两类任务花费，长上下文按需使用</li><li>访问策略配置：Copilot/API 中按组织需要开通</li><li>典型样本留存：为团队选型提供依据</li><li>账单定期复盘：高消耗任务持续优化</li></ul>
+
+
+
+
+        <div class="inline-promo">
+          <p class="label">更正与更新</p>
+          <h3>发现版本变化、来源失效或事实错误时，请通过联系页反馈。</h3>
+          <p>本站会核对一手来源后更新内容，不使用无来源转载填充文章。</p>
+          <a class="button button--secondary" href="../editorial.html">查看内容标准</a>
+        </div>
+      </article>
+      <aside class="article-sidebar">
+        <div class="sidebar-card">
+          <p class="label">本页标签</p>
+          <div class="tag-row"><span>Claude Sonnet 5.5</span><span>Claude Opus 5.5</span><span>模型选型</span><span>成本优化</span><span>AI 编程</span></div>
+        </div>
+        <div class="sidebar-card">
+          <p class="label">继续阅读</p>
+          <a href="cloudflare-worker-previews-parallel-workflow-guide.html">Cloudflare Worker Previews 并行预览工作流：让 Agent 的每次改动都安全验证</a><a href="claude-projects-multi-thread-collaboration-guide.html">Claude Projects 多线程协作入门：设定目标、并行线程与共享记忆</a><a href="github-copilot-auto-model-selection-cost-guide.html">Copilot 自动模型选择三档配置与成本控制指南：efficiency / balance / intelligence 怎么选</a><a href="codex-cli-0155-voice-touchid-mcp-guide.html">Codex CLI 0.155 新功能上手：语音对话与 Touch ID MCP 安全验证</a>
+        </div>
+        <div class="sidebar-card sidebar-card--accent">
+          <p class="label">作者与方法</p>
+          <h3>了解本站如何选题、核验来源与处理更正。</h3>
+          <a class="button button--dark" href="../about.html">关于作者</a>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="page-shell footer__inner">
+      <div><strong>学习资源库</strong><p>分享知识 · 提升自己 · 成就未来</p></div>
+      <div>
+        <a href="../editorial.html">内容标准</a><br>
+        <a href="../privacy.html">隐私政策</a><br>
+        <a href="../contact.html">联系</a>
+      </div>
+    </div>
+  </footer>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      var button = document.querySelector("[data-menu-button]");
+      var nav = document.querySelector("[data-mobile-nav]");
+      if (!button || !nav) return;
+      button.addEventListener("click", function () {
+        var expanded = button.getAttribute("aria-expanded") === "true";
+        button.setAttribute("aria-expanded", String(!expanded));
+        nav.classList.toggle("site-nav--open", !expanded);
+      });
+    });
+  </script>
+</body>
+</html>
