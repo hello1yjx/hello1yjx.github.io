@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>模型弃用迁移与 auto mode 安全分类器：少踩坑、少花钱 | 学习资源库</title>
+  <meta name="description" content="10 月 2 日 Copilot 弃用一批模型（Gemini 3.5/3.6 Flash、Kimi K2.7 Code、Claude Opus 4.7 等），Claude Code 2.1.286 则把 auto mode 安全分类器移到服务器端且不再单独计费。这篇教程把两件“成本与稳定”相关的事讲清楚：怎样排查硬编码模型并平滑迁移、如何确认安全分类器在自己的接入方式下免费生效、什么情况会回退计费。适合依赖多个 AI 模型、想减少突发故障和意外花费的开发者。">
+  <meta name="robots" content="index,follow,max-image-preview:large">
+  <link rel="canonical" href="https://hello1yjx.github.io/articles/model-deprecation-automode-classifier-guide.html">
+  <link rel="icon" type="image/png" href="../assets/images/brand-book-line.png">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"模型弃用迁移与 auto mode 安全分类器：少踩坑、少花钱","description":"10 月 2 日 Copilot 弃用一批模型（Gemini 3.5/3.6 Flash、Kimi K2.7 Code、Claude Opus 4.7 等），Claude Code 2.1.286 则把 auto mode 安全分类器移到服务器端且不再单独计费。这篇教程把两件“成本与稳定”相关的事讲清楚：怎样排查硬编码模型并平滑迁移、如何确认安全分类器在自己的接入方式下免费生效、什么情况会回退计费。适合依赖多个 AI 模型、想减少突发故障和意外花费的开发者。","datePublished":"2026-10-02","dateModified":"2026-10-02","author":{"@type":"Person","name":"Avery Lin","url":"https://hello1yjx.github.io/about.html"},"publisher":{"@type":"Organization","name":"学习资源库","url":"https://hello1yjx.github.io/"},"mainEntityOfPage":"https://hello1yjx.github.io/articles/model-deprecation-automode-classifier-guide.html","inLanguage":"zh-CN"}</script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6621999105936318" crossorigin="anonymous"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;800&family=Noto+Serif+SC:wght@700;900&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/styles.css?v=20261003-daily-update">
+</head>
+<body>
+  <header class="site-header">
+    <div class="page-shell site-header__inner">
+      <a class="brand" href="../index.html" aria-label="返回首页">
+        <span class="brand-mark" aria-hidden="true"><img src="../assets/images/brand-book-line.png" alt="" width="36" height="33"></span>
+        <span class="brand-copy"><strong>学习资源库</strong><span>分享知识 · 提升自己 · 成就未来</span></span>
+      </a>
+      <button class="menu-button" data-menu-button aria-expanded="false" aria-label="切换导航菜单">☰</button>
+      <nav class="site-nav" data-mobile-nav>
+        <a href="../index.html">首页</a>
+        <a class="is-active" href="../posts.html" aria-current="page">教程</a>
+        <a href="../resources.html">资源下载</a>
+        <a href="../resources.html#official-resources">工具导航</a>
+        <a href="../hotspots.html">技术资讯</a>
+        <a href="../projects.html">开源项目</a>
+        <a href="../about.html">关于我们</a>
+      </nav>
+      <form class="header-search" action="../posts.html" method="get">
+        <input type="search" name="q" placeholder="搜索教程、资源、工具或关键词...">
+        <button type="submit" aria-label="搜索">/</button>
+      </form>
+      <a class="header-github" href="https://github.com/hello1yjx/hello1yjx.github.io" target="_blank" rel="noreferrer" aria-label="GitHub">
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="" width="24" height="24">
+      </a>
+      <a class="header-cta" href="../posts.html">开始学习</a>
+    </div>
+  </header>
+
+  <main class="page-shell section article-page">
+    <header class="detail-hero">
+      <span class="pill">AI 编程</span>
+      <h1>模型弃用迁移与 auto mode 安全分类器：少踩坑、少花钱</h1>
+      <div class="detail-hero__meta">
+        <time datetime="2026-10-02">2026年10月2日</time>
+        <span>9 分钟</span>
+        <span>作者：Avery Lin</span>
+      </div>
+      <p>10 月 2 日 Copilot 弃用一批模型（Gemini 3.5/3.6 Flash、Kimi K2.7 Code、Claude Opus 4.7 等），Claude Code 2.1.286 则把 auto mode 安全分类器移到服务器端且不再单独计费。这篇教程把两件“成本与稳定”相关的事讲清楚：怎样排查硬编码模型并平滑迁移、如何确认安全分类器在自己的接入方式下免费生效、什么情况会回退计费。适合依赖多个 AI 模型、想减少突发故障和意外花费的开发者。</p>
+    </header>
+    <div class="article-layout">
+      <article class="article-body">
+        <div class="inline-promo">
+          <p class="label">来源与增量价值</p>
+          <h3>本文基于官方资料整理，并补充适用场景、限制条件和实践检查步骤。</h3>
+          <p>首要来源：<a href="https://github.blog/changelog/2026-10-02-selected-models-in-github-copilot-deprecated/" target="_blank" rel="noreferrer">Selected models in GitHub Copilot deprecated</a>。事实以原始来源为准，本站建议需结合自己的环境验证。</p>
+        </div>
+
+    <p>模型更新换代很快，两类问题最容易让人踩坑：一是写死在脚本和配置里的模型突然被弃用，流程当场中断；二是保障安全的分类器在某些接入方式下悄悄计费。10 月 2 日 Copilot 弃用一批旧模型，Claude Code 2.1.286 则把 auto mode 安全分类器移到服务器端并默认对企业/API 用户免费。</p><p>这篇教程给你一套系统做法：怎样找出所有硬编码模型、按官方替代平滑迁移并验证，以及如何确认安全分类器是否免费、什么情况下会回退到计费。读完你能减少模型变更带来的突发故障，也能避免不必要的开销。</p>
+    <h2>这篇内容适合谁</h2>
+    <ul><li>在脚本、CI、配置中写死模型名、担心弃用后中断的开发者</li><li>使用 Claude Code auto mode、想确认分类器是否计费的用户</li><li>需要管理团队模型版本和成本的负责人</li></ul>
+    <h2>实践与验证步骤</h2>
+    <ul><li>理清弃用清单：哪些模型下线、替代是什么</li><li>排查硬编码：脚本、CI、配置、自定义指令</li><li>平滑迁移：切换替代模型并验证质量</li><li>建立模型常量：避免散落硬编码</li><li>理解 auto mode 分类器：作用与计费变化</li><li>确认免费生效：按接入方式核对</li><li>处理回退：网关重写与环境变量关闭</li><li>持续监控：弃用公告、用量与花费</li></ul>
+    <h2>官方资料入口</h2>
+
+    <ul>
+
+            <li>
+              <a href="https://github.blog/changelog/2026-10-02-selected-models-in-github-copilot-deprecated/" target="_blank" rel="noreferrer">Selected models in GitHub Copilot deprecated</a>
+              <span>：弃用清单与替代</span>
+            </li>
+
+            <li>
+              <a href="https://ai-tldr.dev/tools/claude-code/" target="_blank" rel="noreferrer">Claude Code 2.1.286（AI/TLDR）</a>
+              <span>：服务器端安全分类器与回退</span>
+            </li>
+
+    </ul>
+
+    <h2>重点判断与使用建议</h2>
+    <ul><li>10/2 弃用模型含 Gemini 3.5/3.6 Flash、Kimi K2.7 Code、Claude Opus 4.7，官方给出替代</li><li>另有一批模型计划 10/19 弃用，需要一并排查</li><li>Claude Code auto mode 安全分类器移到服务器端、默认对 Enterprise/API/Bedrock/Foundry 不再单独计费</li><li>网关重写请求会回退到计费分类器，CLAUDE_CODE_AUTO_MODE_SERVER=0 可关闭服务器端</li></ul>
+
+        <h2>一、弃用会造成什么影响</h2>
+
+        <ul><li>显式报错：请求已下线模型会返回模型不可用，自动化流程中断</li><li>静默回退：部分场景可能自动切到默认模型，行为和成本发生变化却不易察觉</li><li>质量波动：替代模型与旧模型在特定任务上表现可能不同，需要验证</li><li>连锁影响：写死模型名的脚本、CI、团队默认配置、文档示例都可能受影响</li></ul>
+
+
+
+        <h2>二、排查硬编码模型</h2>
+
+        <ul><li>全局搜索模型名：在代码、CI 工作流、配置文件、自定义指令、文档中搜索旧模型标识</li><li>检查默认设置：团队/个人的模型默认值、路由规则、网关配置里是否引用旧模型</li><li>关注间接引用：模板、生成器、内部工具可能间接拼出模型名，也要排查</li><li>记录清单：把每处引用、负责人、替代方案列出来，避免遗漏</li><li>提前看下一批：把 10/19 计划弃用的模型一并纳入排查</li></ul>
+
+
+
+        <h2>三、平滑迁移并验证</h2>
+
+        <ul><li>按官方替代切换：如 Gemini 3.5/3.6 Flash → 3.8 Flash、Kimi K2.7 Code → K3、Opus 4.7 → Opus 5</li><li>代表性任务验证：在典型任务上比较替代模型的质量、延迟和花费</li><li>集中管理模型名：用常量或环境变量统一引用，今后只改一处</li><li>灰度切换：先在非关键流程验证，再推广到生产，降低风险</li><li>保留回滚方案：迁移初期保留快速切回或改用其他模型的能力</li></ul>
+
+
+
+        <h2>四、auto mode 安全分类器如何计费</h2>
+
+        <ul><li>作用：auto mode 依赖分类器判断动作风险，是 Agent 安全的重要环节</li><li>新变化：分类器检查移到服务器端、搭车在会话主请求中，默认对 Enterprise、Claude API、Bedrock、Agent Platform、Foundry 不再单独计费</li><li>收益：减少一次单独请求的费用和延迟</li><li>确认方式：升级到 2.1.286 后，在自己的接入方式下核对账单和请求，确认分类器没有被单独计费</li></ul>
+
+
+
+        <h2>五、什么情况会回退计费</h2>
+
+        <ul><li>网关重写请求：如果中间网关/代理重写了请求，无法搭车分类，会回退到计费的分类器请求</li><li>主动关闭：设置 CLAUDE_CODE_AUTO_MODE_SERVER=0 可关闭服务器端分类（通常出于合规/本地分类需要），此时按本地/计费方式处理</li><li>不支持的接入：在默认未覆盖的接入方式上，可能仍走计费路径，需要核对</li><li>应对：检查链路上的网关是否改写请求，评估是否为了免费而调整接入，或接受回退费用</li></ul>
+
+
+
+        <h2>六、检查清单</h2>
+
+        <ul><li>弃用清单已梳理：下线模型和替代明确</li><li>硬编码已排查：代码/CI/配置/指令/文档全覆盖</li><li>替代已验证：质量、延迟、花费达标</li><li>模型名集中管理：用常量/环境变量，不再散落</li><li>下一批弃用已纳入：10/19 的模型提前处理</li><li>分类器计费已核对：确认在当前接入方式下免费生效</li><li>回退原因已评估：网关改写或主动关闭的影响清楚</li><li>持续监控：关注公告、用量和账单变化</li></ul>
+
+
+
+
+        <div class="inline-promo">
+          <p class="label">更正与更新</p>
+          <h3>发现版本变化、来源失效或事实错误时，请通过联系页反馈。</h3>
+          <p>本站会核对一手来源后更新内容，不使用无来源转载填充文章。</p>
+          <a class="button button--secondary" href="../editorial.html">查看内容标准</a>
+        </div>
+      </article>
+      <aside class="article-sidebar">
+        <div class="sidebar-card">
+          <p class="label">本页标签</p>
+          <div class="tag-row"><span>模型弃用</span><span>模型迁移</span><span>Claude Code</span><span>auto mode</span><span>安全分类器</span><span>成本优化</span></div>
+        </div>
+        <div class="sidebar-card">
+          <p class="label">继续阅读</p>
+          <a href="copilot-app-local-sandbox-setup-guide.html">Copilot app 本地沙箱配置指南：文件、网络与凭证的最小权限设置</a><a href="claude-opus-5-5-long-context-cost-guide.html">Claude Opus 5.5 上手指南：1M 长上下文、agentic 任务与成本优化</a><a href="cloudflare-worker-previews-parallel-workflow-guide.html">Cloudflare Worker Previews 并行预览工作流：让 Agent 的每次改动都安全验证</a><a href="claude-projects-multi-thread-collaboration-guide.html">Claude Projects 多线程协作入门：设定目标、并行线程与共享记忆</a>
+        </div>
+        <div class="sidebar-card sidebar-card--accent">
+          <p class="label">作者与方法</p>
+          <h3>了解本站如何选题、核验来源与处理更正。</h3>
+          <a class="button button--dark" href="../about.html">关于作者</a>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="page-shell footer__inner">
+      <div><strong>学习资源库</strong><p>分享知识 · 提升自己 · 成就未来</p></div>
+      <div>
+        <a href="../editorial.html">内容标准</a><br>
+        <a href="../privacy.html">隐私政策</a><br>
+        <a href="../contact.html">联系</a>
+      </div>
+    </div>
+  </footer>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      var button = document.querySelector("[data-menu-button]");
+      var nav = document.querySelector("[data-mobile-nav]");
+      if (!button || !nav) return;
+      button.addEventListener("click", function () {
+        var expanded = button.getAttribute("aria-expanded") === "true";
+        button.setAttribute("aria-expanded", String(!expanded));
+        nav.classList.toggle("site-nav--open", !expanded);
+      });
+    });
+  </script>
+</body>
+</html>

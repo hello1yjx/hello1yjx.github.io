@@ -9,7 +9,7 @@ const siteData = {
     bio: "把官方入口、学习路线、示例代码和可扩展资料放进同一张地图里，让第一次来的人也能马上知道从哪里开始。",
     heroStats: [
       { value: "9", label: "原创下载包" },
-      { value: "73", label: "新手专题" },
+      { value: "75", label: "新手专题" },
       { value: "持续", label: "更新与核验" }
     ],
     valueCards: [
@@ -28,6 +28,234 @@ const siteData = {
     ]
   },
   posts: [
+    {
+      id: "copilot-code-review-api-ci-integration-guide",
+      title: "Copilot 代码审查 API 集成指南：把自动审查接进脚本与 CI",
+      date: "2026-10-02",
+      category: "代码质量",
+      readTime: "10 分钟",
+      excerpt: "GitHub 10 月 2 日开放 Copilot 代码审查的 REST/GraphQL API，可在脚本和 CI 中发起审查并指定 effort 级别，Balanced 同时成为默认级别。这篇教程讲清楚怎样用 API 发起一次审查、如何把它接进 GitHub Actions、怎样选择 Lite/Balanced、如何处理审查结果和失败重试。适合想让每个 PR 自动过一遍 Copilot 审查、又不想手动点网页的开发者和团队。",
+      tags: ["GitHub Copilot", "代码审查 API", "CI/CD", "GitHub Actions", "自动化"],
+      featured: false,
+      intro: [
+        "代码审查是质量的第一道门，但手动在网页上发起容易漏、也难和团队现有流程统一。10 月 2 日 GitHub 开放 Copilot 代码审查的 REST 和 GraphQL API，可以在脚本、CI 和内部工具里直接发起审查、设置 effort 级别，Balanced 也成为默认级别。",
+        "这篇教程带你把自动审查真正接进工作流：先用 API 跑通一次，再接进 GitHub Actions 让 PR 自动触发，然后讲清楚 Lite 和 Balanced 怎么选、审查结果怎么读、失败如何重试。读完你能让每个 PR 都稳定地过一遍 Copilot 审查，并把结果沉淀到团队流程里。"
+      ],
+      audience: [
+        "想让 PR 自动触发 Copilot 审查、减少手动操作的开发者",
+        "需要把代码审查统一接进 CI/内部工具的团队",
+        "想理解审查级别选择和结果处理的新手"
+      ],
+      format: [
+        "全文按“API 能力 → 手动跑通 → Actions 集成 → 级别选择 → 结果处理 → 检查清单”组织",
+        "给出可落地的请求和工作流示例，具体字段以官方 API 文档为准"
+      ],
+      roadmap: [
+        "理解 API：REST/GraphQL 发起审查、设置 effort",
+        "确认权限与计划：token 权限和可用计划",
+        "手动跑通：对一个 PR 发起一次 API 审查",
+        "接进 GitHub Actions：PR 创建/更新时自动触发",
+        "选择审查级别：Lite/Balanced 按风险匹配",
+        "处理审查结果：拉取评论、汇总、阻断合并",
+        "失败重试与限流：处理网络、权限和速率限制",
+        "复盘优化：命中率、误报、成本"
+      ],
+      officialLinks: [
+        { label: "Copilot code review: API support and new default effort level", url: "https://github.blog/changelog/2026-10-02-copilot-code-review-api-support-and-new-default-effort-level/", note: "官方公告" },
+        { label: "Configuring code review by GitHub Copilot", url: "https://docs.github.com/", note: "各级配置与覆盖规则，以官方文档为准" }
+      ],
+      curatedLinks: [
+        "可通过 REST/GraphQL API 请求审查并为每次请求设置 effort，面向 Pro/Pro+/Max/Business/Enterprise 正式可用",
+        "Balanced 已成为默认级别（9/28 生效），显式选择 Lite 的设置会被保留",
+        "企业/组织/仓库/个人各级都可配置并逐级覆盖",
+        "API 让审查可以从团队已有的脚本、CI 和内部工具发起"
+      ],
+      downloadIdeas: [
+        "做一个可复用的“PR 自动审查” Actions 工作流模板",
+        "整理一份审查结果汇总脚本：拉取评论并按严重程度分类"
+      ],
+      extraSections: [
+        {
+          title: "一、API 能做什么",
+          items: [
+            "发起审查：对指定 pull request 通过 REST 或 GraphQL 请求一次 Copilot 审查",
+            "设置级别：每次请求可指定 effort（如 Lite/Balanced），不指定则用默认级别",
+            "接入工具：审查可以从脚本、CI、内部系统发起，不必登录网页点击",
+            "前提：使用具备相应权限的 token，且仓库/组织已开通 Copilot 代码审查"
+          ]
+        },
+        {
+          title: "二、先手动跑通一次",
+          items: [
+            "准备 token：确认所用凭证有发起 Copilot 审查和读取 PR 的权限，不要把 token 写进公开仓库",
+            "选一个测试 PR：先在非关键仓库对一个 PR 发起一次 API 调用，确认审查正常产生",
+            "核对级别：分别尝试默认、Lite、Balanced，观察返回内容和耗时差异",
+            "查看结果：在 PR 上确认评论正确生成，理解 API 响应与实际评论的对应关系",
+            "跑通后再自动化：确认请求参数和权限无误，再接 CI，避免把错误流程自动化"
+          ]
+        },
+        {
+          title: "三、接进 GitHub Actions",
+          items: [
+            "触发时机：在 PR 创建、更新（synchronize）、移出 draft 时触发工作流",
+            "调用 API：在工作流步骤中用官方 token 调用审查端点，按仓库策略传入 effort",
+            "避免重复：配合并发/去重设置，防止同一状态重复发起多次审查",
+            "必要时阻断：可让工作流等待审查结果，对高危发现标记检查未通过",
+            "安全配置：用最小权限的 GITHUB_TOKEN 或专用凭证，secrets 不打印到日志"
+          ]
+        },
+        {
+          title: "四、Lite 与 Balanced 怎么选",
+          items: [
+            "Balanced（默认）：覆盖更全面，适合关键仓库、复杂改动、对外服务",
+            "Lite：更快更省，适合低风险、高频、小改动，或在成本敏感场景",
+            "按仓库分级：可在企业/组织/仓库/个人各级设置，下一级覆盖上一级",
+            "避免一刀切：关键路径强制 Balanced，实验性/文档类可 Lite，定期评估是否需要调整",
+            "注意成本：默认升级到 Balanced 后总消耗会上升，结合用量监控评估"
+          ]
+        },
+        {
+          title: "五、审查结果处理",
+          items: [
+            "拉取并汇总：通过 API 获取审查评论，按文件或严重程度汇总，方便作者处理",
+            "区分建议与阻断：把必须修复的问题和可选建议分开，避免审查噪音淹没重点",
+            "不替代人工：Copilot 审查是兜底和提效，架构、业务逻辑仍需人工判断",
+            "跟踪闭环：确认评论被处理（修复或说明理由），不要让审查流于形式"
+          ]
+        },
+        {
+          title: "六、失败重试与限流",
+          items: [
+            "网络失败：API 调用超时或连接失败时做有限次指数退避重试，不无限重试",
+            "权限错误：403/404 先核对 token 权限、计划和仓库设置，而非反复调用",
+            "速率限制：遇到限流按返回的退避时间等待，批量场景控制并发",
+            "记录可观测性：记录每次审查的触发、结果和失败原因，便于排查"
+          ]
+        },
+        {
+          title: "七、检查清单",
+          items: [
+            "API 已手动跑通：测试 PR 能正常产生审查",
+            "权限最小化：token 权限和存储符合安全要求",
+            "Actions 触发正确：PR 创建/更新自动审查，无重复",
+            "级别按风险匹配：关键 Balanced、低风险 Lite",
+            "结果可汇总可阻断：评论能拉取、高危可拦截",
+            "失败有限重试：网络退避、权限排查、限流处理",
+            "不替代人工审查：人工仍负责关键判断",
+            "定期复盘：命中率、误报、成本有记录"
+          ]
+        }
+      ]
+    },
+    {
+      id: "model-deprecation-automode-classifier-guide",
+      title: "模型弃用迁移与 auto mode 安全分类器：少踩坑、少花钱",
+      date: "2026-10-02",
+      category: "AI 编程",
+      readTime: "9 分钟",
+      excerpt: "10 月 2 日 Copilot 弃用一批模型（Gemini 3.5/3.6 Flash、Kimi K2.7 Code、Claude Opus 4.7 等），Claude Code 2.1.286 则把 auto mode 安全分类器移到服务器端且不再单独计费。这篇教程把两件“成本与稳定”相关的事讲清楚：怎样排查硬编码模型并平滑迁移、如何确认安全分类器在自己的接入方式下免费生效、什么情况会回退计费。适合依赖多个 AI 模型、想减少突发故障和意外花费的开发者。",
+      tags: ["模型弃用", "模型迁移", "Claude Code", "auto mode", "安全分类器", "成本优化"],
+      featured: false,
+      intro: [
+        "模型更新换代很快，两类问题最容易让人踩坑：一是写死在脚本和配置里的模型突然被弃用，流程当场中断；二是保障安全的分类器在某些接入方式下悄悄计费。10 月 2 日 Copilot 弃用一批旧模型，Claude Code 2.1.286 则把 auto mode 安全分类器移到服务器端并默认对企业/API 用户免费。",
+        "这篇教程给你一套系统做法：怎样找出所有硬编码模型、按官方替代平滑迁移并验证，以及如何确认安全分类器是否免费、什么情况下会回退到计费。读完你能减少模型变更带来的突发故障，也能避免不必要的开销。"
+      ],
+      audience: [
+        "在脚本、CI、配置中写死模型名、担心弃用后中断的开发者",
+        "使用 Claude Code auto mode、想确认分类器是否计费的用户",
+        "需要管理团队模型版本和成本的负责人"
+      ],
+      format: [
+        "全文按“弃用影响 → 排查迁移 → 分类器计费 → 回退处理 → 检查清单”组织",
+        "给出具体排查和验证步骤，不只是罗列公告"
+      ],
+      roadmap: [
+        "理清弃用清单：哪些模型下线、替代是什么",
+        "排查硬编码：脚本、CI、配置、自定义指令",
+        "平滑迁移：切换替代模型并验证质量",
+        "建立模型常量：避免散落硬编码",
+        "理解 auto mode 分类器：作用与计费变化",
+        "确认免费生效：按接入方式核对",
+        "处理回退：网关重写与环境变量关闭",
+        "持续监控：弃用公告、用量与花费"
+      ],
+      officialLinks: [
+        { label: "Selected models in GitHub Copilot deprecated", url: "https://github.blog/changelog/2026-10-02-selected-models-in-github-copilot-deprecated/", note: "弃用清单与替代" },
+        { label: "Claude Code 2.1.286（AI/TLDR）", url: "https://ai-tldr.dev/tools/claude-code/", note: "服务器端安全分类器与回退" }
+      ],
+      curatedLinks: [
+        "10/2 弃用模型含 Gemini 3.5/3.6 Flash、Kimi K2.7 Code、Claude Opus 4.7，官方给出替代",
+        "另有一批模型计划 10/19 弃用，需要一并排查",
+        "Claude Code auto mode 安全分类器移到服务器端、默认对 Enterprise/API/Bedrock/Foundry 不再单独计费",
+        "网关重写请求会回退到计费分类器，CLAUDE_CODE_AUTO_MODE_SERVER=0 可关闭服务器端"
+      ],
+      downloadIdeas: [
+        "做一张“弃用模型 → 替代模型”对照与排查清单",
+        "整理一份模型配置集中管理模板（常量/环境变量）"
+      ],
+      extraSections: [
+        {
+          title: "一、弃用会造成什么影响",
+          items: [
+            "显式报错：请求已下线模型会返回模型不可用，自动化流程中断",
+            "静默回退：部分场景可能自动切到默认模型，行为和成本发生变化却不易察觉",
+            "质量波动：替代模型与旧模型在特定任务上表现可能不同，需要验证",
+            "连锁影响：写死模型名的脚本、CI、团队默认配置、文档示例都可能受影响"
+          ]
+        },
+        {
+          title: "二、排查硬编码模型",
+          items: [
+            "全局搜索模型名：在代码、CI 工作流、配置文件、自定义指令、文档中搜索旧模型标识",
+            "检查默认设置：团队/个人的模型默认值、路由规则、网关配置里是否引用旧模型",
+            "关注间接引用：模板、生成器、内部工具可能间接拼出模型名，也要排查",
+            "记录清单：把每处引用、负责人、替代方案列出来，避免遗漏",
+            "提前看下一批：把 10/19 计划弃用的模型一并纳入排查"
+          ]
+        },
+        {
+          title: "三、平滑迁移并验证",
+          items: [
+            "按官方替代切换：如 Gemini 3.5/3.6 Flash → 3.8 Flash、Kimi K2.7 Code → K3、Opus 4.7 → Opus 5",
+            "代表性任务验证：在典型任务上比较替代模型的质量、延迟和花费",
+            "集中管理模型名：用常量或环境变量统一引用，今后只改一处",
+            "灰度切换：先在非关键流程验证，再推广到生产，降低风险",
+            "保留回滚方案：迁移初期保留快速切回或改用其他模型的能力"
+          ]
+        },
+        {
+          title: "四、auto mode 安全分类器如何计费",
+          items: [
+            "作用：auto mode 依赖分类器判断动作风险，是 Agent 安全的重要环节",
+            "新变化：分类器检查移到服务器端、搭车在会话主请求中，默认对 Enterprise、Claude API、Bedrock、Agent Platform、Foundry 不再单独计费",
+            "收益：减少一次单独请求的费用和延迟",
+            "确认方式：升级到 2.1.286 后，在自己的接入方式下核对账单和请求，确认分类器没有被单独计费"
+          ]
+        },
+        {
+          title: "五、什么情况会回退计费",
+          items: [
+            "网关重写请求：如果中间网关/代理重写了请求，无法搭车分类，会回退到计费的分类器请求",
+            "主动关闭：设置 CLAUDE_CODE_AUTO_MODE_SERVER=0 可关闭服务器端分类（通常出于合规/本地分类需要），此时按本地/计费方式处理",
+            "不支持的接入：在默认未覆盖的接入方式上，可能仍走计费路径，需要核对",
+            "应对：检查链路上的网关是否改写请求，评估是否为了免费而调整接入，或接受回退费用"
+          ]
+        },
+        {
+          title: "六、检查清单",
+          items: [
+            "弃用清单已梳理：下线模型和替代明确",
+            "硬编码已排查：代码/CI/配置/指令/文档全覆盖",
+            "替代已验证：质量、延迟、花费达标",
+            "模型名集中管理：用常量/环境变量，不再散落",
+            "下一批弃用已纳入：10/19 的模型提前处理",
+            "分类器计费已核对：确认在当前接入方式下免费生效",
+            "回退原因已评估：网关改写或主动关闭的影响清楚",
+            "持续监控：关注公告、用量和账单变化"
+          ]
+        }
+      ]
+    },
     {
       id: "copilot-computer-use-desktop-apps-guide",
       title: "Copilot computer use 上手：让 Agent 安全操作桌面应用",
@@ -6780,6 +7008,24 @@ git push origin main`,
   ],
   resources: [
     {
+      name: "Cloudflare Workers AI 官方文档",
+      category: "AI 编程",
+      badge: "外部官方",
+      description: "Cloudflare 边缘 AI 平台文档，覆盖 Workers AI 上的开源模型、自研决策模型（Clef）、绑定与调用方式。",
+      pitch: "适合想在边缘就近运行模型、了解 Clef 等决策模型用途的开发者，先从官方文档核对可用模型与计费。",
+      cta: "打开官方文档",
+      link: "https://developers.cloudflare.com/workers-ai/"
+    },
+    {
+      name: "GitHub Copilot 代码审查官方文档",
+      category: "AI 编程",
+      badge: "外部官方",
+      description: "Copilot 代码审查的配置说明，覆盖自动审查触发、Lite/Balanced 级别、API 请求和各级覆盖规则。",
+      pitch: "适合配置团队审查策略或用 API 集成前，核对级别、权限和默认值。",
+      cta: "打开官方文档",
+      link: "https://docs.github.com/en/copilot"
+    },
+    {
       name: "OpenAI Codex Web 官方文档",
       category: "AI 编程",
       badge: "外部官方",
@@ -6879,6 +7125,86 @@ git push origin main`,
     "github-agentic-workflows-public-preview-guide"
   ],
   hotspots: [
+    {
+      date: "2026-10-02",
+      tag: "代码质量",
+      title: "Copilot 代码审查支持 REST/GraphQL API，Balanced 成为默认审查级别",
+      summary: "GitHub 10 月 2 日宣布：现在可以通过 REST 和 GraphQL API 请求 Copilot 代码审查，并为每次请求设置审查 effort 级别；Balanced 同时成为默认审查级别（9 月 28 日生效）。面向 Pro、Pro+、Max、Business、Enterprise 计划正式可用。",
+      why: "API 支持意味着可以把 Copilot 审查接进团队已有的脚本、CI 和内部工具，审查不再只能从网页手动发起，自动化程度更高。默认级别从 Lite 升到 Balanced，审查更全面，但每次消耗也更高，简单改动可能偏重。新手要注意：显式选过 Lite 的设置会被保留；可以在企业/组织/仓库/个人各级设置并逐级覆盖，建议关键仓库用 Balanced、日常低风险改动按需用 Lite 控制成本。",
+      sourceLabel: "GitHub Changelog",
+      sourceUrl: "https://github.blog/changelog/2026-10-02-copilot-code-review-api-support-and-new-default-effort-level/",
+      articleIdea: "已扩写：Copilot 代码审查 API 集成指南：把自动审查接进脚本与 CI"
+    },
+    {
+      date: "2026-10-02",
+      tag: "AI 编程",
+      title: "Copilot 一批模型正式弃用：Gemini 3.5/3.6 Flash、Kimi K2.7 Code、Claude Opus 4.7 等",
+      summary: "GitHub 10 月 2 日起在所有 Copilot 体验（Chat、内联编辑、ask/agent 模式、代码补全）中弃用一批模型，包括 Gemini 3.5 Flash、Gemini 3.6 Flash（替代为 Gemini 3.8 Flash）、Kimi K2.7 Code（替代为 Kimi K3）、Claude Opus 4.7（替代为 Claude Opus 5）等。",
+      why: "如果你在自定义指令、脚本或团队默认配置里写死了这些模型名，弃用后会报模型不可用或静默回退，需要主动迁移。新手要建立习惯：不要在多处硬编码模型名，关注弃用公告，提前在替代模型上验证质量；模型选择器里找不到旧模型时，按官方建议的替代切换。另有一批模型计划 10 月 19 日弃用，应一并排查。",
+      sourceLabel: "GitHub Changelog",
+      sourceUrl: "https://github.blog/changelog/2026-10-02-selected-models-in-github-copilot-deprecated/",
+      articleIdea: "已扩写：模型弃用迁移与 auto mode 安全分类器：少踩坑、少花钱"
+    },
+    {
+      date: "2026-10-02",
+      tag: "AI 编程",
+      title: "Cloudflare 开源 Clef 决策模型：Workers AI 团队首个自研模型，含 clef 与 clef-flash",
+      summary: "Cloudflare 10 月 2 日在 Workers AI 上线首个由其 Workers AI 团队自研并开源的决策模型 @cf/cloudflare/clef 与 @cf/cloudflare/clef-flash，属于决策模型（decision model），与 Typesafe 等模型同家族。",
+      why: "决策模型专注把任务结构化、做判断和路由（如决定下一步动作、分类意图、选择工具），是构建 Agent 和自动化流程的关键组件，且由平台自研开源、可在边缘就近调用，延迟和成本有优势。新手要注意：决策模型不是通用写作/编码模型，用途更聚焦，应在其擅长的判断类任务上使用；开源后可以查看和自托管，但要对照模型卡了解能力边界和评测口径，不要只凭名字假设能力。",
+      sourceLabel: "Cloudflare Docs Changelog",
+      sourceUrl: "https://developers.cloudflare.com/changelog/",
+      articleIdea: "候选：用决策模型构建 Agent 路由：Clef 与通用模型的分工"
+    },
+    {
+      date: "2026-10-01",
+      tag: "AI 终端",
+      title: "Copilot CLI 与 app 推出 Dynamic workflows，CLI 1.0.91 改进超时清理与 Windows 登录",
+      summary: "GitHub 10 月 1 日在 Copilot CLI 和 Copilot app 推出 Dynamic workflows；同日 Copilot CLI 1.0.91 发布：内部 git 命令超时时会清理其启动的进程，避免慢的仓库状态检查留下进程占用内存；Windows 下受 Microsoft Entra ID 保护的远程 MCP 服务器可通过系统认证代理（WAM）登录（通常无提示）；/sandbox 配置对话框会显示沙箱设置在 settings 中的存储位置。",
+      why: "Dynamic workflows 让 CLI/app 能更灵活地组织动态任务流程，配合 Agent 使用更顺手；进程超时清理解决了长期存在的“僵尸进程吃内存”问题，Windows WAM 登录则减少了 MCP 认证的打断。新手升级后要注意：沙箱配置现在能看到具体存储位置，便于排查“为什么这条策略生效/不生效”；企业环境下实际策略可能被托管设置收紧。",
+      sourceLabel: "GitHub Changelog / Copilot CLI",
+      sourceUrl: "http://raw.githubusercontent.com/github/copilot-cli/HEAD/changelog.md",
+      articleIdea: "候选：Dynamic workflows 与 MCP 认证的本地配置实践"
+    },
+    {
+      date: "2026-09-30",
+      tag: "AI 终端",
+      title: "Claude Code 2.1.286：auto mode 安全分类器移到服务器端且不再单独计费",
+      summary: "Claude Code v2.1.286（9 月 30 日）把 auto mode 的安全分类器移到服务器端、不再单独计费：检查随会话自身的模型请求一起进行，默认在 Enterprise、Claude API、Bedrock、Agent Platform 和 Foundry 上开启；若网关重写请求会回退到计费的分类器请求，可用 CLAUDE_CODE_AUTO_MODE_SERVER=0 关闭。",
+      why: "auto mode 靠安全分类器判断动作风险，过去这部分可能单独计费、增加开销，现在搭车在主请求里且默认对企业/API 用户免费，既省钱又减少延迟。新手要理解：用了会重写请求的网关/代理时，可能触发回退导致重新计费；如果出于合规要本地分类，可用环境变量关闭服务器端。升级后应确认分类器在自己的接入方式下是否真的免费且生效。",
+      sourceLabel: "AI/TLDR",
+      sourceUrl: "https://ai-tldr.dev/tools/claude-code/",
+      articleIdea: "已扩写：模型弃用迁移与 auto mode 安全分类器：少踩坑、少花钱"
+    },
+    {
+      date: "2026-10-02",
+      tag: "代码质量",
+      title: "仓库安全公告支持保密评论，安全公告评论 API 进入 public preview",
+      summary: "GitHub 10 月 2 日为仓库安全公告（repository security advisories）推出保密评论（confidential comments），安全公告评论 API 同步进入 public preview。",
+      why: "漏洞协调过程中，维护者和报告者往往需要私下沟通细节，保密评论让这些讨论留在安全公告内、不公开暴露，协作更完整，API 则支持把协调流程接入工具。新手要理解：安全公告里的讨论可能包含未公开漏洞细节，应严格控制可见范围，不要把保密内容复制到公开 issue；通过 API 处理时注意权限和审计。",
+      sourceLabel: "GitHub Changelog",
+      sourceUrl: "https://github.blog/changelog/type/new-releases/",
+      articleIdea: "候选：私密漏洞协调流程：从报告到公告的协作清单"
+    },
+    {
+      date: "2026-10-01",
+      tag: "代码质量",
+      title: "私密漏洞报告支持结构化表单",
+      summary: "GitHub 10 月 1 日为私密漏洞报告（private vulnerability reports）推出结构化表单（structured forms）。",
+      why: "过去漏洞报告质量参差不齐，维护者常因缺少复现步骤、影响范围等关键信息而反复追问；结构化表单引导报告者填全必要字段，提高报告可用性、缩短响应时间。新手站长开启私密报告后，应定制表单字段（复现步骤、环境、影响、建议），并在收到报告后按流程确认、评估、协调，避免漏洞细节在公开渠道泄露。",
+      sourceLabel: "GitHub Changelog",
+      sourceUrl: "https://github.blog/changelog/type/new-releases/",
+      articleIdea: "候选：开源项目接收和处理私密漏洞报告的标准流程"
+    },
+    {
+      date: "2026-10-02",
+      tag: "效率工具",
+      title: "Cloudflare AI Gateway User Insights：识别模型过度使用，给出潜在节省建议",
+      summary: "Cloudflare AI Gateway 推出 User Insights：展示用户和 Agent 如何使用 AI，按任务对会话分组、跟踪对话轮次，比较模型与任务的匹配度及成本延迟；Potential Savings 视图高亮那些可以用更快或更便宜模型完成、而不降低质量的请求，所有 AI Gateway 客户免费。",
+      why: "很多团队“默认上最强模型”，在简单任务上浪费大量费用。User Insights 用实际流量数据告诉你哪些请求模型能力过剩、可以降级，把降本从“凭感觉”变成“看数据”。新手要注意：建议是基于平台信号的参考，降级前仍要在真实任务上验证质量；这些信号与 Auto Router 自动选模型所用的一致，可先人工核对再考虑自动化。",
+      sourceLabel: "Cloudflare Docs Changelog",
+      sourceUrl: "https://developers.cloudflare.com/changelog/",
+      articleIdea: "候选：用网关数据做模型降本：从洞察到验证的流程"
+    },
     {
       date: "2026-10-01",
       tag: "AI 编程",

@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://cdn.jsdelivr.net">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;800&family=Noto+Serif+SC:wght@700;900&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/styles.css?v=20261002-daily-update">
+  <link rel="stylesheet" href="assets/styles.css?v=20261003-daily-update">
 </head>
 <body>
   <header class="site-header">
@@ -68,6 +68,40 @@
       <div class="content-grid" data-post-list>
         <!-- STATIC_POSTS_START -->
 <article class="article-card reveal">
+      <a class="article-card__media article-card__media--debug" href="articles/copilot-code-review-api-ci-integration-guide.html">
+        <span class="article-card__badge">代码质量</span>
+        <span class="article-card__icon"><img class="visual-icon visual-icon--card" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="代码质量 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <strong>代码质量</strong>
+      </a>
+      <div class="article-card__body">
+        <div class="meta-row">
+          <span>代码质量</span>
+          <span>10 分钟</span>
+          <time datetime="2026-10-02">2026年10月2日</time>
+        </div>
+        <h3><a href="articles/copilot-code-review-api-ci-integration-guide.html">Copilot 代码审查 API 集成指南：把自动审查接进脚本与 CI</a></h3>
+        <p>GitHub 10 月 2 日开放 Copilot 代码审查的 REST/GraphQL API，可在脚本和 CI 中发起审查并指定 effort 级别，Balanced 同时成为默认级别。这篇教程讲清楚怎样用 API 发起一次审查、如何把它接进 GitHub Actions、怎样选择 Lite/Balanced、如何处理审查结果和失败重试。适合想让每个 PR 自动过一遍 Copilot 审查、又不想手动点网页的开发者和团队。</p>
+      </div>
+    </article>
+
+    <article class="article-card reveal">
+      <a class="article-card__media article-card__media--ai" href="articles/model-deprecation-automode-classifier-guide.html">
+        <span class="article-card__badge">AI 编程</span>
+        <span class="article-card__icon"><img class="visual-icon visual-icon--card" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/python/python-original.svg" alt="AI 编程 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <strong>AI 编程</strong>
+      </a>
+      <div class="article-card__body">
+        <div class="meta-row">
+          <span>AI 编程</span>
+          <span>9 分钟</span>
+          <time datetime="2026-10-02">2026年10月2日</time>
+        </div>
+        <h3><a href="articles/model-deprecation-automode-classifier-guide.html">模型弃用迁移与 auto mode 安全分类器：少踩坑、少花钱</a></h3>
+        <p>10 月 2 日 Copilot 弃用一批模型（Gemini 3.5/3.6 Flash、Kimi K2.7 Code、Claude Opus 4.7 等），Claude Code 2.1.286 则把 auto mode 安全分类器移到服务器端且不再单独计费。这篇教程把两件“成本与稳定”相关的事讲清楚：怎样排查硬编码模型并平滑迁移、如何确认安全分类器在自己的接入方式下免费生效、什么情况会回退计费。适合依赖多个 AI 模型、想减少突发故障和意外花费的开发者。</p>
+      </div>
+    </article>
+
+    <article class="article-card reveal">
       <a class="article-card__media article-card__media--ai" href="articles/copilot-computer-use-desktop-apps-guide.html">
         <span class="article-card__badge">AI 编程</span>
         <span class="article-card__icon"><img class="visual-icon visual-icon--card" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="AI 编程 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
@@ -1326,6 +1360,6 @@
     </div>
   </footer>
 
-  <script src="assets/app.js?v=20261002-daily-update"></script>
+  <script src="assets/app.js?v=20261003-daily-update"></script>
 </body>
 </html>

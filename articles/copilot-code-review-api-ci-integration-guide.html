@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Copilot 代码审查 API 集成指南：把自动审查接进脚本与 CI | 学习资源库</title>
+  <meta name="description" content="GitHub 10 月 2 日开放 Copilot 代码审查的 REST/GraphQL API，可在脚本和 CI 中发起审查并指定 effort 级别，Balanced 同时成为默认级别。这篇教程讲清楚怎样用 API 发起一次审查、如何把它接进 GitHub Actions、怎样选择 Lite/Balanced、如何处理审查结果和失败重试。适合想让每个 PR 自动过一遍 Copilot 审查、又不想手动点网页的开发者和团队。">
+  <meta name="robots" content="index,follow,max-image-preview:large">
+  <link rel="canonical" href="https://hello1yjx.github.io/articles/copilot-code-review-api-ci-integration-guide.html">
+  <link rel="icon" type="image/png" href="../assets/images/brand-book-line.png">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"Copilot 代码审查 API 集成指南：把自动审查接进脚本与 CI","description":"GitHub 10 月 2 日开放 Copilot 代码审查的 REST/GraphQL API，可在脚本和 CI 中发起审查并指定 effort 级别，Balanced 同时成为默认级别。这篇教程讲清楚怎样用 API 发起一次审查、如何把它接进 GitHub Actions、怎样选择 Lite/Balanced、如何处理审查结果和失败重试。适合想让每个 PR 自动过一遍 Copilot 审查、又不想手动点网页的开发者和团队。","datePublished":"2026-10-02","dateModified":"2026-10-02","author":{"@type":"Person","name":"Avery Lin","url":"https://hello1yjx.github.io/about.html"},"publisher":{"@type":"Organization","name":"学习资源库","url":"https://hello1yjx.github.io/"},"mainEntityOfPage":"https://hello1yjx.github.io/articles/copilot-code-review-api-ci-integration-guide.html","inLanguage":"zh-CN"}</script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6621999105936318" crossorigin="anonymous"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;800&family=Noto+Serif+SC:wght@700;900&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/styles.css?v=20261003-daily-update">
+</head>
+<body>
+  <header class="site-header">
+    <div class="page-shell site-header__inner">
+      <a class="brand" href="../index.html" aria-label="返回首页">
+        <span class="brand-mark" aria-hidden="true"><img src="../assets/images/brand-book-line.png" alt="" width="36" height="33"></span>
+        <span class="brand-copy"><strong>学习资源库</strong><span>分享知识 · 提升自己 · 成就未来</span></span>
+      </a>
+      <button class="menu-button" data-menu-button aria-expanded="false" aria-label="切换导航菜单">☰</button>
+      <nav class="site-nav" data-mobile-nav>
+        <a href="../index.html">首页</a>
+        <a class="is-active" href="../posts.html" aria-current="page">教程</a>
+        <a href="../resources.html">资源下载</a>
+        <a href="../resources.html#official-resources">工具导航</a>
+        <a href="../hotspots.html">技术资讯</a>
+        <a href="../projects.html">开源项目</a>
+        <a href="../about.html">关于我们</a>
+      </nav>
+      <form class="header-search" action="../posts.html" method="get">
+        <input type="search" name="q" placeholder="搜索教程、资源、工具或关键词...">
+        <button type="submit" aria-label="搜索">/</button>
+      </form>
+      <a class="header-github" href="https://github.com/hello1yjx/hello1yjx.github.io" target="_blank" rel="noreferrer" aria-label="GitHub">
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="" width="24" height="24">
+      </a>
+      <a class="header-cta" href="../posts.html">开始学习</a>
+    </div>
+  </header>
+
+  <main class="page-shell section article-page">
+    <header class="detail-hero">
+      <span class="pill">代码质量</span>
+      <h1>Copilot 代码审查 API 集成指南：把自动审查接进脚本与 CI</h1>
+      <div class="detail-hero__meta">
+        <time datetime="2026-10-02">2026年10月2日</time>
+        <span>10 分钟</span>
+        <span>作者：Avery Lin</span>
+      </div>
+      <p>GitHub 10 月 2 日开放 Copilot 代码审查的 REST/GraphQL API，可在脚本和 CI 中发起审查并指定 effort 级别，Balanced 同时成为默认级别。这篇教程讲清楚怎样用 API 发起一次审查、如何把它接进 GitHub Actions、怎样选择 Lite/Balanced、如何处理审查结果和失败重试。适合想让每个 PR 自动过一遍 Copilot 审查、又不想手动点网页的开发者和团队。</p>
+    </header>
+    <div class="article-layout">
+      <article class="article-body">
+        <div class="inline-promo">
+          <p class="label">来源与增量价值</p>
+          <h3>本文基于官方资料整理，并补充适用场景、限制条件和实践检查步骤。</h3>
+          <p>首要来源：<a href="https://github.blog/changelog/2026-10-02-copilot-code-review-api-support-and-new-default-effort-level/" target="_blank" rel="noreferrer">Copilot code review: API support and new default effort level</a>。事实以原始来源为准，本站建议需结合自己的环境验证。</p>
+        </div>
+
+    <p>代码审查是质量的第一道门，但手动在网页上发起容易漏、也难和团队现有流程统一。10 月 2 日 GitHub 开放 Copilot 代码审查的 REST 和 GraphQL API，可以在脚本、CI 和内部工具里直接发起审查、设置 effort 级别，Balanced 也成为默认级别。</p><p>这篇教程带你把自动审查真正接进工作流：先用 API 跑通一次，再接进 GitHub Actions 让 PR 自动触发，然后讲清楚 Lite 和 Balanced 怎么选、审查结果怎么读、失败如何重试。读完你能让每个 PR 都稳定地过一遍 Copilot 审查，并把结果沉淀到团队流程里。</p>
+    <h2>这篇内容适合谁</h2>
+    <ul><li>想让 PR 自动触发 Copilot 审查、减少手动操作的开发者</li><li>需要把代码审查统一接进 CI/内部工具的团队</li><li>想理解审查级别选择和结果处理的新手</li></ul>
+    <h2>实践与验证步骤</h2>
+    <ul><li>理解 API：REST/GraphQL 发起审查、设置 effort</li><li>确认权限与计划：token 权限和可用计划</li><li>手动跑通：对一个 PR 发起一次 API 审查</li><li>接进 GitHub Actions：PR 创建/更新时自动触发</li><li>选择审查级别：Lite/Balanced 按风险匹配</li><li>处理审查结果：拉取评论、汇总、阻断合并</li><li>失败重试与限流：处理网络、权限和速率限制</li><li>复盘优化：命中率、误报、成本</li></ul>
+    <h2>官方资料入口</h2>
+
+    <ul>
+
+            <li>
+              <a href="https://github.blog/changelog/2026-10-02-copilot-code-review-api-support-and-new-default-effort-level/" target="_blank" rel="noreferrer">Copilot code review: API support and new default effort level</a>
+              <span>：官方公告</span>
+            </li>
+
+            <li>
+              <a href="https://docs.github.com/" target="_blank" rel="noreferrer">Configuring code review by GitHub Copilot</a>
+              <span>：各级配置与覆盖规则，以官方文档为准</span>
+            </li>
+
+    </ul>
+
+    <h2>重点判断与使用建议</h2>
+    <ul><li>可通过 REST/GraphQL API 请求审查并为每次请求设置 effort，面向 Pro/Pro+/Max/Business/Enterprise 正式可用</li><li>Balanced 已成为默认级别（9/28 生效），显式选择 Lite 的设置会被保留</li><li>企业/组织/仓库/个人各级都可配置并逐级覆盖</li><li>API 让审查可以从团队已有的脚本、CI 和内部工具发起</li></ul>
+
+        <h2>一、API 能做什么</h2>
+
+        <ul><li>发起审查：对指定 pull request 通过 REST 或 GraphQL 请求一次 Copilot 审查</li><li>设置级别：每次请求可指定 effort（如 Lite/Balanced），不指定则用默认级别</li><li>接入工具：审查可以从脚本、CI、内部系统发起，不必登录网页点击</li><li>前提：使用具备相应权限的 token，且仓库/组织已开通 Copilot 代码审查</li></ul>
+
+
+
+        <h2>二、先手动跑通一次</h2>
+
+        <ul><li>准备 token：确认所用凭证有发起 Copilot 审查和读取 PR 的权限，不要把 token 写进公开仓库</li><li>选一个测试 PR：先在非关键仓库对一个 PR 发起一次 API 调用，确认审查正常产生</li><li>核对级别：分别尝试默认、Lite、Balanced，观察返回内容和耗时差异</li><li>查看结果：在 PR 上确认评论正确生成，理解 API 响应与实际评论的对应关系</li><li>跑通后再自动化：确认请求参数和权限无误，再接 CI，避免把错误流程自动化</li></ul>
+
+
+
+        <h2>三、接进 GitHub Actions</h2>
+
+        <ul><li>触发时机：在 PR 创建、更新（synchronize）、移出 draft 时触发工作流</li><li>调用 API：在工作流步骤中用官方 token 调用审查端点，按仓库策略传入 effort</li><li>避免重复：配合并发/去重设置，防止同一状态重复发起多次审查</li><li>必要时阻断：可让工作流等待审查结果，对高危发现标记检查未通过</li><li>安全配置：用最小权限的 GITHUB_TOKEN 或专用凭证，secrets 不打印到日志</li></ul>
+
+
+
+        <h2>四、Lite 与 Balanced 怎么选</h2>
+
+        <ul><li>Balanced（默认）：覆盖更全面，适合关键仓库、复杂改动、对外服务</li><li>Lite：更快更省，适合低风险、高频、小改动，或在成本敏感场景</li><li>按仓库分级：可在企业/组织/仓库/个人各级设置，下一级覆盖上一级</li><li>避免一刀切：关键路径强制 Balanced，实验性/文档类可 Lite，定期评估是否需要调整</li><li>注意成本：默认升级到 Balanced 后总消耗会上升，结合用量监控评估</li></ul>
+
+
+
+        <h2>五、审查结果处理</h2>
+
+        <ul><li>拉取并汇总：通过 API 获取审查评论，按文件或严重程度汇总，方便作者处理</li><li>区分建议与阻断：把必须修复的问题和可选建议分开，避免审查噪音淹没重点</li><li>不替代人工：Copilot 审查是兜底和提效，架构、业务逻辑仍需人工判断</li><li>跟踪闭环：确认评论被处理（修复或说明理由），不要让审查流于形式</li></ul>
+
+
+
+        <h2>六、失败重试与限流</h2>
+
+        <ul><li>网络失败：API 调用超时或连接失败时做有限次指数退避重试，不无限重试</li><li>权限错误：403/404 先核对 token 权限、计划和仓库设置，而非反复调用</li><li>速率限制：遇到限流按返回的退避时间等待，批量场景控制并发</li><li>记录可观测性：记录每次审查的触发、结果和失败原因，便于排查</li></ul>
+
+
+
+        <h2>七、检查清单</h2>
+
+        <ul><li>API 已手动跑通：测试 PR 能正常产生审查</li><li>权限最小化：token 权限和存储符合安全要求</li><li>Actions 触发正确：PR 创建/更新自动审查，无重复</li><li>级别按风险匹配：关键 Balanced、低风险 Lite</li><li>结果可汇总可阻断：评论能拉取、高危可拦截</li><li>失败有限重试：网络退避、权限排查、限流处理</li><li>不替代人工审查：人工仍负责关键判断</li><li>定期复盘：命中率、误报、成本有记录</li></ul>
+
+
+
+
+        <div class="inline-promo">
+          <p class="label">更正与更新</p>
+          <h3>发现版本变化、来源失效或事实错误时，请通过联系页反馈。</h3>
+          <p>本站会核对一手来源后更新内容，不使用无来源转载填充文章。</p>
+          <a class="button button--secondary" href="../editorial.html">查看内容标准</a>
+        </div>
+      </article>
+      <aside class="article-sidebar">
+        <div class="sidebar-card">
+          <p class="label">本页标签</p>
+          <div class="tag-row"><span>GitHub Copilot</span><span>代码审查 API</span><span>CI/CD</span><span>GitHub Actions</span><span>自动化</span></div>
+        </div>
+        <div class="sidebar-card">
+          <p class="label">继续阅读</p>
+          <a href="copilot-app-local-sandbox-setup-guide.html">Copilot app 本地沙箱配置指南：文件、网络与凭证的最小权限设置</a><a href="claude-opus-5-5-long-context-cost-guide.html">Claude Opus 5.5 上手指南：1M 长上下文、agentic 任务与成本优化</a><a href="cloudflare-worker-previews-parallel-workflow-guide.html">Cloudflare Worker Previews 并行预览工作流：让 Agent 的每次改动都安全验证</a><a href="claude-projects-multi-thread-collaboration-guide.html">Claude Projects 多线程协作入门：设定目标、并行线程与共享记忆</a>
+        </div>
+        <div class="sidebar-card sidebar-card--accent">
+          <p class="label">作者与方法</p>
+          <h3>了解本站如何选题、核验来源与处理更正。</h3>
+          <a class="button button--dark" href="../about.html">关于作者</a>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="page-shell footer__inner">
+      <div><strong>学习资源库</strong><p>分享知识 · 提升自己 · 成就未来</p></div>
+      <div>
+        <a href="../editorial.html">内容标准</a><br>
+        <a href="../privacy.html">隐私政策</a><br>
+        <a href="../contact.html">联系</a>
+      </div>
+    </div>
+  </footer>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      var button = document.querySelector("[data-menu-button]");
+      var nav = document.querySelector("[data-mobile-nav]");
+      if (!button || !nav) return;
+      button.addEventListener("click", function () {
+        var expanded = button.getAttribute("aria-expanded") === "true";
+        button.setAttribute("aria-expanded", String(!expanded));
+        nav.classList.toggle("site-nav--open", !expanded);
+      });
+    });
+  </script>
+</body>
+</html>
