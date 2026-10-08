@@ -9,7 +9,7 @@ const siteData = {
     bio: "把官方入口、学习路线、示例代码和可扩展资料放进同一张地图里，让第一次来的人也能马上知道从哪里开始。",
     heroStats: [
       { value: "9", label: "原创下载包" },
-      { value: "75", label: "新手专题" },
+      { value: "78", label: "新手专题" },
       { value: "持续", label: "更新与核验" }
     ],
     valueCards: [
@@ -28,6 +28,352 @@ const siteData = {
     ]
   },
   posts: [
+    {
+      id: "claude-5-5-family-haiku-sonnet-opus-guide",
+      title: "Claude 5.5 家族完整选型：Haiku、Sonnet、Opus 三档按任务分配",
+      date: "2026-10-07",
+      category: "AI 编程",
+      readTime: "10 分钟",
+      excerpt: "随着 10 月 7 日 Haiku 5.5 发布，Claude 5.5 家族三档齐全：Haiku 5.5 最快最省、Sonnet 5.5 承接日常、Opus 5.5 攻坚复杂任务。这篇教程讲清楚三档各自适合什么、怎样按任务复杂度和成本切换、如何验证切换后质量不掉、以及在 Copilot/API 中如何管理。适合在多个 Claude 模型间选择、想兼顾速度、能力和花费的开发者。",
+      tags: ["Claude Haiku 5.5", "Claude Sonnet 5.5", "Claude Opus 5.5", "模型选型", "成本优化"],
+      featured: false,
+      intro: [
+        "9 月 22 日 Opus 5.5 打头阵，9 月 28 日 Sonnet 5.5 跟进，10 月 7 日 Haiku 5.5 收尾——Claude 5.5 家族在两周内补齐了“快省、日常、攻坚”三档。Haiku 5.5 定位为最便宜、最快、能力最强的小模型，面向高容量、成本敏感的任务。",
+        "模型多了，真正的问题是“这个任务该用哪一档”。这篇教程给你一套可执行的三档选型方法：每档适合什么任务、怎样按复杂度和成本切换、如何验证质量、怎样在团队里固化选型规范。读完你不必再纠结，也不会在简单任务上浪费额度。"
+      ],
+      audience: [
+        "在 Haiku/Sonnet/Opus 之间反复切换、想明确选型标准的开发者",
+        "想在保证质量的前提下降低模型花费的个人和团队",
+        "需要为组织配置 Claude 模型访问策略的管理员"
+      ],
+      format: [
+        "全文按“三档定位 → 选型标准 → 切换验证 → 成本平衡 → 访问管理 → 检查清单”组织",
+        "给出具体判断和验证方法，不只是罗列模型参数"
+      ],
+      roadmap: [
+        "理清三档：Haiku 快省、Sonnet 日常、Opus 攻坚",
+        "识别任务复杂度：哪些必须强模型",
+        "建立默认策略：高频用 Haiku、日常 Sonnet、攻坚 Opus",
+        "验证质量：切换后结果是否仍达标",
+        "核算成本：对比三档在同类任务的花费",
+        "在 Copilot/API 管理访问：模型策略配置",
+        "处理长上下文：何时真正需要大窗口",
+        "复盘固化：形成团队选型规范"
+      ],
+      officialLinks: [
+        { label: "Claude Haiku 5.5 launch（Release Notes）", url: "https://support.claude.com/en/articles/12138966-release-notes", note: "Haiku 5.5 发布与家族说明" },
+        { label: "Claude Sonnet 5.5 in GitHub Copilot", url: "https://github.blog/changelog/2026-09-28-claude-sonnet-5-5-in-github-copilot/", note: "在 Copilot 中的可用性" }
+      ],
+      curatedLinks: [
+        "Haiku 5.5 是 5.5 家族第三档，定位最便宜最快的小模型，面向高容量成本敏感任务",
+        "Sonnet 5.5 是 Opus 5.5 更快更低成本的补充，承接大多数常规任务",
+        "Opus 5.5 多数任务达 Fable 5.1 水平、比 Opus 5 便宜 40%，面向复杂攻坚",
+        "三档已上线 API、Bedrock、AWS、GCP、Microsoft Foundry 和 GitHub Copilot"
+      ],
+      downloadIdeas: [
+        "做一张“任务复杂度 → Haiku/Sonnet/Opus”三档选型速查表",
+        "整理一份三档模型成本与质量对比记录模板"
+      ],
+      extraSections: [
+        {
+          title: "一、三档怎么定位",
+          items: [
+            "Haiku 5.5：最快、最省，适合简单补全、批量处理、高频调用、对延迟敏感的场景",
+            "Sonnet 5.5：日常主力，大多数常规开发、知识工作、中等复杂度任务的性价比之选",
+            "Opus 5.5：攻坚档，复杂架构、长时 agentic、大型代码库理解、长文档推理",
+            "关系不是替代：三档是梯度，按任务选，而不是全程用某一档",
+            "参数以官方模型页为准：上下文窗口、输出上限、价格直接影响选型"
+          ]
+        },
+        {
+          title: "二、按任务复杂度选型",
+          items: [
+            "用 Haiku：单文件小改动、样板代码、格式转换、批量分类、简单问答、高频 API 调用",
+            "用 Sonnet：常规功能开发、多文件改动、一般调试、文档摘要、中等复杂度 agentic 任务",
+            "用 Opus：跨模块重构、复杂调试、全局理解大型代码库、长文档推理、多步易跑偏的任务",
+            "判断信号：当 Haiku 反复返工、漏掉细节时，升到 Sonnet；Sonnet 在复杂任务中失焦时，升到 Opus",
+            "反向信号：Opus 在简单任务上速度慢、花费高，应降回 Sonnet 或 Haiku"
+          ]
+        },
+        {
+          title: "三、切换后如何验证质量",
+          items: [
+            "用结果而非感觉判断：跑测试、构建，检查功能是否真正正确",
+            "关注跨文件一致性：低档模型在大型改动中更易遗漏关联影响，重点核查",
+            "设定返工阈值：如果某类任务用某档经常返工，就把这类任务默认升一档",
+            "保留典型样本：记录同类任务在三档下的表现，作为后续选型依据",
+            "不要只看一次结果：小样本可能有偶然性，多测几个代表性任务"
+          ]
+        },
+        {
+          title: "四、成本如何平衡",
+          items: [
+            "默认低档控总量：把高频、量大的任务放在 Haiku，显著降低总花费",
+            "高档用在刀刃上：只为真正需要强能力的任务付费，避免全程 Opus",
+            "长上下文也计费：即使模型便宜，大上下文在多轮中反复计费仍可能很贵，按需使用",
+            "批量任务优先 Haiku：高容量场景下，Haiku 的成本优势最明显",
+            "定期复盘账单：看哪类任务花费最多，评估能否降档或拆分"
+          ]
+        },
+        {
+          title: "五、访问与策略管理",
+          items: [
+            "Copilot：Business/Enterprise 管理员在模型策略中管理各档访问",
+            "API/云平台：通过 API、Bedrock、AWS、GCP、Foundry 按组织需要开通",
+            "团队默认值：可设“默认 Sonnet、简单任务 Haiku、复杂任务按需 Opus”的策略",
+            "用量监控：配合用量指标跟踪各档使用比例，验证选型策略是否被执行",
+            "新模型上线先小范围验证：Haiku 5.5 刚发布，先在非关键任务上试用再推广"
+          ]
+        },
+        {
+          title: "六、检查清单",
+          items: [
+            "三档定位清楚：知道 Haiku/Sonnet/Opus 各自档位",
+            "选型标准明确：按任务复杂度和返工信号切换",
+            "默认策略合理：高频 Haiku、日常 Sonnet、攻坚 Opus",
+            "质量已验证：测试/构建通过，跨文件影响已核查",
+            "成本已核算：对比三档花费，长上下文按需使用",
+            "访问策略配置：Copilot/API 中按组织需要开通",
+            "新模型小范围试用：Haiku 5.5 先验证再设默认",
+            "账单定期复盘：高消耗任务持续优化"
+          ]
+        }
+      ]
+    },
+    {
+      id: "copilot-local-sandbox-ga-upgrade-guide",
+      title: "Copilot 本地沙箱 GA 升级指南：从 preview 到正式可用的配置与验证",
+      date: "2026-10-07",
+      category: "AI 编程",
+      readTime: "9 分钟",
+      excerpt: "GitHub 10 月 7 日宣布本地沙箱正式可用（GA），覆盖 CLI、app 和 VS Code Agent Host，由 Microsoft eXecution Container（MXC）驱动跨 Windows/macOS/Linux，包含在 Copilot 内无额外费用，企业可强制启用。这篇教程讲清楚 GA 与 preview 的区别、怎样升级并重新核对策略、MXC 底层原理、企业强制配置方法，以及升级后如何验证沙箱真的生效。适合已经在 preview 期用过沙箱、或准备正式启用的开发者和团队。",
+      tags: ["GitHub Copilot", "本地沙箱", "GA", "MXC", "企业安全", "AI Agent"],
+      featured: false,
+      intro: [
+        "9 月 23 日本地沙箱还在 public preview，10 月 7 日就正式可用了——覆盖 CLI、app 和 VS Code Agent Host，由 MXC 驱动跨平台，包含在 Copilot 里不额外收费，企业还能强制启用。从 preview 到 GA，不只是名字变了，行为和配置也可能有调整。",
+        "这篇教程带你完成 GA 升级：先理解 GA 带来了什么变化，再升级客户端、重新核对沙箱策略，然后用越界测试确认沙箱真的在起作用，最后讲企业怎样强制启用。读完你能把沙箱从“试用”变成“可依赖的安全基础设施”。"
+      ],
+      audience: [
+        "preview 期已用过本地沙箱、需要升级到 GA 的开发者",
+        "准备正式启用本地沙箱、保护本机文件和凭证的用户",
+        "需要为团队强制配置沙箱策略的企业管理员"
+      ],
+      format: [
+        "全文按“GA 变化 → 升级步骤 → 策略核对 → MXC 原理 → 企业强制 → 验证清单”组织",
+        "给出具体升级和验证动作，不只是翻译公告"
+      ],
+      roadmap: [
+        "理解 GA 变化：覆盖范围、MXC、无额外费用、企业强制",
+        "升级客户端：CLI、app、VS Code 到支持 GA 的版本",
+        "重新核对策略：文件/网络/凭证配置是否仍符合预期",
+        "理解 MXC：统一策略翻译为原生系统控制",
+        "配置企业强制：托管设置要求沙箱且不可放宽",
+        "验证生效：越界访问测试、fail closed 确认",
+        "处理升级问题：策略不生效、系统不支持的排查",
+        "固化流程：把沙箱纳入团队安全基线"
+      ],
+      officialLinks: [
+        { label: "Local sandboxing for GitHub Copilot now generally available", url: "https://github.blog/changelog/2026-10-07-local-sandboxing-for-github-copilot-now-generally-available/", note: "GA 官方公告" },
+        { label: "About cloud and local sandboxes for GitHub Copilot", url: "https://docs.github.com/", note: "沙箱概念与配置文档，以官方为准" }
+      ],
+      curatedLinks: [
+        "GA 覆盖 Copilot CLI、Copilot app、使用 Agent Host 的 VS Code 会话",
+        "由 Microsoft eXecution Container（MXC）驱动，跨 Windows/macOS/Linux",
+        "包含在 GitHub Copilot 内无额外费用",
+        "企业托管设置可强制启用沙箱并执行开发者无法放宽的策略；沙箱限制工具执行，与所用模型无关"
+      ],
+      downloadIdeas: [
+        "做一张“GA 升级核对清单”：版本、策略、验证",
+        "整理一份企业沙箱强制策略配置模板"
+      ],
+      extraSections: [
+        {
+          title: "一、GA 带来了什么变化",
+          items: [
+            "覆盖范围明确：CLI、app、VS Code Agent Host 都支持，不再是部分入口试用",
+            "底层统一为 MXC：Microsoft eXecution Container 把统一策略翻译成各系统原生控制",
+            "无额外费用：包含在 Copilot 订阅内，企业可以全员启用不增加成本",
+            "企业可强制：托管设置能要求沙箱并执行开发者无法放宽的策略",
+            "行为可能调整：GA 版与 preview 期的策略细节和默认值可能有差异，需重新核对"
+          ]
+        },
+        {
+          title: "二、升级步骤",
+          items: [
+            "升级 CLI：更新到支持 GA 的版本，确认 /sandbox 命令和配置对话框可用",
+            "升级 app：更新 Copilot app 到最新版，项目设置中能看到沙箱选项",
+            "升级 VS Code：确保使用 Agent Host 的会话支持本地沙箱",
+            "重启会话：沙箱策略变更通常对新会话生效，已有会话需重启",
+            "检查企业策略：如果受托管设置管理，确认管理员已推送 GA 策略"
+          ]
+        },
+        {
+          title: "三、重新核对策略",
+          items: [
+            "文件系统：确认额外读写、只读、拒绝目录的配置仍符合预期，GA 后可能有变化",
+            "网络：确认外网和本地网络的访问边界，避免升级后意外放开或收紧",
+            "凭证：确认 Git HTTPS 和 GitHub CLI 凭证的提供策略",
+            "对比 preview 配置：把 preview 期的配置与 GA 版逐项对比，发现差异及时调整",
+            "从最小权限开始：如果之前配置较松，GA 后借机收紧到最小权限"
+          ]
+        },
+        {
+          title: "四、MXC 底层原理",
+          items: [
+            "统一策略语言：开发者用一套策略描述文件/网络/凭证限制",
+            "原生系统控制：MXC 把策略翻译成 Windows、macOS、Linux 各自的原生隔离机制",
+            "跨平台一致：同一套策略在不同系统上行为尽量一致，降低多平台维护成本",
+            "fail closed：如果系统无法执行策略，沙箱会报错而非无沙箱运行",
+            "与模型无关：沙箱限制的是工具执行，不管用 Haiku、Sonnet 还是 Opus 都生效"
+          ]
+        },
+        {
+          title: "五、企业强制配置",
+          items: [
+            "托管设置强制：企业管理员在 AI controls 中要求沙箱，开发者无法关闭或放宽",
+            "统一策略模板：为全企业或特定团队配置统一的文件/网络/凭证策略",
+            "分级管理：可按团队或项目设置不同严格程度，关键项目更严",
+            "审计与监控：配合用量和安全日志，确认沙箱策略被执行、异常被记录",
+            "沟通与培训：强制启用前告知团队，避免因策略过严导致正常工作受阻"
+          ]
+        },
+        {
+          title: "六、验证沙箱生效",
+          items: [
+            "文件越界测试：让 Agent 尝试读取拒绝目录（如 .ssh、其他项目），应被拒绝",
+            "网络越界测试：尝试访问未授权的外网或本地服务，应被拦截",
+            "凭证隔离测试：未提供凭证的会话执行需要认证的操作，应提示无凭证",
+            "fail closed 确认：如果系统报无法执行策略，这是保护行为，不要为了跑通而关闭沙箱",
+            "升级后回归：每次 Copilot 或系统更新后，重新跑一次越界测试"
+          ]
+        },
+        {
+          title: "七、检查清单",
+          items: [
+            "客户端已升级：CLI/app/VS Code 均为支持 GA 的版本",
+            "会话已重启：新策略对新会话生效",
+            "策略已核对：文件/网络/凭证配置符合预期",
+            "企业策略已同步：托管设置已推送 GA 策略",
+            "越界测试通过：文件、网络、凭证越界均被拒绝",
+            "fail closed 理解：无法隔离时报错而非裸奔",
+            "高影响操作仍人工确认：沙箱不替代人工审批",
+            "定期回归验证：更新后重新测试"
+          ]
+        }
+      ]
+    },
+    {
+      id: "github-stacked-pr-workflow-guide",
+      title: "Stacked PR 工作流：把大改动拆成可审查的依赖链",
+      date: "2026-10-06",
+      category: "效率工具",
+      readTime: "9 分钟",
+      excerpt: "GitHub 10 月 6 日宣布 Stacked pull requests（堆叠 PR）正式可用：可以创建多个有依赖关系的 PR，每个基于前一个，按顺序审查和合并。这篇教程讲清楚堆叠 PR 适合什么场景、怎样创建和维护依赖链、合并顺序和 rebase 注意事项、怎样避免常见坑，以及与普通 PR 的取舍。适合经常做大改动、希望提升审查质量的开发者。",
+      tags: ["GitHub", "Stacked PR", "代码审查", "工作流", "Git"],
+      featured: false,
+      intro: [
+        "大改动塞进一个 PR，是审查质量差的最常见原因——改动太多，审查者看不过来，只能大概扫一眼就合并。10 月 6 日堆叠 PR 正式可用，让你可以把大功能拆成多个有依赖关系的小 PR，每个都能独立审查、独立跑 CI，又能保持整体推进顺序。",
+        "这篇教程带你用好堆叠 PR：什么场景该用、怎样创建依赖链、合并时注意什么、rebase 和冲突怎么处理，以及哪些情况反而不该用。读完你能把大改动拆得让审查者愿意看、看得完。"
+      ],
+      audience: [
+        "经常做大改动、PR 太大难以审查的开发者",
+        "想提升团队代码审查质量的技术负责人",
+        "对 Git 分支和 PR 有基础、想学习进阶工作流的学习者"
+      ],
+      format: [
+        "全文按“适用场景 → 创建依赖链 → 审查与合并 → rebase 与冲突 → 常见坑 → 检查清单”组织",
+        "给出具体操作和避坑建议，不只是介绍功能"
+      ],
+      roadmap: [
+        "理解堆叠 PR：多个有依赖的 PR 按顺序合并",
+        "判断适用场景：大重构、多阶段功能 vs 小改动",
+        "创建依赖链：每个 PR 基于前一个分支",
+        "独立审查：每个 PR 只看本层改动",
+        "按顺序合并：从底层到顶层依次合并",
+        "处理 rebase：合并底层后更新上层分支",
+        "避免常见坑：冲突、顺序错误、CI 混乱",
+        "取舍判断：什么时候用普通 PR 更合适"
+      ],
+      officialLinks: [
+        { label: "Stacked pull requests generally available", url: "https://github.blog/changelog/", note: "GA 官方公告（10 月 6 日）" },
+        { label: "GitHub Pull Requests 文档", url: "https://docs.github.com/", note: "PR 与分支管理，以官方文档为准" }
+      ],
+      curatedLinks: [
+        "堆叠 PR 允许创建多个有依赖关系的 PR，每个基于前一个，按顺序审查和合并",
+        "适合把大改动拆成可独立评审的小块，每个 PR 跑独立 CI",
+        "合并底层 PR 后，上层 PR 需要及时更新（rebase）",
+        "小改动不必强行堆叠，反而增加管理成本"
+      ],
+      downloadIdeas: [
+        "做一张“大改动拆分规划表”：每个子 PR 的范围和依赖",
+        "整理一份堆叠 PR 合并与 rebase 操作速查"
+      ],
+      extraSections: [
+        {
+          title: "一、什么场景适合堆叠 PR",
+          items: [
+            "大型重构：先改底层接口，再逐层更新调用方，每层一个 PR",
+            "多阶段功能：先搭基础设施，再加业务逻辑，最后加 UI，分阶段交付",
+            "跨模块大改动：每个模块一个 PR，便于各模块负责人分别审查",
+            "需要分步上线：底层先合并上线，上层后续跟进，降低一次性上线风险",
+            "不适合：小改动、独立无依赖的改动——用普通 PR 更简单"
+          ]
+        },
+        {
+          title: "二、创建依赖链",
+          items: [
+            "从主分支拉出底层分支：第一个 PR 基于 main，包含最基础的改动",
+            "逐层拉出上层分支：第二个 PR 基于第一个分支，第三个基于第二个，依此类推",
+            "每个 PR 描述依赖关系：在 PR 描述中注明基于哪个 PR、合并顺序",
+            "保持每层改动聚焦：每个 PR 只包含本层必要改动，避免夹带无关修改",
+            "CI 独立运行：每个 PR 触发自己的检查，确保本层改动可独立验证"
+          ]
+        },
+        {
+          title: "三、审查与合并",
+          items: [
+            "从底层开始审查：先确保基础改动正确，上层才有意义",
+            "只看本层 diff：审查上层 PR 时，关注相对于前一层的增量，而非全部改动",
+            "按顺序合并：底层 PR 先合并，然后依次向上",
+            "合并后更新上层：底层合并到 main 后，上层分支要 rebase 到最新 main",
+            "不要跳序合并：跳过底层直接合并上层可能导致依赖缺失或冲突"
+          ]
+        },
+        {
+          title: "四、rebase 与冲突处理",
+          items: [
+            "底层合并后立即 rebase 上层：把上层分支变基到最新 main，解决冲突",
+            "冲突逐层处理：从最底层未合并的 PR 开始，依次向上解决",
+            "强制推送注意：rebase 后需要 force push，确认团队工作流允许",
+            "通知审查者：rebase 后 PR 改动可能变化，提醒审查者重新查看",
+            "冲突复杂时考虑合并：如果 rebase 冲突太多，可改用 merge 方式，保持历史更清晰"
+          ]
+        },
+        {
+          title: "五、常见坑",
+          items: [
+            "PR 之间改动重叠：每层边界不清，导致同一文件在多个 PR 中改，冲突频发",
+            "依赖链太长：超过 3-4 层后管理成本急剧上升，考虑拆成独立功能",
+            "忘记更新上层：底层合并后上层仍基于旧分支，CI 失败或冲突",
+            "审查者看全部改动：没有聚焦本层增量，失去堆叠的意义",
+            "强制推送覆盖他人改动：多人协作同一分支时，force push 前确认"
+          ]
+        },
+        {
+          title: "六、检查清单",
+          items: [
+            "场景判断正确：大改动/多阶段才用堆叠，小改动用普通 PR",
+            "依赖链清晰：每个 PR 基于前一个，描述中注明顺序",
+            "每层改动聚焦：只包含本层必要修改",
+            "CI 独立通过：每个 PR 的检查都能独立跑通",
+            "合并顺序正确：从底层到顶层依次合并",
+            "合并后 rebase：上层分支及时更新到最新 main",
+            "冲突逐层解决：从底层向上处理",
+            "长度可控：依赖链不超过 3-4 层，避免管理失控"
+          ]
+        }
+      ]
+    },
     {
       id: "copilot-code-review-api-ci-integration-guide",
       title: "Copilot 代码审查 API 集成指南：把自动审查接进脚本与 CI",
@@ -7125,6 +7471,106 @@ git push origin main`,
     "github-agentic-workflows-public-preview-guide"
   ],
   hotspots: [
+    {
+      date: "2026-10-07",
+      tag: "AI 编程",
+      title: "Claude Haiku 5.5 发布：5.5 家族三档齐全，最便宜、最快、能力最强的小模型",
+      summary: "Anthropic 10 月 7 日发布 Claude Haiku 5.5，是 Claude 5.5 家族的第三个模型，定位为“最便宜、最快、能力最强的小模型”，面向高容量、成本敏感的任务。至此 5.5 家族形成 Haiku（快省）、Sonnet（日常）、Opus（攻坚）三档。",
+      why: "5.5 家族三档齐全后，按任务复杂度选模型的空间更大：简单补全、批量处理、高频调用用 Haiku 能显著降本，常规开发用 Sonnet，复杂任务才上 Opus。新手要注意：Haiku 虽快省，但在复杂推理和长上下文任务上仍不如 Sonnet/Opus，不要为了省钱在关键任务上用错档位；具体上下文窗口、输出上限和价格以官方模型页为准，上线后应在自己的任务上验证质量再设为默认。",
+      sourceLabel: "Anthropic Release Notes",
+      sourceUrl: "https://support.claude.com/en/articles/12138966-release-notes",
+      articleIdea: "已扩写：Claude 5.5 家族完整选型：Haiku、Sonnet、Opus 三档按任务分配"
+    },
+    {
+      date: "2026-10-07",
+      tag: "AI 编程",
+      title: "Copilot 本地沙箱正式可用（GA）：MXC 驱动跨平台，包含在 Copilot 内无额外费用",
+      summary: "GitHub 10 月 7 日宣布本地沙箱正式可用（GA），覆盖 Copilot CLI、Copilot app 和使用 Agent Host 的 VS Code 会话。由 Microsoft eXecution Container（MXC）驱动，把统一沙箱策略翻译成 Windows/macOS/Linux 原生系统控制；包含在 GitHub Copilot 内无额外费用，企业托管设置可强制启用沙箱并执行开发者无法放宽的策略。",
+      why: "从 public preview 到 GA，本地沙箱从“可以试用”变成“可以放心依赖”，且企业可以强制启用，这对让 Agent 在本地跑命令的团队是关键安全基础设施。新手要注意：GA 后行为和配置可能与 preview 期有差异，升级后重新核对策略；沙箱限制的是工具执行（文件/网络/凭证），与用哪个模型无关；即使沙箱开启，高影响操作仍建议保留人工确认。",
+      sourceLabel: "GitHub Changelog",
+      sourceUrl: "https://github.blog/changelog/2026-10-07-local-sandboxing-for-github-copilot-now-generally-available/",
+      articleIdea: "已扩写：Copilot 本地沙箱 GA 升级指南：从 preview 到正式可用的配置与验证"
+    },
+    {
+      date: "2026-10-06",
+      tag: "效率工具",
+      title: "Stacked pull requests 正式可用：把大改动拆成多个有依赖关系的 PR 依次合并",
+      summary: "GitHub 10 月 6 日宣布 Stacked pull requests（堆叠 PR）正式可用（GA）：可以创建多个有依赖关系的 PR，每个 PR 基于前一个，按顺序审查和合并，把大改动拆成可独立评审的小块。",
+      why: "大改动塞进一个 PR 是审查质量差的常见原因——改动太多看不过来。堆叠 PR 让你把大功能拆成有依赖的小 PR，每个都能独立审查、独立 CI，又能保持整体推进顺序。新手要注意：堆叠 PR 的 rebase 和合并顺序需要小心，合并底层 PR 后上层 PR 要及时更新；适合大型重构和多阶段功能，小改动不必强行堆叠。",
+      sourceLabel: "GitHub Changelog",
+      sourceUrl: "https://github.blog/changelog/",
+      articleIdea: "已扩写：Stacked PR 工作流：把大改动拆成可审查的依赖链"
+    },
+    {
+      date: "2026-10-07",
+      tag: "代码质量",
+      title: "GitHub 推出泄露密钥检测专用模型，提升 secret scanning 准确率",
+      summary: "GitHub 10 月 7 日推出用于泄露密钥检测的专用模型（purpose-built model for leaked secret detection），提升 secret scanning 对各类密钥的识别准确率。",
+      why: "密钥泄露是最常见也最危险的安全问题之一，传统规则匹配容易漏报或误报，专用模型能更好地识别格式多变的密钥。新手要注意：检测到密钥后要立即轮换（而不只是删除），因为密钥可能已经被爬虫获取；在 CI 中启用 push protection 可以在提交时就拦截，比事后检测更有效。",
+      sourceLabel: "GitHub Changelog",
+      sourceUrl: "https://github.blog/changelog/",
+      articleIdea: "候选：密钥泄露应急处理：从检测到轮换的标准流程"
+    },
+    {
+      date: "2026-10-05",
+      tag: "代码质量",
+      title: "Secret scanning 新增 Lovable、Supabase 等服务的密钥检测器",
+      summary: "GitHub 10 月 5 日为 secret scanning 新增多个服务的密钥检测器，包括 Lovable、Supabase 等流行开发平台。",
+      why: "低代码和 BaaS 平台（Lovable、Supabase 等）的密钥越来越常见地出现在代码里，新增检测器能覆盖这些新兴平台。新手要注意：用这些平台时，密钥应放在环境变量或 secrets 管理中，不要硬编码到前端代码或公开仓库；即使是测试项目的密钥也要妥善处理，避免被滥用产生费用。",
+      sourceLabel: "GitHub Changelog",
+      sourceUrl: "https://github.blog/changelog/",
+      articleIdea: "候选：低代码/BaaS 平台密钥管理清单"
+    },
+    {
+      date: "2026-10-06",
+      tag: "AI 编程",
+      title: "Claude Models API 新增 capabilities.server_tools：可查询模型是否支持网页搜索和代码执行",
+      summary: "Anthropic 10 月 6 日在 Models API 中新增 capabilities.server_tools 字段，GET /v1/models 和 GET /v1/models/{model_id} 现在会报告每个模型是否接受网页搜索（web search）和代码执行（code execution）工具。",
+      why: "过去开发者要靠记忆或文档判断某个模型支不支持特定工具，现在可以通过 API 动态查询，在多模型路由和工具调用场景下更可靠。新手要注意：这是元数据查询，不代表工具一定可用（还受账户权限和配置影响）；在构建多模型应用时，应在运行时检查能力再决定是否调用工具，避免对不支持的模型发起无效请求。",
+      sourceLabel: "Claude Platform Release Notes",
+      sourceUrl: "https://platform.claude.com/docs/en/release-notes/overview",
+      articleIdea: "候选：多模型应用的能力探测与降级策略"
+    },
+    {
+      date: "2026-10-06",
+      tag: "AI 终端",
+      title: "Codex CLI 0.160.1：修复 Windows 远程 MCP 服务器环境变量丢失问题",
+      summary: "OpenAI 10 月 6 日发布 Codex CLI 0.160.1：在使用显式配置的远程环境变量启动远程 stdio MCP 服务器时，保留 SYSTEMROOT、TEMP、TMP 环境变量，让 Unix 主机能保留 Windows 执行器的启动环境。",
+      why: "这是一个针对性的稳定性修复，解决 Windows 用户通过远程 MCP 连接时环境变量丢失导致服务器启动失败的问题。Windows 远程开发场景的用户升级后应验证 MCP 连接是否恢复正常。新手要注意：小版本补丁虽不引入新功能，但修复的问题可能正好影响你的工作流，定期升级稳定版是好习惯；升级前确认配置兼容性。",
+      sourceLabel: "AgentUpdate.ai / Codex CLI",
+      sourceUrl: "https://agentupdate.ai/releases/openai-codex",
+      articleIdea: "候选：远程 MCP 服务器配置与排错清单"
+    },
+    {
+      date: "2026-10-06",
+      tag: "AI 编程",
+      title: "Vercel AI Gateway 新增 OpenAI Decisions API、Nano Banana 2.1、Mistral Large 4",
+      summary: "Vercel AI Gateway 近期新增多个模型和 API：OpenAI Decisions API（决策模型）、Nano Banana 2.1（图像生成/编辑）、Mistral Large 4，均可通过一个 API key 调用，无需单独注册提供商账户，自带花费追踪和请求追踪。",
+      why: "AI Gateway 把多家模型统一到一个入口，新增决策模型和图像模型后，开发者可以在一个平台上同时调用文本、决策、图像能力，减少多供应商管理成本。新手要注意：通过网关调用时计费和限流以网关为准，与直接调用提供商可能不同；图像生成和决策模型的能力边界要对照文档，不要假设与原平台完全一致。",
+      sourceLabel: "Vercel Changelog",
+      sourceUrl: "https://vercel.com/changelog",
+      articleIdea: "候选：AI Gateway 多模型统一调用入门"
+    },
+    {
+      date: "2026-10-06",
+      tag: "云端部署",
+      title: "Cloudflare AI Gateway 标准化提供商凭证错误响应，POST /ai/run 返回一致格式",
+      summary: "Cloudflare 10 月 6 日标准化 AI Gateway 中提供商凭证被拒绝时的错误响应：POST /ai/run 在 AI 提供商拒绝凭证时返回一致的错误格式，便于应用统一处理。",
+      why: "过去不同提供商的凭证错误格式各异，应用要写多套处理逻辑；标准化后可以用统一的错误处理代码，减少集成复杂度。新手要注意：凭证错误通常意味着 API key 无效、过期或无权限，收到这类错误应先核对 key 和账户权限，而不是重试；在网关层统一处理错误后，仍要在应用层给用户清晰提示。",
+      sourceLabel: "Cloudflare Docs Changelog",
+      sourceUrl: "https://developers.cloudflare.com/changelog/product-group/ai/",
+      articleIdea: "候选：AI API 错误处理与凭证管理实践"
+    },
+    {
+      date: "2026-10-06",
+      tag: "AI 编程",
+      title: "Copilot 用量指标修复：更新 IDE 以恢复 agent activity 统计",
+      summary: "GitHub 10 月 6 日提醒用户更新 IDE 以恢复 Copilot 用量指标中的 agent activity 统计：agent 活动（如代码行数分解）来自各 IDE 发送的遥测，旧版本可能导致数据缺失，GitHub 服务端数据能显示谁活跃但看不到具体活动类型。",
+      why: "如果团队依赖 Copilot 用量指标评估使用情况，旧 IDE 会导致 agent 活动数据不准，影响决策。新手要注意：用量指标分服务端（可靠但粗粒度）和 IDE 遥测（细粒度但依赖版本），看到数据异常时先检查 IDE 版本；企业管理员应提示团队及时更新，避免基于不完整数据做判断。",
+      sourceLabel: "GitHub Changelog",
+      sourceUrl: "https://github.blog/changelog/2026-10-06-update-your-ide-to-restore-agent-activity-in-copilot-usage-metrics/",
+      articleIdea: "候选：AI 工具用量指标的口径与数据质量核对"
+    },
     {
       date: "2026-10-02",
       tag: "代码质量",

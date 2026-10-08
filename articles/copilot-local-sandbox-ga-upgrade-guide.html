@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Copilot 本地沙箱 GA 升级指南：从 preview 到正式可用的配置与验证 | 学习资源库</title>
+  <meta name="description" content="GitHub 10 月 7 日宣布本地沙箱正式可用（GA），覆盖 CLI、app 和 VS Code Agent Host，由 Microsoft eXecution Container（MXC）驱动跨 Windows/macOS/Linux，包含在 Copilot 内无额外费用，企业可强制启用。这篇教程讲清楚 GA 与 preview 的区别、怎样升级并重新核对策略、MXC 底层原理、企业强制配置方法，以及升级后如何验证沙箱真的生效。适合已经在 preview 期用过沙箱、或准备正式启用的开发者和团队。">
+  <meta name="robots" content="index,follow,max-image-preview:large">
+  <link rel="canonical" href="https://hello1yjx.github.io/articles/copilot-local-sandbox-ga-upgrade-guide.html">
+  <link rel="icon" type="image/png" href="../assets/images/brand-book-line.png">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"Copilot 本地沙箱 GA 升级指南：从 preview 到正式可用的配置与验证","description":"GitHub 10 月 7 日宣布本地沙箱正式可用（GA），覆盖 CLI、app 和 VS Code Agent Host，由 Microsoft eXecution Container（MXC）驱动跨 Windows/macOS/Linux，包含在 Copilot 内无额外费用，企业可强制启用。这篇教程讲清楚 GA 与 preview 的区别、怎样升级并重新核对策略、MXC 底层原理、企业强制配置方法，以及升级后如何验证沙箱真的生效。适合已经在 preview 期用过沙箱、或准备正式启用的开发者和团队。","datePublished":"2026-10-07","dateModified":"2026-10-07","author":{"@type":"Person","name":"Avery Lin","url":"https://hello1yjx.github.io/about.html"},"publisher":{"@type":"Organization","name":"学习资源库","url":"https://hello1yjx.github.io/"},"mainEntityOfPage":"https://hello1yjx.github.io/articles/copilot-local-sandbox-ga-upgrade-guide.html","inLanguage":"zh-CN"}</script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6621999105936318" crossorigin="anonymous"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;800&family=Noto+Serif+SC:wght@700;900&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/styles.css?v=20261008-daily-update">
+</head>
+<body>
+  <header class="site-header">
+    <div class="page-shell site-header__inner">
+      <a class="brand" href="../index.html" aria-label="返回首页">
+        <span class="brand-mark" aria-hidden="true"><img src="../assets/images/brand-book-line.png" alt="" width="36" height="33"></span>
+        <span class="brand-copy"><strong>学习资源库</strong><span>分享知识 · 提升自己 · 成就未来</span></span>
+      </a>
+      <button class="menu-button" data-menu-button aria-expanded="false" aria-label="切换导航菜单">☰</button>
+      <nav class="site-nav" data-mobile-nav>
+        <a href="../index.html">首页</a>
+        <a class="is-active" href="../posts.html" aria-current="page">教程</a>
+        <a href="../resources.html">资源下载</a>
+        <a href="../resources.html#official-resources">工具导航</a>
+        <a href="../hotspots.html">技术资讯</a>
+        <a href="../projects.html">开源项目</a>
+        <a href="../about.html">关于我们</a>
+      </nav>
+      <form class="header-search" action="../posts.html" method="get">
+        <input type="search" name="q" placeholder="搜索教程、资源、工具或关键词...">
+        <button type="submit" aria-label="搜索">/</button>
+      </form>
+      <a class="header-github" href="https://github.com/hello1yjx/hello1yjx.github.io" target="_blank" rel="noreferrer" aria-label="GitHub">
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="" width="24" height="24">
+      </a>
+      <a class="header-cta" href="../posts.html">开始学习</a>
+    </div>
+  </header>
+
+  <main class="page-shell section article-page">
+    <header class="detail-hero">
+      <span class="pill">AI 编程</span>
+      <h1>Copilot 本地沙箱 GA 升级指南：从 preview 到正式可用的配置与验证</h1>
+      <div class="detail-hero__meta">
+        <time datetime="2026-10-07">2026年10月7日</time>
+        <span>9 分钟</span>
+        <span>作者：Avery Lin</span>
+      </div>
+      <p>GitHub 10 月 7 日宣布本地沙箱正式可用（GA），覆盖 CLI、app 和 VS Code Agent Host，由 Microsoft eXecution Container（MXC）驱动跨 Windows/macOS/Linux，包含在 Copilot 内无额外费用，企业可强制启用。这篇教程讲清楚 GA 与 preview 的区别、怎样升级并重新核对策略、MXC 底层原理、企业强制配置方法，以及升级后如何验证沙箱真的生效。适合已经在 preview 期用过沙箱、或准备正式启用的开发者和团队。</p>
+    </header>
+    <div class="article-layout">
+      <article class="article-body">
+        <div class="inline-promo">
+          <p class="label">来源与增量价值</p>
+          <h3>本文基于官方资料整理，并补充适用场景、限制条件和实践检查步骤。</h3>
+          <p>首要来源：<a href="https://github.blog/changelog/2026-10-07-local-sandboxing-for-github-copilot-now-generally-available/" target="_blank" rel="noreferrer">Local sandboxing for GitHub Copilot now generally available</a>。事实以原始来源为准，本站建议需结合自己的环境验证。</p>
+        </div>
+
+    <p>9 月 23 日本地沙箱还在 public preview，10 月 7 日就正式可用了——覆盖 CLI、app 和 VS Code Agent Host，由 MXC 驱动跨平台，包含在 Copilot 里不额外收费，企业还能强制启用。从 preview 到 GA，不只是名字变了，行为和配置也可能有调整。</p><p>这篇教程带你完成 GA 升级：先理解 GA 带来了什么变化，再升级客户端、重新核对沙箱策略，然后用越界测试确认沙箱真的在起作用，最后讲企业怎样强制启用。读完你能把沙箱从“试用”变成“可依赖的安全基础设施”。</p>
+    <h2>这篇内容适合谁</h2>
+    <ul><li>preview 期已用过本地沙箱、需要升级到 GA 的开发者</li><li>准备正式启用本地沙箱、保护本机文件和凭证的用户</li><li>需要为团队强制配置沙箱策略的企业管理员</li></ul>
+    <h2>实践与验证步骤</h2>
+    <ul><li>理解 GA 变化：覆盖范围、MXC、无额外费用、企业强制</li><li>升级客户端：CLI、app、VS Code 到支持 GA 的版本</li><li>重新核对策略：文件/网络/凭证配置是否仍符合预期</li><li>理解 MXC：统一策略翻译为原生系统控制</li><li>配置企业强制：托管设置要求沙箱且不可放宽</li><li>验证生效：越界访问测试、fail closed 确认</li><li>处理升级问题：策略不生效、系统不支持的排查</li><li>固化流程：把沙箱纳入团队安全基线</li></ul>
+    <h2>官方资料入口</h2>
+
+    <ul>
+
+            <li>
+              <a href="https://github.blog/changelog/2026-10-07-local-sandboxing-for-github-copilot-now-generally-available/" target="_blank" rel="noreferrer">Local sandboxing for GitHub Copilot now generally available</a>
+              <span>：GA 官方公告</span>
+            </li>
+
+            <li>
+              <a href="https://docs.github.com/" target="_blank" rel="noreferrer">About cloud and local sandboxes for GitHub Copilot</a>
+              <span>：沙箱概念与配置文档，以官方为准</span>
+            </li>
+
+    </ul>
+
+    <h2>重点判断与使用建议</h2>
+    <ul><li>GA 覆盖 Copilot CLI、Copilot app、使用 Agent Host 的 VS Code 会话</li><li>由 Microsoft eXecution Container（MXC）驱动，跨 Windows/macOS/Linux</li><li>包含在 GitHub Copilot 内无额外费用</li><li>企业托管设置可强制启用沙箱并执行开发者无法放宽的策略；沙箱限制工具执行，与所用模型无关</li></ul>
+
+        <h2>一、GA 带来了什么变化</h2>
+
+        <ul><li>覆盖范围明确：CLI、app、VS Code Agent Host 都支持，不再是部分入口试用</li><li>底层统一为 MXC：Microsoft eXecution Container 把统一策略翻译成各系统原生控制</li><li>无额外费用：包含在 Copilot 订阅内，企业可以全员启用不增加成本</li><li>企业可强制：托管设置能要求沙箱并执行开发者无法放宽的策略</li><li>行为可能调整：GA 版与 preview 期的策略细节和默认值可能有差异，需重新核对</li></ul>
+
+
+
+        <h2>二、升级步骤</h2>
+
+        <ul><li>升级 CLI：更新到支持 GA 的版本，确认 /sandbox 命令和配置对话框可用</li><li>升级 app：更新 Copilot app 到最新版，项目设置中能看到沙箱选项</li><li>升级 VS Code：确保使用 Agent Host 的会话支持本地沙箱</li><li>重启会话：沙箱策略变更通常对新会话生效，已有会话需重启</li><li>检查企业策略：如果受托管设置管理，确认管理员已推送 GA 策略</li></ul>
+
+
+
+        <h2>三、重新核对策略</h2>
+
+        <ul><li>文件系统：确认额外读写、只读、拒绝目录的配置仍符合预期，GA 后可能有变化</li><li>网络：确认外网和本地网络的访问边界，避免升级后意外放开或收紧</li><li>凭证：确认 Git HTTPS 和 GitHub CLI 凭证的提供策略</li><li>对比 preview 配置：把 preview 期的配置与 GA 版逐项对比，发现差异及时调整</li><li>从最小权限开始：如果之前配置较松，GA 后借机收紧到最小权限</li></ul>
+
+
+
+        <h2>四、MXC 底层原理</h2>
+
+        <ul><li>统一策略语言：开发者用一套策略描述文件/网络/凭证限制</li><li>原生系统控制：MXC 把策略翻译成 Windows、macOS、Linux 各自的原生隔离机制</li><li>跨平台一致：同一套策略在不同系统上行为尽量一致，降低多平台维护成本</li><li>fail closed：如果系统无法执行策略，沙箱会报错而非无沙箱运行</li><li>与模型无关：沙箱限制的是工具执行，不管用 Haiku、Sonnet 还是 Opus 都生效</li></ul>
+
+
+
+        <h2>五、企业强制配置</h2>
+
+        <ul><li>托管设置强制：企业管理员在 AI controls 中要求沙箱，开发者无法关闭或放宽</li><li>统一策略模板：为全企业或特定团队配置统一的文件/网络/凭证策略</li><li>分级管理：可按团队或项目设置不同严格程度，关键项目更严</li><li>审计与监控：配合用量和安全日志，确认沙箱策略被执行、异常被记录</li><li>沟通与培训：强制启用前告知团队，避免因策略过严导致正常工作受阻</li></ul>
+
+
+
+        <h2>六、验证沙箱生效</h2>
+
+        <ul><li>文件越界测试：让 Agent 尝试读取拒绝目录（如 .ssh、其他项目），应被拒绝</li><li>网络越界测试：尝试访问未授权的外网或本地服务，应被拦截</li><li>凭证隔离测试：未提供凭证的会话执行需要认证的操作，应提示无凭证</li><li>fail closed 确认：如果系统报无法执行策略，这是保护行为，不要为了跑通而关闭沙箱</li><li>升级后回归：每次 Copilot 或系统更新后，重新跑一次越界测试</li></ul>
+
+
+
+        <h2>七、检查清单</h2>
+
+        <ul><li>客户端已升级：CLI/app/VS Code 均为支持 GA 的版本</li><li>会话已重启：新策略对新会话生效</li><li>策略已核对：文件/网络/凭证配置符合预期</li><li>企业策略已同步：托管设置已推送 GA 策略</li><li>越界测试通过：文件、网络、凭证越界均被拒绝</li><li>fail closed 理解：无法隔离时报错而非裸奔</li><li>高影响操作仍人工确认：沙箱不替代人工审批</li><li>定期回归验证：更新后重新测试</li></ul>
+
+
+
+
+        <div class="inline-promo">
+          <p class="label">更正与更新</p>
+          <h3>发现版本变化、来源失效或事实错误时，请通过联系页反馈。</h3>
+          <p>本站会核对一手来源后更新内容，不使用无来源转载填充文章。</p>
+          <a class="button button--secondary" href="../editorial.html">查看内容标准</a>
+        </div>
+      </article>
+      <aside class="article-sidebar">
+        <div class="sidebar-card">
+          <p class="label">本页标签</p>
+          <div class="tag-row"><span>GitHub Copilot</span><span>本地沙箱</span><span>GA</span><span>MXC</span><span>企业安全</span><span>AI Agent</span></div>
+        </div>
+        <div class="sidebar-card">
+          <p class="label">继续阅读</p>
+          <a href="copilot-computer-use-desktop-apps-guide.html">Copilot computer use 上手：让 Agent 安全操作桌面应用</a><a href="devday-gpt61-sol-instant-interrupt-codex-cloud-guide.html">DevDay 实战：GPT-6.1 Sol、instant interrupt 与 Codex Cloud 成本效率指南</a><a href="claude-5-5-family-sonnet-opus-selection-guide.html">Claude 5.5 家族模型搭配：Sonnet 5.5 与 Opus 5.5 按任务选型</a><a href="copilot-app-local-sandbox-setup-guide.html">Copilot app 本地沙箱配置指南：文件、网络与凭证的最小权限设置</a>
+        </div>
+        <div class="sidebar-card sidebar-card--accent">
+          <p class="label">作者与方法</p>
+          <h3>了解本站如何选题、核验来源与处理更正。</h3>
+          <a class="button button--dark" href="../about.html">关于作者</a>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="page-shell footer__inner">
+      <div><strong>学习资源库</strong><p>分享知识 · 提升自己 · 成就未来</p></div>
+      <div>
+        <a href="../editorial.html">内容标准</a><br>
+        <a href="../privacy.html">隐私政策</a><br>
+        <a href="../contact.html">联系</a>
+      </div>
+    </div>
+  </footer>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      var button = document.querySelector("[data-menu-button]");
+      var nav = document.querySelector("[data-mobile-nav]");
+      if (!button || !nav) return;
+      button.addEventListener("click", function () {
+        var expanded = button.getAttribute("aria-expanded") === "true";
+        button.setAttribute("aria-expanded", String(!expanded));
+        nav.classList.toggle("site-nav--open", !expanded);
+      });
+    });
+  </script>
+</body>
+</html>

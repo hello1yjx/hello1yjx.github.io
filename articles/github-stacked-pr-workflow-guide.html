@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Stacked PR 工作流：把大改动拆成可审查的依赖链 | 学习资源库</title>
+  <meta name="description" content="GitHub 10 月 6 日宣布 Stacked pull requests（堆叠 PR）正式可用：可以创建多个有依赖关系的 PR，每个基于前一个，按顺序审查和合并。这篇教程讲清楚堆叠 PR 适合什么场景、怎样创建和维护依赖链、合并顺序和 rebase 注意事项、怎样避免常见坑，以及与普通 PR 的取舍。适合经常做大改动、希望提升审查质量的开发者。">
+  <meta name="robots" content="index,follow,max-image-preview:large">
+  <link rel="canonical" href="https://hello1yjx.github.io/articles/github-stacked-pr-workflow-guide.html">
+  <link rel="icon" type="image/png" href="../assets/images/brand-book-line.png">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"Stacked PR 工作流：把大改动拆成可审查的依赖链","description":"GitHub 10 月 6 日宣布 Stacked pull requests（堆叠 PR）正式可用：可以创建多个有依赖关系的 PR，每个基于前一个，按顺序审查和合并。这篇教程讲清楚堆叠 PR 适合什么场景、怎样创建和维护依赖链、合并顺序和 rebase 注意事项、怎样避免常见坑，以及与普通 PR 的取舍。适合经常做大改动、希望提升审查质量的开发者。","datePublished":"2026-10-06","dateModified":"2026-10-06","author":{"@type":"Person","name":"Avery Lin","url":"https://hello1yjx.github.io/about.html"},"publisher":{"@type":"Organization","name":"学习资源库","url":"https://hello1yjx.github.io/"},"mainEntityOfPage":"https://hello1yjx.github.io/articles/github-stacked-pr-workflow-guide.html","inLanguage":"zh-CN"}</script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6621999105936318" crossorigin="anonymous"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;800&family=Noto+Serif+SC:wght@700;900&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/styles.css?v=20261008-daily-update">
+</head>
+<body>
+  <header class="site-header">
+    <div class="page-shell site-header__inner">
+      <a class="brand" href="../index.html" aria-label="返回首页">
+        <span class="brand-mark" aria-hidden="true"><img src="../assets/images/brand-book-line.png" alt="" width="36" height="33"></span>
+        <span class="brand-copy"><strong>学习资源库</strong><span>分享知识 · 提升自己 · 成就未来</span></span>
+      </a>
+      <button class="menu-button" data-menu-button aria-expanded="false" aria-label="切换导航菜单">☰</button>
+      <nav class="site-nav" data-mobile-nav>
+        <a href="../index.html">首页</a>
+        <a class="is-active" href="../posts.html" aria-current="page">教程</a>
+        <a href="../resources.html">资源下载</a>
+        <a href="../resources.html#official-resources">工具导航</a>
+        <a href="../hotspots.html">技术资讯</a>
+        <a href="../projects.html">开源项目</a>
+        <a href="../about.html">关于我们</a>
+      </nav>
+      <form class="header-search" action="../posts.html" method="get">
+        <input type="search" name="q" placeholder="搜索教程、资源、工具或关键词...">
+        <button type="submit" aria-label="搜索">/</button>
+      </form>
+      <a class="header-github" href="https://github.com/hello1yjx/hello1yjx.github.io" target="_blank" rel="noreferrer" aria-label="GitHub">
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="" width="24" height="24">
+      </a>
+      <a class="header-cta" href="../posts.html">开始学习</a>
+    </div>
+  </header>
+
+  <main class="page-shell section article-page">
+    <header class="detail-hero">
+      <span class="pill">效率工具</span>
+      <h1>Stacked PR 工作流：把大改动拆成可审查的依赖链</h1>
+      <div class="detail-hero__meta">
+        <time datetime="2026-10-06">2026年10月6日</time>
+        <span>9 分钟</span>
+        <span>作者：Avery Lin</span>
+      </div>
+      <p>GitHub 10 月 6 日宣布 Stacked pull requests（堆叠 PR）正式可用：可以创建多个有依赖关系的 PR，每个基于前一个，按顺序审查和合并。这篇教程讲清楚堆叠 PR 适合什么场景、怎样创建和维护依赖链、合并顺序和 rebase 注意事项、怎样避免常见坑，以及与普通 PR 的取舍。适合经常做大改动、希望提升审查质量的开发者。</p>
+    </header>
+    <div class="article-layout">
+      <article class="article-body">
+        <div class="inline-promo">
+          <p class="label">来源与增量价值</p>
+          <h3>本文基于官方资料整理，并补充适用场景、限制条件和实践检查步骤。</h3>
+          <p>首要来源：<a href="https://github.blog/changelog/" target="_blank" rel="noreferrer">Stacked pull requests generally available</a>。事实以原始来源为准，本站建议需结合自己的环境验证。</p>
+        </div>
+
+    <p>大改动塞进一个 PR，是审查质量差的最常见原因——改动太多，审查者看不过来，只能大概扫一眼就合并。10 月 6 日堆叠 PR 正式可用，让你可以把大功能拆成多个有依赖关系的小 PR，每个都能独立审查、独立跑 CI，又能保持整体推进顺序。</p><p>这篇教程带你用好堆叠 PR：什么场景该用、怎样创建依赖链、合并时注意什么、rebase 和冲突怎么处理，以及哪些情况反而不该用。读完你能把大改动拆得让审查者愿意看、看得完。</p>
+    <h2>这篇内容适合谁</h2>
+    <ul><li>经常做大改动、PR 太大难以审查的开发者</li><li>想提升团队代码审查质量的技术负责人</li><li>对 Git 分支和 PR 有基础、想学习进阶工作流的学习者</li></ul>
+    <h2>实践与验证步骤</h2>
+    <ul><li>理解堆叠 PR：多个有依赖的 PR 按顺序合并</li><li>判断适用场景：大重构、多阶段功能 vs 小改动</li><li>创建依赖链：每个 PR 基于前一个分支</li><li>独立审查：每个 PR 只看本层改动</li><li>按顺序合并：从底层到顶层依次合并</li><li>处理 rebase：合并底层后更新上层分支</li><li>避免常见坑：冲突、顺序错误、CI 混乱</li><li>取舍判断：什么时候用普通 PR 更合适</li></ul>
+    <h2>官方资料入口</h2>
+
+    <ul>
+
+            <li>
+              <a href="https://github.blog/changelog/" target="_blank" rel="noreferrer">Stacked pull requests generally available</a>
+              <span>：GA 官方公告（10 月 6 日）</span>
+            </li>
+
+            <li>
+              <a href="https://docs.github.com/" target="_blank" rel="noreferrer">GitHub Pull Requests 文档</a>
+              <span>：PR 与分支管理，以官方文档为准</span>
+            </li>
+
+    </ul>
+
+    <h2>重点判断与使用建议</h2>
+    <ul><li>堆叠 PR 允许创建多个有依赖关系的 PR，每个基于前一个，按顺序审查和合并</li><li>适合把大改动拆成可独立评审的小块，每个 PR 跑独立 CI</li><li>合并底层 PR 后，上层 PR 需要及时更新（rebase）</li><li>小改动不必强行堆叠，反而增加管理成本</li></ul>
+
+        <h2>一、什么场景适合堆叠 PR</h2>
+
+        <ul><li>大型重构：先改底层接口，再逐层更新调用方，每层一个 PR</li><li>多阶段功能：先搭基础设施，再加业务逻辑，最后加 UI，分阶段交付</li><li>跨模块大改动：每个模块一个 PR，便于各模块负责人分别审查</li><li>需要分步上线：底层先合并上线，上层后续跟进，降低一次性上线风险</li><li>不适合：小改动、独立无依赖的改动——用普通 PR 更简单</li></ul>
+
+
+
+        <h2>二、创建依赖链</h2>
+
+        <ul><li>从主分支拉出底层分支：第一个 PR 基于 main，包含最基础的改动</li><li>逐层拉出上层分支：第二个 PR 基于第一个分支，第三个基于第二个，依此类推</li><li>每个 PR 描述依赖关系：在 PR 描述中注明基于哪个 PR、合并顺序</li><li>保持每层改动聚焦：每个 PR 只包含本层必要改动，避免夹带无关修改</li><li>CI 独立运行：每个 PR 触发自己的检查，确保本层改动可独立验证</li></ul>
+
+
+
+        <h2>三、审查与合并</h2>
+
+        <ul><li>从底层开始审查：先确保基础改动正确，上层才有意义</li><li>只看本层 diff：审查上层 PR 时，关注相对于前一层的增量，而非全部改动</li><li>按顺序合并：底层 PR 先合并，然后依次向上</li><li>合并后更新上层：底层合并到 main 后，上层分支要 rebase 到最新 main</li><li>不要跳序合并：跳过底层直接合并上层可能导致依赖缺失或冲突</li></ul>
+
+
+
+        <h2>四、rebase 与冲突处理</h2>
+
+        <ul><li>底层合并后立即 rebase 上层：把上层分支变基到最新 main，解决冲突</li><li>冲突逐层处理：从最底层未合并的 PR 开始，依次向上解决</li><li>强制推送注意：rebase 后需要 force push，确认团队工作流允许</li><li>通知审查者：rebase 后 PR 改动可能变化，提醒审查者重新查看</li><li>冲突复杂时考虑合并：如果 rebase 冲突太多，可改用 merge 方式，保持历史更清晰</li></ul>
+
+
+
+        <h2>五、常见坑</h2>
+
+        <ul><li>PR 之间改动重叠：每层边界不清，导致同一文件在多个 PR 中改，冲突频发</li><li>依赖链太长：超过 3-4 层后管理成本急剧上升，考虑拆成独立功能</li><li>忘记更新上层：底层合并后上层仍基于旧分支，CI 失败或冲突</li><li>审查者看全部改动：没有聚焦本层增量，失去堆叠的意义</li><li>强制推送覆盖他人改动：多人协作同一分支时，force push 前确认</li></ul>
+
+
+
+        <h2>六、检查清单</h2>
+
+        <ul><li>场景判断正确：大改动/多阶段才用堆叠，小改动用普通 PR</li><li>依赖链清晰：每个 PR 基于前一个，描述中注明顺序</li><li>每层改动聚焦：只包含本层必要修改</li><li>CI 独立通过：每个 PR 的检查都能独立跑通</li><li>合并顺序正确：从底层到顶层依次合并</li><li>合并后 rebase：上层分支及时更新到最新 main</li><li>冲突逐层解决：从底层向上处理</li><li>长度可控：依赖链不超过 3-4 层，避免管理失控</li></ul>
+
+
+
+
+        <div class="inline-promo">
+          <p class="label">更正与更新</p>
+          <h3>发现版本变化、来源失效或事实错误时，请通过联系页反馈。</h3>
+          <p>本站会核对一手来源后更新内容，不使用无来源转载填充文章。</p>
+          <a class="button button--secondary" href="../editorial.html">查看内容标准</a>
+        </div>
+      </article>
+      <aside class="article-sidebar">
+        <div class="sidebar-card">
+          <p class="label">本页标签</p>
+          <div class="tag-row"><span>GitHub</span><span>Stacked PR</span><span>代码审查</span><span>工作流</span><span>Git</span></div>
+        </div>
+        <div class="sidebar-card">
+          <p class="label">继续阅读</p>
+          <a href="copilot-computer-use-desktop-apps-guide.html">Copilot computer use 上手：让 Agent 安全操作桌面应用</a><a href="devday-gpt61-sol-instant-interrupt-codex-cloud-guide.html">DevDay 实战：GPT-6.1 Sol、instant interrupt 与 Codex Cloud 成本效率指南</a><a href="claude-5-5-family-sonnet-opus-selection-guide.html">Claude 5.5 家族模型搭配：Sonnet 5.5 与 Opus 5.5 按任务选型</a><a href="copilot-app-local-sandbox-setup-guide.html">Copilot app 本地沙箱配置指南：文件、网络与凭证的最小权限设置</a>
+        </div>
+        <div class="sidebar-card sidebar-card--accent">
+          <p class="label">作者与方法</p>
+          <h3>了解本站如何选题、核验来源与处理更正。</h3>
+          <a class="button button--dark" href="../about.html">关于作者</a>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="page-shell footer__inner">
+      <div><strong>学习资源库</strong><p>分享知识 · 提升自己 · 成就未来</p></div>
+      <div>
+        <a href="../editorial.html">内容标准</a><br>
+        <a href="../privacy.html">隐私政策</a><br>
+        <a href="../contact.html">联系</a>
+      </div>
+    </div>
+  </footer>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      var button = document.querySelector("[data-menu-button]");
+      var nav = document.querySelector("[data-mobile-nav]");
+      if (!button || !nav) return;
+      button.addEventListener("click", function () {
+        var expanded = button.getAttribute("aria-expanded") === "true";
+        button.setAttribute("aria-expanded", String(!expanded));
+        nav.classList.toggle("site-nav--open", !expanded);
+      });
+    });
+  </script>
+</body>
+</html>
