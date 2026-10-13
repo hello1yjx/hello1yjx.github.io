@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Codex CLI 0.162.0 升级指南：managed Git worktree 与 GPT-6.1 Sol 默认模型 | 学习资源库</title>
+  <meta name="description" content="10 月 9 日 Codex CLI 0.162.0 发布，带来两个关键变化：为受信任本地项目引入 managed Git worktree 工具，让 Agent 在隔离工作树中操作不污染主分支；GPT-6.1 Sol 成为 bundled catalog 和 Bedrock 的默认模型，接近 Astra 智能但约五分之一价格、缓存输入 95% off。这篇教程讲清楚升级步骤、worktree 怎么用、默认模型切换的影响、CRLF 修复对 Windows 的意义，以及升级后如何验证。适合在用 Codex CLI、想升级到最新版的开发者。">
+  <meta name="robots" content="index,follow,max-image-preview:large">
+  <link rel="canonical" href="https://hello1yjx.github.io/articles/codex-cli-0162-git-worktree-gpt61-sol-guide.html">
+  <link rel="icon" type="image/png" href="../assets/images/brand-book-line.png">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"Codex CLI 0.162.0 升级指南：managed Git worktree 与 GPT-6.1 Sol 默认模型","description":"10 月 9 日 Codex CLI 0.162.0 发布，带来两个关键变化：为受信任本地项目引入 managed Git worktree 工具，让 Agent 在隔离工作树中操作不污染主分支；GPT-6.1 Sol 成为 bundled catalog 和 Bedrock 的默认模型，接近 Astra 智能但约五分之一价格、缓存输入 95% off。这篇教程讲清楚升级步骤、worktree 怎么用、默认模型切换的影响、CRLF 修复对 Windows 的意义，以及升级后如何验证。适合在用 Codex CLI、想升级到最新版的开发者。","datePublished":"2026-10-09","dateModified":"2026-10-09","author":{"@type":"Person","name":"Avery Lin","url":"https://hello1yjx.github.io/about.html"},"publisher":{"@type":"Organization","name":"学习资源库","url":"https://hello1yjx.github.io/"},"mainEntityOfPage":"https://hello1yjx.github.io/articles/codex-cli-0162-git-worktree-gpt61-sol-guide.html","inLanguage":"zh-CN"}</script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6621999105936318" crossorigin="anonymous"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;800&family=Noto+Serif+SC:wght@700;900&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/styles.css?v=20261013-daily-update">
+</head>
+<body>
+  <header class="site-header">
+    <div class="page-shell site-header__inner">
+      <a class="brand" href="../index.html" aria-label="返回首页">
+        <span class="brand-mark" aria-hidden="true"><img src="../assets/images/brand-book-line.png" alt="" width="36" height="33"></span>
+        <span class="brand-copy"><strong>学习资源库</strong><span>分享知识 · 提升自己 · 成就未来</span></span>
+      </a>
+      <button class="menu-button" data-menu-button aria-expanded="false" aria-label="切换导航菜单">☰</button>
+      <nav class="site-nav" data-mobile-nav>
+        <a href="../index.html">首页</a>
+        <a class="is-active" href="../posts.html" aria-current="page">教程</a>
+        <a href="../resources.html">资源下载</a>
+        <a href="../resources.html#official-resources">工具导航</a>
+        <a href="../hotspots.html">技术资讯</a>
+        <a href="../projects.html">开源项目</a>
+        <a href="../about.html">关于我们</a>
+      </nav>
+      <form class="header-search" action="../posts.html" method="get">
+        <input type="search" name="q" placeholder="搜索教程、资源、工具或关键词...">
+        <button type="submit" aria-label="搜索">/</button>
+      </form>
+      <a class="header-github" href="https://github.com/hello1yjx/hello1yjx.github.io" target="_blank" rel="noreferrer" aria-label="GitHub">
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="" width="24" height="24">
+      </a>
+      <a class="header-cta" href="../posts.html">开始学习</a>
+    </div>
+  </header>
+
+  <main class="page-shell section article-page">
+    <header class="detail-hero">
+      <span class="pill">AI 终端</span>
+      <h1>Codex CLI 0.162.0 升级指南：managed Git worktree 与 GPT-6.1 Sol 默认模型</h1>
+      <div class="detail-hero__meta">
+        <time datetime="2026-10-09">2026年10月9日</time>
+        <span>10 分钟</span>
+        <span>作者：Avery Lin</span>
+      </div>
+      <p>10 月 9 日 Codex CLI 0.162.0 发布，带来两个关键变化：为受信任本地项目引入 managed Git worktree 工具，让 Agent 在隔离工作树中操作不污染主分支；GPT-6.1 Sol 成为 bundled catalog 和 Bedrock 的默认模型，接近 Astra 智能但约五分之一价格、缓存输入 95% off。这篇教程讲清楚升级步骤、worktree 怎么用、默认模型切换的影响、CRLF 修复对 Windows 的意义，以及升级后如何验证。适合在用 Codex CLI、想升级到最新版的开发者。</p>
+    </header>
+    <div class="article-layout">
+      <article class="article-body">
+        <div class="inline-promo">
+          <p class="label">来源与增量价值</p>
+          <h3>本文基于官方资料整理，并补充适用场景、限制条件和实践检查步骤。</h3>
+          <p>首要来源：<a href="https://releasebot.io/updates/openai/codex" target="_blank" rel="noreferrer">Codex CLI 0.162.0 release notes</a>。事实以原始来源为准，本站建议需结合自己的环境验证。</p>
+        </div>
+
+    <p>Codex CLI 迭代很快，0.162.0 是近期比较重要的一个版本：managed Git worktree 让 Agent 可以在隔离的工作树里干活，不用担心实验性改动污染主分支；GPT-6.1 Sol 成为默认模型，意味着大多数任务自动用上更便宜的模型，而不必手动切换。</p><p>这篇教程带你完成升级：先看版本带来了什么，再一步步升级、配置 worktree、确认默认模型、验证 CRLF 修复，最后处理升级中可能遇到的问题。读完你能安全地用上新版本，而不被默认模型变化打个措手不及。</p>
+    <h2>这篇内容适合谁</h2>
+    <ul><li>正在使用 Codex CLI、想升级到 0.162.0 的开发者</li><li>关心 Agent 操作隔离、不想污染主分支的用户</li><li>想了解 GPT-6.1 Sol 作为默认模型影响的团队</li></ul>
+    <h2>实践与验证步骤</h2>
+    <ul><li>理解 0.162.0 的关键变化：worktree、默认模型、CRLF</li><li>升级 Codex CLI 到最新版本</li><li>确认项目受信任状态，启用 managed worktree</li><li>理解 GPT-6.1 Sol 默认模型的影响与回退方法</li><li>验证 Windows CRLF 行尾保留修复</li><li>测试 /copy 和 Command Center 固定任务</li><li>处理升级后常见问题</li><li>形成升级验证清单</li></ul>
+    <h2>官方资料入口</h2>
+
+    <ul>
+
+            <li>
+              <a href="https://releasebot.io/updates/openai/codex" target="_blank" rel="noreferrer">Codex CLI 0.162.0 release notes</a>
+              <span>：官方版本更新记录</span>
+            </li>
+
+            <li>
+              <a href="https://openai.com/" target="_blank" rel="noreferrer">GPT-6.1 Sol announcement</a>
+              <span>：模型发布与定价，以官方为准</span>
+            </li>
+
+    </ul>
+
+    <h2>重点判断与使用建议</h2>
+    <ul><li>0.162.0 为受信任本地项目引入 managed Git worktree 工具</li><li>任务可在 Command Center 固定，/copy 和 Ctrl+Insert 复制 transcript 块</li><li>apply_patch 保留 CRLF 行尾，修复 Windows 换行问题</li><li>GPT-6.1 Sol 成为 bundled catalog 和 Amazon Bedrock Mantle/Runtime catalog 默认模型</li></ul>
+
+        <h2>一、0.162.0 带来了什么</h2>
+
+        <ul><li>managed Git worktree：Agent 在隔离工作树中操作，不污染主分支，适合并行实验</li><li>GPT-6.1 Sol 默认模型：接近 Astra 智能、约五分之一价格、缓存输入 95% off</li><li>Command Center 固定任务：重要任务可 pin，方便快速切换</li><li>/copy 和 Ctrl+Insert：可复制 transcript 块，方便分享和记录</li><li>CRLF 保留：apply_patch 不再把 Windows 换行转成 LF，避免文件全量 diff</li></ul>
+
+
+
+        <h2>二、升级步骤</h2>
+
+        <ul><li>检查当前版本：codex --version，确认是否低于 0.162.0</li><li>升级：npm install -g @openai/codex@latest（或对应包管理器）</li><li>验证版本：codex --version 确认已升级</li><li>重启终端会话：新版本功能对新会话生效</li><li>检查配置兼容性：如果有自定义 config.toml，确认字段仍兼容</li></ul>
+
+
+
+        <h2>三、managed Git worktree 配置</h2>
+
+        <ul><li>确认项目受信任：worktree 工具仅对受信任的本地项目启用</li><li>理解隔离机制：Agent 在独立 worktree 中修改文件，主分支保持干净</li><li>查看 worktree：git worktree list 确认 Agent 创建的工作树</li><li>合并或丢弃：实验完成后，手动决定是否合并 worktree 中的改动</li><li>清理：不再需要的 worktree 用 git worktree remove 清理，避免堆积</li></ul>
+
+
+
+        <h2>四、默认模型切换的影响</h2>
+
+        <ul><li>自动切换：升级后大多数任务自动用 GPT-6.1 Sol，无需手动指定</li><li>成本下降：Sol 比 Astra 便宜约五分之四，缓存输入再降 95%</li><li>质量接近：官方称 Sol 在 agentic coding 任务上接近 Astra 水平</li><li>需要 Astra 时手动指定：复杂攻坚任务可用 --model 切换到 Astra</li><li>验证行为：如果之前依赖特定模型的输出风格，升级后跑几个典型任务对比</li></ul>
+
+
+
+        <h2>五、CRLF 修复对 Windows 的意义</h2>
+
+        <ul><li>问题：旧版本 apply_patch 可能把 CRLF 转成 LF，导致 Windows 文件全量 diff</li><li>修复：0.162.0 保留 CRLF 行尾，patch 只改实际改动的行</li><li>验证：升级后让 Agent 修改一个 CRLF 文件，git diff 应只显示实际改动</li><li>Git 配置配合：确认 core.autocrlf 设置符合团队规范</li><li>已有损坏文件：如果之前被转成 LF，需要手动恢复行尾格式</li></ul>
+
+
+
+        <h2>六、验证清单</h2>
+
+        <ul><li>版本正确：codex --version 显示 0.162.0 或更高</li><li>默认模型：不指定模型时确认使用 GPT-6.1 Sol</li><li>worktree 可用：在受信任项目中 Agent 能创建隔离工作树</li><li>CRLF 保留：Windows 文件修改后 diff 正常</li><li>/copy 可用：能复制 transcript 块</li><li>Command Center：任务可固定和切换</li><li>配置兼容：自定义 config.toml 无报错</li><li>典型任务通过：跑几个常用任务确认行为符合预期</li></ul>
+
+
+
+
+        <div class="inline-promo">
+          <p class="label">更正与更新</p>
+          <h3>发现版本变化、来源失效或事实错误时，请通过联系页反馈。</h3>
+          <p>本站会核对一手来源后更新内容，不使用无来源转载填充文章。</p>
+          <a class="button button--secondary" href="../editorial.html">查看内容标准</a>
+        </div>
+      </article>
+      <aside class="article-sidebar">
+        <div class="sidebar-card">
+          <p class="label">本页标签</p>
+          <div class="tag-row"><span>Codex CLI</span><span>0.162.0</span><span>Git worktree</span><span>GPT-6.1 Sol</span><span>默认模型</span><span>升级指南</span></div>
+        </div>
+        <div class="sidebar-card">
+          <p class="label">继续阅读</p>
+          <a href="github-stacked-pr-workflow-guide.html">Stacked PR 工作流：把大改动拆成可审查的依赖链</a><a href="copilot-code-review-api-ci-integration-guide.html">Copilot 代码审查 API 集成指南：把自动审查接进脚本与 CI</a><a href="model-deprecation-automode-classifier-guide.html">模型弃用迁移与 auto mode 安全分类器：少踩坑、少花钱</a><a href="copilot-computer-use-desktop-apps-guide.html">Copilot computer use 上手：让 Agent 安全操作桌面应用</a>
+        </div>
+        <div class="sidebar-card sidebar-card--accent">
+          <p class="label">作者与方法</p>
+          <h3>了解本站如何选题、核验来源与处理更正。</h3>
+          <a class="button button--dark" href="../about.html">关于作者</a>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="page-shell footer__inner">
+      <div><strong>学习资源库</strong><p>分享知识 · 提升自己 · 成就未来</p></div>
+      <div>
+        <a href="../editorial.html">内容标准</a><br>
+        <a href="../privacy.html">隐私政策</a><br>
+        <a href="../contact.html">联系</a>
+      </div>
+    </div>
+  </footer>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      var button = document.querySelector("[data-menu-button]");
+      var nav = document.querySelector("[data-mobile-nav]");
+      if (!button || !nav) return;
+      button.addEventListener("click", function () {
+        var expanded = button.getAttribute("aria-expanded") === "true";
+        button.setAttribute("aria-expanded", String(!expanded));
+        nav.classList.toggle("site-nav--open", !expanded);
+      });
+    });
+  </script>
+</body>
+</html>

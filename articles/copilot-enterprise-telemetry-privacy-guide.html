@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>企业遥测与隐私合规：Copilot 用户归因不采集 prompt 内容 | 学习资源库</title>
+  <meta name="description" content="10 月 12 日 GitHub 推出 Copilot client telemetry 用户归因和可配置采集：企业管理员可以在不收集用户 prompt、response 或工具内容的情况下，将 Copilot 活动归因到具体用户。telemetry.capture.identity 在 OTel 数据中添加 user.name、process.user.name、host.name，默认关闭；另有五个独立采集类全部默认关闭。这篇教程讲清楚身份归因与内容采集的区别、怎样按需开启、合规注意事项，以及旧 captureContent 设置的迁移。适合需要监控 Copilot 使用又必须保护代码隐私的企业管理员。">
+  <meta name="robots" content="index,follow,max-image-preview:large">
+  <link rel="canonical" href="https://hello1yjx.github.io/articles/copilot-enterprise-telemetry-privacy-guide.html">
+  <link rel="icon" type="image/png" href="../assets/images/brand-book-line.png">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"企业遥测与隐私合规：Copilot 用户归因不采集 prompt 内容","description":"10 月 12 日 GitHub 推出 Copilot client telemetry 用户归因和可配置采集：企业管理员可以在不收集用户 prompt、response 或工具内容的情况下，将 Copilot 活动归因到具体用户。telemetry.capture.identity 在 OTel 数据中添加 user.name、process.user.name、host.name，默认关闭；另有五个独立采集类全部默认关闭。这篇教程讲清楚身份归因与内容采集的区别、怎样按需开启、合规注意事项，以及旧 captureContent 设置的迁移。适合需要监控 Copilot 使用又必须保护代码隐私的企业管理员。","datePublished":"2026-10-12","dateModified":"2026-10-12","author":{"@type":"Person","name":"Avery Lin","url":"https://hello1yjx.github.io/about.html"},"publisher":{"@type":"Organization","name":"学习资源库","url":"https://hello1yjx.github.io/"},"mainEntityOfPage":"https://hello1yjx.github.io/articles/copilot-enterprise-telemetry-privacy-guide.html","inLanguage":"zh-CN"}</script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6621999105936318" crossorigin="anonymous"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;800&family=Noto+Serif+SC:wght@700;900&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/styles.css?v=20261013-daily-update">
+</head>
+<body>
+  <header class="site-header">
+    <div class="page-shell site-header__inner">
+      <a class="brand" href="../index.html" aria-label="返回首页">
+        <span class="brand-mark" aria-hidden="true"><img src="../assets/images/brand-book-line.png" alt="" width="36" height="33"></span>
+        <span class="brand-copy"><strong>学习资源库</strong><span>分享知识 · 提升自己 · 成就未来</span></span>
+      </a>
+      <button class="menu-button" data-menu-button aria-expanded="false" aria-label="切换导航菜单">☰</button>
+      <nav class="site-nav" data-mobile-nav>
+        <a href="../index.html">首页</a>
+        <a class="is-active" href="../posts.html" aria-current="page">教程</a>
+        <a href="../resources.html">资源下载</a>
+        <a href="../resources.html#official-resources">工具导航</a>
+        <a href="../hotspots.html">技术资讯</a>
+        <a href="../projects.html">开源项目</a>
+        <a href="../about.html">关于我们</a>
+      </nav>
+      <form class="header-search" action="../posts.html" method="get">
+        <input type="search" name="q" placeholder="搜索教程、资源、工具或关键词...">
+        <button type="submit" aria-label="搜索">/</button>
+      </form>
+      <a class="header-github" href="https://github.com/hello1yjx/hello1yjx.github.io" target="_blank" rel="noreferrer" aria-label="GitHub">
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="" width="24" height="24">
+      </a>
+      <a class="header-cta" href="../posts.html">开始学习</a>
+    </div>
+  </header>
+
+  <main class="page-shell section article-page">
+    <header class="detail-hero">
+      <span class="pill">AI 编程</span>
+      <h1>企业遥测与隐私合规：Copilot 用户归因不采集 prompt 内容</h1>
+      <div class="detail-hero__meta">
+        <time datetime="2026-10-12">2026年10月12日</time>
+        <span>9 分钟</span>
+        <span>作者：Avery Lin</span>
+      </div>
+      <p>10 月 12 日 GitHub 推出 Copilot client telemetry 用户归因和可配置采集：企业管理员可以在不收集用户 prompt、response 或工具内容的情况下，将 Copilot 活动归因到具体用户。telemetry.capture.identity 在 OTel 数据中添加 user.name、process.user.name、host.name，默认关闭；另有五个独立采集类全部默认关闭。这篇教程讲清楚身份归因与内容采集的区别、怎样按需开启、合规注意事项，以及旧 captureContent 设置的迁移。适合需要监控 Copilot 使用又必须保护代码隐私的企业管理员。</p>
+    </header>
+    <div class="article-layout">
+      <article class="article-body">
+        <div class="inline-promo">
+          <p class="label">来源与增量价值</p>
+          <h3>本文基于官方资料整理，并补充适用场景、限制条件和实践检查步骤。</h3>
+          <p>首要来源：<a href="https://github.blog/changelog/2026-10-12-client-telemetry-user-attribution-and-configurable-capture/" target="_blank" rel="noreferrer">Client telemetry user attribution and configurable capture</a>。事实以原始来源为准，本站建议需结合自己的环境验证。</p>
+        </div>
+
+    <p>企业想用 Copilot，又有两个看似矛盾的需求：一是要知道谁在用、用了多少，二是不能把代码和对话内容送出去审计。10 月 12 日的更新正好把这两件事分开——身份归因只记“谁在什么机器上用了”，不碰 prompt 和 response；内容采集则是独立开关，全部默认关闭。</p><p>这篇教程讲清楚这套机制：先理解身份归因和内容采集是两回事，再看每个开关管什么、怎样按需开启、数据发到哪里、合规上要注意什么，最后给出迁移旧设置的方法。读完你能在满足审计需求的同时，把代码隐私风险降到最低。</p>
+    <h2>这篇内容适合谁</h2>
+    <ul><li>需要监控 Copilot 使用情况的企业管理员</li><li>负责 AI 工具隐私合规和审计的安全团队</li><li>想了解 Copilot 遥测采集范围的开发者</li></ul>
+    <h2>实践与验证步骤</h2>
+    <ul><li>理解身份归因与内容采集的分离设计</li><li>了解 telemetry.capture.identity 的三个属性</li><li>掌握五个内容采集类的范围和风险</li><li>在 managed settings 中按需开启</li><li>配置 OTel 数据接收端点</li><li>确认数据不包含敏感代码内容</li><li>迁移旧的 captureContent 设置</li><li>形成合规配置检查清单</li></ul>
+    <h2>官方资料入口</h2>
+
+    <ul>
+
+            <li>
+              <a href="https://github.blog/changelog/2026-10-12-client-telemetry-user-attribution-and-configurable-capture/" target="_blank" rel="noreferrer">Client telemetry user attribution and configurable capture</a>
+              <span>：官方公告</span>
+            </li>
+
+            <li>
+              <a href="https://docs.github.com/" target="_blank" rel="noreferrer">Monitor agent usage with OpenTelemetry</a>
+              <span>：OTel 监控文档，以官方为准</span>
+            </li>
+
+    </ul>
+
+    <h2>重点判断与使用建议</h2>
+    <ul><li>身份归因默认关闭，添加 user.name、process.user.name、host.name 到 OTel 数据</li><li>五个内容采集类（prompts/responses/toolArguments/toolOutput/policyDetail）全部默认关闭</li><li>托管设置优先于本地设置、SDK 配置和环境变量</li><li>旧 captureContent 仍可用但不会启用身份归因</li></ul>
+
+        <h2>一、身份归因与内容采集是两回事</h2>
+
+        <ul><li>身份归因：只记录“谁（GitHub 登录名）在什么系统账户、什么机器上用了 Copilot”，不包含任何代码或对话内容</li><li>内容采集：可选地收集 prompt、response、工具参数和输出等，可能包含源代码和敏感信息</li><li>分离设计：两个维度独立开关，企业可以只开身份归因、完全不碰内容</li><li>默认全关：身份归因和所有内容采集类默认都是关闭状态</li><li>托管优先：企业 managed settings 的值优先于本地设置，防止用户私自开启</li></ul>
+
+
+
+        <h2>二、身份归因的三个属性</h2>
+
+        <ul><li>user.name：已认证的 Copilot 账户名，即 GitHub login</li><li>process.user.name：本地操作系统账户名</li><li>host.name：本地机器名</li><li>用途：将 OTel 中的活动归因到具体用户和设备，满足审计和用量统计</li><li>注意：即使开启身份归因，也不会收集 prompt、response 或工具内容</li></ul>
+
+
+
+        <h2>三、五个内容采集类</h2>
+
+        <ul><li>prompts：用户、系统、开发者 prompt 及支持的输入上下文——可能包含源代码</li><li>responses：助手回复和支持的推理内容——可能包含生成的代码</li><li>toolArguments：原始工具参数、命令、工具 schema、MCP/插件/钩子标识</li><li>toolOutput：工具结果和执行错误详情——可能包含文件内容和命令输出</li><li>policyDetail：原始策略细节，如沙箱文件系统路径</li><li>全部默认关闭，只在有明确审计需求时开启对应类</li></ul>
+
+
+
+        <h2>四、配置步骤</h2>
+
+        <ul><li>进入企业 managed settings：找到 telemetry 配置段</li><li>开启身份归因：设置 telemetry.capture.identity，满足用量追踪需求</li><li>按需开启内容采集：仅开启审计必需的类，避免过度采集</li><li>配置 OTel 端点：将数据发送到企业批准的采集端点</li><li>验证：检查 OTel 数据中是否包含预期属性、是否意外包含内容</li><li>通知用户：告知团队遥测采集范围，符合透明性要求</li></ul>
+
+
+
+        <h2>五、合规要点</h2>
+
+        <ul><li>最小采集原则：只开审计必需的采集类，能不采集就不采集</li><li>数据端点：确保 OTel 数据发送到企业控制的端点，不发到第三方</li><li>源代码风险：prompts、responses、toolOutput 可能包含源代码，开启前评估数据保护措施</li><li>保留期限：设置合理的数据保留策略，避免长期存储敏感内容</li><li>用户告知：根据所在地法规要求，告知用户遥测采集范围和用途</li><li>定期审查：定期检查采集配置，关闭不再需要的类</li></ul>
+
+
+
+        <h2>六、旧设置迁移</h2>
+
+        <ul><li>captureContent 是旧的简写开关，等同于同时开启五个内容采集类</li><li>captureContent 不会启用身份归因，需要单独设置 telemetry.capture.identity</li><li>迁移建议：用细粒度的五个类替代 captureContent，只开需要的</li><li>如果之前开了 captureContent，评估是否真的需要全部五类，可能可以缩减</li><li>迁移后验证：确认 OTel 数据符合预期，没有意外丢失或增加字段</li></ul>
+
+
+
+        <h2>七、检查清单</h2>
+
+        <ul><li>身份归因按需开启：user.name/process.user.name/host.name</li><li>内容采集最小化：仅开启审计必需的类</li><li>托管设置已生效：优先于本地配置</li><li>OTel 端点合规：数据发送到企业控制的端点</li><li>无敏感内容泄露：验证 OTel 数据不包含意外的源代码</li><li>用户已告知：采集范围透明</li><li>旧 captureContent 已迁移：用细粒度类替代</li><li>定期审查机制：采集配置定期复核</li></ul>
+
+
+
+
+        <div class="inline-promo">
+          <p class="label">更正与更新</p>
+          <h3>发现版本变化、来源失效或事实错误时，请通过联系页反馈。</h3>
+          <p>本站会核对一手来源后更新内容，不使用无来源转载填充文章。</p>
+          <a class="button button--secondary" href="../editorial.html">查看内容标准</a>
+        </div>
+      </article>
+      <aside class="article-sidebar">
+        <div class="sidebar-card">
+          <p class="label">本页标签</p>
+          <div class="tag-row"><span>GitHub Copilot</span><span>企业遥测</span><span>OTel</span><span>隐私合规</span><span>用户归因</span><span>managed settings</span></div>
+        </div>
+        <div class="sidebar-card">
+          <p class="label">继续阅读</p>
+          <a href="github-stacked-pr-workflow-guide.html">Stacked PR 工作流：把大改动拆成可审查的依赖链</a><a href="copilot-code-review-api-ci-integration-guide.html">Copilot 代码审查 API 集成指南：把自动审查接进脚本与 CI</a><a href="model-deprecation-automode-classifier-guide.html">模型弃用迁移与 auto mode 安全分类器：少踩坑、少花钱</a><a href="copilot-computer-use-desktop-apps-guide.html">Copilot computer use 上手：让 Agent 安全操作桌面应用</a>
+        </div>
+        <div class="sidebar-card sidebar-card--accent">
+          <p class="label">作者与方法</p>
+          <h3>了解本站如何选题、核验来源与处理更正。</h3>
+          <a class="button button--dark" href="../about.html">关于作者</a>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="page-shell footer__inner">
+      <div><strong>学习资源库</strong><p>分享知识 · 提升自己 · 成就未来</p></div>
+      <div>
+        <a href="../editorial.html">内容标准</a><br>
+        <a href="../privacy.html">隐私政策</a><br>
+        <a href="../contact.html">联系</a>
+      </div>
+    </div>
+  </footer>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      var button = document.querySelector("[data-menu-button]");
+      var nav = document.querySelector("[data-mobile-nav]");
+      if (!button || !nav) return;
+      button.addEventListener("click", function () {
+        var expanded = button.getAttribute("aria-expanded") === "true";
+        button.setAttribute("aria-expanded", String(!expanded));
+        nav.classList.toggle("site-nav--open", !expanded);
+      });
+    });
+  </script>
+</body>
+</html>

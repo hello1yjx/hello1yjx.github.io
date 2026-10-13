@@ -9,7 +9,7 @@ const siteData = {
     bio: "把官方入口、学习路线、示例代码和可扩展资料放进同一张地图里，让第一次来的人也能马上知道从哪里开始。",
     heroStats: [
       { value: "9", label: "原创下载包" },
-      { value: "78", label: "新手专题" },
+      { value: "81", label: "新手专题" },
       { value: "持续", label: "更新与核验" }
     ],
     valueCards: [
@@ -28,6 +28,355 @@ const siteData = {
     ]
   },
   posts: [
+    {
+      id: "codex-cli-0162-git-worktree-gpt61-sol-guide",
+      title: "Codex CLI 0.162.0 升级指南：managed Git worktree 与 GPT-6.1 Sol 默认模型",
+      date: "2026-10-09",
+      category: "AI 终端",
+      readTime: "10 分钟",
+      excerpt: "10 月 9 日 Codex CLI 0.162.0 发布，带来两个关键变化：为受信任本地项目引入 managed Git worktree 工具，让 Agent 在隔离工作树中操作不污染主分支；GPT-6.1 Sol 成为 bundled catalog 和 Bedrock 的默认模型，接近 Astra 智能但约五分之一价格、缓存输入 95% off。这篇教程讲清楚升级步骤、worktree 怎么用、默认模型切换的影响、CRLF 修复对 Windows 的意义，以及升级后如何验证。适合在用 Codex CLI、想升级到最新版的开发者。",
+      tags: ["Codex CLI", "0.162.0", "Git worktree", "GPT-6.1 Sol", "默认模型", "升级指南"],
+      featured: false,
+      intro: [
+        "Codex CLI 迭代很快，0.162.0 是近期比较重要的一个版本：managed Git worktree 让 Agent 可以在隔离的工作树里干活，不用担心实验性改动污染主分支；GPT-6.1 Sol 成为默认模型，意味着大多数任务自动用上更便宜的模型，而不必手动切换。",
+        "这篇教程带你完成升级：先看版本带来了什么，再一步步升级、配置 worktree、确认默认模型、验证 CRLF 修复，最后处理升级中可能遇到的问题。读完你能安全地用上新版本，而不被默认模型变化打个措手不及。"
+      ],
+      audience: [
+        "正在使用 Codex CLI、想升级到 0.162.0 的开发者",
+        "关心 Agent 操作隔离、不想污染主分支的用户",
+        "想了解 GPT-6.1 Sol 作为默认模型影响的团队"
+      ],
+      format: [
+        "全文按“版本变化 → 升级步骤 → worktree 配置 → 默认模型 → CRLF 修复 → 验证清单”组织",
+        "给出具体命令和验证方法，不只是罗列 changelog"
+      ],
+      roadmap: [
+        "理解 0.162.0 的关键变化：worktree、默认模型、CRLF",
+        "升级 Codex CLI 到最新版本",
+        "确认项目受信任状态，启用 managed worktree",
+        "理解 GPT-6.1 Sol 默认模型的影响与回退方法",
+        "验证 Windows CRLF 行尾保留修复",
+        "测试 /copy 和 Command Center 固定任务",
+        "处理升级后常见问题",
+        "形成升级验证清单"
+      ],
+      officialLinks: [
+        { label: "Codex CLI 0.162.0 release notes", url: "https://releasebot.io/updates/openai/codex", note: "官方版本更新记录" },
+        { label: "GPT-6.1 Sol announcement", url: "https://openai.com/", note: "模型发布与定价，以官方为准" }
+      ],
+      curatedLinks: [
+        "0.162.0 为受信任本地项目引入 managed Git worktree 工具",
+        "任务可在 Command Center 固定，/copy 和 Ctrl+Insert 复制 transcript 块",
+        "apply_patch 保留 CRLF 行尾，修复 Windows 换行问题",
+        "GPT-6.1 Sol 成为 bundled catalog 和 Amazon Bedrock Mantle/Runtime catalog 默认模型"
+      ],
+      downloadIdeas: [
+        "做一张“Codex CLI 升级验证清单”：版本、worktree、模型、CRLF",
+        "整理一份 GPT-6.1 Sol vs Astra 选型与成本对比表"
+      ],
+      extraSections: [
+        {
+          title: "一、0.162.0 带来了什么",
+          items: [
+            "managed Git worktree：Agent 在隔离工作树中操作，不污染主分支，适合并行实验",
+            "GPT-6.1 Sol 默认模型：接近 Astra 智能、约五分之一价格、缓存输入 95% off",
+            "Command Center 固定任务：重要任务可 pin，方便快速切换",
+            "/copy 和 Ctrl+Insert：可复制 transcript 块，方便分享和记录",
+            "CRLF 保留：apply_patch 不再把 Windows 换行转成 LF，避免文件全量 diff"
+          ]
+        },
+        {
+          title: "二、升级步骤",
+          items: [
+            "检查当前版本：codex --version，确认是否低于 0.162.0",
+            "升级：npm install -g @openai/codex@latest（或对应包管理器）",
+            "验证版本：codex --version 确认已升级",
+            "重启终端会话：新版本功能对新会话生效",
+            "检查配置兼容性：如果有自定义 config.toml，确认字段仍兼容"
+          ]
+        },
+        {
+          title: "三、managed Git worktree 配置",
+          items: [
+            "确认项目受信任：worktree 工具仅对受信任的本地项目启用",
+            "理解隔离机制：Agent 在独立 worktree 中修改文件，主分支保持干净",
+            "查看 worktree：git worktree list 确认 Agent 创建的工作树",
+            "合并或丢弃：实验完成后，手动决定是否合并 worktree 中的改动",
+            "清理：不再需要的 worktree 用 git worktree remove 清理，避免堆积"
+          ]
+        },
+        {
+          title: "四、默认模型切换的影响",
+          items: [
+            "自动切换：升级后大多数任务自动用 GPT-6.1 Sol，无需手动指定",
+            "成本下降：Sol 比 Astra 便宜约五分之四，缓存输入再降 95%",
+            "质量接近：官方称 Sol 在 agentic coding 任务上接近 Astra 水平",
+            "需要 Astra 时手动指定：复杂攻坚任务可用 --model 切换到 Astra",
+            "验证行为：如果之前依赖特定模型的输出风格，升级后跑几个典型任务对比"
+          ]
+        },
+        {
+          title: "五、CRLF 修复对 Windows 的意义",
+          items: [
+            "问题：旧版本 apply_patch 可能把 CRLF 转成 LF，导致 Windows 文件全量 diff",
+            "修复：0.162.0 保留 CRLF 行尾，patch 只改实际改动的行",
+            "验证：升级后让 Agent 修改一个 CRLF 文件，git diff 应只显示实际改动",
+            "Git 配置配合：确认 core.autocrlf 设置符合团队规范",
+            "已有损坏文件：如果之前被转成 LF，需要手动恢复行尾格式"
+          ]
+        },
+        {
+          title: "六、验证清单",
+          items: [
+            "版本正确：codex --version 显示 0.162.0 或更高",
+            "默认模型：不指定模型时确认使用 GPT-6.1 Sol",
+            "worktree 可用：在受信任项目中 Agent 能创建隔离工作树",
+            "CRLF 保留：Windows 文件修改后 diff 正常",
+            "/copy 可用：能复制 transcript 块",
+            "Command Center：任务可固定和切换",
+            "配置兼容：自定义 config.toml 无报错",
+            "典型任务通过：跑几个常用任务确认行为符合预期"
+          ]
+        }
+      ]
+    },
+    {
+      id: "copilot-code-review-org-billing-guide",
+      title: "Copilot code review 组织计费配置指南：统一预算推广代码审查",
+      date: "2026-10-08",
+      category: "AI 编程",
+      readTime: "8 分钟",
+      excerpt: "10 月 8 日 GitHub 为 Copilot code review 新增组织计费选项：组织所有者可以把有 Copilot 许可证成员的 code review 计费到组织成本中心，而不消耗成员个人配额。这篇教程讲清楚为什么需要组织计费、谁可以配置、具体开启步骤、成本管理注意事项，以及对个人用户的影响。适合想在团队推广 code review、又不想挤占成员日常配额的组织管理员。",
+      tags: ["GitHub Copilot", "code review", "组织计费", "成本中心", "企业管理"],
+      featured: false,
+      intro: [
+        "Copilot code review 是提升代码质量的好工具，但过去它消耗成员个人配额——团队想推广时，成员会担心“审查用多了自己不够用”。10 月 8 日的更新解决了这个问题：组织可以统一买单，成员审查不扣个人额度。",
+        "这篇教程带你完成配置：先理解组织计费的适用场景，再一步步开启、设置成本中心、监控用量，最后处理常见问题。读完你能在团队里顺畅推广 code review，而不必跟每个成员解释配额问题。"
+      ],
+      audience: [
+        "想在团队推广 Copilot code review 的组织管理员",
+        "负责 Copilot 成本预算和用量监控的管理者",
+        "关心 code review 是否消耗个人配额的开发者"
+      ],
+      format: [
+        "全文按“为什么需要 → 适用条件 → 配置步骤 → 成本管理 → 个人影响 → 检查清单”组织",
+        "给出具体操作路径和注意事项"
+      ],
+      roadmap: [
+        "理解组织计费解决的问题：个人配额 vs 组织成本中心",
+        "确认适用条件：组织所有者、成员有 Copilot 许可证",
+        "在组织设置中开启 code review 组织计费",
+        "配置成本中心和预算提醒",
+        "监控用量：查看组织级 code review 消耗",
+        "通知团队：成员不再消耗个人配额",
+        "处理常见问题：计费异常、权限不足",
+        "形成推广检查清单"
+      ],
+      officialLinks: [
+        { label: "Copilot code review: New organization billing options and controls", url: "https://github.blog/changelog/2026-10-08-copilot-code-review-new-organization-billing-options-and-controls/", note: "官方公告" },
+        { label: "GitHub Copilot billing documentation", url: "https://docs.github.com/", note: "计费文档，以官方为准" }
+      ],
+      curatedLinks: [
+        "组织所有者可将成员 code review 计费到组织成本中心",
+        "开启后不消耗成员个人 Copilot 配额",
+        "需要组织所有者权限配置",
+        "个人用户不受影响，仍消耗自己的配额"
+      ],
+      downloadIdeas: [
+        "做一张“组织 code review 推广检查清单”",
+        "整理一份 code review 用量与成本监控模板"
+      ],
+      extraSections: [
+        {
+          title: "一、为什么需要组织计费",
+          items: [
+            "个人配额顾虑：成员担心 code review 用多了影响日常 Chat 和补全",
+            "推广阻力：团队推动 code review 时，成员因配额问题不愿用",
+            "统一预算：组织统一买单后，成本可预测、可管理",
+            "公平性：code review 是团队协作行为，不应由个人承担成本",
+            "数据可见：组织级用量统计帮助评估 code review 的投入产出"
+          ]
+        },
+        {
+          title: "二、适用条件",
+          items: [
+            "权限：需要组织所有者（organization owner）才能配置",
+            "成员许可证：成员需要有 Copilot 许可证（Business/Enterprise）",
+            "code review 已启用：组织已开启 Copilot code review 功能",
+            "计费方式：组织需有有效的付款方式或企业协议",
+            "不适用：个人账号、Free 组织、成员无 Copilot 许可证"
+          ]
+        },
+        {
+          title: "三、配置步骤",
+          items: [
+            "进入组织设置：Organization settings → Copilot → code review",
+            "找到计费选项：选择“Bill code reviews to organization”",
+            "确认成本中心：选择或创建对应的成本中心代码",
+            "保存设置：确认后立即生效，新的 code review 计入组织",
+            "验证：让成员发起一次 code review，确认个人配额未减少"
+          ]
+        },
+        {
+          title: "四、成本管理",
+          items: [
+            "设置预算提醒：在组织计费中配置月度预算和阈值告警",
+            "定期查看用量：Copilot usage 页面查看 code review 消耗趋势",
+            "按团队拆分：如果有多个团队，考虑用成本中心区分",
+            "异常监控：突然激增可能是误操作或滥用，及时排查",
+            "ROI 评估：对比 code review 使用量与代码质量指标（缺陷率、返工率）"
+          ]
+        },
+        {
+          title: "五、对个人用户的影响",
+          items: [
+            "组织开启后：成员发起 code review 不扣个人配额",
+            "个人账号：仍消耗自己的配额，不受组织设置影响",
+            "跨组织：如果成员属于多个组织，按当前仓库所在组织的设置计费",
+            "配额显示：成员可在个人设置中查看剩余配额，code review 不再减少",
+            "沟通：管理员应通知团队这一变化，消除成员顾虑"
+          ]
+        },
+        {
+          title: "六、检查清单",
+          items: [
+            "权限确认：操作者是组织所有者",
+            "成员许可证：所有目标成员有 Copilot 许可证",
+            "组织计费已开启：code review 计入组织成本中心",
+            "成本中心配置：对应代码正确",
+            "预算提醒已设：月度阈值和告警方式",
+            "用量监控可查：组织级 code review 数据可见",
+            "团队已通知：成员知道不扣个人配额",
+            "验证通过：实际 code review 后个人配额未变"
+          ]
+        }
+      ]
+    },
+    {
+      id: "copilot-enterprise-telemetry-privacy-guide",
+      title: "企业遥测与隐私合规：Copilot 用户归因不采集 prompt 内容",
+      date: "2026-10-12",
+      category: "AI 编程",
+      readTime: "9 分钟",
+      excerpt: "10 月 12 日 GitHub 推出 Copilot client telemetry 用户归因和可配置采集：企业管理员可以在不收集用户 prompt、response 或工具内容的情况下，将 Copilot 活动归因到具体用户。telemetry.capture.identity 在 OTel 数据中添加 user.name、process.user.name、host.name，默认关闭；另有五个独立采集类全部默认关闭。这篇教程讲清楚身份归因与内容采集的区别、怎样按需开启、合规注意事项，以及旧 captureContent 设置的迁移。适合需要监控 Copilot 使用又必须保护代码隐私的企业管理员。",
+      tags: ["GitHub Copilot", "企业遥测", "OTel", "隐私合规", "用户归因", "managed settings"],
+      featured: false,
+      intro: [
+        "企业想用 Copilot，又有两个看似矛盾的需求：一是要知道谁在用、用了多少，二是不能把代码和对话内容送出去审计。10 月 12 日的更新正好把这两件事分开——身份归因只记“谁在什么机器上用了”，不碰 prompt 和 response；内容采集则是独立开关，全部默认关闭。",
+        "这篇教程讲清楚这套机制：先理解身份归因和内容采集是两回事，再看每个开关管什么、怎样按需开启、数据发到哪里、合规上要注意什么，最后给出迁移旧设置的方法。读完你能在满足审计需求的同时，把代码隐私风险降到最低。"
+      ],
+      audience: [
+        "需要监控 Copilot 使用情况的企业管理员",
+        "负责 AI 工具隐私合规和审计的安全团队",
+        "想了解 Copilot 遥测采集范围的开发者"
+      ],
+      format: [
+        "全文按“身份归因 vs 内容采集 → 各开关说明 → 配置步骤 → 合规要点 → 旧设置迁移 → 检查清单”组织",
+        "强调默认关闭和最小采集原则"
+      ],
+      roadmap: [
+        "理解身份归因与内容采集的分离设计",
+        "了解 telemetry.capture.identity 的三个属性",
+        "掌握五个内容采集类的范围和风险",
+        "在 managed settings 中按需开启",
+        "配置 OTel 数据接收端点",
+        "确认数据不包含敏感代码内容",
+        "迁移旧的 captureContent 设置",
+        "形成合规配置检查清单"
+      ],
+      officialLinks: [
+        { label: "Client telemetry user attribution and configurable capture", url: "https://github.blog/changelog/2026-10-12-client-telemetry-user-attribution-and-configurable-capture/", note: "官方公告" },
+        { label: "Monitor agent usage with OpenTelemetry", url: "https://docs.github.com/", note: "OTel 监控文档，以官方为准" }
+      ],
+      curatedLinks: [
+        "身份归因默认关闭，添加 user.name、process.user.name、host.name 到 OTel 数据",
+        "五个内容采集类（prompts/responses/toolArguments/toolOutput/policyDetail）全部默认关闭",
+        "托管设置优先于本地设置、SDK 配置和环境变量",
+        "旧 captureContent 仍可用但不会启用身份归因"
+      ],
+      downloadIdeas: [
+        "做一张“Copilot 遥测采集类与风险对照表”",
+        "整理一份企业合规配置模板：只开身份归因、关闭内容采集"
+      ],
+      extraSections: [
+        {
+          title: "一、身份归因与内容采集是两回事",
+          items: [
+            "身份归因：只记录“谁（GitHub 登录名）在什么系统账户、什么机器上用了 Copilot”，不包含任何代码或对话内容",
+            "内容采集：可选地收集 prompt、response、工具参数和输出等，可能包含源代码和敏感信息",
+            "分离设计：两个维度独立开关，企业可以只开身份归因、完全不碰内容",
+            "默认全关：身份归因和所有内容采集类默认都是关闭状态",
+            "托管优先：企业 managed settings 的值优先于本地设置，防止用户私自开启"
+          ]
+        },
+        {
+          title: "二、身份归因的三个属性",
+          items: [
+            "user.name：已认证的 Copilot 账户名，即 GitHub login",
+            "process.user.name：本地操作系统账户名",
+            "host.name：本地机器名",
+            "用途：将 OTel 中的活动归因到具体用户和设备，满足审计和用量统计",
+            "注意：即使开启身份归因，也不会收集 prompt、response 或工具内容"
+          ]
+        },
+        {
+          title: "三、五个内容采集类",
+          items: [
+            "prompts：用户、系统、开发者 prompt 及支持的输入上下文——可能包含源代码",
+            "responses：助手回复和支持的推理内容——可能包含生成的代码",
+            "toolArguments：原始工具参数、命令、工具 schema、MCP/插件/钩子标识",
+            "toolOutput：工具结果和执行错误详情——可能包含文件内容和命令输出",
+            "policyDetail：原始策略细节，如沙箱文件系统路径",
+            "全部默认关闭，只在有明确审计需求时开启对应类"
+          ]
+        },
+        {
+          title: "四、配置步骤",
+          items: [
+            "进入企业 managed settings：找到 telemetry 配置段",
+            "开启身份归因：设置 telemetry.capture.identity，满足用量追踪需求",
+            "按需开启内容采集：仅开启审计必需的类，避免过度采集",
+            "配置 OTel 端点：将数据发送到企业批准的采集端点",
+            "验证：检查 OTel 数据中是否包含预期属性、是否意外包含内容",
+            "通知用户：告知团队遥测采集范围，符合透明性要求"
+          ]
+        },
+        {
+          title: "五、合规要点",
+          items: [
+            "最小采集原则：只开审计必需的采集类，能不采集就不采集",
+            "数据端点：确保 OTel 数据发送到企业控制的端点，不发到第三方",
+            "源代码风险：prompts、responses、toolOutput 可能包含源代码，开启前评估数据保护措施",
+            "保留期限：设置合理的数据保留策略，避免长期存储敏感内容",
+            "用户告知：根据所在地法规要求，告知用户遥测采集范围和用途",
+            "定期审查：定期检查采集配置，关闭不再需要的类"
+          ]
+        },
+        {
+          title: "六、旧设置迁移",
+          items: [
+            "captureContent 是旧的简写开关，等同于同时开启五个内容采集类",
+            "captureContent 不会启用身份归因，需要单独设置 telemetry.capture.identity",
+            "迁移建议：用细粒度的五个类替代 captureContent，只开需要的",
+            "如果之前开了 captureContent，评估是否真的需要全部五类，可能可以缩减",
+            "迁移后验证：确认 OTel 数据符合预期，没有意外丢失或增加字段"
+          ]
+        },
+        {
+          title: "七、检查清单",
+          items: [
+            "身份归因按需开启：user.name/process.user.name/host.name",
+            "内容采集最小化：仅开启审计必需的类",
+            "托管设置已生效：优先于本地配置",
+            "OTel 端点合规：数据发送到企业控制的端点",
+            "无敏感内容泄露：验证 OTel 数据不包含意外的源代码",
+            "用户已告知：采集范围透明",
+            "旧 captureContent 已迁移：用细粒度类替代",
+            "定期审查机制：采集配置定期复核"
+          ]
+        }
+      ]
+    },
     {
       id: "claude-5-5-family-haiku-sonnet-opus-guide",
       title: "Claude 5.5 家族完整选型：Haiku、Sonnet、Opus 三档按任务分配",
@@ -7471,6 +7820,106 @@ git push origin main`,
     "github-agentic-workflows-public-preview-guide"
   ],
   hotspots: [
+    {
+      date: "2026-10-09",
+      tag: "AI 终端",
+      title: "Codex CLI 0.162.0：managed Git worktree 工具 + GPT-6.1 Sol 成为默认模型",
+      summary: "OpenAI 10 月 9 日发布 Codex CLI 0.162.0：为受信任的本地项目引入 managed Git worktree 工具，任务可在 Command Center 固定；/copy 和 Ctrl+Insert 可复制 transcript 块，apply_patch 保留 CRLF 行尾；GPT-6.1 Sol 成为 bundled catalog 和 Amazon Bedrock Mantle/Runtime catalog 的默认模型。",
+      why: "managed Git worktree 让 Agent 在隔离的工作树中操作，不污染主分支，适合并行实验和安全隔离；GPT-6.1 Sol 作为默认模型意味着大多数任务自动用更便宜的模型（接近 Astra 智能、约五分之一价格、缓存输入 95% off）。新手要注意：worktree 工具需要项目受信任才启用；升级后默认模型变了，如果之前依赖特定模型行为要重新验证；CRLF 保留对 Windows 用户是重要修复。",
+      sourceLabel: "OpenAI Codex Changelog",
+      sourceUrl: "https://releasebot.io/updates/openai/codex",
+      articleIdea: "已扩写：Codex CLI 0.162.0 升级指南：managed Git worktree 与 GPT-6.1 Sol 默认模型"
+    },
+    {
+      date: "2026-10-09",
+      tag: "AI 编程",
+      title: "Codex desktop app Beta 上线：个人 Pro 用户可用，支持本地/SSH 线程与预测补全",
+      summary: "OpenAI 10 月 9 日推出 Codex desktop app Beta，面向 18 岁以上个人 ChatGPT Pro 用户、所有支持区域，在最新 Codex 桌面应用中可用。支持本地和 SSH 线程，可使用 GPT-6 Astra 或 GPT-6.1 Sol；预测补全（predictions）默认开启，可在 General 设置的 Composer 部分关闭。",
+      why: "Codex 从 CLI 扩展到桌面应用，意味着不熟悉终端的用户也能用图形界面管理 coding agent；SSH 线程支持远程开发机，predictions 默认开启提升输入效率。新手要注意：Beta 仅限个人 Pro 用户，Team/Enterprise 暂不可用；predictions 默认开启可能影响隐私敏感场景，可手动关闭；桌面应用与 CLI 的配置和会话可能不共享。",
+      sourceLabel: "OpenAI Release Notes",
+      sourceUrl: "https://releasebot.io/updates/openai",
+      articleIdea: "候选：Codex desktop app 入门：从 CLI 到图形界面的迁移"
+    },
+    {
+      date: "2026-10-08",
+      tag: "AI 编程",
+      title: "Copilot code review 新增组织计费选项：成员审查可计入组织成本中心",
+      summary: "GitHub 10 月 8 日为 Copilot code review 管理员新增计费和许可证控制：组织所有者可以把有 Copilot 许可证成员的 code review 计费到组织成本中心，而不消耗这些成员的 Copilot 配额。",
+      why: "过去 code review 消耗成员个人配额，团队推广时会遇到“额度不够”的阻力；组织计费后，团队可以统一预算推广 code review，不用挤占成员日常使用额度。新手要注意：这需要组织所有者在设置中开启；计费到组织后，成本透明度和预算管理更重要；个人用户不受影响，仍消耗自己的配额。",
+      sourceLabel: "GitHub Changelog",
+      sourceUrl: "https://github.blog/changelog/2026-10-08-copilot-code-review-new-organization-billing-options-and-controls/",
+      articleIdea: "已扩写：Copilot code review 组织计费配置指南"
+    },
+    {
+      date: "2026-10-08",
+      tag: "AI 终端",
+      title: "Copilot CLI 1.0.94：加入 Claude Haiku 5.5 模型选择，MCP 配置与权限判断改进",
+      summary: "GitHub 10 月 8 日发布 Copilot CLI 1.0.94：模型选择和 --model 补全加入 Claude Haiku 5.5；copilot mcp add 在 MCP 配置初始化中断后可干净恢复；MCP 启用/禁用现在可在服务器发现前操作而不启动服务器；辅助权限将可见 shell 代码发送给权限判断器，减少不必要的手动批准；启动时显示策略警告。",
+      why: "Haiku 5.5 加入 CLI 模型选择后，用户可以在终端直接选用最便宜最快的 5.5 家族小模型；MCP 配置中断恢复和服务器发现前操作，提升了 MCP 管理的稳定性；权限判断改进减少了不必要的手动确认，提升自动化流畅度。新手要注意：升级后模型列表变化，之前的默认模型配置可能需要重新确认；策略警告是提醒而非错误，需查看具体策略内容。",
+      sourceLabel: "GitHub Copilot CLI Changelog",
+      sourceUrl: "https://github.com/github/copilot-cli/blob/main/changelog.md",
+      articleIdea: "候选：Copilot CLI 模型切换与 MCP 管理实践"
+    },
+    {
+      date: "2026-10-10",
+      tag: "AI 编程",
+      title: "Copilot for JetBrains 新增控制选项与聊天改进",
+      summary: "GitHub 10 月 10 日发布 Copilot for JetBrains 更新，新增控制选项和聊天体验改进，覆盖企业管理工具和客户端功能。",
+      why: "JetBrains 系 IDE（IntelliJ、PyCharm 等）用户占比不小，这次更新让 JetBrains 用户获得与 VS Code 更接近的 Copilot 控制能力。新手要注意：具体新增项以官方 release notes 为准；企业管理员需确认新控制项是否需要在托管设置中配置；升级后建议测试常用聊天和 agent 功能是否正常。",
+      sourceLabel: "GitHub Changelog",
+      sourceUrl: "https://github.blog/changelog/",
+      articleIdea: "候选：JetBrains IDE 中 Copilot 的配置与使用"
+    },
+    {
+      date: "2026-10-12",
+      tag: "AI 编程",
+      title: "Copilot 企业遥测新增用户归因：不收集 prompt/response 即可追踪活动归属",
+      summary: "GitHub 10 月 12 日推出 client telemetry 用户归因和可配置采集：企业管理员可在 managed settings 中使用 telemetry 设置，在不收集用户 prompt、response 或工具内容的情况下，将 Copilot 活动归因到具体用户。telemetry.capture.identity 在 OTel 数据中添加 user.name、process.user.name、host.name 三个属性，默认关闭。",
+      why: "企业需要追踪谁在用 Copilot、用了多少，但又不想收集敏感的代码和对话内容——这个更新正好解决了这个矛盾：只归因身份，不采集内容。另有五个独立采集类（prompts/responses/toolArguments/toolOutput/policyDetail），全部默认关闭，管理员按需开启。新手要注意：身份采集默认关闭，需要管理员显式开启；开启任何采集类前要确认合规要求和数据接收端点；旧的 captureContent 设置仍可用但不会启用身份采集。",
+      sourceLabel: "GitHub Changelog",
+      sourceUrl: "https://github.blog/changelog/2026-10-12-client-telemetry-user-attribution-and-configurable-capture/",
+      articleIdea: "已扩写：企业遥测与隐私合规：Copilot 用户归因不采集内容"
+    },
+    {
+      date: "2026-10-12",
+      tag: "效率工具",
+      title: "Push attribution for commits 进入 limited public preview",
+      summary: "GitHub 10 月 12 日宣布 push attribution for commits 进入 limited public preview：可以将提交归因到实际推送者，而非仅依赖 commit 中的作者信息。",
+      why: "commit author 可以被伪造（git config 随便设），push attribution 用实际推送者的认证信息归因，提升贡献统计和审计的准确性。新手要注意：目前是 limited preview，不是所有仓库都可用；这不会改变 commit 本身的 author 字段，只是在 GitHub 层面增加推送者归因；对多人共用机器或部署密钥推送的场景，归因结果可能与预期不同。",
+      sourceLabel: "GitHub Changelog",
+      sourceUrl: "https://github.blog/changelog/",
+      articleIdea: "候选：Git 提交归因与审计：author vs pusher"
+    },
+    {
+      date: "2026-10-12",
+      tag: "代码质量",
+      title: "Dependabot 支持匿名组织级 registry：私有依赖更新无需暴露凭证",
+      summary: "GitHub 10 月 12 日推出 anonymous organization-level registries for Dependabot：组织级别的 registry 配置可以匿名访问，Dependabot 更新私有依赖时无需在仓库中暴露凭证。",
+      why: "过去 Dependabot 访问私有 registry 需要在每个仓库配置密钥，管理繁琐且有泄露风险；组织级匿名 registry 一次配置、全组织复用，且不暴露凭证。新手要注意：匿名访问意味着 registry 本身需要支持匿名读取；这适用于内部只读 registry，不适合需要写权限的场景；配置在组织级别，仓库级设置会被覆盖。",
+      sourceLabel: "GitHub Changelog",
+      sourceUrl: "https://github.blog/changelog/",
+      articleIdea: "候选：Dependabot 私有依赖管理：从仓库密钥到组织级 registry"
+    },
+    {
+      date: "2026-10-19",
+      tag: "AI 编程",
+      title: "预警：10 月 19 日将弃用一批 Copilot 模型，需提前迁移",
+      summary: "GitHub 9 月 18 日预告：10 月 19 日将在所有 Copilot 体验（Chat、inline edits、ask and agent modes、code completions）中弃用一批模型，具体模型和替代方案见官方 deprecation 列表。",
+      why: "模型弃用是持续进行的，如果硬编码了模型名称或依赖特定模型行为，弃用后会自动切换或报错。提前检查可以避免突然的行为变化。新手要注意：在 10 月 19 日前检查 Copilot 配置中的模型选择；如果用了即将弃用的模型，切换到官方建议的替代模型；API 调用中硬编码模型名的也要同步更新。",
+      sourceLabel: "GitHub Changelog",
+      sourceUrl: "https://github.blog/changelog/2026-09-18-upcoming-deprecation-of-selected-github-copilot-models-in-mid-october/",
+      articleIdea: "候选：Copilot 模型弃用迁移检查清单"
+    },
+    {
+      date: "2026-10-12",
+      tag: "AI 编程",
+      title: "GPT-6.1 Sol 新增 Ultrafast 模式：Pro 500 美元计划可加速 token 生成",
+      summary: "OpenAI 为 GPT-6.1 Sol 在 Codex 和 ChatGPT Work 中引入 Ultrafast 模式，加速该模型的 token 生成速度。Ultrafast 适用于 Pro 500 美元计划及符合条件的 Enterprise 和 Edu 计划，企业访问由管理员控制。",
+      why: "对长时间运行的 agentic 任务，生成速度直接影响等待时间；Ultrafast 模式让高付费用户获得更快的响应。新手要注意：仅限 Pro 500 美元计划（不是普通 Pro 20 美元），Enterprise/Edu 需管理员开通；加速可能影响输出质量或稳定性，关键任务建议对比测试；这是付费功能，不影响免费用户。",
+      sourceLabel: "OpenAI Release Notes",
+      sourceUrl: "https://www.yet-another-changelog.ai/",
+      articleIdea: "候选：GPT-6.1 Sol 模式选择：标准 vs Ultrafast"
+    },
     {
       date: "2026-10-07",
       tag: "AI 编程",

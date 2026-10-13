@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://cdn.jsdelivr.net">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;800&family=Noto+Serif+SC:wght@700;900&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/styles.css?v=20261008-daily-update">
+  <link rel="stylesheet" href="assets/styles.css?v=20261013-daily-update">
 </head>
 <body>
   <header class="site-header">
@@ -68,6 +68,57 @@
       <div class="content-grid" data-post-list>
         <!-- STATIC_POSTS_START -->
 <article class="article-card reveal">
+      <a class="article-card__media article-card__media--github" href="articles/codex-cli-0162-git-worktree-gpt61-sol-guide.html">
+        <span class="article-card__badge">AI 终端</span>
+        <span class="article-card__icon"><img class="visual-icon visual-icon--card" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/python/python-original.svg" alt="AI 终端 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <strong>AI 终端</strong>
+      </a>
+      <div class="article-card__body">
+        <div class="meta-row">
+          <span>AI 终端</span>
+          <span>10 分钟</span>
+          <time datetime="2026-10-09">2026年10月9日</time>
+        </div>
+        <h3><a href="articles/codex-cli-0162-git-worktree-gpt61-sol-guide.html">Codex CLI 0.162.0 升级指南：managed Git worktree 与 GPT-6.1 Sol 默认模型</a></h3>
+        <p>10 月 9 日 Codex CLI 0.162.0 发布，带来两个关键变化：为受信任本地项目引入 managed Git worktree 工具，让 Agent 在隔离工作树中操作不污染主分支；GPT-6.1 Sol 成为 bundled catalog 和 Bedrock 的默认模型，接近 Astra 智能但约五分之一价格、缓存输入 95% off。这篇教程讲清楚升级步骤、worktree 怎么用、默认模型切换的影响、CRLF 修复对 Windows 的意义，以及升级后如何验证。适合在用 Codex CLI、想升级到最新版的开发者。</p>
+      </div>
+    </article>
+
+    <article class="article-card reveal">
+      <a class="article-card__media article-card__media--ai" href="articles/copilot-code-review-org-billing-guide.html">
+        <span class="article-card__badge">AI 编程</span>
+        <span class="article-card__icon"><img class="visual-icon visual-icon--card" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="AI 编程 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <strong>AI 编程</strong>
+      </a>
+      <div class="article-card__body">
+        <div class="meta-row">
+          <span>AI 编程</span>
+          <span>8 分钟</span>
+          <time datetime="2026-10-08">2026年10月8日</time>
+        </div>
+        <h3><a href="articles/copilot-code-review-org-billing-guide.html">Copilot code review 组织计费配置指南：统一预算推广代码审查</a></h3>
+        <p>10 月 8 日 GitHub 为 Copilot code review 新增组织计费选项：组织所有者可以把有 Copilot 许可证成员的 code review 计费到组织成本中心，而不消耗成员个人配额。这篇教程讲清楚为什么需要组织计费、谁可以配置、具体开启步骤、成本管理注意事项，以及对个人用户的影响。适合想在团队推广 code review、又不想挤占成员日常配额的组织管理员。</p>
+      </div>
+    </article>
+
+    <article class="article-card reveal">
+      <a class="article-card__media article-card__media--ai" href="articles/copilot-enterprise-telemetry-privacy-guide.html">
+        <span class="article-card__badge">AI 编程</span>
+        <span class="article-card__icon"><img class="visual-icon visual-icon--card" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="AI 编程 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <strong>AI 编程</strong>
+      </a>
+      <div class="article-card__body">
+        <div class="meta-row">
+          <span>AI 编程</span>
+          <span>9 分钟</span>
+          <time datetime="2026-10-12">2026年10月12日</time>
+        </div>
+        <h3><a href="articles/copilot-enterprise-telemetry-privacy-guide.html">企业遥测与隐私合规：Copilot 用户归因不采集 prompt 内容</a></h3>
+        <p>10 月 12 日 GitHub 推出 Copilot client telemetry 用户归因和可配置采集：企业管理员可以在不收集用户 prompt、response 或工具内容的情况下，将 Copilot 活动归因到具体用户。telemetry.capture.identity 在 OTel 数据中添加 user.name、process.user.name、host.name，默认关闭；另有五个独立采集类全部默认关闭。这篇教程讲清楚身份归因与内容采集的区别、怎样按需开启、合规注意事项，以及旧 captureContent 设置的迁移。适合需要监控 Copilot 使用又必须保护代码隐私的企业管理员。</p>
+      </div>
+    </article>
+
+    <article class="article-card reveal">
       <a class="article-card__media article-card__media--ai" href="articles/claude-5-5-family-haiku-sonnet-opus-guide.html">
         <span class="article-card__badge">AI 编程</span>
         <span class="article-card__icon"><img class="visual-icon visual-icon--card" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/python/python-original.svg" alt="AI 编程 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
@@ -1411,6 +1462,6 @@
     </div>
   </footer>
 
-  <script src="assets/app.js?v=20261008-daily-update"></script>
+  <script src="assets/app.js?v=20261013-daily-update"></script>
 </body>
 </html>
