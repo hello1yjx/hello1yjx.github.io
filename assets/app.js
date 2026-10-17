@@ -9,7 +9,7 @@ const siteData = {
     bio: "把官方入口、学习路线、示例代码和可扩展资料放进同一张地图里，让第一次来的人也能马上知道从哪里开始。",
     heroStats: [
       { value: "9", label: "原创下载包" },
-      { value: "81", label: "新手专题" },
+      { value: "84", label: "新手专题" },
       { value: "持续", label: "更新与核验" }
     ],
     valueCards: [
@@ -28,6 +28,385 @@ const siteData = {
     ]
   },
   posts: [
+    {
+      id: "gemini-4-argon-deep-reasoning-guide",
+      title: "Gemini 4 Argon 使用指南：深度多步推理与思考级别配置",
+      date: "2026-10-13",
+      category: "AI 编程",
+      readTime: "10 分钟",
+      excerpt: "10 月 13 日 Google 新旗舰模型 Gemini 4 Argon 全球可用并上线 GitHub Copilot，定位复杂真实任务的深度工作：编码、金融、法律、网安、科学，支持可配置思考级别，长输出最高约 100 万 token。这篇教程讲清楚 Argon 适合什么任务、与其他旗舰模型怎么选、思考级别怎么配、长输出怎么用、在 Copilot/API 中如何调用，以及成本和延迟上的权衡。适合想用新旗舰模型处理复杂长程任务的开发者。",
+      tags: ["Gemini 4 Argon", "Google", "深度推理", "思考级别", "长上下文", "GitHub Copilot"],
+      featured: false,
+      intro: [
+        "Gemini 4 Argon 是 Google 最新的旗舰模型，训练目标是“深度和精度”——在长程多步任务中保持上下文，同时具备很强的领域专长。10 月 13 日它全球可用并上线 Copilot，意味着你可以在熟悉的开发工具里直接调用它。",
+        "旗舰模型不等于“什么都用它”。这篇教程帮你判断：哪些任务该交给 Argon、思考级别怎么配、100 万 token 长输出什么时候真正有用、和 Claude Opus 5.5、GPT-6 Astra 怎么取舍，以及如何控制成本。读完你能把 Argon 用在真正需要它的地方。"
+      ],
+      audience: [
+        "想用 Gemini 4 Argon 处理复杂编码或多步推理任务的开发者",
+        "在多个旗舰模型间做选型的技术决策者",
+        "通过 API 或 Copilot 接入新模型、需要了解思考级别配置的用户"
+      ],
+      format: [
+        "全文按“模型定位 → 适用任务 → 思考级别 → 长输出 → 调用方式 → 成本权衡 → 检查清单”组织",
+        "给出选型判断和配置方法，不只是宣传参数"
+      ],
+      roadmap: [
+        "理解 Argon 定位：深度、长程、多步的旗舰模型",
+        "识别适用任务：复杂编码、跨文件重构、领域分析",
+        "配置思考级别：按任务难度选低/中/高",
+        "用好长输出：100 万 token 适用场景",
+        "在 Copilot 中调用：模型选择与套餐",
+        "在 API 中调用：模型 ID、参数与文本/图像输入",
+        "横向选型：与 Opus 5.5、GPT-6 Astra 对比",
+        "控制成本与延迟：什么任务不该用旗舰"
+      ],
+      officialLinks: [
+        { label: "Gemini 4 Argon is now available for everyone", url: "https://blog.google/innovation-and-ai/models-and-research/gemini-models/introducing-gemini-4-argon/", note: "Google 官方发布" },
+        { label: "Gemini 4 Argon on Google Cloud", url: "https://cloud.google.com/blog/products/ai-machine-learning/gemini-4-argon-available-on-google-cloud", note: "云平台可用性" }
+      ],
+      curatedLinks: [
+        "Argon 擅长编码、金融、法律、网络安全、科学等复杂真实任务",
+        "支持可配置思考级别，长输出最高约 100 万 token",
+        "10 月 13 日全球可用，通过 API、AI Studio、Gemini 平台、Copilot 等提供",
+        "强调长程多步任务中保持上下文与领域专长"
+      ],
+      downloadIdeas: [
+        "做一张“旗舰模型选型表”：Argon / Opus 5.5 / GPT-6 Astra 按任务分类",
+        "整理一份 Argon 思考级别配置与成本记录模板"
+      ],
+      extraSections: [
+        {
+          title: "一、Argon 定位",
+          items: [
+            "旗舰档：Gemini 4 系列的旗舰，主打深度而非速度",
+            "长程多步：在多步骤、跨文件、长周期任务中保持上下文",
+            "领域专长：编码、金融、法律、网络安全、科学",
+            "长输出：最高约 100 万 token，适合生成大型文档或代码",
+            "文本加图像：支持多模态输入，可结合截图分析"
+          ]
+        },
+        {
+          title: "二、适用任务",
+          items: [
+            "复杂编码：跨多文件重构、大型代码库理解、疑难调试",
+            "深度分析：安全审计、法律或金融文档的多步推理",
+            "长程规划：需要前后步骤一致的大型方案设计",
+            "大规模生成：一次性生成长文档、完整模块代码",
+            "不适合：简单补全、单文件小改动、高频问答——用更小更快的模型"
+          ]
+        },
+        {
+          title: "三、思考级别配置",
+          items: [
+            "可配置：Argon 支持设置思考级别，不是固定深度",
+            "低：简单任务、成本敏感、追求速度",
+            "中：大多数常规复杂任务的平衡选择",
+            "高：最难的多步推理、需要彻底验证的场景",
+            "原则：从默认或中级开始，观察结果质量，只有真正需要再调高；高级别延迟和成本更高"
+          ]
+        },
+        {
+          title: "四、长输出的正确用法",
+          items: [
+            "适合：大型文档、完整模块、端到端方案等需要一次性输出的场景",
+            "配合长上下文：输入大量代码和文档，输出完整结果",
+            "风险：输出越长，出错的绝对点越多，仍需分段验证",
+            "成本：长输出意味着大量 output token，费用显著",
+            "建议：关键长输出按模块拆分验证，不要一次性盲信"
+          ]
+        },
+        {
+          title: "五、调用方式",
+          items: [
+            "Copilot：在模型选择中选 Gemini 4 Argon，需对应套餐可用",
+            "API：通过 AI Studio、Gemini 平台、Google Cloud 调用，使用官方模型 ID",
+            "Antigravity：Google AI Ultra 订阅者可在 Antigravity 中使用",
+            "企业：通过 Google Cloud 为团队开通，注意数据与合规设置",
+            "参数：思考级别、最大输出 token、温度等按任务调整"
+          ]
+        },
+        {
+          title: "六、横向选型",
+          items: [
+            "vs Claude Opus 5.5：都是强推理旗舰，建议在自己的典型任务上对比",
+            "vs GPT-6 Astra：Astra 强调 agentic 和 computer use，Argon 强调深度和长输出",
+            "vs Gemini 小档：日常任务用更便宜的 Gemini 型号，Argon 留给攻坚",
+            "用结果选型：同一任务分别跑，看正确性、返工率、成本，而不是只看榜单",
+            "不要锁死：保持多模型可用，不同任务用不同模型"
+          ]
+        },
+        {
+          title: "七、检查清单",
+          items: [
+            "任务匹配：复杂长程任务才用 Argon",
+            "思考级别合理：按难度选，不盲目最高",
+            "长输出有必要：确需 100 万 token 才用",
+            "调用通道确认：Copilot 套餐或 API 可用",
+            "成本可接受：预估 input/output token",
+            "多模型对比：至少在典型任务上跑过对照",
+            "结果已验证：测试/构建通过，长输出分段核查",
+            "小任务降级：简单任务用更快模型"
+          ]
+        }
+      ]
+    },
+    {
+      id: "copilot-agentic-autofix-code-scanning-guide",
+      title: "Agentic autofix GA 使用指南：让 Copilot 自动修复代码扫描告警",
+      date: "2026-10-15",
+      category: "代码质量",
+      readTime: "10 分钟",
+      excerpt: "10 月 15 日 GitHub 宣布 agentic autofix for code scanning alerts 正式可用：Copilot 会跨代码库探索相关文件、提出修复、重跑 CodeQL 验证、再开 draft PR，还能一次批量处理最多 25 个告警。这篇教程讲清楚它的工作原理、启用前置条件、怎样单条和批量修复、REST API 怎么调用、AI Credits 和 Actions 分钟如何计费，以及人工审查要点。适合 Code Security / Advanced Security 客户想把漏洞修复自动化的团队。",
+      tags: ["agentic autofix", "code scanning", "CodeQL", "GitHub Advanced Security", "安全自动化", "Copilot"],
+      featured: false,
+      intro: [
+        "代码扫描发现告警只是第一步，真正耗时的是逐条修复。agentic autofix 把这个过程自动化：它不是简单给一段补丁，而是像开发者一样跨文件定位、改代码、重跑 CodeQL 确认告警真的关闭，然后开一个带修复说明和验证步骤的 draft PR。",
+        "这篇教程带你从启用上手：先理清它解决什么、需要什么权限和计费，再走单条修复、批量修复、API 调用三条路径，最后讲清楚人工审查和成本控制。读完你能安全地把一部分告警修复工作交给 Copilot。"
+      ],
+      audience: [
+        "使用 GitHub Code Security / Advanced Security 的企业团队",
+        "想把代码扫描告警修复自动化的安全和 DevOps 工程师",
+        "需要配置安全策略和 Copilot 计费的企业管理员"
+      ],
+      format: [
+        "全文按“工作原理 → 前置条件 → 启用步骤 → 单条/批量修复 → API → 计费 → 审查清单”组织",
+        "强调验证和人工审查，不鼓励盲目自动合并"
+      ],
+      roadmap: [
+        "理解工作原理：探索、修复、重跑 CodeQL、开 draft PR",
+        "确认可用性：Enterprise Cloud、Code Security/Advanced Security",
+        "企业管理员开启 Agentic autofix 策略",
+        "组织或仓库管理员在 Code Security 设置中启用",
+        "配置 Copilot 计费方式",
+        "单条修复：把默认分支告警分配给 Copilot",
+        "批量修复：一次最多 25 个告警",
+        "API 调用：Update a Code Scanning Alert REST API",
+        "审查 PR 与控制成本"
+      ],
+      officialLinks: [
+        { label: "Agentic autofix for code scanning alerts GA", url: "https://github.blog/changelog/2026-10-15-agentic-autofix-for-code-scanning-alerts-general-availability/", note: "官方公告" },
+        { label: "Agentic autofix documentation", url: "https://docs.github.com/", note: "官方文档，以最新为准" }
+      ],
+      curatedLinks: [
+        "Copilot 跨代码库探索、生成修复、重跑 CodeQL 验证、开 draft PR",
+        "仅支持默认分支告警；可一次最多批量处理 25 个",
+        "需企业管理员在 Advanced Security 策略开启，并配置 Copilot 计费",
+        "消耗 Code Security 预算的 AI Credits 和 GitHub Actions 分钟数"
+      ],
+      downloadIdeas: [
+        "做一张“agentic autofix 启用与权限核对清单”",
+        "整理一份 AI Credits 修复成本记录模板（按告警类型）"
+      ],
+      extraSections: [
+        {
+          title: "一、工作原理",
+          items: [
+            "探索：Copilot 在代码库中查找与告警相关的文件",
+            "修复：生成提议的代码修改",
+            "验证：重跑 CodeQL 确认修复确实关闭告警",
+            "迭代：未通过则继续调整，通过后开 draft PR",
+            "PR 内容：修复摘要、为什么关闭告警、验证步骤",
+            "后续：可在 PR 评论或仓库 Agents 标签让 Copilot 继续修改"
+          ]
+        },
+        {
+          title: "二、前置条件",
+          items: [
+            "计划：GitHub Enterprise Cloud（含数据驻留）",
+            "产品：GitHub Code Security 或 Advanced Security",
+            "策略：企业管理员开启 Agentic autofix 策略",
+            "开关：组织或仓库管理员在 Code Security 设置启用",
+            "计费：必须定义 Copilot 计费方式",
+            "扫描：代码扫描已启用且有告警"
+          ]
+        },
+        {
+          title: "三、启用步骤",
+          items: [
+            "企业管理员：在 Advanced Security 策略中开启 Agentic autofix",
+            "组织/仓库管理员：在 Code Security 设置中启用",
+            "确认计费：设置 Copilot 计费方式和预算",
+            "界面变化：启用后单个告警的免费 Generate Fix 变为 Assign to Copilot",
+            "先小范围验证：在一个非关键仓库试跑，确认修复质量"
+          ]
+        },
+        {
+          title: "四、单条与批量修复",
+          items: [
+            "单条：默认分支任意代码扫描告警，点 Assign to Copilot",
+            "批量：安全告警列表或 security campaign 中选最多 25 个，一次修复进同一个 PR",
+            "分支限制：仅默认分支告警可分配，PR 或其他分支独有告警不行",
+            "draft PR：先开 draft，审查后再标记 ready 并合并",
+            "迭代：在 PR 评论让 Copilot 修改，或在 Agents 标签操作"
+          ]
+        },
+        {
+          title: "五、REST API 调用",
+          items: [
+            "接口：Update a Code Scanning Alert REST API",
+            "关键参数：assignees 设为 [\"copilot-swe-agent[bot]\"]",
+            "自动化：可写脚本批量把告警分配给 Copilot",
+            "适合：与现有安全工单、security campaign 流程集成",
+            "注意：API 调用同样受权限、计费和分支限制约束"
+          ]
+        },
+        {
+          title: "六、计费与成本控制",
+          items: [
+            "AI Credits：从 Code Security 预算消耗，计费显示为 Advanced Security 产品",
+            "Actions 分钟：重跑 CodeQL 消耗 GitHub Actions 分钟",
+            "预算：可设置 Code Security AI credits 的 SKU 级预算",
+            "监控：在企业 billing and licensing 的 AI usage 查看",
+            "成本优化：先用批量修复处理高确定性、低风险的告警，复杂的人工处理"
+          ]
+        },
+        {
+          title: "七、人工审查要点",
+          items: [
+            "不盲合：自动修复可能引入新问题或改变行为",
+            "看验证：确认 CodeQL 确实通过，且测试没有被绕过",
+            "看范围：修改是否只涉及必要文件，有无夹带",
+            "看语义：安全修复是否真正堵住根因，而非只让扫描器静默",
+            "回归：合并后关注是否产生新告警或功能回归"
+          ]
+        },
+        {
+          title: "八、检查清单",
+          items: [
+            "计划与产品：Enterprise Cloud + Code Security/Advanced Security",
+            "策略已开启：企业管理员启用 Agentic autofix",
+            "计费已配置：Copilot 计费方式和预算就绪",
+            "小范围验证：先在测试仓库试跑",
+            "告警在默认分支：非默认分支无法分配",
+            "批量不超 25：单次最多 25 个",
+            "PR 已审查：验证、范围、根因都核查",
+            "成本可监控：AI Credits 和 Actions 用量可追踪"
+          ]
+        }
+      ]
+    },
+    {
+      id: "github-actions-workflow-lockfiles-guide",
+      title: "Actions workflow lockfiles 供应链安全：锁定 CI 依赖到已审查 commit",
+      date: "2026-10-14",
+      category: "云端部署",
+      readTime: "9 分钟",
+      excerpt: "10 月 14 日 GitHub Actions workflow lockfiles 进入公开预览：在 workflow YAML 中通过 dependencies 段把所有直接和传递依赖锁定到 commit SHA，类似 go.mod + go.sum，让 CI 运行可复现、依赖可审查；管理员可强制要求 lockfile，Dependabot 同步更新。这篇教程讲清楚为什么标签引用有供应链风险、lockfile 怎么工作、如何启用和生成、如何配合 Dependabot 更新、组织级强制策略，以及 preview 期的注意事项。适合关注 CI/CD 供应链安全的团队。",
+      tags: ["GitHub Actions", "workflow lockfiles", "供应链安全", "Dependabot", "CI/CD", "SHA 锁定"],
+      featured: false,
+      intro: [
+        "用 actions/checkout@v4 这样的标签引用 action 很方便，但标签可以被移动——如果 action 仓库被攻破，v4 可能一夜之间指向恶意代码，你的 CI 就会执行它。近年来的供应链攻击反复证明了这一点。workflow lockfiles 就是为了解决这个问题。",
+        "这篇教程讲清楚 lockfile 如何把 action 和可复用 workflow 锁定到你审查过的具体 commit，怎样生成、怎样用 Dependabot 保持更新、组织怎样强制要求，以及在 public preview 阶段要注意什么。读完你能给 CI 依赖加一把“可复现”的锁。"
+      ],
+      audience: [
+        "关注 GitHub Actions 供应链安全的 DevOps 和安全工程师",
+        "维护大量 workflow、想统一锁定 action 版本的团队",
+        "需要在组织级强制 CI 安全策略的管理员"
+      ],
+      format: [
+        "全文按“为什么需要 → 工作原理 → 启用生成 → Dependabot 更新 → 组织强制 → 检查清单”组织",
+        "从供应链风险讲起，再落到具体配置"
+      ],
+      roadmap: [
+        "理解标签引用风险：标签可移动、供应链攻击",
+        "理解 lockfile 机制：dependencies 段锁定 SHA",
+        "确认可用性：Enterprise Cloud/Team/Free，public preview",
+        "为 workflow 生成 lockfile",
+        "验证运行：锁定后 CI 使用固定 commit",
+        "配置 Dependabot：同步更新 lockfile 条目",
+        "组织级强制：管理员要求 lockfile",
+        "preview 期注意事项与排查"
+      ],
+      officialLinks: [
+        { label: "GitHub Actions workflow lockfiles in public preview", url: "https://github.blog/changelog/2026-10-14-github-actions-workflow-lockfiles-in-public-preview/", note: "官方公告" },
+        { label: "GitHub Actions 2026 security roadmap", url: "https://github.blog/news-insights/product-news/whats-coming-to-our-github-actions-2026-security-roadmap/", note: "安全路线图背景" }
+      ],
+      curatedLinks: [
+        "workflow YAML 中新增 dependencies 段，锁定直接和传递依赖到 commit SHA",
+        "类似 go.mod + go.sum 的机制，让运行可复现、依赖可审查",
+        "管理员可强制要求 lockfile，Dependabot 随 action 版本更新 lockfile",
+        "public preview 面向 Enterprise Cloud、Team、Free 计划"
+      ],
+      downloadIdeas: [
+        "做一张“CI 供应链安全配置清单”：SHA 锁定、lockfile、Dependabot",
+        "整理一份 workflow 依赖审计表（action、版本、是否锁定）"
+      ],
+      extraSections: [
+        {
+          title: "一、为什么标签引用有风险",
+          items: [
+            "标签可移动：@v4 是可变指针，仓库维护者或攻击者可改指向",
+            "供应链攻击：action 仓库被攻破后，恶意代码经 CI 执行",
+            "CI 权限大：workflow 常持有 token、secrets 和部署权限",
+            "传递依赖：action 还会调用其他 action，风险不止第一层",
+            "不可复现：同一个 workflow 在不同时间可能跑不同代码"
+          ]
+        },
+        {
+          title: "二、lockfile 工作原理",
+          items: [
+            "dependencies 段：在 workflow YAML 中声明锁定的依赖",
+            "SHA 锁定：直接和传递依赖都固定到具体 commit SHA",
+            "类比：类似 go.mod + go.sum，既有声明也有校验",
+            "可复现：每次运行用相同的 commit，结果一致",
+            "可审查：依赖变更以 SHA 变更形式呈现，便于 code review"
+          ]
+        },
+        {
+          title: "三、启用与生成",
+          items: [
+            "确认计划：Enterprise Cloud（含数据驻留）、Team、Free 均可在 preview 试用",
+            "按官方文档在 workflow 中添加 dependencies 段",
+            "为现有 workflow 生成 lockfile，锁定当前使用的 action",
+            "提交 lockfile 并走 code review，确认每个 SHA 对应预期版本",
+            "观察 CI：确认运行时使用的是锁定的 commit"
+          ]
+        },
+        {
+          title: "四、配合 Dependabot 更新",
+          items: [
+            "自动更新：Dependabot 更新 action 版本时同步更新 lockfile 条目",
+            "审查变更：每次更新产生 PR，审查新的 SHA 和 release notes",
+            "CI 验证：让 PR 上的测试验证更新后的 action 不破坏流程",
+            "不要手改 SHA：避免绕过审查，统一走 Dependabot",
+            "频率：按安全策略设置 Dependabot 更新频率，安全更新可更及时"
+          ]
+        },
+        {
+          title: "五、组织级强制",
+          items: [
+            "管理员可要求仓库使用 lockfile",
+            "统一基线：把 lockfile 纳入组织安全策略，新仓库默认启用",
+            "结合其他措施：最小权限 GITHUB_TOKEN、secrets 管理、可疑 workflow 审批",
+            "豁免处理：明确哪些特殊 workflow 可豁免，避免策略形同虚设",
+            "审计：定期检查未锁定的 workflow"
+          ]
+        },
+        {
+          title: "六、preview 注意事项",
+          items: [
+            "public preview：功能、语法和行为可能调整，关注 changelog",
+            "不保证 SLA：关键流程先在非核心仓库验证",
+            "可复用 workflow：同样受锁定影响，注意嵌套依赖",
+            "文档为准：dependencies 段具体语法以官方文档为准",
+            "回退方案：保留未锁定版本的分支，遇到问题可快速回退"
+          ]
+        },
+        {
+          title: "七、检查清单",
+          items: [
+            "理解风险：标签引用和传递依赖的供应链风险",
+            "lockfile 已生成：直接和传递依赖都锁定 SHA",
+            "已提交审查：每个 SHA 对应预期版本",
+            "运行已验证：CI 使用锁定 commit",
+            "Dependabot 已配置：更新同步产生 PR",
+            "组织策略已评估：是否强制要求 lockfile",
+            "最小权限配合：GITHUB_TOKEN 和 secrets 已收紧",
+            "preview 风险已知：核心流程谨慎，持续关注更新"
+          ]
+        }
+      ]
+    },
     {
       id: "codex-cli-0162-git-worktree-gpt61-sol-guide",
       title: "Codex CLI 0.162.0 升级指南：managed Git worktree 与 GPT-6.1 Sol 默认模型",
@@ -7820,6 +8199,106 @@ git push origin main`,
     "github-agentic-workflows-public-preview-guide"
   ],
   hotspots: [
+    {
+      date: "2026-10-16",
+      tag: "AI 编程",
+      title: "JetBrains Junie Local 本地 AI 编程 Day 0 适配 RTX Spark，Windows 版转为稳定",
+      summary: "JetBrains 10 月 16 日宣布旗下本地 AI 编程工具 Junie Local 已 Day 0 适配英伟达 RTX Spark 平台，在该平台上吞吐最高每秒约 55 个 token；同时 Windows 系统支持从实验阶段升级为稳定版。",
+      why: "本地 AI 编程是不上传代码、无需 API 付费的路线，Junie Local 适配 RTX Spark 且 Windows 稳定后，在本地用工作站跑 coding agent 的开发者多了一个可靠选择。新手要注意：本地模型的能力通常仍落后于云端旗舰模型，复杂任务效果可能不如云端；具体显卡、显存要求和支持的模型以官方文档为准；RTX Spark 是特定硬件平台，普通显卡需确认是否在支持列表中。",
+      sourceLabel: "JetBrains 公告",
+      sourceUrl: "https://m.weibo.cn/detail/5354953675114733",
+      articleIdea: "候选：本地 AI 编程 vs 云端：Junie Local 适用场景与硬件要求"
+    },
+    {
+      date: "2026-10-15",
+      tag: "代码质量",
+      title: "Agentic autofix 代码扫描自动修复正式可用（GA）：跨代码库定位、CodeQL 验证后开 PR",
+      summary: "GitHub 10 月 15 日宣布 agentic autofix for code scanning alerts 正式可用（GA）。它像开发者一样跨代码库工作：探索相关文件、提出修复、重跑 CodeQL 确认修复确实关闭告警，再开 draft PR 供审查；可一次最多批量处理 25 个告警。面向 GitHub Enterprise Cloud 的 Code Security 和 Advanced Security 客户，消耗 Code Security 预算的 AI Credits 和 Actions 分钟数。",
+      why: "这是把“发现漏洞”推进到“自动修复漏洞”的关键能力，且会先重跑 CodeQL 验证、再开 PR，避免给出未经验证的修复。新手要注意：仅支持默认分支上的扫描告警，PR 或其他分支独有的告警不能分配；需要企业管理员先在 Advanced Security 策略中开启，并配置 Copilot 计费方式；它消耗 AI Credits 和 Actions 分钟，批量修复前要预估成本；PR 仍需人工审查，不能无脑合并。",
+      sourceLabel: "GitHub Changelog",
+      sourceUrl: "https://github.blog/changelog/2026-10-15-agentic-autofix-for-code-scanning-alerts-general-availability/",
+      articleIdea: "已扩写：Agentic autofix GA 使用指南：让 Copilot 自动修复代码扫描告警"
+    },
+    {
+      date: "2026-10-15",
+      tag: "代码质量",
+      title: "AI Scan for pull requests 正式可用（GA）：PR 级 AI 安全扫描",
+      summary: "GitHub 10 月 15 日宣布 AI Scan for pull requests 正式可用（GA），将 AI 驱动的安全扫描能力应用到拉取请求阶段，在代码合并前发现问题。",
+      why: "把 AI 安全扫描左移到 PR 阶段，意味着问题在合并前就能被发现，比事后在默认分支扫描更省成本。新手要注意：AI Scan 与传统 CodeQL 扫描互补，不能替代；具体计费和启用方式以官方文档为准；扫描结果仍需人工判断，误报和漏报都可能存在。",
+      sourceLabel: "GitHub Changelog",
+      sourceUrl: "https://github.blog/changelog/",
+      articleIdea: "候选：PR 安全扫描配置：CodeQL 与 AI Scan 如何配合"
+    },
+    {
+      date: "2026-10-15",
+      tag: "AI 编程",
+      title: "Copilot in Slack/Teams 支持多仓库：单个对话跨多个仓库追踪 PR 和问题",
+      summary: "GitHub 10 月 15 日宣布 Copilot in Slack 和 Microsoft Teams 现在支持在单个对话中跨多个仓库工作，包括追踪 PR、调查 issue、跟进项目活动，无需在不同对话间切换；同时带来模型和仓库相关的其他更新。",
+      why: "团队协作常在 IM 中进行，多仓库支持后，在一个 Slack/Teams 对话里就能问跨仓库的项目状态，不用在多个对话或页面间跳转，对多仓库项目的管理者尤其方便。新手要注意：跨仓库访问仍受权限控制，用户只能看到自己有权访问的仓库；企业需确认 Copilot in IM 的集成和数据访问策略已配置。",
+      sourceLabel: "GitHub Changelog",
+      sourceUrl: "https://github.blog/changelog/2026-10-15-copilot-in-slack-and-teams-adds-model-and-repository-updates/",
+      articleIdea: "候选：在 Slack/Teams 中用 Copilot 追踪跨仓库项目"
+    },
+    {
+      date: "2026-10-15",
+      tag: "AI 编程",
+      title: "Vercel AI Gateway 上线 Meta 开源推理模型 Muse Spark Open：1M 上下文、面向编码与 Agent",
+      summary: "Vercel 10 月 15 日宣布 Meta 的开源权重推理模型 Muse Spark Open 上线 AI Gateway，面向编码和 agentic 工作流，包括多文件重构、调试、理解大型代码库；支持文本和图像输入，1M token 上下文窗口，可在同一请求中同时处理代码和截图，提供 ZDR（零数据保留）且不用于训练。",
+      why: "开源权重模型支持 1M 上下文且面向多文件重构，适合在网关统一调用、又关注数据不被训练的团队；文本加图像输入让“截图 + 代码”一起分析成为可能。新手要注意：开源模型的实际能力需在自己的代码库上验证，不要只看宣传；1M 上下文在多轮中计费仍可能很高；ZDR 和不训练的具体条款以提供商和网关文档为准。",
+      sourceLabel: "Vercel Changelog",
+      sourceUrl: "https://vercel.com/changelog/muse-spark-open-now-available-on-ai-gateway",
+      articleIdea: "候选：开源编码模型接入 AI Gateway：Muse Spark Open 实测"
+    },
+    {
+      date: "2026-10-15",
+      tag: "AI 编程",
+      title: "预警：11 月中旬将再弃用一批 Copilot 模型",
+      summary: "GitHub 10 月 15 日发布预告，将于 11 月中旬在所有 Copilot 体验中弃用一批模型（Upcoming deprecation of selected GitHub Copilot models in mid-November）。",
+      why: "模型弃用是常态化的，连续两个月（10/19、11 月中）都有弃用，硬编码模型名或依赖特定模型的配置需要持续关注。新手要注意：查看官方弃用列表确认自己用的模型是否在内；提前切换到建议的替代模型并验证；API 调用、自定义 agent、工作流中硬编码的模型名都要排查；可在日历中设置提醒避免遗忘。",
+      sourceLabel: "GitHub Changelog",
+      sourceUrl: "https://github.blog/changelog/",
+      articleIdea: "候选：建立模型弃用排查机制：从配置到 CI 全覆盖"
+    },
+    {
+      date: "2026-10-14",
+      tag: "云端部署",
+      title: "GitHub Actions workflow lockfiles 公开预览：把 Actions 依赖锁定到已审查的 commit",
+      summary: "GitHub 10 月 14 日推出 Actions workflow lockfiles 公开预览：在 workflow YAML 中通过 dependencies 段把所有直接和传递依赖锁定到 commit SHA，类似 go.mod + go.sum 的机制，让运行结果可复现、依赖可审查；管理员可强制要求 lockfile，Dependabot 会在更新 action 版本时同步更新 lockfile 条目。面向 Enterprise Cloud、Team、Free 计划。",
+      why: "Action 使用标签（如 @v3）存在供应链风险：标签可被移动指向恶意代码。lockfile 把 action 和可复用 workflow 锁定到已审查的 commit，是 CI/CD 供应链安全的重要补强。新手要注意：目前是 public preview，行为可能调整；锁定后更新 action 需走 Dependabot 或手动更新 SHA，不能只改标签；管理员可在组织级强制要求 lockfile。",
+      sourceLabel: "GitHub Changelog",
+      sourceUrl: "https://github.blog/changelog/2026-10-14-github-actions-workflow-lockfiles-in-public-preview/",
+      articleIdea: "已扩写：Actions workflow lockfiles 供应链安全：锁定 CI 依赖到已审查 commit"
+    },
+    {
+      date: "2026-10-14",
+      tag: "AI 编程",
+      title: "HydraFusion 更新并新增 Max：多模型编排池含 Opus 5.5、GPT-6 家族，按阶段调推理强度",
+      summary: "GitHub 10 月 14 日更新 Copilot 多模型编排功能 HydraFusion 并新增 HydraFusion Max：模型池包含 Claude Opus 5.5、GPT-6 Astra、GPT-6.1 Sol、GPT-6 Luna，按阶段调推理强度（草稿用 medium、审查用 high），Cascade 增加评判步骤；Max 面向更困难任务、施加更高推理强度。研究预览，支持 VS Code、Copilot app、CLI 的 Pro/Pro+/Business/Enterprise。",
+      why: "HydraFusion 让一个任务由多个模型协作：一个模型起草、其他模型审查，理论上能兼顾不同模型的长处；Max 则把这种多模型协作推到更难任务上。新手要注意：它明确标注为 research preview、不建议用于生产，且没有 SLA；多个模型各自计费，费用可能明显高于单模型；官方建议日常用 Auto，只有多视角审查真正有价值的大任务才用 HydraFusion/Max。",
+      sourceLabel: "GitHub Changelog",
+      sourceUrl: "https://github.blog/changelog/2026-10-14-hydrafusion-updates-and-new-max-option/",
+      articleIdea: "候选：多模型编排实测：HydraFusion 值不值得多花的钱"
+    },
+    {
+      date: "2026-10-13",
+      tag: "AI 编程",
+      title: "Gemini 4 Argon 上线 GitHub Copilot：Google 新旗舰，擅长深度多步推理与长输出",
+      summary: "Google 10 月 13 日宣布新旗舰模型 Gemini 4 Argon 全球可用，同日上线 GitHub Copilot。Argon 擅长复杂真实任务的深度工作，覆盖编码、金融、法律、网络安全、科学；支持可配置思考级别，长输出最高约 100 万 token，强调在长程多步任务中保持上下文。",
+      why: "Argon 是 Gemini 4 系列的旗舰，定位是“深度、长程、多步”的复杂工作，和 Claude Opus 5.5、GPT-6 Astra 形成第一梯队竞争，Copilot 用户多了一个旗舰选项。新手要注意：旗舰模型价格更高、延迟更长，简单任务用它不划算；可配置思考级别需要按需调整，不是越高越好；具体上下文、价格、Copilot 套餐可用性以官方文档为准。",
+      sourceLabel: "GitHub Changelog / Google Blog",
+      sourceUrl: "https://blog.google/innovation-and-ai/models-and-research/gemini-models/introducing-gemini-4-argon/",
+      articleIdea: "已扩写：Gemini 4 Argon 使用指南：深度多步推理与思考级别配置"
+    },
+    {
+      date: "2026-10-13",
+      tag: "代码质量",
+      title: "Secret scanning 默认阻断 Anthropic 密钥，新增 Salesforce 检测器",
+      summary: "GitHub 10 月 13 日宣布 secret scanning 现在默认阻断 Anthropic 密钥，并新增 Salesforce 等服务的密钥检测器。",
+      why: "默认阻断意味着 Anthropic 密钥在提交时就被拦截，比事后检测更有效；新增 Salesforce 检测器覆盖企业 CRM 场景。新手要注意：默认阻断对新提交生效，历史泄露的密钥仍需排查并轮换；密钥被拦截后要检查是否误提交、改用环境变量或 secrets；Anthropic/Claude 相关项目尤其要确认密钥没有硬编码。",
+      sourceLabel: "GitHub Changelog",
+      sourceUrl: "https://github.blog/changelog/",
+      articleIdea: "候选：AI 服务商密钥防泄露：Anthropic/OpenAI 密钥管理"
+    },
     {
       date: "2026-10-09",
       tag: "AI 终端",

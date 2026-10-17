@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://cdn.jsdelivr.net">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;800&family=Noto+Serif+SC:wght@700;900&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/styles.css?v=20261013-daily-update">
+  <link rel="stylesheet" href="assets/styles.css?v=20261017-daily-update">
 </head>
 <body>
   <header class="site-header">
@@ -68,6 +68,57 @@
       <div class="content-grid" data-post-list>
         <!-- STATIC_POSTS_START -->
 <article class="article-card reveal">
+      <a class="article-card__media article-card__media--ai" href="articles/gemini-4-argon-deep-reasoning-guide.html">
+        <span class="article-card__badge">AI 编程</span>
+        <span class="article-card__icon"><img class="visual-icon visual-icon--card" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="AI 编程 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <strong>AI 编程</strong>
+      </a>
+      <div class="article-card__body">
+        <div class="meta-row">
+          <span>AI 编程</span>
+          <span>10 分钟</span>
+          <time datetime="2026-10-13">2026年10月13日</time>
+        </div>
+        <h3><a href="articles/gemini-4-argon-deep-reasoning-guide.html">Gemini 4 Argon 使用指南：深度多步推理与思考级别配置</a></h3>
+        <p>10 月 13 日 Google 新旗舰模型 Gemini 4 Argon 全球可用并上线 GitHub Copilot，定位复杂真实任务的深度工作：编码、金融、法律、网安、科学，支持可配置思考级别，长输出最高约 100 万 token。这篇教程讲清楚 Argon 适合什么任务、与其他旗舰模型怎么选、思考级别怎么配、长输出怎么用、在 Copilot/API 中如何调用，以及成本和延迟上的权衡。适合想用新旗舰模型处理复杂长程任务的开发者。</p>
+      </div>
+    </article>
+
+    <article class="article-card reveal">
+      <a class="article-card__media article-card__media--debug" href="articles/copilot-agentic-autofix-code-scanning-guide.html">
+        <span class="article-card__badge">代码质量</span>
+        <span class="article-card__icon"><img class="visual-icon visual-icon--card" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="代码质量 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <strong>代码质量</strong>
+      </a>
+      <div class="article-card__body">
+        <div class="meta-row">
+          <span>代码质量</span>
+          <span>10 分钟</span>
+          <time datetime="2026-10-15">2026年10月15日</time>
+        </div>
+        <h3><a href="articles/copilot-agentic-autofix-code-scanning-guide.html">Agentic autofix GA 使用指南：让 Copilot 自动修复代码扫描告警</a></h3>
+        <p>10 月 15 日 GitHub 宣布 agentic autofix for code scanning alerts 正式可用：Copilot 会跨代码库探索相关文件、提出修复、重跑 CodeQL 验证、再开 draft PR，还能一次批量处理最多 25 个告警。这篇教程讲清楚它的工作原理、启用前置条件、怎样单条和批量修复、REST API 怎么调用、AI Credits 和 Actions 分钟如何计费，以及人工审查要点。适合 Code Security / Advanced Security 客户想把漏洞修复自动化的团队。</p>
+      </div>
+    </article>
+
+    <article class="article-card reveal">
+      <a class="article-card__media article-card__media--github" href="articles/github-actions-workflow-lockfiles-guide.html">
+        <span class="article-card__badge">云端部署</span>
+        <span class="article-card__icon"><img class="visual-icon visual-icon--card" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="云端部署 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <strong>云端部署</strong>
+      </a>
+      <div class="article-card__body">
+        <div class="meta-row">
+          <span>云端部署</span>
+          <span>9 分钟</span>
+          <time datetime="2026-10-14">2026年10月14日</time>
+        </div>
+        <h3><a href="articles/github-actions-workflow-lockfiles-guide.html">Actions workflow lockfiles 供应链安全：锁定 CI 依赖到已审查 commit</a></h3>
+        <p>10 月 14 日 GitHub Actions workflow lockfiles 进入公开预览：在 workflow YAML 中通过 dependencies 段把所有直接和传递依赖锁定到 commit SHA，类似 go.mod + go.sum，让 CI 运行可复现、依赖可审查；管理员可强制要求 lockfile，Dependabot 同步更新。这篇教程讲清楚为什么标签引用有供应链风险、lockfile 怎么工作、如何启用和生成、如何配合 Dependabot 更新、组织级强制策略，以及 preview 期的注意事项。适合关注 CI/CD 供应链安全的团队。</p>
+      </div>
+    </article>
+
+    <article class="article-card reveal">
       <a class="article-card__media article-card__media--github" href="articles/codex-cli-0162-git-worktree-gpt61-sol-guide.html">
         <span class="article-card__badge">AI 终端</span>
         <span class="article-card__icon"><img class="visual-icon visual-icon--card" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/python/python-original.svg" alt="AI 终端 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
@@ -1462,6 +1513,6 @@
     </div>
   </footer>
 
-  <script src="assets/app.js?v=20261013-daily-update"></script>
+  <script src="assets/app.js?v=20261017-daily-update"></script>
 </body>
 </html>

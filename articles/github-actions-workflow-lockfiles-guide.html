@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Actions workflow lockfiles 供应链安全：锁定 CI 依赖到已审查 commit | 学习资源库</title>
+  <meta name="description" content="10 月 14 日 GitHub Actions workflow lockfiles 进入公开预览：在 workflow YAML 中通过 dependencies 段把所有直接和传递依赖锁定到 commit SHA，类似 go.mod + go.sum，让 CI 运行可复现、依赖可审查；管理员可强制要求 lockfile，Dependabot 同步更新。这篇教程讲清楚为什么标签引用有供应链风险、lockfile 怎么工作、如何启用和生成、如何配合 Dependabot 更新、组织级强制策略，以及 preview 期的注意事项。适合关注 CI/CD 供应链安全的团队。">
+  <meta name="robots" content="index,follow,max-image-preview:large">
+  <link rel="canonical" href="https://hello1yjx.github.io/articles/github-actions-workflow-lockfiles-guide.html">
+  <link rel="icon" type="image/png" href="../assets/images/brand-book-line.png">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"Actions workflow lockfiles 供应链安全：锁定 CI 依赖到已审查 commit","description":"10 月 14 日 GitHub Actions workflow lockfiles 进入公开预览：在 workflow YAML 中通过 dependencies 段把所有直接和传递依赖锁定到 commit SHA，类似 go.mod + go.sum，让 CI 运行可复现、依赖可审查；管理员可强制要求 lockfile，Dependabot 同步更新。这篇教程讲清楚为什么标签引用有供应链风险、lockfile 怎么工作、如何启用和生成、如何配合 Dependabot 更新、组织级强制策略，以及 preview 期的注意事项。适合关注 CI/CD 供应链安全的团队。","datePublished":"2026-10-14","dateModified":"2026-10-14","author":{"@type":"Person","name":"Avery Lin","url":"https://hello1yjx.github.io/about.html"},"publisher":{"@type":"Organization","name":"学习资源库","url":"https://hello1yjx.github.io/"},"mainEntityOfPage":"https://hello1yjx.github.io/articles/github-actions-workflow-lockfiles-guide.html","inLanguage":"zh-CN"}</script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6621999105936318" crossorigin="anonymous"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;800&family=Noto+Serif+SC:wght@700;900&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/styles.css?v=20261017-daily-update">
+</head>
+<body>
+  <header class="site-header">
+    <div class="page-shell site-header__inner">
+      <a class="brand" href="../index.html" aria-label="返回首页">
+        <span class="brand-mark" aria-hidden="true"><img src="../assets/images/brand-book-line.png" alt="" width="36" height="33"></span>
+        <span class="brand-copy"><strong>学习资源库</strong><span>分享知识 · 提升自己 · 成就未来</span></span>
+      </a>
+      <button class="menu-button" data-menu-button aria-expanded="false" aria-label="切换导航菜单">☰</button>
+      <nav class="site-nav" data-mobile-nav>
+        <a href="../index.html">首页</a>
+        <a class="is-active" href="../posts.html" aria-current="page">教程</a>
+        <a href="../resources.html">资源下载</a>
+        <a href="../resources.html#official-resources">工具导航</a>
+        <a href="../hotspots.html">技术资讯</a>
+        <a href="../projects.html">开源项目</a>
+        <a href="../about.html">关于我们</a>
+      </nav>
+      <form class="header-search" action="../posts.html" method="get">
+        <input type="search" name="q" placeholder="搜索教程、资源、工具或关键词...">
+        <button type="submit" aria-label="搜索">/</button>
+      </form>
+      <a class="header-github" href="https://github.com/hello1yjx/hello1yjx.github.io" target="_blank" rel="noreferrer" aria-label="GitHub">
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="" width="24" height="24">
+      </a>
+      <a class="header-cta" href="../posts.html">开始学习</a>
+    </div>
+  </header>
+
+  <main class="page-shell section article-page">
+    <header class="detail-hero">
+      <span class="pill">云端部署</span>
+      <h1>Actions workflow lockfiles 供应链安全：锁定 CI 依赖到已审查 commit</h1>
+      <div class="detail-hero__meta">
+        <time datetime="2026-10-14">2026年10月14日</time>
+        <span>9 分钟</span>
+        <span>作者：Avery Lin</span>
+      </div>
+      <p>10 月 14 日 GitHub Actions workflow lockfiles 进入公开预览：在 workflow YAML 中通过 dependencies 段把所有直接和传递依赖锁定到 commit SHA，类似 go.mod + go.sum，让 CI 运行可复现、依赖可审查；管理员可强制要求 lockfile，Dependabot 同步更新。这篇教程讲清楚为什么标签引用有供应链风险、lockfile 怎么工作、如何启用和生成、如何配合 Dependabot 更新、组织级强制策略，以及 preview 期的注意事项。适合关注 CI/CD 供应链安全的团队。</p>
+    </header>
+    <div class="article-layout">
+      <article class="article-body">
+        <div class="inline-promo">
+          <p class="label">来源与增量价值</p>
+          <h3>本文基于官方资料整理，并补充适用场景、限制条件和实践检查步骤。</h3>
+          <p>首要来源：<a href="https://github.blog/changelog/2026-10-14-github-actions-workflow-lockfiles-in-public-preview/" target="_blank" rel="noreferrer">GitHub Actions workflow lockfiles in public preview</a>。事实以原始来源为准，本站建议需结合自己的环境验证。</p>
+        </div>
+
+    <p>用 actions/checkout@v4 这样的标签引用 action 很方便，但标签可以被移动——如果 action 仓库被攻破，v4 可能一夜之间指向恶意代码，你的 CI 就会执行它。近年来的供应链攻击反复证明了这一点。workflow lockfiles 就是为了解决这个问题。</p><p>这篇教程讲清楚 lockfile 如何把 action 和可复用 workflow 锁定到你审查过的具体 commit，怎样生成、怎样用 Dependabot 保持更新、组织怎样强制要求，以及在 public preview 阶段要注意什么。读完你能给 CI 依赖加一把“可复现”的锁。</p>
+    <h2>这篇内容适合谁</h2>
+    <ul><li>关注 GitHub Actions 供应链安全的 DevOps 和安全工程师</li><li>维护大量 workflow、想统一锁定 action 版本的团队</li><li>需要在组织级强制 CI 安全策略的管理员</li></ul>
+    <h2>实践与验证步骤</h2>
+    <ul><li>理解标签引用风险：标签可移动、供应链攻击</li><li>理解 lockfile 机制：dependencies 段锁定 SHA</li><li>确认可用性：Enterprise Cloud/Team/Free，public preview</li><li>为 workflow 生成 lockfile</li><li>验证运行：锁定后 CI 使用固定 commit</li><li>配置 Dependabot：同步更新 lockfile 条目</li><li>组织级强制：管理员要求 lockfile</li><li>preview 期注意事项与排查</li></ul>
+    <h2>官方资料入口</h2>
+
+    <ul>
+
+            <li>
+              <a href="https://github.blog/changelog/2026-10-14-github-actions-workflow-lockfiles-in-public-preview/" target="_blank" rel="noreferrer">GitHub Actions workflow lockfiles in public preview</a>
+              <span>：官方公告</span>
+            </li>
+
+            <li>
+              <a href="https://github.blog/news-insights/product-news/whats-coming-to-our-github-actions-2026-security-roadmap/" target="_blank" rel="noreferrer">GitHub Actions 2026 security roadmap</a>
+              <span>：安全路线图背景</span>
+            </li>
+
+    </ul>
+
+    <h2>重点判断与使用建议</h2>
+    <ul><li>workflow YAML 中新增 dependencies 段，锁定直接和传递依赖到 commit SHA</li><li>类似 go.mod + go.sum 的机制，让运行可复现、依赖可审查</li><li>管理员可强制要求 lockfile，Dependabot 随 action 版本更新 lockfile</li><li>public preview 面向 Enterprise Cloud、Team、Free 计划</li></ul>
+
+        <h2>一、为什么标签引用有风险</h2>
+
+        <ul><li>标签可移动：@v4 是可变指针，仓库维护者或攻击者可改指向</li><li>供应链攻击：action 仓库被攻破后，恶意代码经 CI 执行</li><li>CI 权限大：workflow 常持有 token、secrets 和部署权限</li><li>传递依赖：action 还会调用其他 action，风险不止第一层</li><li>不可复现：同一个 workflow 在不同时间可能跑不同代码</li></ul>
+
+
+
+        <h2>二、lockfile 工作原理</h2>
+
+        <ul><li>dependencies 段：在 workflow YAML 中声明锁定的依赖</li><li>SHA 锁定：直接和传递依赖都固定到具体 commit SHA</li><li>类比：类似 go.mod + go.sum，既有声明也有校验</li><li>可复现：每次运行用相同的 commit，结果一致</li><li>可审查：依赖变更以 SHA 变更形式呈现，便于 code review</li></ul>
+
+
+
+        <h2>三、启用与生成</h2>
+
+        <ul><li>确认计划：Enterprise Cloud（含数据驻留）、Team、Free 均可在 preview 试用</li><li>按官方文档在 workflow 中添加 dependencies 段</li><li>为现有 workflow 生成 lockfile，锁定当前使用的 action</li><li>提交 lockfile 并走 code review，确认每个 SHA 对应预期版本</li><li>观察 CI：确认运行时使用的是锁定的 commit</li></ul>
+
+
+
+        <h2>四、配合 Dependabot 更新</h2>
+
+        <ul><li>自动更新：Dependabot 更新 action 版本时同步更新 lockfile 条目</li><li>审查变更：每次更新产生 PR，审查新的 SHA 和 release notes</li><li>CI 验证：让 PR 上的测试验证更新后的 action 不破坏流程</li><li>不要手改 SHA：避免绕过审查，统一走 Dependabot</li><li>频率：按安全策略设置 Dependabot 更新频率，安全更新可更及时</li></ul>
+
+
+
+        <h2>五、组织级强制</h2>
+
+        <ul><li>管理员可要求仓库使用 lockfile</li><li>统一基线：把 lockfile 纳入组织安全策略，新仓库默认启用</li><li>结合其他措施：最小权限 GITHUB_TOKEN、secrets 管理、可疑 workflow 审批</li><li>豁免处理：明确哪些特殊 workflow 可豁免，避免策略形同虚设</li><li>审计：定期检查未锁定的 workflow</li></ul>
+
+
+
+        <h2>六、preview 注意事项</h2>
+
+        <ul><li>public preview：功能、语法和行为可能调整，关注 changelog</li><li>不保证 SLA：关键流程先在非核心仓库验证</li><li>可复用 workflow：同样受锁定影响，注意嵌套依赖</li><li>文档为准：dependencies 段具体语法以官方文档为准</li><li>回退方案：保留未锁定版本的分支，遇到问题可快速回退</li></ul>
+
+
+
+        <h2>七、检查清单</h2>
+
+        <ul><li>理解风险：标签引用和传递依赖的供应链风险</li><li>lockfile 已生成：直接和传递依赖都锁定 SHA</li><li>已提交审查：每个 SHA 对应预期版本</li><li>运行已验证：CI 使用锁定 commit</li><li>Dependabot 已配置：更新同步产生 PR</li><li>组织策略已评估：是否强制要求 lockfile</li><li>最小权限配合：GITHUB_TOKEN 和 secrets 已收紧</li><li>preview 风险已知：核心流程谨慎，持续关注更新</li></ul>
+
+
+
+
+        <div class="inline-promo">
+          <p class="label">更正与更新</p>
+          <h3>发现版本变化、来源失效或事实错误时，请通过联系页反馈。</h3>
+          <p>本站会核对一手来源后更新内容，不使用无来源转载填充文章。</p>
+          <a class="button button--secondary" href="../editorial.html">查看内容标准</a>
+        </div>
+      </article>
+      <aside class="article-sidebar">
+        <div class="sidebar-card">
+          <p class="label">本页标签</p>
+          <div class="tag-row"><span>GitHub Actions</span><span>workflow lockfiles</span><span>供应链安全</span><span>Dependabot</span><span>CI/CD</span><span>SHA 锁定</span></div>
+        </div>
+        <div class="sidebar-card">
+          <p class="label">继续阅读</p>
+          <a href="copilot-enterprise-telemetry-privacy-guide.html">企业遥测与隐私合规：Copilot 用户归因不采集 prompt 内容</a><a href="claude-5-5-family-haiku-sonnet-opus-guide.html">Claude 5.5 家族完整选型：Haiku、Sonnet、Opus 三档按任务分配</a><a href="copilot-local-sandbox-ga-upgrade-guide.html">Copilot 本地沙箱 GA 升级指南：从 preview 到正式可用的配置与验证</a><a href="github-stacked-pr-workflow-guide.html">Stacked PR 工作流：把大改动拆成可审查的依赖链</a>
+        </div>
+        <div class="sidebar-card sidebar-card--accent">
+          <p class="label">作者与方法</p>
+          <h3>了解本站如何选题、核验来源与处理更正。</h3>
+          <a class="button button--dark" href="../about.html">关于作者</a>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="page-shell footer__inner">
+      <div><strong>学习资源库</strong><p>分享知识 · 提升自己 · 成就未来</p></div>
+      <div>
+        <a href="../editorial.html">内容标准</a><br>
+        <a href="../privacy.html">隐私政策</a><br>
+        <a href="../contact.html">联系</a>
+      </div>
+    </div>
+  </footer>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      var button = document.querySelector("[data-menu-button]");
+      var nav = document.querySelector("[data-mobile-nav]");
+      if (!button || !nav) return;
+      button.addEventListener("click", function () {
+        var expanded = button.getAttribute("aria-expanded") === "true";
+        button.setAttribute("aria-expanded", String(!expanded));
+        nav.classList.toggle("site-nav--open", !expanded);
+      });
+    });
+  </script>
+</body>
+</html>

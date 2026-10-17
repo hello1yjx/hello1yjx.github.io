@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Agentic autofix GA 使用指南：让 Copilot 自动修复代码扫描告警 | 学习资源库</title>
+  <meta name="description" content="10 月 15 日 GitHub 宣布 agentic autofix for code scanning alerts 正式可用：Copilot 会跨代码库探索相关文件、提出修复、重跑 CodeQL 验证、再开 draft PR，还能一次批量处理最多 25 个告警。这篇教程讲清楚它的工作原理、启用前置条件、怎样单条和批量修复、REST API 怎么调用、AI Credits 和 Actions 分钟如何计费，以及人工审查要点。适合 Code Security / Advanced Security 客户想把漏洞修复自动化的团队。">
+  <meta name="robots" content="index,follow,max-image-preview:large">
+  <link rel="canonical" href="https://hello1yjx.github.io/articles/copilot-agentic-autofix-code-scanning-guide.html">
+  <link rel="icon" type="image/png" href="../assets/images/brand-book-line.png">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"Agentic autofix GA 使用指南：让 Copilot 自动修复代码扫描告警","description":"10 月 15 日 GitHub 宣布 agentic autofix for code scanning alerts 正式可用：Copilot 会跨代码库探索相关文件、提出修复、重跑 CodeQL 验证、再开 draft PR，还能一次批量处理最多 25 个告警。这篇教程讲清楚它的工作原理、启用前置条件、怎样单条和批量修复、REST API 怎么调用、AI Credits 和 Actions 分钟如何计费，以及人工审查要点。适合 Code Security / Advanced Security 客户想把漏洞修复自动化的团队。","datePublished":"2026-10-15","dateModified":"2026-10-15","author":{"@type":"Person","name":"Avery Lin","url":"https://hello1yjx.github.io/about.html"},"publisher":{"@type":"Organization","name":"学习资源库","url":"https://hello1yjx.github.io/"},"mainEntityOfPage":"https://hello1yjx.github.io/articles/copilot-agentic-autofix-code-scanning-guide.html","inLanguage":"zh-CN"}</script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6621999105936318" crossorigin="anonymous"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;800&family=Noto+Serif+SC:wght@700;900&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/styles.css?v=20261017-daily-update">
+</head>
+<body>
+  <header class="site-header">
+    <div class="page-shell site-header__inner">
+      <a class="brand" href="../index.html" aria-label="返回首页">
+        <span class="brand-mark" aria-hidden="true"><img src="../assets/images/brand-book-line.png" alt="" width="36" height="33"></span>
+        <span class="brand-copy"><strong>学习资源库</strong><span>分享知识 · 提升自己 · 成就未来</span></span>
+      </a>
+      <button class="menu-button" data-menu-button aria-expanded="false" aria-label="切换导航菜单">☰</button>
+      <nav class="site-nav" data-mobile-nav>
+        <a href="../index.html">首页</a>
+        <a class="is-active" href="../posts.html" aria-current="page">教程</a>
+        <a href="../resources.html">资源下载</a>
+        <a href="../resources.html#official-resources">工具导航</a>
+        <a href="../hotspots.html">技术资讯</a>
+        <a href="../projects.html">开源项目</a>
+        <a href="../about.html">关于我们</a>
+      </nav>
+      <form class="header-search" action="../posts.html" method="get">
+        <input type="search" name="q" placeholder="搜索教程、资源、工具或关键词...">
+        <button type="submit" aria-label="搜索">/</button>
+      </form>
+      <a class="header-github" href="https://github.com/hello1yjx/hello1yjx.github.io" target="_blank" rel="noreferrer" aria-label="GitHub">
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="" width="24" height="24">
+      </a>
+      <a class="header-cta" href="../posts.html">开始学习</a>
+    </div>
+  </header>
+
+  <main class="page-shell section article-page">
+    <header class="detail-hero">
+      <span class="pill">代码质量</span>
+      <h1>Agentic autofix GA 使用指南：让 Copilot 自动修复代码扫描告警</h1>
+      <div class="detail-hero__meta">
+        <time datetime="2026-10-15">2026年10月15日</time>
+        <span>10 分钟</span>
+        <span>作者：Avery Lin</span>
+      </div>
+      <p>10 月 15 日 GitHub 宣布 agentic autofix for code scanning alerts 正式可用：Copilot 会跨代码库探索相关文件、提出修复、重跑 CodeQL 验证、再开 draft PR，还能一次批量处理最多 25 个告警。这篇教程讲清楚它的工作原理、启用前置条件、怎样单条和批量修复、REST API 怎么调用、AI Credits 和 Actions 分钟如何计费，以及人工审查要点。适合 Code Security / Advanced Security 客户想把漏洞修复自动化的团队。</p>
+    </header>
+    <div class="article-layout">
+      <article class="article-body">
+        <div class="inline-promo">
+          <p class="label">来源与增量价值</p>
+          <h3>本文基于官方资料整理，并补充适用场景、限制条件和实践检查步骤。</h3>
+          <p>首要来源：<a href="https://github.blog/changelog/2026-10-15-agentic-autofix-for-code-scanning-alerts-general-availability/" target="_blank" rel="noreferrer">Agentic autofix for code scanning alerts GA</a>。事实以原始来源为准，本站建议需结合自己的环境验证。</p>
+        </div>
+
+    <p>代码扫描发现告警只是第一步，真正耗时的是逐条修复。agentic autofix 把这个过程自动化：它不是简单给一段补丁，而是像开发者一样跨文件定位、改代码、重跑 CodeQL 确认告警真的关闭，然后开一个带修复说明和验证步骤的 draft PR。</p><p>这篇教程带你从启用上手：先理清它解决什么、需要什么权限和计费，再走单条修复、批量修复、API 调用三条路径，最后讲清楚人工审查和成本控制。读完你能安全地把一部分告警修复工作交给 Copilot。</p>
+    <h2>这篇内容适合谁</h2>
+    <ul><li>使用 GitHub Code Security / Advanced Security 的企业团队</li><li>想把代码扫描告警修复自动化的安全和 DevOps 工程师</li><li>需要配置安全策略和 Copilot 计费的企业管理员</li></ul>
+    <h2>实践与验证步骤</h2>
+    <ul><li>理解工作原理：探索、修复、重跑 CodeQL、开 draft PR</li><li>确认可用性：Enterprise Cloud、Code Security/Advanced Security</li><li>企业管理员开启 Agentic autofix 策略</li><li>组织或仓库管理员在 Code Security 设置中启用</li><li>配置 Copilot 计费方式</li><li>单条修复：把默认分支告警分配给 Copilot</li><li>批量修复：一次最多 25 个告警</li><li>API 调用：Update a Code Scanning Alert REST API</li><li>审查 PR 与控制成本</li></ul>
+    <h2>官方资料入口</h2>
+
+    <ul>
+
+            <li>
+              <a href="https://github.blog/changelog/2026-10-15-agentic-autofix-for-code-scanning-alerts-general-availability/" target="_blank" rel="noreferrer">Agentic autofix for code scanning alerts GA</a>
+              <span>：官方公告</span>
+            </li>
+
+            <li>
+              <a href="https://docs.github.com/" target="_blank" rel="noreferrer">Agentic autofix documentation</a>
+              <span>：官方文档，以最新为准</span>
+            </li>
+
+    </ul>
+
+    <h2>重点判断与使用建议</h2>
+    <ul><li>Copilot 跨代码库探索、生成修复、重跑 CodeQL 验证、开 draft PR</li><li>仅支持默认分支告警；可一次最多批量处理 25 个</li><li>需企业管理员在 Advanced Security 策略开启，并配置 Copilot 计费</li><li>消耗 Code Security 预算的 AI Credits 和 GitHub Actions 分钟数</li></ul>
+
+        <h2>一、工作原理</h2>
+
+        <ul><li>探索：Copilot 在代码库中查找与告警相关的文件</li><li>修复：生成提议的代码修改</li><li>验证：重跑 CodeQL 确认修复确实关闭告警</li><li>迭代：未通过则继续调整，通过后开 draft PR</li><li>PR 内容：修复摘要、为什么关闭告警、验证步骤</li><li>后续：可在 PR 评论或仓库 Agents 标签让 Copilot 继续修改</li></ul>
+
+
+
+        <h2>二、前置条件</h2>
+
+        <ul><li>计划：GitHub Enterprise Cloud（含数据驻留）</li><li>产品：GitHub Code Security 或 Advanced Security</li><li>策略：企业管理员开启 Agentic autofix 策略</li><li>开关：组织或仓库管理员在 Code Security 设置启用</li><li>计费：必须定义 Copilot 计费方式</li><li>扫描：代码扫描已启用且有告警</li></ul>
+
+
+
+        <h2>三、启用步骤</h2>
+
+        <ul><li>企业管理员：在 Advanced Security 策略中开启 Agentic autofix</li><li>组织/仓库管理员：在 Code Security 设置中启用</li><li>确认计费：设置 Copilot 计费方式和预算</li><li>界面变化：启用后单个告警的免费 Generate Fix 变为 Assign to Copilot</li><li>先小范围验证：在一个非关键仓库试跑，确认修复质量</li></ul>
+
+
+
+        <h2>四、单条与批量修复</h2>
+
+        <ul><li>单条：默认分支任意代码扫描告警，点 Assign to Copilot</li><li>批量：安全告警列表或 security campaign 中选最多 25 个，一次修复进同一个 PR</li><li>分支限制：仅默认分支告警可分配，PR 或其他分支独有告警不行</li><li>draft PR：先开 draft，审查后再标记 ready 并合并</li><li>迭代：在 PR 评论让 Copilot 修改，或在 Agents 标签操作</li></ul>
+
+
+
+        <h2>五、REST API 调用</h2>
+
+        <ul><li>接口：Update a Code Scanning Alert REST API</li><li>关键参数：assignees 设为 ["copilot-swe-agent[bot]"]</li><li>自动化：可写脚本批量把告警分配给 Copilot</li><li>适合：与现有安全工单、security campaign 流程集成</li><li>注意：API 调用同样受权限、计费和分支限制约束</li></ul>
+
+
+
+        <h2>六、计费与成本控制</h2>
+
+        <ul><li>AI Credits：从 Code Security 预算消耗，计费显示为 Advanced Security 产品</li><li>Actions 分钟：重跑 CodeQL 消耗 GitHub Actions 分钟</li><li>预算：可设置 Code Security AI credits 的 SKU 级预算</li><li>监控：在企业 billing and licensing 的 AI usage 查看</li><li>成本优化：先用批量修复处理高确定性、低风险的告警，复杂的人工处理</li></ul>
+
+
+
+        <h2>七、人工审查要点</h2>
+
+        <ul><li>不盲合：自动修复可能引入新问题或改变行为</li><li>看验证：确认 CodeQL 确实通过，且测试没有被绕过</li><li>看范围：修改是否只涉及必要文件，有无夹带</li><li>看语义：安全修复是否真正堵住根因，而非只让扫描器静默</li><li>回归：合并后关注是否产生新告警或功能回归</li></ul>
+
+
+
+        <h2>八、检查清单</h2>
+
+        <ul><li>计划与产品：Enterprise Cloud + Code Security/Advanced Security</li><li>策略已开启：企业管理员启用 Agentic autofix</li><li>计费已配置：Copilot 计费方式和预算就绪</li><li>小范围验证：先在测试仓库试跑</li><li>告警在默认分支：非默认分支无法分配</li><li>批量不超 25：单次最多 25 个</li><li>PR 已审查：验证、范围、根因都核查</li><li>成本可监控：AI Credits 和 Actions 用量可追踪</li></ul>
+
+
+
+
+        <div class="inline-promo">
+          <p class="label">更正与更新</p>
+          <h3>发现版本变化、来源失效或事实错误时，请通过联系页反馈。</h3>
+          <p>本站会核对一手来源后更新内容，不使用无来源转载填充文章。</p>
+          <a class="button button--secondary" href="../editorial.html">查看内容标准</a>
+        </div>
+      </article>
+      <aside class="article-sidebar">
+        <div class="sidebar-card">
+          <p class="label">本页标签</p>
+          <div class="tag-row"><span>agentic autofix</span><span>code scanning</span><span>CodeQL</span><span>GitHub Advanced Security</span><span>安全自动化</span><span>Copilot</span></div>
+        </div>
+        <div class="sidebar-card">
+          <p class="label">继续阅读</p>
+          <a href="copilot-enterprise-telemetry-privacy-guide.html">企业遥测与隐私合规：Copilot 用户归因不采集 prompt 内容</a><a href="claude-5-5-family-haiku-sonnet-opus-guide.html">Claude 5.5 家族完整选型：Haiku、Sonnet、Opus 三档按任务分配</a><a href="copilot-local-sandbox-ga-upgrade-guide.html">Copilot 本地沙箱 GA 升级指南：从 preview 到正式可用的配置与验证</a><a href="github-stacked-pr-workflow-guide.html">Stacked PR 工作流：把大改动拆成可审查的依赖链</a>
+        </div>
+        <div class="sidebar-card sidebar-card--accent">
+          <p class="label">作者与方法</p>
+          <h3>了解本站如何选题、核验来源与处理更正。</h3>
+          <a class="button button--dark" href="../about.html">关于作者</a>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="page-shell footer__inner">
+      <div><strong>学习资源库</strong><p>分享知识 · 提升自己 · 成就未来</p></div>
+      <div>
+        <a href="../editorial.html">内容标准</a><br>
+        <a href="../privacy.html">隐私政策</a><br>
+        <a href="../contact.html">联系</a>
+      </div>
+    </div>
+  </footer>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      var button = document.querySelector("[data-menu-button]");
+      var nav = document.querySelector("[data-mobile-nav]");
+      if (!button || !nav) return;
+      button.addEventListener("click", function () {
+        var expanded = button.getAttribute("aria-expanded") === "true";
+        button.setAttribute("aria-expanded", String(!expanded));
+        nav.classList.toggle("site-nav--open", !expanded);
+      });
+    });
+  </script>
+</body>
+</html>
