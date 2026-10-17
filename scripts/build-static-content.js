@@ -156,6 +156,7 @@ function articleTemplate(runtime, post, relatedPosts) {
         <a href="../resources.html#official-resources">工具导航</a>
         <a href="../hotspots.html">技术资讯</a>
         <a href="../projects.html">开源项目</a>
+        <a href="../kaogong.html">考公专区</a>
         <a href="../about.html">关于我们</a>
       </nav>
       <form class="header-search" action="../posts.html" method="get">

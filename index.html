@@ -33,6 +33,7 @@
         <a href="resources.html#official-resources">工具导航</a>
         <a href="hotspots.html">技术资讯</a>
         <a href="projects.html">开源项目</a>
+        <a href="kaogong.html">考公专区</a>
         <a href="about.html">关于我们</a>
       </nav>
       <form class="header-search" data-site-search action="posts.html" method="get">
@@ -320,6 +321,54 @@
           <div class="latest-list" data-home-latest>
             <!-- STATIC_HOME_LATEST_START -->
 <article class="latest-item reveal">
+      <a class="latest-thumb latest-thumb--debug" href="articles/copilot-agentic-autofix-code-scanning-guide.html">
+        <img class="visual-icon visual-icon--thumb" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="代码质量 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';">
+        <span>代码质量</span>
+      </a>
+      <div>
+        <h3><a href="articles/copilot-agentic-autofix-code-scanning-guide.html">Agentic autofix GA 使用指南：让 Copilot 自动修复代码扫描告警</a></h3>
+        <p>10 月 15 日 GitHub 宣布 agentic autofix for code scanning alerts 正式可用：Copilot 会跨代码库探索相关文件、提出修复、重跑 CodeQL 验证、再开 draft PR，还能一次批量处理最多 25 个告警。这篇教程讲清楚它的工作原理、启用前置条件、怎样单条和批量修复、REST API 怎么调用、AI Credits 和 Actions 分钟如何计费，以及人工审查要点。适合 Code Security / Advanced Security 客户想把漏洞修复自动化的团队。</p>
+        <div class="meta-row">
+          <span>代码质量</span>
+          <span>10 分钟</span>
+          <time datetime="2026-10-15">2026年10月15日</time>
+        </div>
+      </div>
+    </article>
+
+    <article class="latest-item reveal">
+      <a class="latest-thumb latest-thumb--github" href="articles/github-actions-workflow-lockfiles-guide.html">
+        <img class="visual-icon visual-icon--thumb" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="云端部署 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';">
+        <span>云端部署</span>
+      </a>
+      <div>
+        <h3><a href="articles/github-actions-workflow-lockfiles-guide.html">Actions workflow lockfiles 供应链安全：锁定 CI 依赖到已审查 commit</a></h3>
+        <p>10 月 14 日 GitHub Actions workflow lockfiles 进入公开预览：在 workflow YAML 中通过 dependencies 段把所有直接和传递依赖锁定到 commit SHA，类似 go.mod + go.sum，让 CI 运行可复现、依赖可审查；管理员可强制要求 lockfile，Dependabot 同步更新。这篇教程讲清楚为什么标签引用有供应链风险、lockfile 怎么工作、如何启用和生成、如何配合 Dependabot 更新、组织级强制策略，以及 preview 期的注意事项。适合关注 CI/CD 供应链安全的团队。</p>
+        <div class="meta-row">
+          <span>云端部署</span>
+          <span>9 分钟</span>
+          <time datetime="2026-10-14">2026年10月14日</time>
+        </div>
+      </div>
+    </article>
+
+    <article class="latest-item reveal">
+      <a class="latest-thumb latest-thumb--github" href="articles/codex-cli-0162-git-worktree-gpt61-sol-guide.html">
+        <img class="visual-icon visual-icon--thumb" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/python/python-original.svg" alt="AI 终端 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';">
+        <span>AI 终端</span>
+      </a>
+      <div>
+        <h3><a href="articles/codex-cli-0162-git-worktree-gpt61-sol-guide.html">Codex CLI 0.162.0 升级指南：managed Git worktree 与 GPT-6.1 Sol 默认模型</a></h3>
+        <p>10 月 9 日 Codex CLI 0.162.0 发布，带来两个关键变化：为受信任本地项目引入 managed Git worktree 工具，让 Agent 在隔离工作树中操作不污染主分支；GPT-6.1 Sol 成为 bundled catalog 和 Bedrock 的默认模型，接近 Astra 智能但约五分之一价格、缓存输入 95% off。这篇教程讲清楚升级步骤、worktree 怎么用、默认模型切换的影响、CRLF 修复对 Windows 的意义，以及升级后如何验证。适合在用 Codex CLI、想升级到最新版的开发者。</p>
+        <div class="meta-row">
+          <span>AI 终端</span>
+          <span>10 分钟</span>
+          <time datetime="2026-10-09">2026年10月9日</time>
+        </div>
+      </div>
+    </article>
+
+    <article class="latest-item reveal">
       <a class="latest-thumb latest-thumb--ai" href="articles/copilot-code-review-org-billing-guide.html">
         <img class="visual-icon visual-icon--thumb" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="AI 编程 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';">
         <span>AI 编程</span>
@@ -331,54 +380,6 @@
           <span>AI 编程</span>
           <span>8 分钟</span>
           <time datetime="2026-10-08">2026年10月8日</time>
-        </div>
-      </div>
-    </article>
-
-    <article class="latest-item reveal">
-      <a class="latest-thumb latest-thumb--ai" href="articles/copilot-enterprise-telemetry-privacy-guide.html">
-        <img class="visual-icon visual-icon--thumb" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="AI 编程 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';">
-        <span>AI 编程</span>
-      </a>
-      <div>
-        <h3><a href="articles/copilot-enterprise-telemetry-privacy-guide.html">企业遥测与隐私合规：Copilot 用户归因不采集 prompt 内容</a></h3>
-        <p>10 月 12 日 GitHub 推出 Copilot client telemetry 用户归因和可配置采集：企业管理员可以在不收集用户 prompt、response 或工具内容的情况下，将 Copilot 活动归因到具体用户。telemetry.capture.identity 在 OTel 数据中添加 user.name、process.user.name、host.name，默认关闭；另有五个独立采集类全部默认关闭。这篇教程讲清楚身份归因与内容采集的区别、怎样按需开启、合规注意事项，以及旧 captureContent 设置的迁移。适合需要监控 Copilot 使用又必须保护代码隐私的企业管理员。</p>
-        <div class="meta-row">
-          <span>AI 编程</span>
-          <span>9 分钟</span>
-          <time datetime="2026-10-12">2026年10月12日</time>
-        </div>
-      </div>
-    </article>
-
-    <article class="latest-item reveal">
-      <a class="latest-thumb latest-thumb--ai" href="articles/claude-5-5-family-haiku-sonnet-opus-guide.html">
-        <img class="visual-icon visual-icon--thumb" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/python/python-original.svg" alt="AI 编程 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';">
-        <span>AI 编程</span>
-      </a>
-      <div>
-        <h3><a href="articles/claude-5-5-family-haiku-sonnet-opus-guide.html">Claude 5.5 家族完整选型：Haiku、Sonnet、Opus 三档按任务分配</a></h3>
-        <p>随着 10 月 7 日 Haiku 5.5 发布，Claude 5.5 家族三档齐全：Haiku 5.5 最快最省、Sonnet 5.5 承接日常、Opus 5.5 攻坚复杂任务。这篇教程讲清楚三档各自适合什么、怎样按任务复杂度和成本切换、如何验证切换后质量不掉、以及在 Copilot/API 中如何管理。适合在多个 Claude 模型间选择、想兼顾速度、能力和花费的开发者。</p>
-        <div class="meta-row">
-          <span>AI 编程</span>
-          <span>10 分钟</span>
-          <time datetime="2026-10-07">2026年10月7日</time>
-        </div>
-      </div>
-    </article>
-
-    <article class="latest-item reveal">
-      <a class="latest-thumb latest-thumb--ai" href="articles/copilot-local-sandbox-ga-upgrade-guide.html">
-        <img class="visual-icon visual-icon--thumb" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="AI 编程 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';">
-        <span>AI 编程</span>
-      </a>
-      <div>
-        <h3><a href="articles/copilot-local-sandbox-ga-upgrade-guide.html">Copilot 本地沙箱 GA 升级指南：从 preview 到正式可用的配置与验证</a></h3>
-        <p>GitHub 10 月 7 日宣布本地沙箱正式可用（GA），覆盖 CLI、app 和 VS Code Agent Host，由 Microsoft eXecution Container（MXC）驱动跨 Windows/macOS/Linux，包含在 Copilot 内无额外费用，企业可强制启用。这篇教程讲清楚 GA 与 preview 的区别、怎样升级并重新核对策略、MXC 底层原理、企业强制配置方法，以及升级后如何验证沙箱真的生效。适合已经在 preview 期用过沙箱、或准备正式启用的开发者和团队。</p>
-        <div class="meta-row">
-          <span>AI 编程</span>
-          <span>9 分钟</span>
-          <time datetime="2026-10-07">2026年10月7日</time>
         </div>
       </div>
     </article>
