@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GitHub Copilot 本地沙箱使用教程：让 AI agent 安全操作你的电脑 | 学习资源库</title>
+  <meta name="description" content="Copilot agent 能直接读写文件、执行终端命令，方便但也有风险。本地沙箱（local sandboxing）已正式 GA，可以限制 agent 对文件、网络和凭证的访问。这篇教程讲清沙箱是什么、怎么开启、权限怎么配、哪些场景该用、用完怎么恢复，适合所有用 Copilot agent 模式的开发者。">
+  <meta name="robots" content="index,follow,max-image-preview:large">
+  <link rel="canonical" href="https://hello1yjx.github.io/articles/github-copilot-local-sandboxing-security-guide.html">
+  <link rel="icon" type="image/png" href="../assets/images/brand-book-line.png">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"GitHub Copilot 本地沙箱使用教程：让 AI agent 安全操作你的电脑","description":"Copilot agent 能直接读写文件、执行终端命令，方便但也有风险。本地沙箱（local sandboxing）已正式 GA，可以限制 agent 对文件、网络和凭证的访问。这篇教程讲清沙箱是什么、怎么开启、权限怎么配、哪些场景该用、用完怎么恢复，适合所有用 Copilot agent 模式的开发者。","datePublished":"2026-10-19","dateModified":"2026-10-19","author":{"@type":"Person","name":"Avery Lin","url":"https://hello1yjx.github.io/about.html"},"publisher":{"@type":"Organization","name":"学习资源库","url":"https://hello1yjx.github.io/"},"mainEntityOfPage":"https://hello1yjx.github.io/articles/github-copilot-local-sandboxing-security-guide.html","inLanguage":"zh-CN"}</script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6621999105936318" crossorigin="anonymous"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;800&family=Noto+Serif+SC:wght@700;900&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/styles.css?v=20261019-daily-update">
+</head>
+<body>
+  <header class="site-header">
+    <div class="page-shell site-header__inner">
+      <a class="brand" href="../index.html" aria-label="返回首页">
+        <span class="brand-mark" aria-hidden="true"><img src="../assets/images/brand-book-line.png" alt="" width="36" height="33"></span>
+        <span class="brand-copy"><strong>学习资源库</strong><span>分享知识 · 提升自己 · 成就未来</span></span>
+      </a>
+      <button class="menu-button" data-menu-button aria-expanded="false" aria-label="切换导航菜单">☰</button>
+      <nav class="site-nav" data-mobile-nav>
+        <a href="../index.html">首页</a>
+        <a class="is-active" href="../posts.html" aria-current="page">教程</a>
+        <a href="../resources.html">资源下载</a>
+        <a href="../resources.html#official-resources">工具导航</a>
+        <a href="../hotspots.html">技术资讯</a>
+        <a href="../projects.html">开源项目</a>
+        <a href="../kaogong.html">考公专区</a>
+        <a href="../about.html">关于我们</a>
+      </nav>
+      <form class="header-search" action="../posts.html" method="get">
+        <input type="search" name="q" placeholder="搜索教程、资源、工具或关键词...">
+        <button type="submit" aria-label="搜索">/</button>
+      </form>
+      <a class="header-github" href="https://github.com/hello1yjx/hello1yjx.github.io" target="_blank" rel="noreferrer" aria-label="GitHub">
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="" width="24" height="24">
+      </a>
+      <a class="header-cta" href="../posts.html">开始学习</a>
+    </div>
+  </header>
+
+  <main class="page-shell section article-page">
+    <header class="detail-hero">
+      <span class="pill">AI 编程</span>
+      <h1>GitHub Copilot 本地沙箱使用教程：让 AI agent 安全操作你的电脑</h1>
+      <div class="detail-hero__meta">
+        <time datetime="2026-10-19">2026年10月19日</time>
+        <span>10 分钟</span>
+        <span>作者：Avery Lin</span>
+      </div>
+      <p>Copilot agent 能直接读写文件、执行终端命令，方便但也有风险。本地沙箱（local sandboxing）已正式 GA，可以限制 agent 对文件、网络和凭证的访问。这篇教程讲清沙箱是什么、怎么开启、权限怎么配、哪些场景该用、用完怎么恢复，适合所有用 Copilot agent 模式的开发者。</p>
+    </header>
+    <div class="article-layout">
+      <article class="article-body">
+        <div class="inline-promo">
+          <p class="label">来源与增量价值</p>
+          <h3>本文基于官方资料整理，并补充适用场景、限制条件和实践检查步骤。</h3>
+          <p>首要来源：<a href="https://github.blog/changelog/2026-10-09-github-copilot-weekly-releases-october-5/" target="_blank" rel="noreferrer">GitHub Copilot local sandboxing 公告</a>。事实以原始来源为准，本站建议需结合自己的环境验证。</p>
+        </div>
+
+    <p>AI agent 模式越来越强：它能自己读文件、改代码、跑命令、装依赖。但能力越大风险越大——一个误操作可能删掉重要文件，一个恶意提示可能让它读取你的凭证并外传。GitHub Copilot 的本地沙箱就是用来解决这个问题的。</p><p>本地沙箱在 2026 年 10 月正式 GA，覆盖 Copilot CLI、Copilot 应用和 VS Code 的 Agent Host 会话，随 Copilot 订阅免费提供。这篇教程从原理到实操，帮你把 agent 关在安全环境里用。</p>
+    <h2>这篇内容适合谁</h2>
+    <ul><li>用 Copilot agent 模式但担心安全风险的开发者</li><li>在个人电脑上跑 AI 编码 agent 的新手</li><li>想了解 AI agent 权限隔离原理的用户</li></ul>
+    <h2>实践与验证步骤</h2>
+    <ul><li>理解本地沙箱的隔离原理</li><li>在 VS Code Agent Host 中开启沙箱</li><li>在 Copilot CLI 中开启沙箱</li><li>配置文件、网络、凭证访问权限</li><li>在沙箱中执行 agent 任务</li><li>验证沙箱生效并处理权限不足</li><li>用完后恢复或调整权限</li></ul>
+    <h2>官方资料入口</h2>
+
+    <ul>
+
+            <li>
+              <a href="https://github.blog/changelog/2026-10-09-github-copilot-weekly-releases-october-5/" target="_blank" rel="noreferrer">GitHub Copilot local sandboxing 公告</a>
+              <span>：GA 发布说明</span>
+            </li>
+
+            <li>
+              <a href="https://docs.github.com/en/copilot" target="_blank" rel="noreferrer">GitHub Copilot 文档</a>
+              <span>：官方使用文档</span>
+            </li>
+
+    </ul>
+
+    <h2>重点判断与使用建议</h2>
+    <ul><li>本地沙箱随 Copilot 订阅免费提供，无需额外付费</li><li>覆盖 Copilot CLI、Copilot 应用、VS Code Agent Host 会话</li><li>可限制三类访问：文件系统、网络、凭证（credentials）</li><li>沙箱是本地隔离，不影响 Copilot 云端功能和模型调用</li><li>沙箱内 agent 仍可调用模型，只是本地操作受限</li></ul>
+
+        <h2>一、沙箱是什么、隔离什么</h2>
+
+        <ul><li>本地沙箱是在你的电脑上划出一个受限环境，agent 在里面运行</li><li>文件系统：可限制 agent 只能读写指定目录，不能碰系统文件和其他项目</li><li>网络：可限制 agent 能否联网、能访问哪些域名，防止外传数据</li><li>凭证：可阻止 agent 读取环境变量、配置文件中的 API key 和 token</li><li>终端命令：沙箱内执行的命令也受文件和网络限制约束</li></ul>
+
+
+
+        <h2>二、在 VS Code 中开启</h2>
+
+        <ul><li>打开 VS Code，确保已安装 GitHub Copilot 扩展并登录</li><li>进入 agent 模式（Agent Host 会话），在设置中找到 Copilot 沙箱选项</li><li>开启“Enable local sandboxing”，选择隔离级别（只读、指定目录、完全隔离）</li><li>首次开启会提示选择允许访问的工作目录，建议只选当前项目</li><li>开启后 agent 会话窗口会有沙箱标识，确认生效再开始任务</li></ul>
+
+
+
+        <h2>三、在 Copilot CLI 中开启</h2>
+
+        <ul><li>确保已安装最新版 Copilot CLI（旧版本可能不支持沙箱）</li><li>启动时加沙箱参数，或在配置文件中默认开启</li><li>用 --sandbox 标志启动会话，agent 的文件和网络操作自动受限</li><li>可用 --allow-read、--allow-write、--allow-net 精细控制权限</li><li>CLI 沙箱适合在终端跑批量重构和脚本生成任务</li></ul>
+
+
+
+        <h2>四、权限怎么配</h2>
+
+        <ul><li>日常编码：允许读写当前项目目录，禁止网络和凭证，最安全</li><li>需要装依赖：临时放开网络（仅限 npm/pip  registry），装完收回</li><li>需要调用外部 API：用环境变量注入 key，不要让 agent 直接读配置文件</li><li>系统级操作（改全局配置、装软件）：建议不要在沙箱内做，手动执行</li><li>原则：最小权限，用完即收，不要图方便一直开全权限</li></ul>
+
+
+
+        <h2>五、典型使用场景</h2>
+
+        <ul><li>代码重构：agent 在沙箱内只读项目文件、生成 diff，你审核后再应用</li><li>写测试：agent 读取源码、生成测试文件，不接触生产配置</li><li>终端任务：agent 生成并执行命令，但只能操作当前目录</li><li>多项目切换：每个项目开独立沙箱，防止 agent 串改其他项目</li><li>不信任的提示词：从外部复制来的 agent 任务，先在沙箱里跑一遍</li></ul>
+
+
+
+        <h2>六、常见问题</h2>
+
+        <ul><li>agent 报权限不足：说明沙箱在生效，检查是否需要临时放开对应目录或网络</li><li>沙箱里装不了依赖：临时允许网络访问包管理器域名，装完关闭</li><li>agent 读不到 .env：这是沙箱的保护机制，需要时手动把值传给 agent</li><li>沙箱影响速度吗：几乎不影响，隔离是轻量级的</li><li>能完全替代安全意识吗：不能，沙箱是辅助，重要操作仍需人工审核</li></ul>
+
+
+
+        <h2>七、检查清单</h2>
+
+        <ul><li>Copilot 扩展和 CLI 已更新到支持沙箱的版本</li><li>VS Code agent 会话已开启沙箱并有标识</li><li>CLI 启动时带 --sandbox 或配置默认开启</li><li>文件权限只开放当前项目目录</li><li>网络权限按需开放，用完收回</li><li>凭证文件（.env、.ssh、config）不在 agent 可读范围</li><li>重要操作前人工审核 agent 的 diff 和命令</li><li>定期检查沙箱配置，避免无意中放开权限</li></ul>
+
+
+
+
+        <div class="inline-promo">
+          <p class="label">更正与更新</p>
+          <h3>发现版本变化、来源失效或事实错误时，请通过联系页反馈。</h3>
+          <p>本站会核对一手来源后更新内容，不使用无来源转载填充文章。</p>
+          <a class="button button--secondary" href="../editorial.html">查看内容标准</a>
+        </div>
+      </article>
+      <aside class="article-sidebar">
+        <div class="sidebar-card">
+          <p class="label">本页标签</p>
+          <div class="tag-row"><span>GitHub Copilot</span><span>本地沙箱</span><span>AI 安全</span><span>agent</span><span>VS Code</span><span>CLI</span></div>
+        </div>
+        <div class="sidebar-card">
+          <p class="label">继续阅读</p>
+          <a href="2027-guangdong-shengkao-nianmo-moshi-guide.html">2027 广东省考报考指南：年末省考新模式、时间线与备考安排</a><a href="cyberspace-security-major-kaogong-gangwei-jiance-guide.html">网络空间安全专业考公指南：岗位方向、报考条件与备考规划</a><a href="gemini-4-argon-deep-reasoning-guide.html">Gemini 4 Argon 使用指南：深度多步推理与思考级别配置</a><a href="copilot-agentic-autofix-code-scanning-guide.html">Agentic autofix GA 使用指南：让 Copilot 自动修复代码扫描告警</a>
+        </div>
+        <div class="sidebar-card sidebar-card--accent">
+          <p class="label">作者与方法</p>
+          <h3>了解本站如何选题、核验来源与处理更正。</h3>
+          <a class="button button--dark" href="../about.html">关于作者</a>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="page-shell footer__inner">
+      <div><strong>学习资源库</strong><p>分享知识 · 提升自己 · 成就未来</p></div>
+      <div>
+        <a href="../editorial.html">内容标准</a><br>
+        <a href="../privacy.html">隐私政策</a><br>
+        <a href="../contact.html">联系</a>
+      </div>
+    </div>
+  </footer>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      var button = document.querySelector("[data-menu-button]");
+      var nav = document.querySelector("[data-mobile-nav]");
+      if (!button || !nav) return;
+      button.addEventListener("click", function () {
+        var expanded = button.getAttribute("aria-expanded") === "true";
+        button.setAttribute("aria-expanded", String(!expanded));
+        nav.classList.toggle("site-nav--open", !expanded);
+      });
+    });
+  </script>
+</body>
+</html>

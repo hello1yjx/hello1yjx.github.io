@@ -9,7 +9,7 @@ const siteData = {
     bio: "把官方入口、学习路线、示例代码和可扩展资料放进同一张地图里，让第一次来的人也能马上知道从哪里开始。",
     heroStats: [
       { value: "9", label: "原创下载包" },
-      { value: "89", label: "新手专题" },
+      { value: "91", label: "新手专题" },
       { value: "持续", label: "更新与核验" }
     ],
     valueCards: [
@@ -28,6 +28,269 @@ const siteData = {
     ]
   },
   posts: [
+    {
+      id: "github-copilot-local-sandboxing-security-guide",
+      title: "GitHub Copilot 本地沙箱使用教程：让 AI agent 安全操作你的电脑",
+      date: "2026-10-19",
+      category: "AI 编程",
+      readTime: "10 分钟",
+      excerpt: "Copilot agent 能直接读写文件、执行终端命令，方便但也有风险。本地沙箱（local sandboxing）已正式 GA，可以限制 agent 对文件、网络和凭证的访问。这篇教程讲清沙箱是什么、怎么开启、权限怎么配、哪些场景该用、用完怎么恢复，适合所有用 Copilot agent 模式的开发者。",
+      tags: ["GitHub Copilot", "本地沙箱", "AI 安全", "agent", "VS Code", "CLI"],
+      featured: false,
+      intro: [
+        "AI agent 模式越来越强：它能自己读文件、改代码、跑命令、装依赖。但能力越大风险越大——一个误操作可能删掉重要文件，一个恶意提示可能让它读取你的凭证并外传。GitHub Copilot 的本地沙箱就是用来解决这个问题的。",
+        "本地沙箱在 2026 年 10 月正式 GA，覆盖 Copilot CLI、Copilot 应用和 VS Code 的 Agent Host 会话，随 Copilot 订阅免费提供。这篇教程从原理到实操，帮你把 agent 关在安全环境里用。"
+      ],
+      audience: [
+        "用 Copilot agent 模式但担心安全风险的开发者",
+        "在个人电脑上跑 AI 编码 agent 的新手",
+        "想了解 AI agent 权限隔离原理的用户"
+      ],
+      format: [
+        "全文按“原理 → 开启方法 → 权限配置 → 使用场景 → 常见问题 → 检查清单”组织",
+        "配合 VS Code 和 CLI 两种环境的操作步骤"
+      ],
+      roadmap: [
+        "理解本地沙箱的隔离原理",
+        "在 VS Code Agent Host 中开启沙箱",
+        "在 Copilot CLI 中开启沙箱",
+        "配置文件、网络、凭证访问权限",
+        "在沙箱中执行 agent 任务",
+        "验证沙箱生效并处理权限不足",
+        "用完后恢复或调整权限"
+      ],
+      officialLinks: [
+        { label: "GitHub Copilot local sandboxing 公告", url: "https://github.blog/changelog/2026-10-09-github-copilot-weekly-releases-october-5/", note: "GA 发布说明" },
+        { label: "GitHub Copilot 文档", url: "https://docs.github.com/en/copilot", note: "官方使用文档" }
+      ],
+      curatedLinks: [
+        "本地沙箱随 Copilot 订阅免费提供，无需额外付费",
+        "覆盖 Copilot CLI、Copilot 应用、VS Code Agent Host 会话",
+        "可限制三类访问：文件系统、网络、凭证（credentials）",
+        "沙箱是本地隔离，不影响 Copilot 云端功能和模型调用",
+        "沙箱内 agent 仍可调用模型，只是本地操作受限"
+      ],
+      downloadIdeas: [
+        "做一张“agent 权限分级表”：日常编码、项目重构、系统操作分别给什么权限",
+        "做一个沙箱开启/关闭的快捷命令别名"
+      ],
+      extraSections: [
+        {
+          title: "一、沙箱是什么、隔离什么",
+          items: [
+            "本地沙箱是在你的电脑上划出一个受限环境，agent 在里面运行",
+            "文件系统：可限制 agent 只能读写指定目录，不能碰系统文件和其他项目",
+            "网络：可限制 agent 能否联网、能访问哪些域名，防止外传数据",
+            "凭证：可阻止 agent 读取环境变量、配置文件中的 API key 和 token",
+            "终端命令：沙箱内执行的命令也受文件和网络限制约束"
+          ]
+        },
+        {
+          title: "二、在 VS Code 中开启",
+          items: [
+            "打开 VS Code，确保已安装 GitHub Copilot 扩展并登录",
+            "进入 agent 模式（Agent Host 会话），在设置中找到 Copilot 沙箱选项",
+            "开启“Enable local sandboxing”，选择隔离级别（只读、指定目录、完全隔离）",
+            "首次开启会提示选择允许访问的工作目录，建议只选当前项目",
+            "开启后 agent 会话窗口会有沙箱标识，确认生效再开始任务"
+          ]
+        },
+        {
+          title: "三、在 Copilot CLI 中开启",
+          items: [
+            "确保已安装最新版 Copilot CLI（旧版本可能不支持沙箱）",
+            "启动时加沙箱参数，或在配置文件中默认开启",
+            "用 --sandbox 标志启动会话，agent 的文件和网络操作自动受限",
+            "可用 --allow-read、--allow-write、--allow-net 精细控制权限",
+            "CLI 沙箱适合在终端跑批量重构和脚本生成任务"
+          ]
+        },
+        {
+          title: "四、权限怎么配",
+          items: [
+            "日常编码：允许读写当前项目目录，禁止网络和凭证，最安全",
+            "需要装依赖：临时放开网络（仅限 npm/pip  registry），装完收回",
+            "需要调用外部 API：用环境变量注入 key，不要让 agent 直接读配置文件",
+            "系统级操作（改全局配置、装软件）：建议不要在沙箱内做，手动执行",
+            "原则：最小权限，用完即收，不要图方便一直开全权限"
+          ]
+        },
+        {
+          title: "五、典型使用场景",
+          items: [
+            "代码重构：agent 在沙箱内只读项目文件、生成 diff，你审核后再应用",
+            "写测试：agent 读取源码、生成测试文件，不接触生产配置",
+            "终端任务：agent 生成并执行命令，但只能操作当前目录",
+            "多项目切换：每个项目开独立沙箱，防止 agent 串改其他项目",
+            "不信任的提示词：从外部复制来的 agent 任务，先在沙箱里跑一遍"
+          ]
+        },
+        {
+          title: "六、常见问题",
+          items: [
+            "agent 报权限不足：说明沙箱在生效，检查是否需要临时放开对应目录或网络",
+            "沙箱里装不了依赖：临时允许网络访问包管理器域名，装完关闭",
+            "agent 读不到 .env：这是沙箱的保护机制，需要时手动把值传给 agent",
+            "沙箱影响速度吗：几乎不影响，隔离是轻量级的",
+            "能完全替代安全意识吗：不能，沙箱是辅助，重要操作仍需人工审核"
+          ]
+        },
+        {
+          title: "七、检查清单",
+          items: [
+            "Copilot 扩展和 CLI 已更新到支持沙箱的版本",
+            "VS Code agent 会话已开启沙箱并有标识",
+            "CLI 启动时带 --sandbox 或配置默认开启",
+            "文件权限只开放当前项目目录",
+            "网络权限按需开放，用完收回",
+            "凭证文件（.env、.ssh、config）不在 agent 可读范围",
+            "重要操作前人工审核 agent 的 diff 和命令",
+            "定期检查沙箱配置，避免无意中放开权限"
+          ]
+        }
+      ]
+    },
+    {
+      id: "2027-guokao-baoming-zuihou-jieduan-xuangang-shenhe-jiaofei-guide",
+      title: "2027 国考报名最后阶段攻略：选岗、审核、缴费与避坑（截至 10 月 18 日数据）",
+      date: "2026-10-19",
+      category: "考公",
+      readTime: "11 分钟",
+      excerpt: "国考报名 10 月 24 日 18:00 截止，实名实人认证 10 月 23 日 18:00 截止。截至 10 月 18 日已有 62 万人报名、40 万人通过审核，平均竞争比 11.26:1，最高 1611:1。这篇教程讲清最后几天怎么选岗、审核不通过怎么办、什么时候缴费、哪些坑千万别踩，适合还在观望或刚报名的考生。",
+      tags: ["国考", "报名", "选岗", "资格审核", "缴费", "避坑"],
+      featured: false,
+      intro: [
+        "2027 年度国考报名已进入最后阶段。截至 10 月 18 日 16 时，全国已有 620719 人报名、401928 人通过资格审查，平均竞争比 11.26:1，最热岗位竞争比 1611:1，仍有 804 个职位无人报名。报名 10 月 24 日 18:00 截止，实名实人认证 10 月 23 日 18:00 截止，时间不多了。",
+        "这篇教程聚焦最后几天的实操：怎么根据报名数据选岗、审核状态怎么看、被退回怎么改、缴费时间和注意事项、以及每年都有人踩的坑。所有时间和数据以官方为准，建议尽早完成，不要卡最后一天。"
+      ],
+      audience: [
+        "还没报名、在观望选岗的考生",
+        "已报名但审核未通过或待审核的考生",
+        "想了解报名最后阶段注意事项的考生"
+      ],
+      format: [
+        "全文按“当前数据 → 选岗策略 → 审核流程 → 缴费 → 避坑 → 时间线 → 检查清单”组织",
+        "数据截至 10 月 18 日，后续以官方实时数据为准"
+      ],
+      roadmap: [
+        "了解当前报名数据和竞争态势",
+        "用最后几天的数据优化选岗",
+        "完成实名实人认证（10/23 截止）",
+        "提交报名并跟踪资格审核状态",
+        "审核不通过时及时修改或改报",
+        "通过后在规定时间缴费",
+        "考前准备和准考证打印"
+      ],
+      officialLinks: [
+        { label: "2027 年度国考专题网站", url: "http://bm.scs.gov.cn/kl2027", note: "报名、查询、缴费唯一官方入口" },
+        { label: "新华社：2027 年度国考招考公告", url: "http://www.xinhuanet.com/politics/20261013/0187230deca94baa8053060067412549/c.html", note: "官方公告" }
+      ],
+      curatedLinks: [
+        "截至 10 月 18 日 16 时：620719 人报名，401928 人通过审查",
+        "平均竞争比 11.26:1，最高竞争比 1611:1",
+        "804 个职位无人报名，1712 个职位审查通过为零",
+        "广东、北京、四川为最热报考地区",
+        "热门岗位：百色边境管理支队（约 1448:1）、文旅部资源开发司（1011:1）",
+        "实名实人认证 10 月 23 日 18:00 截止，报名 10 月 24 日 18:00 截止",
+        "官方不指定用书、不委托机构，警惕保过骗局"
+      ],
+      downloadIdeas: [
+        "做一张“国考报名倒计时卡”：认证截止、报名截止、缴费、准考证、笔试时间",
+        "做一个“选岗对比表”：3-5 个意向岗位的招录人数、报名人数、竞争比、限制条件"
+      ],
+      extraSections: [
+        {
+          title: "一、当前报名数据怎么用",
+          items: [
+            "62 万人报名、40 万人过审，说明大部分岗位竞争温和，不必过度焦虑",
+            "平均竞争比 11.26:1，远低于最热岗位，选岗是拉开差距的关键",
+            "804 个无人报名职位多为条件限制多（专业、证书、基层经历、地域偏），符合条件就是机会",
+            "广东、北京、四川最热，报考这些地区要预期更高竞争比",
+            "每天下午官方会更新报名数据，最后几天可参考实时人数决策"
+          ]
+        },
+        {
+          title: "二、最后几天怎么选岗",
+          items: [
+            "先筛硬性条件：专业、学历、政治面貌、基层工作经历、证书，不符合的直接排除",
+            "再看招录人数：招 2 人以上的岗位进面概率通常高于只招 1 人的",
+            "参考实时报名人数：避开已经几百比一的热门岗，关注报名少但你符合条件的",
+            "地域权衡：家乡岗、珠三角岗、偏远岗竞争差异大，结合自身接受度选",
+            "不要卡最后一小时报名：审核需要时间，留足修改余地，建议 10 月 22 日前提交",
+            "只能报一个职位，提交后审核期间不能改报，想清楚再提交"
+          ]
+        },
+        {
+          title: "三、实名实人认证",
+          items: [
+            "2027 国考新增实名实人认证，通过电子社保卡等渠道完成",
+            "认证截止 10 月 23 日 18:00，比报名截止早一天，务必先做认证",
+            "认证不通过无法报名，提前操作，遇到问题及时联系技术咨询",
+            "准备好身份证、电子社保卡或指定认证渠道",
+            "认证信息要与报名信息一致，姓名、身份证号不能错"
+          ]
+        },
+        {
+          title: "四、资格审核流程",
+          items: [
+            "提交报名后进入“待审核”状态，招录机关在规定时间内审核",
+            "审核结果有三种：通过、不通过、退回补充材料",
+            "审核通过：不能再改报其他职位，进入缴费环节",
+            "审核不通过：看退回原因，可改报其他职位（在报名期内）",
+            "退回补充材料：按要求补充信息后重新提交，注意截止时间",
+            "接近截止时提交可能来不及审核，务必提前"
+          ]
+        },
+        {
+          title: "五、缴费与后续",
+          items: [
+            "审核通过后，在规定时间内登录专题网站缴费，逾期视为放弃",
+            "缴费成功才算报名完成，只报名不缴费无效",
+            "建档立卡贫困家庭和低保人员可按规定申请减免费用",
+            "缴费后关注准考证打印时间（笔试前一周左右）",
+            "笔试 2026 年 11 月 29 日，行测和申论，开考 15 分钟后禁止入场",
+            "提前规划考点交通，异地考生提前订房"
+          ]
+        },
+        {
+          title: "六、每年都有人踩的坑",
+          items: [
+            "卡最后一天报名，审核不通过来不及改——提前 2 天提交",
+            "忘记实名实人认证，10/23 截止后无法报名——先做认证",
+            "专业名称一字之差导致审核不通过——严格按毕业证专业名称填写",
+            "审核通过后发现岗位不合适——通过后不能改报，提交前想清楚",
+            "忘了缴费——设闹钟，缴费截止比报名截止晚，但别忘",
+            "相信“内部名额、交钱保过”——官方明确不委托任何机构，都是骗局",
+            "用培训机构的代报名——自己注册自己报，防止信息泄露和被骗"
+          ]
+        },
+        {
+          title: "七、关键时间线",
+          items: [
+            "10 月 23 日 18:00：实名实人认证截止",
+            "10 月 24 日 18:00：报名截止",
+            "报名期内：资格审核，关注状态变化",
+            "审核通过后规定时间：网上缴费",
+            "笔试前一周：打印准考证",
+            "2026 年 11 月 29 日：公共科目笔试（行测+申论）",
+            "后续：成绩查询、面试、体检、考察、公示"
+          ]
+        },
+        {
+          title: "八、检查清单",
+          items: [
+            "已完成实名实人认证（10/23 前）",
+            "已选定 1 个符合所有硬性条件的职位",
+            "已参考实时报名数据，避开过度热门岗位",
+            "已在 10/22 日前提交报名（留审核时间）",
+            "已跟踪审核状态，不通过已及时改报",
+            "审核通过后已按时缴费",
+            "已记录准考证打印和笔试时间",
+            "未向任何培训机构交钱或提供账号密码"
+          ]
+        }
+      ]
+    },
     {
       id: "xingce-wu-da-mokuai-zuotifangfa-zhenti-shuati-guide",
       title: "行测做题方法：五大模块提分技巧、时间分配与真题刷题法",
@@ -8870,6 +9133,56 @@ git push origin main`,
     "github-agentic-workflows-public-preview-guide"
   ],
   hotspots: [
+    {
+      date: "2026-10-19",
+      tag: "代码质量",
+      title: "GitHub Copilot 今日弃用一批模型：Gemini 3.6 Flash、Kimi K2.7 Code 等需立即切换",
+      summary: "GitHub 官方按 9 月预告于 10 月 19 日正式弃用 Copilot 中的部分模型，涉及 Gemini 3.6 Flash（替代为 Gemini 3.8 Flash）、Kimi K2.7 Code（替代为 Kimi K3），覆盖 Chat、inline edits、agent 模式和代码补全全场景。",
+      why: "为什么值得关注：如果你的工作流或自定义脚本固定调用了被弃用模型，今天起会自动回退或报错，需尽快在 Copilot 设置里切到替代模型；新手建议直接用默认推荐模型，不要手动锁定旧版本。",
+      sourceLabel: "GitHub Changelog",
+      sourceUrl: "https://github.blog/changelog/2026-09-18-upcoming-deprecation-of-selected-github-copilot-models-in-mid-october/",
+      articleIdea: "候选：Copilot 模型切换与选型指南"
+    },
+    {
+      date: "2026-10-14",
+      tag: "AI 编程",
+      title: "HydraFusion 升级并新增 Max 档位：模型池纳入 Claude Opus 5.5、GPT-6 Astra/Sol/Luna",
+      summary: "GitHub Copilot 的 HydraFusion 编排模型更新，模型池现包含 Claude Opus 5.5、GPT-6 Astra、GPT-6.1 Sol、GPT-6 Luna，并按任务步骤自动匹配推理强度；同时新增 HydraFusion Max 选项，面向更复杂的 agent 任务。",
+      why: "为什么值得关注：HydraFusion 会自动在多个前沿模型间调度，新手不用纠结选哪个模型；Max 档位适合复杂重构和多文件 agent 任务，但消耗更高，日常编码用标准档即可。注意这是编排模型，不是单一模型，输出风格可能因任务而异。",
+      sourceLabel: "GitHub Changelog",
+      sourceUrl: "https://github.blog/changelog/2026-10-14-hydrafusion-updates-and-new-max-option/",
+      articleIdea: "候选：HydraFusion 与 Max 档位使用场景对比"
+    },
+    {
+      date: "2026-10-09",
+      tag: "AI 编程",
+      title: "GitHub Copilot 本地沙箱正式 GA：限制 agent 访问文件、网络和凭证",
+      summary: "Copilot CLI、Copilot 应用和 VS Code 的 Agent Host 会话正式支持本地沙箱（local sandboxing），可限制 AI agent 对文件、网络和凭证的访问范围，随 Copilot 订阅免费提供，无需额外付费。",
+      why: "为什么值得关注：AI agent 直接操作本地文件和终端有风险，本地沙箱能把 agent 关在受限环境里跑，防止误删文件或泄露凭证；新手用 agent 模式前建议先开启沙箱，再逐步放开权限。注意沙箱是本地隔离，不影响云端功能。",
+      sourceLabel: "GitHub Changelog",
+      sourceUrl: "https://github.blog/changelog/2026-10-09-github-copilot-weekly-releases-october-5/",
+      articleIdea: "已扩写：Copilot 本地沙箱安全使用教程"
+    },
+    {
+      date: "2026-10-12",
+      tag: "云端部署",
+      title: "Cloudflare Agents SDK 新增 web_search 工具：由 Cloudflare Web Search API 驱动",
+      summary: "Cloudflare Agents SDK 于 10 月 12 日新增 web_search 工具，底层调用 Cloudflare 自家 Web Search API，可在 agent 工作流中直接执行联网搜索，配合已有的文件执行、代码执行和 WebSocket 流式工具使用。",
+      why: "为什么值得关注：在 Cloudflare Workers 上搭 AI agent 时，不用再接第三方搜索 API，web_search 原生集成、计费统一；适合做需要实时信息的问答、资讯聚合类应用。注意搜索结果需自行做来源校验，不要直接当事实输出。",
+      sourceLabel: "Cloudflare Changelog",
+      sourceUrl: "https://developers.cloudflare.com/changelog/",
+      articleIdea: "候选：Cloudflare Agents SDK 联网搜索实战"
+    },
+    {
+      date: "2026-10-07",
+      tag: "AI 编程",
+      title: "Claude Haiku 5.5 上线 GitHub Copilot：轻量高速，适合子 agent 和终端任务",
+      summary: "Anthropic 最新轻量模型 Claude Haiku 5.5 在 GitHub Copilot 全面可用，面向 Pro、Pro+、Max、Business 和 Enterprise 用户；早期测试中在多数编码任务上接近 Claude Sonnet 5，但 token 消耗和步骤数显著更少，按用量计费。",
+      why: "为什么值得关注：Haiku 5.5 速度快、成本低，适合子 agent 调度、快速编辑和终端命令生成这类高频轻量任务；新手可以把它设为日常补全和快速问答的默认模型，复杂任务再切到 Sonnet 或 Opus。注意是按 provider list price 计费，Pro 套餐内有额度。",
+      sourceLabel: "GitHub Changelog",
+      sourceUrl: "https://github.blog/changelog/2026-10-07-claude-haiku-5-5-in-github-copilot/",
+      articleIdea: "候选：Copilot 模型选型：Haiku vs Sonnet vs Opus"
+    },
     {
       date: "2026-10-16",
       tag: "AI 编程",

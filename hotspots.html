@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://cdn.jsdelivr.net">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;800&family=Noto+Serif+SC:wght@700;900&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/styles.css?v=20261017-daily-update">
+  <link rel="stylesheet" href="assets/styles.css?v=20261019-daily-update">
 </head>
 <body>
   <header class="site-header">
@@ -78,6 +78,106 @@
       <div class="hotspot-grid" data-hotspot-list>
         <!-- STATIC_HOTSPOTS_START -->
 <article class="hotspot-card reveal">
+      <div class="hotspot-card__head">
+        <span class="hotspot-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="代码质量 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <div>
+          <div class="hotspot-card__meta">
+            <span>代码质量</span>
+            <time datetime="2026-10-19">2026年10月19日</time>
+          </div>
+          <h3>GitHub Copilot 今日弃用一批模型：Gemini 3.6 Flash、Kimi K2.7 Code 等需立即切换</h3>
+        </div>
+      </div>
+      <p>GitHub 官方按 9 月预告于 10 月 19 日正式弃用 Copilot 中的部分模型，涉及 Gemini 3.6 Flash（替代为 Gemini 3.8 Flash）、Kimi K2.7 Code（替代为 Kimi K3），覆盖 Chat、inline edits、agent 模式和代码补全全场景。</p>
+      <div class="hotspot-card__why">
+        <strong>为什么值得关注</strong>
+        <p>为什么值得关注：如果你的工作流或自定义脚本固定调用了被弃用模型，今天起会自动回退或报错，需尽快在 Copilot 设置里切到替代模型；新手建议直接用默认推荐模型，不要手动锁定旧版本。</p>
+      </div>
+      <p class="hotspot-card__idea">候选：Copilot 模型切换与选型指南</p>
+      <a class="text-link" href="https://github.blog/changelog/2026-09-18-upcoming-deprecation-of-selected-github-copilot-models-in-mid-october/" target="_blank" rel="noreferrer">查看来源：GitHub Changelog</a>
+    </article>
+
+    <article class="hotspot-card reveal">
+      <div class="hotspot-card__head">
+        <span class="hotspot-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="AI 编程 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <div>
+          <div class="hotspot-card__meta">
+            <span>AI 编程</span>
+            <time datetime="2026-10-14">2026年10月14日</time>
+          </div>
+          <h3>HydraFusion 升级并新增 Max 档位：模型池纳入 Claude Opus 5.5、GPT-6 Astra/Sol/Luna</h3>
+        </div>
+      </div>
+      <p>GitHub Copilot 的 HydraFusion 编排模型更新，模型池现包含 Claude Opus 5.5、GPT-6 Astra、GPT-6.1 Sol、GPT-6 Luna，并按任务步骤自动匹配推理强度；同时新增 HydraFusion Max 选项，面向更复杂的 agent 任务。</p>
+      <div class="hotspot-card__why">
+        <strong>为什么值得关注</strong>
+        <p>为什么值得关注：HydraFusion 会自动在多个前沿模型间调度，新手不用纠结选哪个模型；Max 档位适合复杂重构和多文件 agent 任务，但消耗更高，日常编码用标准档即可。注意这是编排模型，不是单一模型，输出风格可能因任务而异。</p>
+      </div>
+      <p class="hotspot-card__idea">候选：HydraFusion 与 Max 档位使用场景对比</p>
+      <a class="text-link" href="https://github.blog/changelog/2026-10-14-hydrafusion-updates-and-new-max-option/" target="_blank" rel="noreferrer">查看来源：GitHub Changelog</a>
+    </article>
+
+    <article class="hotspot-card reveal">
+      <div class="hotspot-card__head">
+        <span class="hotspot-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="AI 编程 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <div>
+          <div class="hotspot-card__meta">
+            <span>AI 编程</span>
+            <time datetime="2026-10-09">2026年10月9日</time>
+          </div>
+          <h3>GitHub Copilot 本地沙箱正式 GA：限制 agent 访问文件、网络和凭证</h3>
+        </div>
+      </div>
+      <p>Copilot CLI、Copilot 应用和 VS Code 的 Agent Host 会话正式支持本地沙箱（local sandboxing），可限制 AI agent 对文件、网络和凭证的访问范围，随 Copilot 订阅免费提供，无需额外付费。</p>
+      <div class="hotspot-card__why">
+        <strong>为什么值得关注</strong>
+        <p>为什么值得关注：AI agent 直接操作本地文件和终端有风险，本地沙箱能把 agent 关在受限环境里跑，防止误删文件或泄露凭证；新手用 agent 模式前建议先开启沙箱，再逐步放开权限。注意沙箱是本地隔离，不影响云端功能。</p>
+      </div>
+      <p class="hotspot-card__idea">已扩写：Copilot 本地沙箱安全使用教程</p>
+      <a class="text-link" href="https://github.blog/changelog/2026-10-09-github-copilot-weekly-releases-october-5/" target="_blank" rel="noreferrer">查看来源：GitHub Changelog</a>
+    </article>
+
+    <article class="hotspot-card reveal">
+      <div class="hotspot-card__head">
+        <span class="hotspot-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/docker/docker-original.svg" alt="云端部署 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <div>
+          <div class="hotspot-card__meta">
+            <span>云端部署</span>
+            <time datetime="2026-10-12">2026年10月12日</time>
+          </div>
+          <h3>Cloudflare Agents SDK 新增 web_search 工具：由 Cloudflare Web Search API 驱动</h3>
+        </div>
+      </div>
+      <p>Cloudflare Agents SDK 于 10 月 12 日新增 web_search 工具，底层调用 Cloudflare 自家 Web Search API，可在 agent 工作流中直接执行联网搜索，配合已有的文件执行、代码执行和 WebSocket 流式工具使用。</p>
+      <div class="hotspot-card__why">
+        <strong>为什么值得关注</strong>
+        <p>为什么值得关注：在 Cloudflare Workers 上搭 AI agent 时，不用再接第三方搜索 API，web_search 原生集成、计费统一；适合做需要实时信息的问答、资讯聚合类应用。注意搜索结果需自行做来源校验，不要直接当事实输出。</p>
+      </div>
+      <p class="hotspot-card__idea">候选：Cloudflare Agents SDK 联网搜索实战</p>
+      <a class="text-link" href="https://developers.cloudflare.com/changelog/" target="_blank" rel="noreferrer">查看来源：Cloudflare Changelog</a>
+    </article>
+
+    <article class="hotspot-card reveal">
+      <div class="hotspot-card__head">
+        <span class="hotspot-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="AI 编程 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <div>
+          <div class="hotspot-card__meta">
+            <span>AI 编程</span>
+            <time datetime="2026-10-07">2026年10月7日</time>
+          </div>
+          <h3>Claude Haiku 5.5 上线 GitHub Copilot：轻量高速，适合子 agent 和终端任务</h3>
+        </div>
+      </div>
+      <p>Anthropic 最新轻量模型 Claude Haiku 5.5 在 GitHub Copilot 全面可用，面向 Pro、Pro+、Max、Business 和 Enterprise 用户；早期测试中在多数编码任务上接近 Claude Sonnet 5，但 token 消耗和步骤数显著更少，按用量计费。</p>
+      <div class="hotspot-card__why">
+        <strong>为什么值得关注</strong>
+        <p>为什么值得关注：Haiku 5.5 速度快、成本低，适合子 agent 调度、快速编辑和终端命令生成这类高频轻量任务；新手可以把它设为日常补全和快速问答的默认模型，复杂任务再切到 Sonnet 或 Opus。注意是按 provider list price 计费，Pro 套餐内有额度。</p>
+      </div>
+      <p class="hotspot-card__idea">候选：Copilot 模型选型：Haiku vs Sonnet vs Opus</p>
+      <a class="text-link" href="https://github.blog/changelog/2026-10-07-claude-haiku-5-5-in-github-copilot/" target="_blank" rel="noreferrer">查看来源：GitHub Changelog</a>
+    </article>
+
+    <article class="hotspot-card reveal">
       <div class="hotspot-card__head">
         <span class="hotspot-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/python/python-original.svg" alt="AI 编程 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
         <div>
@@ -5175,6 +5275,6 @@
     </div>
   </footer>
 
-  <script src="assets/app.js?v=20261017-daily-update"></script>
+  <script src="assets/app.js?v=20261019-daily-update"></script>
 </body>
 </html>

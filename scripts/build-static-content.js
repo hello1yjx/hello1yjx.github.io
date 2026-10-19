@@ -4,7 +4,7 @@ const vm = require("vm");
 
 const root = path.resolve(__dirname, "..");
 const appPath = path.join(root, "assets", "app.js");
-const version = "20261017-daily-update";
+const version = "20261019-daily-update";
 const siteUrl = "https://hello1yjx.github.io";
 
 function loadSiteRuntime() {
@@ -260,7 +260,7 @@ function buildSitemap(posts) {
     .map((post) => `  <url><loc>${siteUrl}/articles/${post.id}.html</loc><lastmod>${post.date}</lastmod><priority>0.8</priority></url>`)
     .join("\n");
 
-  return `<?xml version="1.0" encoding="UTF-8"?>
+  return `<?xml version = "20261019-daily-update" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${core}
 ${articles}
