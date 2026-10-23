@@ -29,6 +29,293 @@ const siteData = {
   },
   posts: [
     {
+      id: "cloudflare-ai-gateway-web-search-integration-guide",
+      title: "Cloudflare AI Gateway 接入 Web Search 实战：让 AI 应用实时联网",
+      date: "2026-10-23",
+      category: "云端部署",
+      readTime: "11 分钟",
+      excerpt: "AI 应用最大的短板是模型不知道最新信息。Cloudflare AI Gateway 已原生集成 Web Search API，联合 Exa、Linkup 等提供实时搜索，可在模型推理时自动注入网络上下文。这篇教程从创建 Gateway、开启 Web Search、通过 Workers 调用，到结果校验、缓存和成本控制，给你一套可直接照做的完整流程，适合想在 Cloudflare 上做实时问答和资讯聚合的开发者。",
+      tags: ["Cloudflare", "AI Gateway", "Web Search", "Workers", "实时搜索", "AI 应用"],
+      featured: false,
+      intro: [
+        "大模型的知识有截止日期，无法回答今天的新闻、最新价格或刚发布的文档。传统做法是自己接搜索 API、再拼 prompt，流程繁琐且缓存、计费分散。Cloudflare AI Gateway 把 Web Search 原生集成进来，一次接入就能让模型实时联网。",
+        "这篇教程基于 Cloudflare 官方发布，手把手带你完成 Gateway 创建、Web Search 开启、Workers 调用和结果校验，并补充新手最容易忽略的缓存、成本和来源验证问题。跟着做，你能在一个下午搭出一个能实时联网的 AI 应用。"
+      ],
+      audience: [
+        "想在 Cloudflare 上做实时问答或资讯聚合的开发者",
+        "用过 AI Gateway 但还没开 Web Search 的用户",
+        "想学习 AI 应用联网搜索架构的新手"
+      ],
+      format: [
+        "全文按“原理 → 准备 → 创建 Gateway → 开启 Web Search → Workers 调用 → 结果校验 → 缓存与成本 → 检查清单”组织",
+        "配合代码示例和可验证步骤"
+      ],
+      roadmap: [
+        "理解 AI Gateway 与 Web Search 的关系",
+        "准备 Cloudflare 账号和 Workers 环境",
+        "创建 AI Gateway 并获取 endpoint",
+        "开启 Web Search 并选择搜索提供商",
+        "在 Workers 中调用并注入搜索上下文",
+        "校验搜索结果来源",
+        "配置缓存和成本控制",
+        "部署并验证"
+      ],
+      officialLinks: [
+        { label: "Cloudflare AI Gateway Web Search 公告", url: "https://blog.cloudflare.com/", note: "官方发布" },
+        { label: "Cloudflare AI Gateway 文档", url: "https://developers.cloudflare.com/ai-gateway/", note: "官方文档" },
+        { label: "Cloudflare Changelog", url: "https://developers.cloudflare.com/changelog/", note: "更新记录" }
+      ],
+      curatedLinks: [
+        "Web Search 由 Ceramic.ai、Exa、Linkup 等搜索提供商驱动",
+        "可通过 AI Gateway、REST API 或 Workers binding 三种方式接入",
+        "AI Gateway 同时提供缓存、限流、日志和分析",
+        "搜索结果作为上下文注入模型，模型再基于结果作答",
+        "Workers 免费额度足够个人项目起步"
+      ],
+      downloadIdeas: [
+        "做一个“实时问答”Worker 模板：搜索 + 推理 + 来源引用",
+        "做一张“AI Gateway 配置检查卡”：缓存、限流、提供商、日志"
+      ],
+      extraSections: [
+        {
+          title: "一、整体原理",
+          items: [
+            "用户提问 → AI Gateway 调用 Web Search 搜索相关网页",
+            "搜索结果（标题、摘要、链接）作为上下文拼进 prompt",
+            "模型基于搜索上下文生成回答，而不是凭记忆作答",
+            "Gateway 统一处理搜索、推理、缓存、日志和计费",
+            "好处：不用自己对接搜索 API，且能缓存重复搜索降低成本"
+          ]
+        },
+        {
+          title: "二、准备工作",
+          items: [
+            "注册 Cloudflare 账号并完成邮箱验证",
+            "安装 Node.js（建议 18 以上）和 Wrangler CLI",
+            "用 wrangler login 登录 Cloudflare",
+            "本地创建一个 Workers 项目（wrangler init）",
+            "确认账号已开通 Workers AI 和 AI Gateway（控制台内开启）"
+          ]
+        },
+        {
+          title: "三、创建 AI Gateway",
+          items: [
+            "进入 Cloudflare 控制台 → AI → AI Gateway",
+            "点击创建 Gateway，填写名称（如 my-gateway），选择账号",
+            "创建后获得专属 endpoint，格式类似 https://gateway.ai.cloudflare.com/v1/账号ID/网关名",
+            "记录账号 ID 和网关名，后续调用要用",
+            "在 Gateway 设置中确认日志和缓存已开启"
+          ]
+        },
+        {
+          title: "四、开启 Web Search",
+          items: [
+            "在 Gateway 或 Workers AI 设置中找到 Web Search / Tools 选项",
+            "启用 Web Search，选择搜索提供商（Exa、Linkup 等）",
+            "按提示授权或绑定对应提供商（部分需 API key）",
+            "设置搜索参数：结果数量、时效、安全过滤",
+            "保存后 Web Search 即可在推理调用中使用"
+          ]
+        },
+        {
+          title: "五、在 Workers 中调用",
+          items: [
+            "通过 AI Gateway endpoint 发起推理请求，而不是直连模型",
+            "在请求中启用 Web Search 工具，模型会自动触发搜索",
+            "也可先手动调用搜索 API 拿到结果，再拼进 prompt",
+            "自动模式：Gateway 自行判断是否需要搜索，适合新手",
+            "手动模式：你控制搜索词和结果数量，可控性更强"
+          ]
+        },
+        {
+          title: "六、结果校验（重要）",
+          items: [
+            "搜索结果可能过时、错误或来自低质量站点，不能直接当事实",
+            "让模型在回答中标注来源链接，便于用户核对",
+            "对关键事实（数字、日期、政策）要求模型引用具体来源",
+            "可设置可信域名白名单，只搜索权威站点",
+            "做资讯类应用时，人工定期抽查搜索和回答质量"
+          ]
+        },
+        {
+          title: "七、缓存与成本控制",
+          items: [
+            "开启 Gateway 缓存：相同问题重复搜索和推理直接命中缓存",
+            "设置缓存有效期，时事类短、常识类长",
+            "限制每次搜索的结果数量，避免无谓消耗",
+            "用限流防止接口被滥用",
+            "在 Gateway 分析面板查看搜索次数、token 和花费",
+            "Workers 免费额度 + 合理缓存，个人项目成本可压到很低"
+          ]
+        },
+        {
+          title: "八、部署与验证",
+          items: [
+            "wrangler deploy 部署 Worker，获得访问 URL",
+            "用一个“模型不可能知道”的新问题测试（如今天的新闻）",
+            "确认回答包含实时信息且有来源链接",
+            "查看 Gateway 日志，确认搜索和推理都被记录",
+            "重复同一问题，确认缓存命中",
+            "测试无结果、超时等异常情况的兜底回复"
+          ]
+        },
+        {
+          title: "九、检查清单",
+          items: [
+            "AI Gateway 已创建并记录 endpoint",
+            "Web Search 已开启并绑定提供商",
+            "Workers 通过 Gateway 调用而非直连",
+            "回答包含来源链接",
+            "可信域名白名单已配置",
+            "缓存和限流已开启",
+            "成本分析面板可正常查看",
+            "实时问题测试通过，异常有兜底"
+          ]
+        }
+      ]
+    },
+    {
+      id: "2027-guokao-baoming-jieshu-hou-jiaofei-zhunkaozheng-chongci-guide",
+      title: "国考报名结束后做什么：缴费确认、准考证打印与 35 天冲刺安排",
+      date: "2026-10-23",
+      category: "考公",
+      readTime: "10 分钟",
+      excerpt: "报名不是终点，缴费确认、准考证打印、考点安排每一步漏了都可能前功尽弃。距离 11 月 29 日笔试还有约 35 天，这篇教程讲清报名结束后的全部时间节点：什么时候缴费、怎么确认、准考证何时打印、考点怎么选、异地考生怎么安排，以及最后 5 周的行测申论冲刺计划，帮你把报名成功转化为实实在在的分数。",
+      tags: ["国考", "缴费", "准考证", "冲刺计划", "行测", "申论"],
+      featured: false,
+      intro: [
+        "很多考生以为提交报名、通过审核就万事大吉，实际上每年都有人忘记缴费、错过准考证打印、跑错考点，最后白白浪费几个月的备考。报名结束后还有一系列关键节点，必须提前记牢。",
+        "这篇教程梳理报名结束后的完整流程和时间节点，并给出从现在到 11 月 29 日的 5 周冲刺安排。无论你复习到什么阶段，跟着这个节奏走，都能在考前把状态调整到最好。"
+      ],
+      audience: [
+        "已通过国考资格审核的考生",
+        "不确定缴费和准考证流程的新手",
+        "想规划最后 5 周冲刺安排的考生"
+      ],
+      format: [
+        "全文按“关键节点 → 缴费确认 → 准考证 → 考点安排 → 5 周冲刺 → 考前一周 → 检查清单”组织",
+        "时间节点以官方公告为准"
+      ],
+      roadmap: [
+        "牢记报名后各关键时间节点",
+        "在规定时间完成缴费确认",
+        "确认报名信息和考点",
+        "按时打印准考证",
+        "安排好交通住宿",
+        "按 5 周计划冲刺行测申论",
+        "考前一周调整状态",
+        "考试当天从容应考"
+      ],
+      officialLinks: [
+        { label: "2027 年度国考专题网站", url: "http://bm.scs.gov.cn/kl2027", note: "缴费、确认、打印准考证唯一入口" },
+        { label: "新华社：2027 国考公告", url: "http://www.xinhuanet.com/politics/20261013/0187230deca94baa8053060067412549/c.html", note: "官方时间节点" }
+      ],
+      curatedLinks: [
+        "公共科目笔试 2026 年 11 月 29 日",
+        "报名结束后需在规定时间完成报名确认和网上缴费，未缴费视为放弃",
+        "准考证一般在笔试前一周左右打印",
+        "开考 15 分钟后禁止入场，迟到无法考试",
+        "行测、申论同日进行，部分职位有专业科目",
+        "建档立卡贫困家庭和低保人员可按规定减免考务费"
+      ],
+      downloadIdeas: [
+        "做一张“报名后到笔试的倒计时卡”，标注每个节点",
+        "做一份“5 周冲刺计划表”，按周安排行测申论任务"
+      ],
+      extraSections: [
+        {
+          title: "一、报名后关键节点",
+          items: [
+            "报名 10 月 24 日 18:00 截止（实名实人认证 10 月 23 日 18:00 已截止）",
+            "资格审核：报名结束后仍有审核，关注状态直到显示通过",
+            "报名确认与缴费：审核通过后在公告规定时间内完成，逾期放弃",
+            "准考证打印：笔试前约一周，登录专题网站打印",
+            "笔试：11 月 29 日，开考 15 分钟后禁止入场"
+          ]
+        },
+        {
+          title: "二、缴费确认",
+          items: [
+            "登录 2027 国考专题网站，进入报名确认入口",
+            "核对个人信息和报考职位，确认无误",
+            "上传符合要求的证件照（注意尺寸、背景、格式要求）",
+            "网上缴费，缴费成功才算确认完成",
+            "缴费后保留凭证，截图保存报名信息",
+            "符合减免条件的考生按公告要求提交证明材料"
+          ]
+        },
+        {
+          title: "三、准考证打印",
+          items: [
+            "时间：一般在笔试前一周左右，以公告为准",
+            "登录专题网站，用报名序号和身份证号下载",
+            "多打印几份备用，分别放在不同地方",
+            "核对准考证上的姓名、身份证号、考点、科目时间",
+            "准考证考后查成绩、面试还要用，务必保存电子版",
+            "信息有误立即联系当地考试机构"
+          ]
+        },
+        {
+          title: "四、考点与交通住宿",
+          items: [
+            "考点多设在直辖市、省会和部分城市，具体以准考证为准",
+            "提前一天踩点，确认考场位置、入口、路线和时间",
+            "异地或偏远考生提前订酒店，越临近越贵越紧张",
+            "规划考试当天交通，预留堵车和安检时间",
+            "中午休息场所提前看好，下午还要考申论",
+            "带齐身份证、准考证、文具和口罩等"
+          ]
+        },
+        {
+          title: "五、5 周冲刺安排",
+          items: [
+            "第 1 周（10/24–10/30）：行测申论真题整套刷，摸清薄弱模块",
+            "第 2 周（10/31–11/6）：专项突破，资料分析、判断推理、申论小题重点提分",
+            "第 3 周（11/7–11/13）：继续真题 + 时政积累，大作文每周至少 2 篇",
+            "第 4 周（11/14–11/20）：高频模考，严格计时，训练考场节奏",
+            "第 5 周（11/21–11/28）：错题复盘 + 回归基础，不再做新难题",
+            "行测每天保持资料分析和判断推理手感",
+            "申论背诵规范表达，整理近一年时政和广东本地热点"
+          ]
+        },
+        {
+          title: "六、考前一周",
+          items: [
+            "调整作息，按考试时间安排作息，保证睡眠",
+            "减少刷题量，重点看错题本和公式",
+            "准备好文具（黑色签字笔、2B 铅笔、橡皮、手表）",
+            "确认准考证、身份证、考点路线和酒店",
+            "关注天气，准备合适衣物",
+            "放松心态，适度运动，不熬夜"
+          ]
+        },
+        {
+          title: "七、考试当天",
+          items: [
+            "提前到达，配合安检，开考 15 分钟后禁止入场",
+            "行测先做性价比高的资料分析、判断推理，注意涂卡",
+            "申论审题要慢，按材料踩点，给作文留足时间",
+            "字迹工整，分条清晰，字数达标",
+            "考完不对答案，专心准备下一科",
+            "带好准考证和身份证，缺一不可"
+          ]
+        },
+        {
+          title: "八、检查清单",
+          items: [
+            "已完成报名确认和缴费",
+            "证件照已通过审核",
+            "已记录准考证打印时间",
+            "考点、交通、住宿已安排",
+            "5 周冲刺计划已开始执行",
+            "时政和规范表达在持续积累",
+            "考前物品清单已准备",
+            "作息已调整到考试节奏"
+          ]
+        }
+      ]
+    },
+    {
       id: "github-copilot-local-sandboxing-security-guide",
       title: "GitHub Copilot 本地沙箱使用教程：让 AI agent 安全操作你的电脑",
       date: "2026-10-19",
@@ -9133,6 +9420,56 @@ git push origin main`,
     "github-agentic-workflows-public-preview-guide"
   ],
   hotspots: [
+    {
+      date: "2026-10-23",
+      tag: "AI 编程",
+      title: "Cloudflare Agents SDK 升级 v0.30：流式中断自动重试，agent 不再因模型超时失败",
+      summary: "Cloudflare Agents SDK 升级到 v0.30，pi-ai 现在会把模型流中断或空闲（cut-off / idle）识别为瞬时错误并自动重试当前回合，而不是直接报错失败，提升长时 agent 任务的稳定性。",
+      why: "为什么值得关注：AI agent 跑长任务时最怕模型流中断导致整个任务失败，v0.30 自动重试能显著降低这类失败；新手升级后无需改代码即可获得更稳的体验。注意要显式升级到 v0.30，旧版本不会自动重试。",
+      sourceLabel: "Cloudflare Changelog",
+      sourceUrl: "https://developers.cloudflare.com/changelog/",
+      articleIdea: "候选：Cloudflare Agents SDK 稳定性与重试机制"
+    },
+    {
+      date: "2026-10-22",
+      tag: "AI 编程",
+      title: "Copilot Impact Dashboard 新增行业对比：团队可与同行业基准横向比较",
+      summary: "GitHub 在 Copilot Impact Dashboard 中新增行业对比（industry comparisons），企业可查看自身 Copilot 使用和效能指标与同行业基准的对比，帮助管理者评估 AI 编码工具的实际落地效果。",
+      why: "为什么值得关注：对团队管理者来说，单看自己的数据很难判断好坏，行业基准提供了横向参照；对个人开发者影响不大。注意该功能面向企业账号，数据对比需达到一定样本量才有意义。",
+      sourceLabel: "GitHub Changelog",
+      sourceUrl: "https://github.blog/changelog/2026-10-22-industry-comparisons-in-the-copilot-impact-dashboard/",
+      articleIdea: "候选：Copilot 效能度量与团队落地评估"
+    },
+    {
+      date: "2026-10-22",
+      tag: "AI 编程",
+      title: "Copilot Usage Metrics API 支持自定义 Skills、Agents 和 MCP Servers 明细",
+      summary: "Copilot 使用指标 API 现在能展示组织自建的 skills、custom agents、MCP servers、slash commands 和 plugins 的名称，不再统一归入 other 或 custom，便于企业统计各类自定义扩展的实际使用情况。",
+      why: "为什么值得关注：企业内部搭了大量自定义 agent 和 MCP server 后，终于能看清哪些真有人用、哪些是僵尸配置；对维护内部 AI 工具链的团队很实用。注意需要企业版且通过 API 拉取，个人用户用不到。",
+      sourceLabel: "GitHub Changelog",
+      sourceUrl: "https://github.blog/changelog/2026-10-22-custom-skills-agents-and-mcp-servers-in-usage-metrics-api/",
+      articleIdea: "已扩写：Cloudflare AI Gateway Web Search 实战"
+    },
+    {
+      date: "2026-10-21",
+      tag: "AI 终端",
+      title: "Copilot CLI v1.0.102：子 agent 继承工具审批、插件市场支持 git 子目录",
+      summary: "GitHub Copilot CLI 发布 v1.0.102，子 agent 现在会继承自定义工具和 MCP 工具的审批，避免重复弹权限；插件市场支持 git-subdir 来源和更长的插件描述；prompt 模式下 -p 和管道输入会遵循托管的 Auto 模型选择。",
+      why: "为什么值得关注：子 agent 继承权限后，多 agent 工作流不再被重复的权限弹窗打断，体验更顺；插件市场支持 git 子目录方便安装仓库内的插件。新手升级 CLI 即可，注意 Fish shell 补全也有修复。",
+      sourceLabel: "GitHub Copilot CLI Changelog",
+      sourceUrl: "http://raw.githubusercontent.com/github/copilot-cli/refs/heads/main/changelog.md",
+      articleIdea: "候选：Copilot CLI 多 agent 与插件配置"
+    },
+    {
+      date: "2026-10-14",
+      tag: "云端部署",
+      title: "Cloudflare AI Gateway 原生支持 Web Search API：联合 Exa、Linkup 等提供实时联网",
+      summary: "Cloudflare AI Gateway 原生集成 Web Search API，联合 Ceramic.ai、Exa、Linkup 提供实时网络搜索，开发者可通过 AI Gateway、REST API 或 Workers binding 在模型推理调用中注入实时网络上下文。",
+      why: "为什么值得关注：在 Cloudflare 上做需要实时信息的 AI 应用时，不用再单独对接搜索服务，AI Gateway 统一接入、统一缓存和计费；适合做问答、资讯聚合。注意搜索结果需自行校验来源，不要直接当事实输出。",
+      sourceLabel: "Cloudflare Blog",
+      sourceUrl: "https://blog.cloudflare.com/",
+      articleIdea: "已扩写：Cloudflare AI Gateway 接入 Web Search 实战教程"
+    },
     {
       date: "2026-10-19",
       tag: "代码质量",

@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cloudflare AI Gateway 接入 Web Search 实战：让 AI 应用实时联网 | 学习资源库</title>
+  <meta name="description" content="AI 应用最大的短板是模型不知道最新信息。Cloudflare AI Gateway 已原生集成 Web Search API，联合 Exa、Linkup 等提供实时搜索，可在模型推理时自动注入网络上下文。这篇教程从创建 Gateway、开启 Web Search、通过 Workers 调用，到结果校验、缓存和成本控制，给你一套可直接照做的完整流程，适合想在 Cloudflare 上做实时问答和资讯聚合的开发者。">
+  <meta name="robots" content="index,follow,max-image-preview:large">
+  <link rel="canonical" href="https://hello1yjx.github.io/articles/cloudflare-ai-gateway-web-search-integration-guide.html">
+  <link rel="icon" type="image/png" href="../assets/images/brand-book-line.png">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"Cloudflare AI Gateway 接入 Web Search 实战：让 AI 应用实时联网","description":"AI 应用最大的短板是模型不知道最新信息。Cloudflare AI Gateway 已原生集成 Web Search API，联合 Exa、Linkup 等提供实时搜索，可在模型推理时自动注入网络上下文。这篇教程从创建 Gateway、开启 Web Search、通过 Workers 调用，到结果校验、缓存和成本控制，给你一套可直接照做的完整流程，适合想在 Cloudflare 上做实时问答和资讯聚合的开发者。","datePublished":"2026-10-23","dateModified":"2026-10-23","author":{"@type":"Person","name":"Avery Lin","url":"https://hello1yjx.github.io/about.html"},"publisher":{"@type":"Organization","name":"学习资源库","url":"https://hello1yjx.github.io/"},"mainEntityOfPage":"https://hello1yjx.github.io/articles/cloudflare-ai-gateway-web-search-integration-guide.html","inLanguage":"zh-CN"}</script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6621999105936318" crossorigin="anonymous"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;800&family=Noto+Serif+SC:wght@700;900&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/styles.css?v=20261023-daily-update">
+</head>
+<body>
+  <header class="site-header">
+    <div class="page-shell site-header__inner">
+      <a class="brand" href="../index.html" aria-label="返回首页">
+        <span class="brand-mark" aria-hidden="true"><img src="../assets/images/brand-book-line.png" alt="" width="36" height="33"></span>
+        <span class="brand-copy"><strong>学习资源库</strong><span>分享知识 · 提升自己 · 成就未来</span></span>
+      </a>
+      <button class="menu-button" data-menu-button aria-expanded="false" aria-label="切换导航菜单">☰</button>
+      <nav class="site-nav" data-mobile-nav>
+        <a href="../index.html">首页</a>
+        <a class="is-active" href="../posts.html" aria-current="page">教程</a>
+        <a href="../resources.html">资源下载</a>
+        <a href="../resources.html#official-resources">工具导航</a>
+        <a href="../hotspots.html">技术资讯</a>
+        <a href="../projects.html">开源项目</a>
+        <a href="../kaogong.html">考公专区</a>
+        <a href="../about.html">关于我们</a>
+      </nav>
+      <form class="header-search" action="../posts.html" method="get">
+        <input type="search" name="q" placeholder="搜索教程、资源、工具或关键词...">
+        <button type="submit" aria-label="搜索">/</button>
+      </form>
+      <a class="header-github" href="https://github.com/hello1yjx/hello1yjx.github.io" target="_blank" rel="noreferrer" aria-label="GitHub">
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="" width="24" height="24">
+      </a>
+      <a class="header-cta" href="../posts.html">开始学习</a>
+    </div>
+  </header>
+
+  <main class="page-shell section article-page">
+    <header class="detail-hero">
+      <span class="pill">云端部署</span>
+      <h1>Cloudflare AI Gateway 接入 Web Search 实战：让 AI 应用实时联网</h1>
+      <div class="detail-hero__meta">
+        <time datetime="2026-10-23">2026年10月23日</time>
+        <span>11 分钟</span>
+        <span>作者：Avery Lin</span>
+      </div>
+      <p>AI 应用最大的短板是模型不知道最新信息。Cloudflare AI Gateway 已原生集成 Web Search API，联合 Exa、Linkup 等提供实时搜索，可在模型推理时自动注入网络上下文。这篇教程从创建 Gateway、开启 Web Search、通过 Workers 调用，到结果校验、缓存和成本控制，给你一套可直接照做的完整流程，适合想在 Cloudflare 上做实时问答和资讯聚合的开发者。</p>
+    </header>
+    <div class="article-layout">
+      <article class="article-body">
+        <div class="inline-promo">
+          <p class="label">来源与增量价值</p>
+          <h3>本文基于官方资料整理，并补充适用场景、限制条件和实践检查步骤。</h3>
+          <p>首要来源：<a href="https://blog.cloudflare.com/" target="_blank" rel="noreferrer">Cloudflare AI Gateway Web Search 公告</a>。事实以原始来源为准，本站建议需结合自己的环境验证。</p>
+        </div>
+
+    <p>大模型的知识有截止日期，无法回答今天的新闻、最新价格或刚发布的文档。传统做法是自己接搜索 API、再拼 prompt，流程繁琐且缓存、计费分散。Cloudflare AI Gateway 把 Web Search 原生集成进来，一次接入就能让模型实时联网。</p><p>这篇教程基于 Cloudflare 官方发布，手把手带你完成 Gateway 创建、Web Search 开启、Workers 调用和结果校验，并补充新手最容易忽略的缓存、成本和来源验证问题。跟着做，你能在一个下午搭出一个能实时联网的 AI 应用。</p>
+    <h2>这篇内容适合谁</h2>
+    <ul><li>想在 Cloudflare 上做实时问答或资讯聚合的开发者</li><li>用过 AI Gateway 但还没开 Web Search 的用户</li><li>想学习 AI 应用联网搜索架构的新手</li></ul>
+    <h2>实践与验证步骤</h2>
+    <ul><li>理解 AI Gateway 与 Web Search 的关系</li><li>准备 Cloudflare 账号和 Workers 环境</li><li>创建 AI Gateway 并获取 endpoint</li><li>开启 Web Search 并选择搜索提供商</li><li>在 Workers 中调用并注入搜索上下文</li><li>校验搜索结果来源</li><li>配置缓存和成本控制</li><li>部署并验证</li></ul>
+    <h2>官方资料入口</h2>
+
+    <ul>
+
+            <li>
+              <a href="https://blog.cloudflare.com/" target="_blank" rel="noreferrer">Cloudflare AI Gateway Web Search 公告</a>
+              <span>：官方发布</span>
+            </li>
+
+            <li>
+              <a href="https://developers.cloudflare.com/ai-gateway/" target="_blank" rel="noreferrer">Cloudflare AI Gateway 文档</a>
+              <span>：官方文档</span>
+            </li>
+
+            <li>
+              <a href="https://developers.cloudflare.com/changelog/" target="_blank" rel="noreferrer">Cloudflare Changelog</a>
+              <span>：更新记录</span>
+            </li>
+
+    </ul>
+
+    <h2>重点判断与使用建议</h2>
+    <ul><li>Web Search 由 Ceramic.ai、Exa、Linkup 等搜索提供商驱动</li><li>可通过 AI Gateway、REST API 或 Workers binding 三种方式接入</li><li>AI Gateway 同时提供缓存、限流、日志和分析</li><li>搜索结果作为上下文注入模型，模型再基于结果作答</li><li>Workers 免费额度足够个人项目起步</li></ul>
+
+        <h2>一、整体原理</h2>
+
+        <ul><li>用户提问 → AI Gateway 调用 Web Search 搜索相关网页</li><li>搜索结果（标题、摘要、链接）作为上下文拼进 prompt</li><li>模型基于搜索上下文生成回答，而不是凭记忆作答</li><li>Gateway 统一处理搜索、推理、缓存、日志和计费</li><li>好处：不用自己对接搜索 API，且能缓存重复搜索降低成本</li></ul>
+
+
+
+        <h2>二、准备工作</h2>
+
+        <ul><li>注册 Cloudflare 账号并完成邮箱验证</li><li>安装 Node.js（建议 18 以上）和 Wrangler CLI</li><li>用 wrangler login 登录 Cloudflare</li><li>本地创建一个 Workers 项目（wrangler init）</li><li>确认账号已开通 Workers AI 和 AI Gateway（控制台内开启）</li></ul>
+
+
+
+        <h2>三、创建 AI Gateway</h2>
+
+        <ul><li>进入 Cloudflare 控制台 → AI → AI Gateway</li><li>点击创建 Gateway，填写名称（如 my-gateway），选择账号</li><li>创建后获得专属 endpoint，格式类似 https://gateway.ai.cloudflare.com/v1/账号ID/网关名</li><li>记录账号 ID 和网关名，后续调用要用</li><li>在 Gateway 设置中确认日志和缓存已开启</li></ul>
+
+
+
+        <h2>四、开启 Web Search</h2>
+
+        <ul><li>在 Gateway 或 Workers AI 设置中找到 Web Search / Tools 选项</li><li>启用 Web Search，选择搜索提供商（Exa、Linkup 等）</li><li>按提示授权或绑定对应提供商（部分需 API key）</li><li>设置搜索参数：结果数量、时效、安全过滤</li><li>保存后 Web Search 即可在推理调用中使用</li></ul>
+
+
+
+        <h2>五、在 Workers 中调用</h2>
+
+        <ul><li>通过 AI Gateway endpoint 发起推理请求，而不是直连模型</li><li>在请求中启用 Web Search 工具，模型会自动触发搜索</li><li>也可先手动调用搜索 API 拿到结果，再拼进 prompt</li><li>自动模式：Gateway 自行判断是否需要搜索，适合新手</li><li>手动模式：你控制搜索词和结果数量，可控性更强</li></ul>
+
+
+
+        <h2>六、结果校验（重要）</h2>
+
+        <ul><li>搜索结果可能过时、错误或来自低质量站点，不能直接当事实</li><li>让模型在回答中标注来源链接，便于用户核对</li><li>对关键事实（数字、日期、政策）要求模型引用具体来源</li><li>可设置可信域名白名单，只搜索权威站点</li><li>做资讯类应用时，人工定期抽查搜索和回答质量</li></ul>
+
+
+
+        <h2>七、缓存与成本控制</h2>
+
+        <ul><li>开启 Gateway 缓存：相同问题重复搜索和推理直接命中缓存</li><li>设置缓存有效期，时事类短、常识类长</li><li>限制每次搜索的结果数量，避免无谓消耗</li><li>用限流防止接口被滥用</li><li>在 Gateway 分析面板查看搜索次数、token 和花费</li><li>Workers 免费额度 + 合理缓存，个人项目成本可压到很低</li></ul>
+
+
+
+        <h2>八、部署与验证</h2>
+
+        <ul><li>wrangler deploy 部署 Worker，获得访问 URL</li><li>用一个“模型不可能知道”的新问题测试（如今天的新闻）</li><li>确认回答包含实时信息且有来源链接</li><li>查看 Gateway 日志，确认搜索和推理都被记录</li><li>重复同一问题，确认缓存命中</li><li>测试无结果、超时等异常情况的兜底回复</li></ul>
+
+
+
+        <h2>九、检查清单</h2>
+
+        <ul><li>AI Gateway 已创建并记录 endpoint</li><li>Web Search 已开启并绑定提供商</li><li>Workers 通过 Gateway 调用而非直连</li><li>回答包含来源链接</li><li>可信域名白名单已配置</li><li>缓存和限流已开启</li><li>成本分析面板可正常查看</li><li>实时问题测试通过，异常有兜底</li></ul>
+
+
+
+
+        <div class="inline-promo">
+          <p class="label">更正与更新</p>
+          <h3>发现版本变化、来源失效或事实错误时，请通过联系页反馈。</h3>
+          <p>本站会核对一手来源后更新内容，不使用无来源转载填充文章。</p>
+          <a class="button button--secondary" href="../editorial.html">查看内容标准</a>
+        </div>
+      </article>
+      <aside class="article-sidebar">
+        <div class="sidebar-card">
+          <p class="label">本页标签</p>
+          <div class="tag-row"><span>Cloudflare</span><span>AI Gateway</span><span>Web Search</span><span>Workers</span><span>实时搜索</span><span>AI 应用</span></div>
+        </div>
+        <div class="sidebar-card">
+          <p class="label">继续阅读</p>
+          <a href="shenlun-wu-lei-tixing-zuotifangfa-zhenti-jinglian-guide.html">申论做题方法：五类题型答题框架、材料提炼与真题精练</a><a href="2027-guokao-baoming-quanliucheng-guide.html">2027 国考报名全流程指南：时间、实名认证、选岗与避坑（10 月 14-24 日报名）</a><a href="2027-guangdong-shengkao-nianmo-moshi-guide.html">2027 广东省考报考指南：年末省考新模式、时间线与备考安排</a><a href="cyberspace-security-major-kaogong-gangwei-jiance-guide.html">网络空间安全专业考公指南：岗位方向、报考条件与备考规划</a>
+        </div>
+        <div class="sidebar-card sidebar-card--accent">
+          <p class="label">作者与方法</p>
+          <h3>了解本站如何选题、核验来源与处理更正。</h3>
+          <a class="button button--dark" href="../about.html">关于作者</a>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="page-shell footer__inner">
+      <div><strong>学习资源库</strong><p>分享知识 · 提升自己 · 成就未来</p></div>
+      <div>
+        <a href="../editorial.html">内容标准</a><br>
+        <a href="../privacy.html">隐私政策</a><br>
+        <a href="../contact.html">联系</a>
+      </div>
+    </div>
+  </footer>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      var button = document.querySelector("[data-menu-button]");
+      var nav = document.querySelector("[data-mobile-nav]");
+      if (!button || !nav) return;
+      button.addEventListener("click", function () {
+        var expanded = button.getAttribute("aria-expanded") === "true";
+        button.setAttribute("aria-expanded", String(!expanded));
+        nav.classList.toggle("site-nav--open", !expanded);
+      });
+    });
+  </script>
+</body>
+</html>

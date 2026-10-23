@@ -817,7 +817,7 @@ textarea {
 
 .quick-links {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 18px;
   margin-top: 28px;
   margin-bottom: 32px;
@@ -848,6 +848,84 @@ textarea {
   margin: 6px 0 0;
   color: var(--muted);
   font-size: 14px;
+}
+
+.quick-card--exam {
+  background: linear-gradient(135deg, #b4234d, #8f1d3d);
+  border-color: #8f1d3d;
+}
+
+.quick-card--exam span {
+  color: #fecdd3;
+}
+
+.quick-card--exam strong {
+  color: #fff;
+}
+
+.quick-card--exam p {
+  color: #fecdd3;
+}
+
+.home-exam-banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  margin: 20px 0 28px;
+  padding: 22px 28px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #b4234d, #8f1d3d);
+  box-shadow: var(--shadow-strong);
+}
+
+.home-exam-banner__text {
+  flex: 1 1 320px;
+}
+
+.home-exam-banner__tag {
+  display: inline-block;
+  margin-bottom: 8px;
+  padding: 3px 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.18);
+  color: #fecdd3;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.home-exam-banner h3 {
+  margin: 0 0 6px;
+  color: #fff;
+  font-size: 1.25rem;
+}
+
+.home-exam-banner p {
+  margin: 0;
+  color: #fecdd3;
+  font-size: 14px;
+}
+
+.home-exam-banner__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.home-exam-banner .button {
+  white-space: nowrap;
+}
+
+.home-exam-banner .button--white {
+  background: #fff;
+  color: #b4234d;
+  font-weight: 700;
+}
+
+.home-exam-banner .button--ghost {
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  color: #fff;
 }
 
 .page-hero {
