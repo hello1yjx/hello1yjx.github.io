@@ -9175,6 +9175,48 @@ git push origin main`,
   ],
   downloads: [
     {
+      id: "kaogong-chongci-toolkit",
+      name: "考公冲刺工具包",
+      category: "考公",
+      badge: "本站原创",
+      description: "包含 35 天冲刺计划表、时政积累模板、错题本、答题时间分配卡和考前物品清单，覆盖笔试前最后阶段的全部安排。",
+      pitch: "适合国考、广东省考笔试前最后 5 周，按表执行、逐项打勾，把报名成功转化为分数。",
+      format: "ZIP · 6 个文件",
+      includes: ["35天冲刺计划表", "时政积累模板", "错题本模板", "答题时间分配卡", "考前物品清单"],
+      preview: ["35天冲刺计划表.md：从报名结束到笔试的逐周安排", "时政积累模板.md：按事实、表述、对策三层记录", "答题时间分配卡.md：行测申论考场时间分配"],
+      updated: "2026-10-23",
+      cta: "下载冲刺工具包",
+      link: "downloads/kaogong-chongci-toolkit.zip"
+    },
+    {
+      id: "qiuzhi-jianli-miandhi-toolkit",
+      name: "求职简历与面试工具包",
+      category: "求职",
+      badge: "本站原创",
+      description: "包含技术岗简历模板、项目经历包装方法、面试自查清单、投递记录表和 offer 对比表，覆盖秋招求职全流程。",
+      pitch: "适合计算机、网络安全、前端等专业应届生和实习生，从写简历到选 offer 一套搞定。",
+      format: "ZIP · 6 个文件",
+      includes: ["简历模板", "项目经历包装", "面试自查清单", "投递记录表", "offer 对比表"],
+      preview: ["简历模板.md：技术岗简历结构和填写要点", "项目经历包装.md：用 STAR 法则把课程项目写出亮点", "投递记录表.csv：跟踪每个岗位的投递状态"],
+      updated: "2026-10-23",
+      cta: "下载求职工具包",
+      link: "downloads/qiuzhi-jianli-miandhi-toolkit.zip"
+    },
+    {
+      id: "network-security-practice-toolkit",
+      name: "网络安全实战工具包",
+      category: "AI 安全",
+      badge: "本站原创",
+      description: "包含 CTF 学习路线、等保检查清单、漏洞记录模板、工具核验清单和应急响应流程，系统梳理安全实战知识。",
+      pitch: "适合网络空间安全、计算机专业学生，从 CTF 刷题到等保、应急响应，附合规提醒。",
+      format: "ZIP · 6 个文件",
+      includes: ["CTF学习路线", "等保检查清单", "漏洞记录模板", "工具核验清单", "应急响应流程"],
+      preview: ["CTF学习路线.md：从入门到进阶的刷题路径", "等保检查清单.md：等级保护基础检查项", "应急响应流程.md：安全事件处置基本步骤"],
+      updated: "2026-10-23",
+      cta: "下载安全实战包",
+      link: "downloads/network-security-practice-toolkit.zip"
+    },
+    {
       id: "ai-coding-tools-migration-kit",
       name: "AI 编程工具切换与对比指南",
       category: "AI 工具",
@@ -9302,6 +9344,33 @@ git push origin main`,
     }
   ],
   resources: [
+    {
+      name: "国家公务员局考试录用专题",
+      category: "考公官方",
+      badge: "外部官方",
+      description: "中央机关及其直属机构考试录用公务员的官方专题网站，发布公告、职位表、报名入口和成绩查询。",
+      pitch: "国考报名、缴费、准考证、成绩都以这里为准，不要只看培训机构转发。",
+      cta: "打开官方专题",
+      link: "http://bm.scs.gov.cn/kl2027"
+    },
+    {
+      name: "广东组织工作网",
+      category: "考公官方",
+      badge: "外部官方",
+      description: "中共广东省委组织部官网，发布广东省考公告、职位表和录用信息。",
+      pitch: "广东省考的权威信息来源，公告发布后第一时间在这里查看。",
+      cta: "打开官方网站",
+      link: "https://www.gdzz.gov.cn/"
+    },
+    {
+      name: "广东省人事考试局",
+      category: "考公官方",
+      badge: "外部官方",
+      description: "广东省人事考试局官网，发布各类人事考试安排、准考证打印和成绩查询。",
+      pitch: "广东省考准考证、考点、成绩等信息的官方渠道。",
+      cta: "打开官方网站",
+      link: "https://rsks.gd.gov.cn/"
+    },
     {
       name: "Cloudflare Workers AI 官方文档",
       category: "AI 编程",
@@ -12062,6 +12131,23 @@ git push origin main`,
     }
   ],
   projects: [
+    {
+      id: "learning-resource-library",
+      title: "学习资源库（本站）",
+      summary: "持续更新的免费学习资源库，涵盖 AI 编程、建站、云端部署、效率工具的每日热点与教程，以及考公专区和原创工具包，全站静态化、可离线阅读。",
+      stack: "HTML / CSS / JavaScript / GitHub Pages",
+      status: "每日维护",
+      link: "https://hello1yjx.github.io/",
+      evidence: [
+        { label: "在线网站", url: "https://hello1yjx.github.io/" },
+        { label: "GitHub 仓库", url: "https://github.com/hello1yjx/hello1yjx.github.io" },
+        { label: "站点地图", url: "https://hello1yjx.github.io/sitemap.xml" }
+      ],
+      body: `
+        <p>本站是一个纯静态的学习资源库，通过构建脚本把数据源生成独立静态页面，无需 JavaScript 即可读取正文，部署在 GitHub Pages 上。</p>
+        <p>内容包含每日技术热点、90 余篇教程、考公专区、12 个官方工具导航和 12 个原创工具包，所有热点均来自官方一手来源，坚持每日更新。</p>
+      `
+    },
     {
       id: "guangruan-campus-network-auto-login",
       title: "广州软件学院校园网自动登录 Web 端",
