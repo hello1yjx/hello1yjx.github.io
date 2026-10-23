@@ -4,7 +4,7 @@ const vm = require("vm");
 
 const root = path.resolve(__dirname, "..");
 const appPath = path.join(root, "assets", "app.js");
-const version = "20261023-vuln-game-update";
+const version = "20261023-nav-fix";
 const siteUrl = "https://hello1yjx.github.io";
 
 function loadSiteRuntime() {
@@ -153,9 +153,9 @@ function articleTemplate(runtime, post, relatedPosts) {
         <a href="../index.html">首页</a>
         <a class="is-active" href="../posts.html" aria-current="page">教程</a>
         <a href="../resources.html">资源下载</a>
-        <a href="../resources.html#official-resources">工具导航</a>
         <a href="../hotspots.html">技术资讯</a>
         <a href="../projects.html">开源项目</a>
+        <a href="../vulns.html">漏洞分析</a>
         <a href="../kaogong.html">考公专区</a>
         <a href="../about.html">关于我们</a>
       </nav>
