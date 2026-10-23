@@ -893,7 +893,7 @@ textarea {
   align-items: center;
   justify-content: space-between;
   gap: 18px;
-  margin: 20px 0 28px;
+  margin: 20px auto 28px;
   padding: 22px 28px;
   border-radius: 14px;
   background: linear-gradient(135deg, #b4234d, #8f1d3d);
