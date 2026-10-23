@@ -1,0 +1,10 @@
+# 自检截图目录
+_shots/
+**/_shots/
+
+# 依赖与临时文件
+node_modules/
+*.log
+*.tmp
+.DS_Store
+Thumbs.db

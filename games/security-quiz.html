@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>网络安全知识闯关 · 学习资源库小游戏</title>
+<meta name="description" content="网络安全基础知识答题小游戏，10 道选择题，附答案解析，边玩边学。">
+<meta name="robots" content="noindex,follow">
+<link rel="icon" type="image/png" href="../assets/images/brand-book-line.png">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700&family=Space+Grotesk:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#0a0f0d; --panel:#0f1714; --line:#1d2b25;
+    --green:#34d399; --green-dim:#16654d; --amber:#fbbf24;
+    --red:#f87171; --text:#a7f3d0; --muted:#5b7a6e;
+  }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body {
+    background:radial-gradient(circle at 50% 0%,#10201a 0%,var(--bg) 60%);
+    color:var(--text); font-family:'Space Grotesk','Noto Sans SC',monospace;
+    min-height:100vh; display:flex; flex-direction:column; align-items:center;
+    padding:20px 14px 40px;
+  }
+  .topbar { width:100%; max-width:560px; display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
+  .topbar a { color:var(--muted); text-decoration:none; font-size:.85rem; }
+  .topbar a:hover { color:var(--green); }
+  .topbar .title { color:var(--green); font-weight:700; letter-spacing:1px; }
+  .panel {
+    width:100%; max-width:560px; background:var(--panel);
+    border:1px solid var(--line); border-radius:14px; padding:20px;
+    box-shadow:0 0 40px rgba(52,211,153,.06);
+  }
+  .progress { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; font-size:.82rem; color:var(--muted); }
+  .bar { height:6px; background:#0a1410; border-radius:999px; overflow:hidden; margin-bottom:18px; }
+  .bar i { display:block; height:100%; background:linear-gradient(90deg,var(--green-dim),var(--green)); width:10%; transition:width .3s; }
+  .question { font-size:1.05rem; color:var(--green); font-weight:700; line-height:1.6; margin-bottom:18px; }
+  .options { display:flex; flex-direction:column; gap:10px; }
+  .opt {
+    text-align:left; background:#0c1512; border:1px solid var(--line);
+    border-radius:10px; padding:13px 16px; color:var(--text);
+    font-family:inherit; font-size:.9rem; cursor:pointer; transition:.12s; line-height:1.5;
+  }
+  .opt:hover:not(:disabled) { border-color:var(--green-dim); background:#0f1a16; }
+  .opt.correct { border-color:var(--green); background:rgba(52,211,153,.12); color:var(--green); }
+  .opt.wrong { border-color:var(--red); background:rgba(248,113,113,.1); color:var(--red); }
+  .opt:disabled { cursor:default; }
+  .explain {
+    margin-top:16px; background:#0a1410; border-left:3px solid var(--amber);
+    border-radius:8px; padding:13px 16px; font-size:.85rem; color:var(--muted); line-height:1.7;
+    display:none;
+  }
+  .explain.show { display:block; }
+  .explain strong { color:var(--amber); }
+  .next-row { margin-top:16px; display:flex; justify-content:flex-end; }
+  .btn {
+    background:transparent; color:var(--green); border:1px solid var(--green);
+    border-radius:8px; padding:10px 24px; font-family:inherit; font-size:.9rem;
+    font-weight:700; cursor:pointer; letter-spacing:1px;
+  }
+  .btn:hover { background:var(--green); color:#04130d; }
+  .result { text-align:center; padding:20px 0; }
+  .result .score-big { font-size:2.6rem; color:var(--amber); font-weight:700; margin:10px 0; }
+  .result p { color:var(--muted); line-height:1.8; font-size:.9rem; }
+  .result .btn { margin-top:18px; }
+</style>
+</head>
+<body>
+  <div class="topbar">
+    <a href="../games.html">← 游戏中心</a>
+    <span class="title">SEC.QUIZ</span>
+    <a href="../index.html">回首页</a>
+  </div>
+  <div class="panel" id="quizPanel">
+    <div class="progress">
+      <span>第 <strong id="qNum">1</strong> / 10 题</span>
+      <span>得分 <strong id="qScore" style="color:var(--green)">0</strong></span>
+    </div>
+    <div class="bar"><i id="barFill"></i></div>
+    <div class="question" id="question"></div>
+    <div class="options" id="options"></div>
+    <div class="explain" id="explain"></div>
+    <div class="next-row">
+      <button class="btn" id="nextBtn" style="display:none">下一题</button>
+    </div>
+  </div>
+
+<script>
+(function(){
+  const QUESTIONS = [
+    {
+      q: "在没有获得书面授权的情况下，对某网站进行漏洞扫描，最准确的说法是？",
+      opts: ["只要不破坏数据就合法","属于学习行为，不违法","可能违反《网络安全法》《刑法》，存在法律风险","用公开工具就没事"],
+      a: 2,
+      e: "未授权扫描、入侵他人系统，即使没有造成破坏，也可能违反《网络安全法》《刑法》。学习目的不构成违法阻却事由，所有测试应在授权环境或靶场进行。"
+    },
+    {
+      q: "SQL 注入漏洞最根本的成因是？",
+      opts: ["数据库版本太旧","用户输入被当作 SQL 代码拼接执行","服务器内存不足","没有使用 HTTPS"],
+      a: 1,
+      e: "SQL 注入源于把不可信输入直接拼进 SQL 语句，使输入被解析为代码。根本修复是使用参数化查询 / 预编译语句，而不是仅靠过滤关键字。"
+    },
+    {
+      q: "下列哪种做法最能有效防御存储型 XSS？",
+      opts: ["页面所有输入输出做正确的编码 / 转义","隐藏输入框","把密码改复杂","定期重启服务器"],
+      a: 0,
+      e: "XSS 源于不可信脚本被浏览器执行。防御核心是对输出按上下文进行 HTML/JS 编码，并配合 CSP；输入校验是辅助手段。"
+    },
+    {
+      q: "文件上传漏洞中，攻击者最想达到的目的通常是？",
+      opts: ["让页面变好看","上传可被服务器执行的脚本（如 webshell）","提高网速","备份数据"],
+      a: 1,
+      e: "文件上传漏洞的核心危害是上传可执行脚本（webshell）获取服务器权限。防御应校验类型、重命名、存储到非 Web 目录并禁止脚本执行。"
+    },
+    {
+      q: "关于密码存储，最安全的做法是？",
+      opts: ["明文存数据库","用 MD5 加密即可","加盐并使用慢哈希（如 bcrypt/Argon2）","写在前端代码里"],
+      a: 2,
+      e: "明文和无盐 MD5 都不安全。应使用 bcrypt、scrypt、Argon2 等带盐的慢哈希算法，提高暴力破解成本。"
+    },
+    {
+      q: "HTTPS 主要解决的问题是？",
+      opts: ["让网站打开更快","传输过程的加密、完整性与身份认证","防止所有漏洞","替代备份"],
+      a: 1,
+      e: "HTTPS（TLS）提供传输加密、数据完整性和服务器身份认证，防止中间人窃听篡改，但不能直接修复 SQL 注入等应用层漏洞。"
+    },
+    {
+      q: "发现一个真实存在的高危漏洞后，比较负责任的做法是？",
+      opts: ["立刻发到公开论坛","通过厂商安全渠道 / CNVD 报告，给修复时间","私下利用","不告诉任何人"],
+      a: 1,
+      e: "应通过厂商 SRC、CNVD/CNNVD 等渠道负责任披露，给厂商修复时间，避免公开利用细节被滥用。"
+    },
+    {
+      q: "CSRF（跨站请求伪造）的有效防御手段不包括？",
+      opts: ["校验 CSRF Token","校验 SameSite Cookie","仅靠前端隐藏按钮","关键操作二次确认"],
+      a: 2,
+      e: "CSRF 防御依赖不可预测的 Token、SameSite Cookie、Referer 校验等。隐藏按钮在服务端仍可被伪造请求，无法防御。"
+    },
+    {
+      q: "应急响应中，发现服务器被植入 webshell 后，第一步更应优先？",
+      opts: ["先格式化硬盘","立即删除所有日志","先止损隔离并保留证据，再根除恢复","当作没发生"],
+      a: 2,
+      e: "应急响应遵循遏制、根除、恢复，先隔离止损并保留证据（日志、镜像），再清除后门、修补漏洞、恢复业务。"
+    },
+    {
+      q: "关于使用 Burp Suite、Nmap 等安全工具，正确的是？",
+      opts: ["工具合法，所以任何目标都能测","只在授权目标 / 自有靶场使用，从官方渠道下载","可以随便扫描公网","工具能自动规避法律"],
+      a: 1,
+      e: "工具本身合法，但使用范围受法律约束，只能用于授权目标或自有环境，并应从官方渠道下载以防后门。"
+    }
+  ];
+
+  let idx = 0, score = 0, answered = false;
+  const qNum=document.getElementById('qNum'), qScore=document.getElementById('qScore');
+  const barFill=document.getElementById('barFill'), questionEl=document.getElementById('question');
+  const optionsEl=document.getElementById('options'), explainEl=document.getElementById('explain');
+  const nextBtn=document.getElementById('nextBtn'), panel=document.getElementById('quizPanel');
+
+  function render(){
+    answered=false;
+    const item=QUESTIONS[idx];
+    qNum.textContent=idx+1;
+    qScore.textContent=score;
+    barFill.style.width=((idx)/QUESTIONS.length*100)+'%';
+    questionEl.textContent=item.q;
+    optionsEl.innerHTML='';
+    item.opts.forEach((opt,i)=>{
+      const b=document.createElement('button');
+      b.className='opt'; b.textContent=String.fromCharCode(65+i)+'. '+opt;
+      b.onclick=()=>choose(i,b);
+      optionsEl.appendChild(b);
+    });
+    explainEl.classList.remove('show');
+    nextBtn.style.display='none';
+  }
+
+  function choose(i,btn){
+    if(answered) return;
+    answered=true;
+    const item=QUESTIONS[idx];
+    const btns=optionsEl.querySelectorAll('.opt');
+    btns.forEach(b=>b.disabled=true);
+    btns[item.a].classList.add('correct');
+    if(i===item.a){ score+=10; }
+    else { btn.classList.add('wrong'); }
+    qScore.textContent=score;
+    explainEl.innerHTML='<strong>解析：</strong>'+item.e;
+    explainEl.classList.add('show');
+    nextBtn.style.display='inline-block';
+    nextBtn.textContent = idx===QUESTIONS.length-1 ? '查看结果' : '下一题';
+  }
+
+  nextBtn.onclick=()=>{
+    idx++;
+    if(idx<QUESTIONS.length){ render(); }
+    else { finish(); }
+  };
+
+  function finish(){
+    barFill.style.width='100%';
+    let comment;
+    if(score>=90) comment='安全基础非常扎实，可以继续深入 CTF 和实战。';
+    else if(score>=60) comment='掌握了基本概念，建议结合靶场和漏洞分析巩固。';
+    else comment='基础还需加强，建议先系统学习 OWASP Top 10。';
+    panel.innerHTML='<div class="result">'+
+      '<p style="color:var(--green);font-weight:700;letter-spacing:1px">闯关完成</p>'+
+      '<div class="score-big">'+score+' 分</div>'+
+      '<p>'+comment+'</p>'+
+      '<button class="btn" onclick="location.reload()">再玩一次</button></div>';
+  }
+
+  render();
+})();
+</script>
+</body>
+</html>
