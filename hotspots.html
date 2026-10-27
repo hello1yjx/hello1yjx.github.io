@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://cdn.jsdelivr.net">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;800&family=Noto+Serif+SC:wght@700;900&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/styles.css?v=20261023-banner-align">
+  <link rel="stylesheet" href="assets/styles.css?v=20261027-websocket-daily">
 </head>
 <body>
   <header class="site-header">
@@ -78,6 +78,66 @@
       <div class="hotspot-grid" data-hotspot-list>
         <!-- STATIC_HOTSPOTS_START -->
 <article class="hotspot-card reveal">
+      <div class="hotspot-card__head">
+        <span class="hotspot-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/python/python-original.svg" alt="AI 编程 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <div>
+          <div class="hotspot-card__meta">
+            <span>AI 编程</span>
+            <time datetime="2026-10-27">2026年10月27日</time>
+          </div>
+          <h3>OpenAI 发布 GPT-6.1 Terra：视觉与电脑操作增强，API 价格降 50%</h3>
+        </div>
+      </div>
+      <p>OpenAI 推出新模型 GPT-6.1 Terra，重点提升视觉理解和电脑操作能力，可用于撰写方案、解读技术图纸、填写表格、编辑视频；标准 API 价格较 GPT-5.6 Terra 和 GPT-6.1 Sol 降低 50%，terminal-bench 4.0 编程任务解决率达 50.3%，较前代 21.5% 翻倍。</p>
+      <div class="hotspot-card__why">
+        <strong>为什么值得关注</strong>
+        <p>为什么值得关注：更强的电脑操作能力和更低的价格，让用 AI 做命令行编程、表格处理、图纸解读的成本明显下降；新手可用更低预算跑 agent 任务。注意 GPT-6.1 Terra 是新模型，需要在 API 或客户端手动切换模型名，旧配置不会自动用上。</p>
+      </div>
+      <p class="hotspot-card__idea">候选：GPT-6.1 Terra 电脑操作与编程实战</p>
+      <a class="text-link" href="https://openai.com/" target="_blank" rel="noreferrer">查看来源：OpenAI 官方发布</a>
+    </article>
+
+    <article class="hotspot-card reveal">
+      <div class="hotspot-card__head">
+        <span class="hotspot-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/python/python-original.svg" alt="云端部署 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <div>
+          <div class="hotspot-card__meta">
+            <span>云端部署</span>
+            <time datetime="2026-10-27">2026年10月27日</time>
+          </div>
+          <h3>Vercel WebSocket 正式 GA：无需独立服务器即可做实时聊天与多人应用</h3>
+        </div>
+      </div>
+      <p>Vercel Functions 的 WebSocket 支持正式 GA，公测以来已服务 3 亿连接、目前每天 1500 万；可直接用 ws、Socket.IO、FastAPI 等库在函数里建立双向长连接，用于 AI 聊天、流式输出、实时多人和 AI Gateway 实时模型，计费与普通函数一致、CPU 仅在处理消息时计费。</p>
+      <div class="hotspot-card__why">
+        <strong>为什么值得关注</strong>
+        <p>为什么值得关注：以前 serverless 上做实时功能要单独维护 WebSocket 服务器，现在函数本身就能长连接，新手部署实时应用的门槛大幅降低。注意需要开启 Fluid compute（2025/4/23 后新项目默认开启），连接会在函数达到最大时长时断开，必须写重连逻辑，且跨实例状态要用 Redis。</p>
+      </div>
+      <p class="hotspot-card__idea">已扩写：Vercel WebSocket 实时应用入门</p>
+      <a class="text-link" href="https://vercel.com/changelog/websocket-support-is-now-generally-available" target="_blank" rel="noreferrer">查看来源：Vercel Changelog</a>
+    </article>
+
+    <article class="hotspot-card reveal">
+      <div class="hotspot-card__head">
+        <span class="hotspot-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/git/git-original.svg" alt="代码质量 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <div>
+          <div class="hotspot-card__meta">
+            <span>代码质量</span>
+            <time datetime="2026-10-27">2026年10月27日</time>
+          </div>
+          <h3>苹果 iOS 27.2 修复 163 个安全漏洞，封堵大量越狱利用链</h3>
+        </div>
+      </div>
+      <p>苹果 10/27 发布 iOS 27.2 与 iPadOS 27.2，一次性修复 163 个可追踪 CVE 漏洞，涉及 Apple Intelligence、邮件隐私、浏览器内核及系统底层，并封堵大部分 iOS 27 完美越狱所用漏洞，苹果建议用户尽快升级。</p>
+      <div class="hotspot-card__why">
+        <strong>为什么值得关注</strong>
+        <p>为什么值得关注：一次修复 163 个漏洞数量罕见，浏览器内核和系统底层的漏洞可能被用于远程攻击或越狱，普通用户和开发者都应及时更新测试机。注意安全研究人员要在升级前确认是否需要保留旧版本做调试，升级后部分越狱和调试环境将失效。</p>
+      </div>
+      <p class="hotspot-card__idea">候选：iOS 安全更新与漏洞修复跟踪</p>
+      <a class="text-link" href="https://support.apple.com/security" target="_blank" rel="noreferrer">查看来源：Apple 安全更新</a>
+    </article>
+
+    <article class="hotspot-card reveal">
       <div class="hotspot-card__head">
         <span class="hotspot-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/python/python-original.svg" alt="AI 编程 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
         <div>
@@ -5375,6 +5435,6 @@
     </div>
   </footer>
 
-  <script src="assets/app.js?v=20261023-banner-align"></script>
+  <script src="assets/app.js?v=20261027-websocket-daily"></script>
 </body>
 </html>

@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Vercel WebSocket 实时应用入门：不写独立服务器做实时聊天 | 学习资源库</title>
+  <meta name="description" content="做实时聊天、多人协作、AI 流式输出，传统上要自己维护一台常开的 WebSocket 服务器。Vercel Functions 的 WebSocket 已正式 GA，函数本身就能建立双向长连接，用 ws、Socket.IO、FastAPI 等熟悉的库即可，无需额外服务器。这篇教程从工作原理、Fluid Compute 前提、写一个回显端点、前端连接、断线重连，到用 Redis 处理跨实例状态，给你一套可直接照做的流程，适合想在 serverless 上做实时功能的新手。">
+  <meta name="robots" content="index,follow,max-image-preview:large">
+  <link rel="canonical" href="https://hello1yjx.github.io/articles/vercel-websocket-realtime-app-beginner-guide.html">
+  <link rel="icon" type="image/png" href="../assets/images/brand-book-line.png">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"Vercel WebSocket 实时应用入门：不写独立服务器做实时聊天","description":"做实时聊天、多人协作、AI 流式输出，传统上要自己维护一台常开的 WebSocket 服务器。Vercel Functions 的 WebSocket 已正式 GA，函数本身就能建立双向长连接，用 ws、Socket.IO、FastAPI 等熟悉的库即可，无需额外服务器。这篇教程从工作原理、Fluid Compute 前提、写一个回显端点、前端连接、断线重连，到用 Redis 处理跨实例状态，给你一套可直接照做的流程，适合想在 serverless 上做实时功能的新手。","datePublished":"2026-10-27","dateModified":"2026-10-27","author":{"@type":"Person","name":"Avery Lin","url":"https://hello1yjx.github.io/about.html"},"publisher":{"@type":"Organization","name":"学习资源库","url":"https://hello1yjx.github.io/"},"mainEntityOfPage":"https://hello1yjx.github.io/articles/vercel-websocket-realtime-app-beginner-guide.html","inLanguage":"zh-CN"}</script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6621999105936318" crossorigin="anonymous"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;800&family=Noto+Serif+SC:wght@700;900&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/styles.css?v=20261027-websocket-daily">
+</head>
+<body>
+  <header class="site-header">
+    <div class="page-shell site-header__inner">
+      <a class="brand" href="../index.html" aria-label="返回首页">
+        <span class="brand-mark" aria-hidden="true"><img src="../assets/images/brand-book-line.png" alt="" width="36" height="33"></span>
+        <span class="brand-copy"><strong>学习资源库</strong><span>分享知识 · 提升自己 · 成就未来</span></span>
+      </a>
+      <button class="menu-button" data-menu-button aria-expanded="false" aria-label="切换导航菜单">☰</button>
+      <nav class="site-nav" data-mobile-nav>
+        <a href="../index.html">首页</a>
+        <a class="is-active" href="../posts.html" aria-current="page">教程</a>
+        <a href="../resources.html">资源下载</a>
+        <a href="../hotspots.html">技术资讯</a>
+        <a href="../projects.html">开源项目</a>
+        <a href="../vulns.html">漏洞分析</a>
+        <a href="../kaogong.html">考公专区</a>
+        <a href="../about.html">关于我们</a>
+      </nav>
+      <form class="header-search" action="../posts.html" method="get">
+        <input type="search" name="q" placeholder="搜索教程、资源、工具或关键词...">
+        <button type="submit" aria-label="搜索">/</button>
+      </form>
+      <a class="header-github" href="https://github.com/hello1yjx/hello1yjx.github.io" target="_blank" rel="noreferrer" aria-label="GitHub">
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="" width="24" height="24">
+      </a>
+      <a class="header-cta" href="../posts.html">开始学习</a>
+    </div>
+  </header>
+
+  <main class="page-shell section article-page">
+    <header class="detail-hero">
+      <span class="pill">云端部署</span>
+      <h1>Vercel WebSocket 实时应用入门：不写独立服务器做实时聊天</h1>
+      <div class="detail-hero__meta">
+        <time datetime="2026-10-27">2026年10月27日</time>
+        <span>11 分钟</span>
+        <span>作者：Avery Lin</span>
+      </div>
+      <p>做实时聊天、多人协作、AI 流式输出，传统上要自己维护一台常开的 WebSocket 服务器。Vercel Functions 的 WebSocket 已正式 GA，函数本身就能建立双向长连接，用 ws、Socket.IO、FastAPI 等熟悉的库即可，无需额外服务器。这篇教程从工作原理、Fluid Compute 前提、写一个回显端点、前端连接、断线重连，到用 Redis 处理跨实例状态，给你一套可直接照做的流程，适合想在 serverless 上做实时功能的新手。</p>
+    </header>
+    <div class="article-layout">
+      <article class="article-body">
+        <div class="inline-promo">
+          <p class="label">来源与增量价值</p>
+          <h3>本文基于官方资料整理，并补充适用场景、限制条件和实践检查步骤。</h3>
+          <p>首要来源：<a href="https://vercel.com/changelog/websocket-support-is-now-generally-available" target="_blank" rel="noreferrer">Vercel WebSocket GA 公告</a>。事实以原始来源为准，本站建议需结合自己的环境验证。</p>
+        </div>
+
+    <p>实时功能是很多应用的标配：聊天要即时收到消息，协作文档要看到别人的光标，AI 回答要一个字一个字地流式输出。这些都依赖 WebSocket 这种双向长连接，但在 serverless 平台上，函数默认是“请求完就结束”，很难保持长连接，过去只能单独开一台服务器。</p><p>Vercel 已让 Functions 原生支持 WebSocket 并正式 GA，公测期间已服务 3 亿连接。这篇教程基于官方文档，带你理解原理、写一个能跑的实时端点，并重点讲清新手最容易踩的坑：断线重连、跨实例状态和计费。跟着做，你能在一个下午把实时功能部署上线。</p>
+    <h2>这篇内容适合谁</h2>
+    <ul><li>想在 Vercel 上做实时聊天、协作或 AI 流式应用的开发者</li><li>用过 Vercel Functions 但没做过 WebSocket 的新手</li><li>不想维护独立 WebSocket 服务器的站长和独立开发者</li></ul>
+    <h2>实践与验证步骤</h2>
+    <ul><li>理解 WebSocket 与 Vercel 上的连接模型</li><li>确认开启 Fluid Compute 并准备 Node 环境</li><li>用 ws 写一个回显 WebSocket 端点</li><li>写前端连接并收发消息</li><li>实现断线自动重连</li><li>用 Redis 处理跨实例的共享状态</li><li>了解 Socket.IO 等框架的接入方式</li><li>核对限制、计费并部署验证</li></ul>
+    <h2>官方资料入口</h2>
+
+    <ul>
+
+            <li>
+              <a href="https://vercel.com/changelog/websocket-support-is-now-generally-available" target="_blank" rel="noreferrer">Vercel WebSocket GA 公告</a>
+              <span>：官方发布</span>
+            </li>
+
+            <li>
+              <a href="https://vercel.com/docs/functions/websockets" target="_blank" rel="noreferrer">Vercel WebSockets 文档</a>
+              <span>：官方文档</span>
+            </li>
+
+            <li>
+              <a href="https://vercel.com/docs/functions/limits" target="_blank" rel="noreferrer">Vercel Functions 限制</a>
+              <span>：限制与时长</span>
+            </li>
+
+    </ul>
+
+    <h2>重点判断与使用建议</h2>
+    <ul><li>WebSocket 已在所有 plan 的 Vercel Functions 上可用</li><li>单条连接固定（pinned）到一个函数实例，Fluid Compute 让一个实例处理多条连接</li><li>连接在函数达到最大时长时关闭，客户端必须实现重连</li><li>重连不保证回到同一实例，持久状态要放 Redis 等外部存储</li><li>计费与普通函数一致，Active CPU 只在处理消息时计费</li><li>需要开启 Fluid Compute（2025 年 4 月 23 日后创建的新项目默认开启）</li></ul>
+
+        <h2>一、WebSocket 是什么、解决什么问题</h2>
+
+        <ul><li>普通 HTTP 是“客户端问一次、服务器答一次”，服务器无法主动推送</li><li>WebSocket 在 HTTP 握手后升级为一条保持打开的双向连接，双方随时可发消息</li><li>适合：实时聊天、多人协作、在线状态、实时数据、AI 回答的流式输出</li><li>过去在 serverless 上难做，因为函数执行完就释放，无法保持连接</li><li>Vercel 让函数本身能保持长连接，因此不再需要单独的 socket 服务器</li></ul>
+
+
+
+        <h2>二、Vercel 上的工作原理</h2>
+
+        <ul><li>连接开始于一个带 Upgrade 头的 HTTP GET 请求</li><li>升级前会经过和普通请求一样的路由、中间件、防火墙规则和限流</li><li>升级成功后，该连接固定（pinned）到接收它的那个函数实例</li><li>这条连接后续的消息都送达同一个实例，Fluid Compute 让一个实例同时处理多条连接</li><li>含义：连接内部可以用内存保存该连接的临时状态，但跨连接、跨重连不能依赖内存</li></ul>
+
+
+
+        <h2>三、准备工作</h2>
+
+        <ul><li>确认项目已开启 Fluid Compute：项目设置里查看 Functions，2025 年 4 月 23 日后的新项目默认开启</li><li>准备 Node.js 18 以上环境，初始化一个 Vercel 项目</li><li>安装 ws 库：npm install ws（用于建立 WebSocket）</li><li>在 api 目录下创建函数文件（如 api/ws.js）</li><li>本地可用 vercel dev 调试，再部署到线上</li></ul>
+
+
+
+        <h2>四、用 ws 写一个回显端点</h2>
+
+        <ul><li>用 node:http 创建服务器，再用 ws 的 WebSocketServer 挂到该服务器</li><li>示例：const server = http.createServer(); const wss = new WebSocketServer({ server });</li><li>监听 connection 事件，在回调里拿到 ws 对象</li><li>监听 ws 的 message 事件，把收到的数据用 ws.send 原样发回，即“回显”</li><li>最后 export default server，Vercel 会把它作为函数处理升级请求</li><li>这是最小可跑例子，先确认连接能建立、消息能回发，再扩展业务</li></ul>
+
+
+
+        <h2>五、前端连接与收发消息</h2>
+
+        <ul><li>浏览器原生支持 WebSocket，直接 new WebSocket('wss://你的域名/api/ws')</li><li>监听 open 事件确认连接已建立，再开始发送</li><li>监听 message 事件接收服务器推送，更新页面</li><li>用 ws.send(文本) 发送消息，注意要在 open 之后再发</li><li>线上务必用 wss（加密），本地调试可用 ws</li><li>部署后打开两个浏览器窗口，一边发消息，确认另一边能收到</li></ul>
+
+
+
+        <h2>六、处理断开与自动重连（重要）</h2>
+
+        <ul><li>当函数达到最大时长，连接会被关闭，这是正常现象不是 bug</li><li>网络波动、服务器重启也会导致连接断开</li><li>前端必须监听 close 事件，在回调里重新建立连接</li><li>推荐指数退避：第一次等 1 秒，之后翻倍，最多等 30 秒，避免频繁重连压垮服务</li><li>重连成功后要重新订阅频道、重新加载需要的状态</li><li>不做重连，用户会发现应用“用着用着就不动了”，这是新手最常漏的一步</li></ul>
+
+
+
+        <h2>七、跨实例状态：用 Redis 而不是内存</h2>
+
+        <ul><li>新连接不保证落到同一个函数实例，重连可能连到另一台实例</li><li>新部署后，旧连接留在旧版本、新连接走新版本，直到旧连接关闭</li><li>因此在线人数、房间、计数器、消息广播等共享状态不能存在函数内存里</li><li>应使用外部存储，例如 Vercel Marketplace 里的 Redis</li><li>做法：收到消息写入 Redis 或通过 Redis 的发布订阅广播给相关连接</li><li>只有“单条连接自身”的临时数据才适合放在内存</li></ul>
+
+
+
+        <h2>八、用 Socket.IO 等框架</h2>
+
+        <ul><li>除了原生 ws，还可用 Socket.IO、Express、Hono，Python 可用 FastAPI、Django Channels、Flask-Sock</li><li>Bun 运行时可用原生 Bun.serve 的 WebSocket API</li><li>Nitro/Nuxt 开启 features.websocket 后用 defineWebSocketHandler</li><li>Next.js 没有暴露升级接口，可用 @vercel/functions 3.10.0 以上的 upgradeWebSocket</li><li>Socket.IO 客户端要指定 transports 为 websocket，并把 path 指向你的函数路径</li><li>先用官方最小示例跑通，再引入框架，避免一上来就被框架配置卡住</li></ul>
+
+
+
+        <h2>九、限制、计费与验收</h2>
+
+        <ul><li>WebSocket 连接遵循和普通函数相同的限制与计费模型</li><li>Active CPU 计费下，只有真正处理消息的时间才计 CPU，空闲等待不计</li><li>收发的数据量会按 Fast Data Transfer / Fast Origin Transfer 计费</li><li>验收一：连接能稳定建立，长时间挂着后断开会自动重连</li><li>验收二：多窗口、重连、重新部署后，共享状态仍正确（验证 Redis 生效）</li><li>验收三：在函数最大时长附近测试，确认断开和重连表现符合预期</li><li>上线后在监控面板观察连接数、函数时长和数据传输量</li></ul>
+
+
+
+        <h2>十、检查清单</h2>
+
+        <ul><li>Fluid Compute 已开启</li><li>ws 端点能建立连接并回显消息</li><li>前端使用 wss 且在 open 后发送</li><li>close 事件已实现指数退避重连</li><li>重连后重新订阅并恢复状态</li><li>共享状态放在 Redis，而非函数内存</li><li>多窗口、重连、重新部署场景测试通过</li><li>了解计费口径，监控连接数与数据量</li></ul>
+
+
+
+
+        <div class="inline-promo">
+          <p class="label">更正与更新</p>
+          <h3>发现版本变化、来源失效或事实错误时，请通过联系页反馈。</h3>
+          <p>本站会核对一手来源后更新内容，不使用无来源转载填充文章。</p>
+          <a class="button button--secondary" href="../editorial.html">查看内容标准</a>
+        </div>
+      </article>
+      <aside class="article-sidebar">
+        <div class="sidebar-card">
+          <p class="label">本页标签</p>
+          <div class="tag-row"><span>Vercel</span><span>WebSocket</span><span>实时应用</span><span>Fluid Compute</span><span>Serverless</span><span>Socket.IO</span></div>
+        </div>
+        <div class="sidebar-card">
+          <p class="label">继续阅读</p>
+          <a href="xingce-wu-da-mokuai-zuotifangfa-zhenti-shuati-guide.html">行测做题方法：五大模块提分技巧、时间分配与真题刷题法</a><a href="shenlun-wu-lei-tixing-zuotifangfa-zhenti-jinglian-guide.html">申论做题方法：五类题型答题框架、材料提炼与真题精练</a><a href="2027-guokao-baoming-quanliucheng-guide.html">2027 国考报名全流程指南：时间、实名认证、选岗与避坑（10 月 14-24 日报名）</a><a href="2027-guangdong-shengkao-nianmo-moshi-guide.html">2027 广东省考报考指南：年末省考新模式、时间线与备考安排</a>
+        </div>
+        <div class="sidebar-card sidebar-card--accent">
+          <p class="label">作者与方法</p>
+          <h3>了解本站如何选题、核验来源与处理更正。</h3>
+          <a class="button button--dark" href="../about.html">关于作者</a>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="page-shell footer__inner">
+      <div><strong>学习资源库</strong><p>分享知识 · 提升自己 · 成就未来</p></div>
+      <div>
+        <a href="../editorial.html">内容标准</a><br>
+        <a href="../privacy.html">隐私政策</a><br>
+        <a href="../contact.html">联系</a>
+      </div>
+    </div>
+  </footer>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      var button = document.querySelector("[data-menu-button]");
+      var nav = document.querySelector("[data-mobile-nav]");
+      if (!button || !nav) return;
+      button.addEventListener("click", function () {
+        var expanded = button.getAttribute("aria-expanded") === "true";
+        button.setAttribute("aria-expanded", String(!expanded));
+        nav.classList.toggle("site-nav--open", !expanded);
+      });
+    });
+  </script>
+</body>
+</html>

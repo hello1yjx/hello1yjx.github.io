@@ -29,6 +29,168 @@ const siteData = {
   },
   posts: [
     {
+      id: "vercel-websocket-realtime-app-beginner-guide",
+      title: "Vercel WebSocket 实时应用入门：不写独立服务器做实时聊天",
+      date: "2026-10-27",
+      category: "云端部署",
+      readTime: "11 分钟",
+      excerpt: "做实时聊天、多人协作、AI 流式输出，传统上要自己维护一台常开的 WebSocket 服务器。Vercel Functions 的 WebSocket 已正式 GA，函数本身就能建立双向长连接，用 ws、Socket.IO、FastAPI 等熟悉的库即可，无需额外服务器。这篇教程从工作原理、Fluid Compute 前提、写一个回显端点、前端连接、断线重连，到用 Redis 处理跨实例状态，给你一套可直接照做的流程，适合想在 serverless 上做实时功能的新手。",
+      tags: ["Vercel", "WebSocket", "实时应用", "Fluid Compute", "Serverless", "Socket.IO"],
+      featured: true,
+      intro: [
+        "实时功能是很多应用的标配：聊天要即时收到消息，协作文档要看到别人的光标，AI 回答要一个字一个字地流式输出。这些都依赖 WebSocket 这种双向长连接，但在 serverless 平台上，函数默认是“请求完就结束”，很难保持长连接，过去只能单独开一台服务器。",
+        "Vercel 已让 Functions 原生支持 WebSocket 并正式 GA，公测期间已服务 3 亿连接。这篇教程基于官方文档，带你理解原理、写一个能跑的实时端点，并重点讲清新手最容易踩的坑：断线重连、跨实例状态和计费。跟着做，你能在一个下午把实时功能部署上线。"
+      ],
+      audience: [
+        "想在 Vercel 上做实时聊天、协作或 AI 流式应用的开发者",
+        "用过 Vercel Functions 但没做过 WebSocket 的新手",
+        "不想维护独立 WebSocket 服务器的站长和独立开发者"
+      ],
+      format: [
+        "全文按“原理 → 前提 → 写端点 → 前端连接 → 断线重连 → 跨实例状态 → 框架 → 限制计费 → 检查清单”组织",
+        "配合可验证的代码步骤"
+      ],
+      roadmap: [
+        "理解 WebSocket 与 Vercel 上的连接模型",
+        "确认开启 Fluid Compute 并准备 Node 环境",
+        "用 ws 写一个回显 WebSocket 端点",
+        "写前端连接并收发消息",
+        "实现断线自动重连",
+        "用 Redis 处理跨实例的共享状态",
+        "了解 Socket.IO 等框架的接入方式",
+        "核对限制、计费并部署验证"
+      ],
+      officialLinks: [
+        { label: "Vercel WebSocket GA 公告", url: "https://vercel.com/changelog/websocket-support-is-now-generally-available", note: "官方发布" },
+        { label: "Vercel WebSockets 文档", url: "https://vercel.com/docs/functions/websockets", note: "官方文档" },
+        { label: "Vercel Functions 限制", url: "https://vercel.com/docs/functions/limits", note: "限制与时长" }
+      ],
+      curatedLinks: [
+        "WebSocket 已在所有 plan 的 Vercel Functions 上可用",
+        "单条连接固定（pinned）到一个函数实例，Fluid Compute 让一个实例处理多条连接",
+        "连接在函数达到最大时长时关闭，客户端必须实现重连",
+        "重连不保证回到同一实例，持久状态要放 Redis 等外部存储",
+        "计费与普通函数一致，Active CPU 只在处理消息时计费",
+        "需要开启 Fluid Compute（2025 年 4 月 23 日后创建的新项目默认开启）"
+      ],
+      downloadIdeas: [
+        "做一个“实时聊天”最小模板：ws 端点 + 自动重连前端 + Redis 房间",
+        "做一张“WebSocket 上线检查卡”：Fluid Compute、重连、状态、超时、计费"
+      ],
+      extraSections: [
+        {
+          title: "一、WebSocket 是什么、解决什么问题",
+          items: [
+            "普通 HTTP 是“客户端问一次、服务器答一次”，服务器无法主动推送",
+            "WebSocket 在 HTTP 握手后升级为一条保持打开的双向连接，双方随时可发消息",
+            "适合：实时聊天、多人协作、在线状态、实时数据、AI 回答的流式输出",
+            "过去在 serverless 上难做，因为函数执行完就释放，无法保持连接",
+            "Vercel 让函数本身能保持长连接，因此不再需要单独的 socket 服务器"
+          ]
+        },
+        {
+          title: "二、Vercel 上的工作原理",
+          items: [
+            "连接开始于一个带 Upgrade 头的 HTTP GET 请求",
+            "升级前会经过和普通请求一样的路由、中间件、防火墙规则和限流",
+            "升级成功后，该连接固定（pinned）到接收它的那个函数实例",
+            "这条连接后续的消息都送达同一个实例，Fluid Compute 让一个实例同时处理多条连接",
+            "含义：连接内部可以用内存保存该连接的临时状态，但跨连接、跨重连不能依赖内存"
+          ]
+        },
+        {
+          title: "三、准备工作",
+          items: [
+            "确认项目已开启 Fluid Compute：项目设置里查看 Functions，2025 年 4 月 23 日后的新项目默认开启",
+            "准备 Node.js 18 以上环境，初始化一个 Vercel 项目",
+            "安装 ws 库：npm install ws（用于建立 WebSocket）",
+            "在 api 目录下创建函数文件（如 api/ws.js）",
+            "本地可用 vercel dev 调试，再部署到线上"
+          ]
+        },
+        {
+          title: "四、用 ws 写一个回显端点",
+          items: [
+            "用 node:http 创建服务器，再用 ws 的 WebSocketServer 挂到该服务器",
+            "示例：const server = http.createServer(); const wss = new WebSocketServer({ server });",
+            "监听 connection 事件，在回调里拿到 ws 对象",
+            "监听 ws 的 message 事件，把收到的数据用 ws.send 原样发回，即“回显”",
+            "最后 export default server，Vercel 会把它作为函数处理升级请求",
+            "这是最小可跑例子，先确认连接能建立、消息能回发，再扩展业务"
+          ]
+        },
+        {
+          title: "五、前端连接与收发消息",
+          items: [
+            "浏览器原生支持 WebSocket，直接 new WebSocket('wss://你的域名/api/ws')",
+            "监听 open 事件确认连接已建立，再开始发送",
+            "监听 message 事件接收服务器推送，更新页面",
+            "用 ws.send(文本) 发送消息，注意要在 open 之后再发",
+            "线上务必用 wss（加密），本地调试可用 ws",
+            "部署后打开两个浏览器窗口，一边发消息，确认另一边能收到"
+          ]
+        },
+        {
+          title: "六、处理断开与自动重连（重要）",
+          items: [
+            "当函数达到最大时长，连接会被关闭，这是正常现象不是 bug",
+            "网络波动、服务器重启也会导致连接断开",
+            "前端必须监听 close 事件，在回调里重新建立连接",
+            "推荐指数退避：第一次等 1 秒，之后翻倍，最多等 30 秒，避免频繁重连压垮服务",
+            "重连成功后要重新订阅频道、重新加载需要的状态",
+            "不做重连，用户会发现应用“用着用着就不动了”，这是新手最常漏的一步"
+          ]
+        },
+        {
+          title: "七、跨实例状态：用 Redis 而不是内存",
+          items: [
+            "新连接不保证落到同一个函数实例，重连可能连到另一台实例",
+            "新部署后，旧连接留在旧版本、新连接走新版本，直到旧连接关闭",
+            "因此在线人数、房间、计数器、消息广播等共享状态不能存在函数内存里",
+            "应使用外部存储，例如 Vercel Marketplace 里的 Redis",
+            "做法：收到消息写入 Redis 或通过 Redis 的发布订阅广播给相关连接",
+            "只有“单条连接自身”的临时数据才适合放在内存"
+          ]
+        },
+        {
+          title: "八、用 Socket.IO 等框架",
+          items: [
+            "除了原生 ws，还可用 Socket.IO、Express、Hono，Python 可用 FastAPI、Django Channels、Flask-Sock",
+            "Bun 运行时可用原生 Bun.serve 的 WebSocket API",
+            "Nitro/Nuxt 开启 features.websocket 后用 defineWebSocketHandler",
+            "Next.js 没有暴露升级接口，可用 @vercel/functions 3.10.0 以上的 upgradeWebSocket",
+            "Socket.IO 客户端要指定 transports 为 websocket，并把 path 指向你的函数路径",
+            "先用官方最小示例跑通，再引入框架，避免一上来就被框架配置卡住"
+          ]
+        },
+        {
+          title: "九、限制、计费与验收",
+          items: [
+            "WebSocket 连接遵循和普通函数相同的限制与计费模型",
+            "Active CPU 计费下，只有真正处理消息的时间才计 CPU，空闲等待不计",
+            "收发的数据量会按 Fast Data Transfer / Fast Origin Transfer 计费",
+            "验收一：连接能稳定建立，长时间挂着后断开会自动重连",
+            "验收二：多窗口、重连、重新部署后，共享状态仍正确（验证 Redis 生效）",
+            "验收三：在函数最大时长附近测试，确认断开和重连表现符合预期",
+            "上线后在监控面板观察连接数、函数时长和数据传输量"
+          ]
+        },
+        {
+          title: "十、检查清单",
+          items: [
+            "Fluid Compute 已开启",
+            "ws 端点能建立连接并回显消息",
+            "前端使用 wss 且在 open 后发送",
+            "close 事件已实现指数退避重连",
+            "重连后重新订阅并恢复状态",
+            "共享状态放在 Redis，而非函数内存",
+            "多窗口、重连、重新部署场景测试通过",
+            "了解计费口径，监控连接数与数据量"
+          ]
+        }
+      ]
+    },
+    {
       id: "cloudflare-ai-gateway-web-search-integration-guide",
       title: "Cloudflare AI Gateway 接入 Web Search 实战：让 AI 应用实时联网",
       date: "2026-10-23",
@@ -9489,6 +9651,36 @@ git push origin main`,
     "github-agentic-workflows-public-preview-guide"
   ],
   hotspots: [
+    {
+      date: "2026-10-27",
+      tag: "AI 编程",
+      title: "OpenAI 发布 GPT-6.1 Terra：视觉与电脑操作增强，API 价格降 50%",
+      summary: "OpenAI 推出新模型 GPT-6.1 Terra，重点提升视觉理解和电脑操作能力，可用于撰写方案、解读技术图纸、填写表格、编辑视频；标准 API 价格较 GPT-5.6 Terra 和 GPT-6.1 Sol 降低 50%，terminal-bench 4.0 编程任务解决率达 50.3%，较前代 21.5% 翻倍。",
+      why: "为什么值得关注：更强的电脑操作能力和更低的价格，让用 AI 做命令行编程、表格处理、图纸解读的成本明显下降；新手可用更低预算跑 agent 任务。注意 GPT-6.1 Terra 是新模型，需要在 API 或客户端手动切换模型名，旧配置不会自动用上。",
+      sourceLabel: "OpenAI 官方发布",
+      sourceUrl: "https://openai.com/",
+      articleIdea: "候选：GPT-6.1 Terra 电脑操作与编程实战"
+    },
+    {
+      date: "2026-10-27",
+      tag: "云端部署",
+      title: "Vercel WebSocket 正式 GA：无需独立服务器即可做实时聊天与多人应用",
+      summary: "Vercel Functions 的 WebSocket 支持正式 GA，公测以来已服务 3 亿连接、目前每天 1500 万；可直接用 ws、Socket.IO、FastAPI 等库在函数里建立双向长连接，用于 AI 聊天、流式输出、实时多人和 AI Gateway 实时模型，计费与普通函数一致、CPU 仅在处理消息时计费。",
+      why: "为什么值得关注：以前 serverless 上做实时功能要单独维护 WebSocket 服务器，现在函数本身就能长连接，新手部署实时应用的门槛大幅降低。注意需要开启 Fluid compute（2025/4/23 后新项目默认开启），连接会在函数达到最大时长时断开，必须写重连逻辑，且跨实例状态要用 Redis。",
+      sourceLabel: "Vercel Changelog",
+      sourceUrl: "https://vercel.com/changelog/websocket-support-is-now-generally-available",
+      articleIdea: "已扩写：Vercel WebSocket 实时应用入门"
+    },
+    {
+      date: "2026-10-27",
+      tag: "代码质量",
+      title: "苹果 iOS 27.2 修复 163 个安全漏洞，封堵大量越狱利用链",
+      summary: "苹果 10/27 发布 iOS 27.2 与 iPadOS 27.2，一次性修复 163 个可追踪 CVE 漏洞，涉及 Apple Intelligence、邮件隐私、浏览器内核及系统底层，并封堵大部分 iOS 27 完美越狱所用漏洞，苹果建议用户尽快升级。",
+      why: "为什么值得关注：一次修复 163 个漏洞数量罕见，浏览器内核和系统底层的漏洞可能被用于远程攻击或越狱，普通用户和开发者都应及时更新测试机。注意安全研究人员要在升级前确认是否需要保留旧版本做调试，升级后部分越狱和调试环境将失效。",
+      sourceLabel: "Apple 安全更新",
+      sourceUrl: "https://support.apple.com/security",
+      articleIdea: "候选：iOS 安全更新与漏洞修复跟踪"
+    },
     {
       date: "2026-10-23",
       tag: "AI 编程",

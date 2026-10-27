@@ -4,7 +4,7 @@ const vm = require("vm");
 
 const root = path.resolve(__dirname, "..");
 const appPath = path.join(root, "assets", "app.js");
-const version = "20261023-banner-align";
+const version = "20261027-websocket-daily";
 const siteUrl = "https://hello1yjx.github.io";
 
 function loadSiteRuntime() {
