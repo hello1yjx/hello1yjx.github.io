@@ -29,6 +29,165 @@ const siteData = {
   },
   posts: [
     {
+      id: "github-copilot-fusion-multi-model-routing-guide",
+      title: "GitHub Copilot Fusion 多模型自动路由实战：不再手动选模型",
+      date: "2026-10-29",
+      category: "AI 编程",
+      readTime: "11 分钟",
+      excerpt: "用 AI 写代码最纠结的就是选模型：简单补全用强模型浪费钱，复杂推理用弱模型又搞不定，还常常切了强模型忘记切回。GitHub Copilot Fusion 已正式 GA，你只需选一个 Fusion，它会为每个任务自动选择并编排多个模型，Fusion Max 接近 Claude Code + Opus 5.5 的效果，成本却约一半。这篇教程讲清它的工作原理、三种编排模式、努力级别选择、管理员模型策略、计费与本地模型，帮你用更低成本获得更稳的 AI 编程体验。",
+      tags: ["GitHub Copilot", "Fusion", "多模型", "模型路由", "AI 编程", "成本控制"],
+      featured: true,
+      intro: [
+        "现在的 AI 编码工具背后往往有十几个模型，各有所长：有的便宜快速适合日常补全，有的推理强适合复杂调试。但让开发者每做一步都手动判断“该用哪个模型”，既打断思路又容易出错——很多人遇到难题切到最强模型，之后几天都忘了切回来，账单因此虚高。",
+        "GitHub 在 Universe 2026 上把 Copilot Fusion 正式推出，把“选模型”这件事交给系统：它分析每个任务，自动路由到合适的模型，必要时让多个模型级联、互评。这篇教程基于官方 changelog，带你从原理到配置完整走一遍，并重点讲清计费和管理员控制，帮你把性能和成本同时管好。"
+      ],
+      audience: [
+        "在 VS Code、JetBrains 或 CLI 中使用 GitHub Copilot 的开发者",
+        "想在不牺牲效果的前提下降低 AI 编程成本的团队和个人",
+        "需要为组织配置模型策略的企业管理员"
+      ],
+      format: [
+        "全文按“为什么 → 原理 → 编排模式 → 准备 → 选择级别 → 管理员 → 计费 → 本地模型 → 验收 → 检查清单”组织",
+        "配合可验证的操作步骤"
+      ],
+      roadmap: [
+        "理解手动选模型的痛点和自动路由的价值",
+        "搞懂 Copilot Fusion 的工作原理",
+        "区分 Single、Cascade、Critique 三种编排模式",
+        "更新客户端并准备 Copilot 环境",
+        "选择 Fusion 并匹配合适的努力级别",
+        "为组织配置可用模型与默认策略",
+        "理解计费口径并控制成本",
+        "了解本地模型支持并完成验收"
+      ],
+      officialLinks: [
+        { label: "Route and orchestrate models with Copilot Fusion", url: "https://github.blog/changelog/2026-10-28-route-and-orchestrate-models-with-github-copilot-fusion/", note: "官方发布" },
+        { label: "Copilot Fusion 支持本地模型", url: "https://github.blog/changelog/2026-10-28-github-copilot-fusion-now-supports-selection-of-local-models/", note: "实验预览" },
+        { label: "GitHub Universe 2026 总览", url: "https://github.blog/news-insights/company-news/github-universe-2026-evolving-every-layer-of-the-stack/", note: "官方公告" }
+      ],
+      curatedLinks: [
+        "Fusion 融合了 Project HydraFusion 的多模型编排与 Copilot auto 的模型选择",
+        "Fusion Max 在 Artificial Analysis 编码代理指数得 60 分，落后 Opus 5.5 Max 两分",
+        "Fusion Max 每任务平均 API 成本、token 约为一半，耗时少约 40%",
+        "提供 Standard、High、Max 三档努力级别",
+        "Fusion 只使用组织模型策略中已启用的模型",
+        "付费计划限时享受 Fusion 模型成本 30% 折扣",
+        "所有 Copilot 计划可用，支持 VS Code、Copilot App、CLI、JetBrains"
+      ],
+      downloadIdeas: [
+        "做一张“Fusion 努力级别选择卡”：按任务类型对应 Standard/High/Max",
+        "做一份“团队 AI 成本核对表”：模型策略、默认级别、折扣、用量看板"
+      ],
+      extraSections: [
+        {
+          title: "一、为什么需要自动路由模型",
+          items: [
+            "不同模型在速度、能力、价格上差异很大，没有一个模型在所有任务上都最优",
+            "手动选模型会打断开发思路，判断本身也消耗时间",
+            "常见浪费：难题切到强模型后忘记切回，日常任务也按高价计费",
+            "复杂任务往往需要“先草稿、再检查、必要时升级”，单模型难以兼顾",
+            "自动路由让开发者专注任务，由系统按任务难度匹配模型和成本"
+          ]
+        },
+        {
+          title: "二、Copilot Fusion 是什么、怎么工作",
+          items: [
+            "Fusion 不是某个具体模型，而是一个会路由、编排模型的系统",
+            "在模型选择器里选中 Fusion 后，每个 prompt 由它决定用哪个或哪些模型",
+            "它结合了 HydraFusion 的多模型编排能力与 Copilot auto 的精细选择",
+            "开发者不再需要在任务中途切换模型，只需选择努力级别",
+            "Fusion 会分析任务，再决定模型组合与协作方式"
+          ]
+        },
+        {
+          title: "三、三种编排模式：Single / Cascade / Critique",
+          items: [
+            "Single（单模型）：一个模型直接完成任务，适合简单任务，成本最低",
+            "Cascade（级联）：先用高效模型草稿，再由质量检查判断是否接受，不达标就升级到更强模型",
+            "Critique（互评）：一个模型起草，另一个模型审查，原模型根据意见修改",
+            "简单任务走 Single 即可省钱，复杂推理才触发 Cascade/Critique",
+            "理解这三种模式有助于判断 Fusion 为什么会在不同任务上表现和耗时不同"
+          ]
+        },
+        {
+          title: "四、准备工作与更新客户端",
+          items: [
+            "确认拥有 GitHub Copilot 订阅，Fusion 在所有 Copilot 计划可用",
+            "把 VS Code、JetBrains 或 Copilot CLI 的客户端更新到最新版本",
+            "在 VS Code 或 IDE 中打开模型选择器（model picker）",
+            "此前用过 auto、HydraFusion、HydraFusion Max 的研究预览用户会自动迁移到对应 Fusion 级别",
+            "支持 VS Code、GitHub Copilot App、Copilot CLI、JetBrains，其他客户端陆续支持"
+          ]
+        },
+        {
+          title: "五、选择 Fusion 与努力级别",
+          items: [
+            "在模型选择器中选择 Copilot Fusion，而不是某个具体模型",
+            "Fusion Standard：优先通用模型，适合日常编码，性价比最高",
+            "Fusion High：优先能力更强的模型，适合有挑战的任务和较深推理",
+            "Fusion Max：优先最强模型，适合最复杂的任务和复杂推理，效果最好、成本最高",
+            "建议默认用 Standard，遇到搞不定的任务再临时调高到 High 或 Max",
+            "选择后观察它如何分析任务并自动选择模型"
+          ]
+        },
+        {
+          title: "六、管理员如何控制可用模型",
+          items: [
+            "Fusion 只会使用企业和组织模型策略中已启用的模型",
+            "企业管理员可查看 Fusion 会从哪些模型中选择",
+            "可单独为 Fusion 禁用某个模型，而不影响该模型对其他人的开放",
+            "可通过企业托管设置把某档 Fusion 设为 Copilot 用户的默认模型",
+            "团队建议：先在小范围试点，确认效果和成本后再设为全员默认"
+          ]
+        },
+        {
+          title: "七、计费与成本控制",
+          items: [
+            "使用 Fusion 时，按它实际调用的每个模型的标准费率分别计费",
+            "限时优惠：付费 Copilot 计划使用 Fusion 享模型成本 30% 折扣",
+            "Fusion Max 官方数据显示每任务平均 API 成本、token 约为一半，耗时少约 40%",
+            "成本控制建议：日常用 Standard，只对复杂任务用 High/Max",
+            "定期在用量看板核对 Fusion 实际调用了哪些模型、花了多少",
+            "避免全员长期默认 Max，否则自动路由的成本优势会被抵消"
+          ]
+        },
+        {
+          title: "八、本地模型与实验预览",
+          items: [
+            "Fusion 已支持本地模型选择，目前处于实验预览阶段",
+            "可在支持的端侧模型与云端模型之间智能路由",
+            "Windows 上提供托管下载和安装，支持自带本地模型",
+            "适合处理敏感数据或想进一步降低 API 成本的用户",
+            "本地模型效果受硬件影响，实验性功能可能变动，生产环境需谨慎"
+          ]
+        },
+        {
+          title: "九、验收与常见问题",
+          items: [
+            "验收一：模型选择器中能看到并选中 Copilot Fusion，各档级别可切换",
+            "验收二：简单任务走单模型、复杂任务能触发多模型，回答质量符合预期",
+            "验收三：用量看板显示 Fusion 调用的模型与费用，折扣正确生效",
+            "常见问题：找不到 Fusion 多因客户端过旧，更新即可",
+            "常见问题：效果不如预期可尝试提高努力级别，或检查模型策略是否限制了强模型",
+            "常见问题：成本仍高，检查是否把 Max 设成了长期默认"
+          ]
+        },
+        {
+          title: "十、检查清单",
+          items: [
+            "客户端已更新到支持 Fusion 的版本",
+            "已在模型选择器选中 Fusion 并匹配努力级别",
+            "日常任务使用 Standard，复杂任务再升级",
+            "组织模型策略已确认，Fusion 可用模型清晰",
+            "如需默认，已通过企业托管设置配置",
+            "了解按调用模型分别计费，30% 折扣已生效",
+            "用量看板可查看模型调用与成本",
+            "本地模型（如使用）已在实验预览中验证"
+          ]
+        }
+      ]
+    },
+    {
       id: "vercel-websocket-realtime-app-beginner-guide",
       title: "Vercel WebSocket 实时应用入门：不写独立服务器做实时聊天",
       date: "2026-10-27",
@@ -9337,6 +9496,20 @@ git push origin main`,
   ],
   downloads: [
     {
+      id: "kaogong-shuati-method",
+      name: "行测申论刷题方法包",
+      category: "考公",
+      badge: "本站原创",
+      description: "包含行测五大模块刷题方法、申论小题与大作文写作方法、真题使用计划、错题复盘模板和时政晨读清单，把刷什么、怎么刷、怎么复盘讲清楚。",
+      pitch: "适合国考、广东省考笔试备考，配合真题使用，帮你在有限时间内拿到更多分。",
+      format: "ZIP · 6 个文件",
+      includes: ["行测刷题方法", "申论写作方法", "真题使用计划", "错题复盘模板", "时政晨读清单"],
+      preview: ["行测刷题方法.md：五大模块取舍策略与时间分配", "申论写作方法.md：小题作答、大作文结构与素材积累", "真题使用计划.md：分阶段刷题与全真模拟安排"],
+      updated: "2026-10-29",
+      cta: "下载刷题方法包",
+      link: "downloads/kaogong-shuati-method.zip"
+    },
+    {
       id: "kaogong-chongci-toolkit",
       name: "考公冲刺工具包",
       category: "考公",
@@ -9651,6 +9824,36 @@ git push origin main`,
     "github-agentic-workflows-public-preview-guide"
   ],
   hotspots: [
+    {
+      date: "2026-10-29",
+      tag: "AI 编程",
+      title: "GitHub Copilot Fusion 正式 GA：自动路由编排多个模型，接近 Opus 5.5 但成本减半",
+      summary: "GitHub 在 Universe 2026 推出 Copilot Fusion 并 GA，无需为每个任务手动选模型，系统会智能路由并编排多个模型；提供 Standard/High/Max 三档努力级别，Fusion Max 在 Artificial Analysis 编码代理指数得 60 分、仅落后 Claude Code + Opus 5.5 Max 两分，且每任务平均 API 成本、token 用量约一半、耗时少约 40%。",
+      why: "为什么值得关注：开发者常为难题选强模型、之后忘记切回，造成浪费；Fusion 自动按任务选模型并支持级联（Cascade）、互评（Critique）等多模型流程，新手不用再纠结选哪个。注意 Fusion 按实际调用的每个模型标准价计费，限时 30% 折扣；管理员可在策略中限定它可用的模型。",
+      sourceLabel: "GitHub Changelog",
+      sourceUrl: "https://github.blog/changelog/2026-10-28-route-and-orchestrate-models-with-github-copilot-fusion/",
+      articleIdea: "已扩写：GitHub Copilot Fusion 多模型自动路由实战"
+    },
+    {
+      date: "2026-10-29",
+      tag: "AI 编程",
+      title: "Android Studio Rabbit 2 开放 40+ 第三方编码代理：基于 ACP 协议自带代理",
+      summary: "Google 在 10/28 Android Dev Summit 发布 Android Studio Rabbit 2，新增 Bring Your Own Agent（BYOA）能力，基于开放的 Agent Client Protocol（ACP）接入 40 多个第三方编码代理（如 Claude、Codex），并推出 Compose adaptive skill，让 AI 自动改造应用适配手机、折叠屏、平板、车机和 XR 等不同形态。",
+      why: "为什么值得关注：移动开发者不再被绑定在单一内置 AI 上，可在 IDE 里直接用自己习惯的代理，还能让 AI 自动补全键盘快捷键、鼠标指针等桌面适配。注意需要升级到 Rabbit 2 并安装对应代理，第三方代理通常要自带订阅或 API key。",
+      sourceLabel: "Android Developers / TPS",
+      sourceUrl: "https://tpsreport.news/news/android-studio-rabbit-2-bring-your-own-agent-gemini-nano-4",
+      articleIdea: "候选：Android Studio BYOA 接入第三方 AI 代理"
+    },
+    {
+      date: "2026-10-29",
+      tag: "AI 建站",
+      title: "Cloudflare Workers Static Assets 支持 URL 路径前缀：不改目录结构即可挂到子路径",
+      summary: "Cloudflare 10/28 宣布 Workers Static Assets 可直接从一个 URL 路径前缀提供静态资源，无需改动本地目录结构；同时 Workers Builds 支持在 package.json 用 packageManager 字段指定 npm 版本。",
+      why: "为什么值得关注：把前端静态站挂到同一域名的子路径（如 /app）时，以前要调整目录或重写规则，现在配置前缀即可，对在一个 Worker 上同时提供 API 和多个前端的站长很方便。注意要按文档设置 assets 绑定与前缀，部署后用实际路径验证资源没有 404。",
+      sourceLabel: "Cloudflare Changelog",
+      sourceUrl: "https://developers.cloudflare.com/changelog/",
+      articleIdea: "候选：Workers 静态资源与子路径部署"
+    },
     {
       date: "2026-10-27",
       tag: "AI 编程",
@@ -12337,7 +12540,7 @@ git push origin main`,
       ],
       body: `
         <p>本站是一个纯静态的学习资源库，通过构建脚本把数据源生成独立静态页面，无需 JavaScript 即可读取正文，部署在 GitHub Pages 上。</p>
-        <p>内容包含每日技术热点、90 余篇教程、考公专区、12 个官方工具导航和 12 个原创工具包，所有热点均来自官方一手来源，坚持每日更新。</p>
+        <p>内容包含每日技术热点、95 篇教程、考公专区、漏洞分析、游戏中心、官方工具导航和 6 个原创工具包，所有热点均来自官方一手来源，坚持每日更新。</p>
       `
     },
     {

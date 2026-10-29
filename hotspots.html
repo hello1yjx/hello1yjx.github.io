@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://cdn.jsdelivr.net">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;800&family=Noto+Serif+SC:wght@700;900&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/styles.css?v=20261027-websocket-daily">
+  <link rel="stylesheet" href="assets/styles.css?v=20261029-all-modules-update">
 </head>
 <body>
   <header class="site-header">
@@ -78,6 +78,66 @@
       <div class="hotspot-grid" data-hotspot-list>
         <!-- STATIC_HOTSPOTS_START -->
 <article class="hotspot-card reveal">
+      <div class="hotspot-card__head">
+        <span class="hotspot-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="AI 编程 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <div>
+          <div class="hotspot-card__meta">
+            <span>AI 编程</span>
+            <time datetime="2026-10-29">2026年10月29日</time>
+          </div>
+          <h3>GitHub Copilot Fusion 正式 GA：自动路由编排多个模型，接近 Opus 5.5 但成本减半</h3>
+        </div>
+      </div>
+      <p>GitHub 在 Universe 2026 推出 Copilot Fusion 并 GA，无需为每个任务手动选模型，系统会智能路由并编排多个模型；提供 Standard/High/Max 三档努力级别，Fusion Max 在 Artificial Analysis 编码代理指数得 60 分、仅落后 Claude Code + Opus 5.5 Max 两分，且每任务平均 API 成本、token 用量约一半、耗时少约 40%。</p>
+      <div class="hotspot-card__why">
+        <strong>为什么值得关注</strong>
+        <p>为什么值得关注：开发者常为难题选强模型、之后忘记切回，造成浪费；Fusion 自动按任务选模型并支持级联（Cascade）、互评（Critique）等多模型流程，新手不用再纠结选哪个。注意 Fusion 按实际调用的每个模型标准价计费，限时 30% 折扣；管理员可在策略中限定它可用的模型。</p>
+      </div>
+      <p class="hotspot-card__idea">已扩写：GitHub Copilot Fusion 多模型自动路由实战</p>
+      <a class="text-link" href="https://github.blog/changelog/2026-10-28-route-and-orchestrate-models-with-github-copilot-fusion/" target="_blank" rel="noreferrer">查看来源：GitHub Changelog</a>
+    </article>
+
+    <article class="hotspot-card reveal">
+      <div class="hotspot-card__head">
+        <span class="hotspot-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/python/python-original.svg" alt="AI 编程 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <div>
+          <div class="hotspot-card__meta">
+            <span>AI 编程</span>
+            <time datetime="2026-10-29">2026年10月29日</time>
+          </div>
+          <h3>Android Studio Rabbit 2 开放 40+ 第三方编码代理：基于 ACP 协议自带代理</h3>
+        </div>
+      </div>
+      <p>Google 在 10/28 Android Dev Summit 发布 Android Studio Rabbit 2，新增 Bring Your Own Agent（BYOA）能力，基于开放的 Agent Client Protocol（ACP）接入 40 多个第三方编码代理（如 Claude、Codex），并推出 Compose adaptive skill，让 AI 自动改造应用适配手机、折叠屏、平板、车机和 XR 等不同形态。</p>
+      <div class="hotspot-card__why">
+        <strong>为什么值得关注</strong>
+        <p>为什么值得关注：移动开发者不再被绑定在单一内置 AI 上，可在 IDE 里直接用自己习惯的代理，还能让 AI 自动补全键盘快捷键、鼠标指针等桌面适配。注意需要升级到 Rabbit 2 并安装对应代理，第三方代理通常要自带订阅或 API key。</p>
+      </div>
+      <p class="hotspot-card__idea">候选：Android Studio BYOA 接入第三方 AI 代理</p>
+      <a class="text-link" href="https://tpsreport.news/news/android-studio-rabbit-2-bring-your-own-agent-gemini-nano-4" target="_blank" rel="noreferrer">查看来源：Android Developers / TPS</a>
+    </article>
+
+    <article class="hotspot-card reveal">
+      <div class="hotspot-card__head">
+        <span class="hotspot-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/python/python-original.svg" alt="AI 建站 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <div>
+          <div class="hotspot-card__meta">
+            <span>AI 建站</span>
+            <time datetime="2026-10-29">2026年10月29日</time>
+          </div>
+          <h3>Cloudflare Workers Static Assets 支持 URL 路径前缀：不改目录结构即可挂到子路径</h3>
+        </div>
+      </div>
+      <p>Cloudflare 10/28 宣布 Workers Static Assets 可直接从一个 URL 路径前缀提供静态资源，无需改动本地目录结构；同时 Workers Builds 支持在 package.json 用 packageManager 字段指定 npm 版本。</p>
+      <div class="hotspot-card__why">
+        <strong>为什么值得关注</strong>
+        <p>为什么值得关注：把前端静态站挂到同一域名的子路径（如 /app）时，以前要调整目录或重写规则，现在配置前缀即可，对在一个 Worker 上同时提供 API 和多个前端的站长很方便。注意要按文档设置 assets 绑定与前缀，部署后用实际路径验证资源没有 404。</p>
+      </div>
+      <p class="hotspot-card__idea">候选：Workers 静态资源与子路径部署</p>
+      <a class="text-link" href="https://developers.cloudflare.com/changelog/" target="_blank" rel="noreferrer">查看来源：Cloudflare Changelog</a>
+    </article>
+
+    <article class="hotspot-card reveal">
       <div class="hotspot-card__head">
         <span class="hotspot-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/python/python-original.svg" alt="AI 编程 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
         <div>
@@ -5435,6 +5495,6 @@
     </div>
   </footer>
 
-  <script src="assets/app.js?v=20261027-websocket-daily"></script>
+  <script src="assets/app.js?v=20261029-all-modules-update"></script>
 </body>
 </html>
