@@ -12,7 +12,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://cdn.jsdelivr.net">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;800&family=Noto+Serif+SC:wght@700;900&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/styles.css?v=20261029-all-modules-update">
+  <link rel="stylesheet" href="assets/styles.css?v=20261029-monster-defense">
   <style>
     .gm-hero { background: linear-gradient(135deg,#11151c,#1f2937); color:#fff; border-radius:18px; padding:26px 28px; border:1px solid #374151; }
     .gm-hero h1 { color:#fff; font-size:1.6rem; margin:8px 0; }
@@ -32,6 +32,7 @@
     }
     .gm-card__thumb--snake { background:radial-gradient(circle at 30% 20%,#10201a,#070b09); color:#34d399; }
     .gm-card__thumb--quiz { background:radial-gradient(circle at 70% 30%,#1a1420,#0b0910); color:#fbbf24; }
+    .gm-card__thumb--monster { background:radial-gradient(circle at 35% 25%,#21101a,#0d0709); color:#f43f5e; }
     .gm-card__thumb .grid-lines { position:absolute; inset:0; opacity:.15;
       background-image:linear-gradient(#34d399 1px,transparent 1px),linear-gradient(90deg,#34d399 1px,transparent 1px);
       background-size:22px 22px; }
@@ -84,6 +85,19 @@
       </div>
 
       <div class="gm-grid">
+        <a class="gm-card reveal" href="games/monster-defense.html">
+          <div class="gm-card__thumb gm-card__thumb--monster">
+            <span class="grid-lines" style="background-image:linear-gradient(#f43f5e 1px,transparent 1px),linear-gradient(90deg,#f43f5e 1px,transparent 1px);"></span>
+            <span>🏰⚔️👹</span>
+          </div>
+          <div class="gm-card__body">
+            <span class="gm-card__tag" style="color:#be123c;">Tower Defense · 塔防</span>
+            <h3>怪兽防御战</h3>
+            <p>出怪塔防：建箭塔、加农炮、激光塔拦截沿路径进攻的怪兽，升级武器、攻速、暴击三类装备加伤害，15 波含 Boss，守住基地。</p>
+            <span class="gm-card__cta" style="color:#be123c;">开始防御 →</span>
+          </div>
+        </a>
+
         <a class="gm-card reveal" href="games/snake.html">
           <div class="gm-card__thumb gm-card__thumb--snake">
             <span class="grid-lines"></span>
@@ -112,7 +126,7 @@
       </div>
 
       <div class="gm-more reveal">
-        更多小游戏开发中。如果你有想玩的游戏类型（2048、扫雷、记忆翻牌等），欢迎在<a href="contact.html" style="color:#0f766e;font-weight:700;">联系页面</a>告诉我们。
+        更多小游戏开发中。如果你有想玩的游戏类型（2048、扫雷、记忆翻牌、更多塔防地图等），欢迎在<a href="contact.html" style="color:#0f766e;font-weight:700;">联系页面</a>告诉我们。
       </div>
     </section>
   </main>
