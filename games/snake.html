@@ -164,6 +164,30 @@
   try { best = parseInt(localStorage.getItem('terminal_snake_best') || '0', 10) || 0; } catch (e) {}
   bestEl.textContent = best;
 
+  // 圆角矩形
+  function roundRect(x,y,w,h,r){
+    ctx.beginPath();
+    ctx.moveTo(x+r,y);
+    ctx.arcTo(x+w,y,x+w,y+h,r);
+    ctx.arcTo(x+w,y+h,x,y+h,r);
+    ctx.arcTo(x,y+h,x,y,r);
+    ctx.arcTo(x,y,x+w,y,r);
+    ctx.closePath();
+  }
+  // 预生成固定背景装饰（终端字符 + 光点）
+  let bgDots=[];
+  (function buildBg(){
+    const chars=['0','1','#','>','$','{','}','/'];
+    for(let i=0;i<46;i++){
+      bgDots.push({
+        x:Math.random()*canvas.width, y:Math.random()*canvas.height,
+        ch:chars[Math.floor(Math.random()*chars.length)],
+        a:0.05+Math.random()*0.13,
+        dot:Math.random()<0.5
+      });
+    }
+  })();
+
   function reset() {
     snake = [{x:9,y:10},{x:8,y:10},{x:7,y:10}];
     dir = {x:1,y:0};
@@ -214,33 +238,108 @@
   }
 
   function draw() {
-    ctx.fillStyle = '#070b09';
+    // 背景渐变
+    const bg=ctx.createLinearGradient(0,0,canvas.width,canvas.height);
+    bg.addColorStop(0,"#080d0a"); bg.addColorStop(1,"#060a08");
+    ctx.fillStyle=bg;
     ctx.fillRect(0,0,canvas.width,canvas.height);
 
-    ctx.strokeStyle = 'rgba(52,211,153,0.05)';
-    ctx.lineWidth = 1;
-    for (let i=1;i<GRID;i++) {
+    // 棋盘格微妙变化
+    ctx.fillStyle="rgba(52,211,153,.025)";
+    for(let r=0;r<GRID;r++)for(let c=0;c<GRID;c++){
+      if((r+c)%2===0) ctx.fillRect(c*CELL,r*CELL,CELL,CELL);
+    }
+    // 网格线
+    ctx.strokeStyle='rgba(52,211,153,0.06)';
+    ctx.lineWidth=1;
+    for(let i=1;i<GRID;i++){
       ctx.beginPath(); ctx.moveTo(i*CELL,0); ctx.lineTo(i*CELL,canvas.height); ctx.stroke();
       ctx.beginPath(); ctx.moveTo(0,i*CELL); ctx.lineTo(canvas.width,i*CELL); ctx.stroke();
     }
-
-    ctx.fillStyle = '#fbbf24';
-    const fx = food.x*CELL, fy = food.y*CELL;
-    ctx.fillRect(fx+4, fy+4, CELL-8, CELL-8);
-
-    for (let i=0;i<snake.length;i++) {
-      const s = snake[i];
-      if (i===0) {
-        ctx.fillStyle = '#34d399';
-        ctx.fillRect(s.x*CELL+1, s.y*CELL+1, CELL-2, CELL-2);
-        ctx.fillStyle = '#04130d';
-        ctx.fillRect(s.x*CELL+5, s.y*CELL+6, 3, 3);
-        ctx.fillRect(s.x*CELL+CELL-8, s.y*CELL+6, 3, 3);
-      } else {
-        ctx.fillStyle = i%2 ? '#16654d' : '#15803d';
-        ctx.fillRect(s.x*CELL+2, s.y*CELL+2, CELL-4, CELL-4);
-      }
+    // 背景终端字符 / 光点
+    ctx.font="10px 'Space Grotesk',monospace";
+    for(const b of bgDots){
+      ctx.fillStyle="rgba(52,211,153,"+b.a+")";
+      if(b.dot){ ctx.beginPath(); ctx.arc(b.x,b.y,1.2,0,Math.PI*2); ctx.fill(); }
+      else { ctx.fillText(b.ch,b.x,b.y); }
     }
+    // 扫描线
+    ctx.fillStyle="rgba(52,211,153,.03)";
+    const scanY=(performance.now()/18)%canvas.height;
+    ctx.fillRect(0,scanY,canvas.width,2);
+
+    // 食物：发光能量核心
+    const fx=food.x*CELL+CELL/2, fy=food.y*CELL+CELL/2;
+    const pulse=1+Math.sin(performance.now()/200)*0.15;
+    const glow=ctx.createRadialGradient(fx,fy,1,fx,fy,CELL*0.9);
+    glow.addColorStop(0,"rgba(251,191,36,.55)"); glow.addColorStop(1,"rgba(251,191,36,0)");
+    ctx.fillStyle=glow;
+    ctx.beginPath(); ctx.arc(fx,fy,CELL*0.9,0,Math.PI*2); ctx.fill();
+    // 核心菱形
+    ctx.save();
+    ctx.translate(fx,fy); ctx.rotate(Math.PI/4); ctx.scale(pulse,pulse);
+    ctx.fillStyle="#fbbf24";
+    roundRect(-5,-5,10,10,2); ctx.fill();
+    ctx.fillStyle="#fff7ed";
+    ctx.fillRect(-2,-2,4,4);
+    ctx.restore();
+    // 四角小光点
+    ctx.fillStyle="rgba(251,191,36,.8)";
+    for(let i=0;i<4;i++){
+      const a=i/4*Math.PI*2+performance.now()/600;
+      ctx.beginPath(); ctx.arc(fx+Math.cos(a)*9,fy+Math.sin(a)*9,1.3,0,Math.PI*2); ctx.fill();
+    }
+
+    // 蛇身（从尾到头画，头最后画）
+    for(let i=snake.length-1;i>=1;i--){
+      const s=snake[i];
+      const ratio=i/snake.length;
+      const x=s.x*CELL+1.5, y=s.y*CELL+1.5, w=CELL-3;
+      // 渐变身体（头亮尾暗）
+      const g=ctx.createLinearGradient(x,y,x+w,y+w);
+      const l=Math.round(52+ (1-ratio)*40);
+      g.addColorStop(0,"#22c585");
+      g.addColorStop(1,"hsl(158,64%,"+Math.max(18,34-ratio*16)+"%)");
+      ctx.fillStyle=g;
+      roundRect(x,y,w,w,5); ctx.fill();
+      // 鳞片高光
+      ctx.fillStyle="rgba(255,255,255,.14)";
+      ctx.beginPath(); ctx.arc(x+w*0.35,y+w*0.32,2,0,Math.PI*2); ctx.fill();
+    }
+
+    // 蛇头
+    const head=snake[0];
+    const hx=head.x*CELL, hy=head.y*CELL;
+    ctx.save();
+    ctx.translate(hx+CELL/2,hy+CELL/2);
+    // 头部发光底
+    ctx.fillStyle="rgba(52,211,153,.25)";
+    ctx.beginPath(); ctx.arc(0,0,CELL*0.7,0,Math.PI*2); ctx.fill();
+    // 头主体
+    const hg=ctx.createRadialGradient(-3,-3,2,0,0,CELL*0.6);
+    hg.addColorStop(0,"#6ee7b7"); hg.addColorStop(1,"#10b981");
+    ctx.fillStyle=hg;
+    roundRect(-CELL/2+1,-CELL/2+1,CELL-2,CELL-2,6); ctx.fill();
+    ctx.strokeStyle="#065f46"; ctx.lineWidth=1.5; ctx.stroke();
+    // 眼睛（根据方向朝前）
+    const dx=dir.x, dy=dir.y;
+    const ex=dx*4, ey=dy*4;       // 眼睛前后偏移
+    const px=-dy*4, py=dx*4;      // 垂直方向分开
+    ctx.fillStyle="#ecfdf5";
+    ctx.beginPath(); ctx.arc(ex+px*0.55,ey+py*0.55,3,0,Math.PI*2);
+    ctx.arc(ex-px*0.55,ey-py*0.55,3,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle="#022c22";
+    ctx.beginPath(); ctx.arc(ex+dx+px*0.55,ey+dy+py*0.55,1.6,0,Math.PI*2);
+    ctx.arc(ex+dx-px*0.55,ey+dy-py*0.55,1.6,0,Math.PI*2); ctx.fill();
+    // 吐信（朝前）
+    ctx.strokeStyle="#f43f5e"; ctx.lineWidth=1.4;
+    ctx.beginPath();
+    ctx.moveTo(dx*7,dy*7);
+    ctx.lineTo(dx*11,dy*11);
+    ctx.moveTo(dx*11,dy*11); ctx.lineTo(dx*13+dy*2,dy*13+dx*2);
+    ctx.moveTo(dx*11,dy*11); ctx.lineTo(dx*13-dy*2,dy*13-dx*2);
+    ctx.stroke();
+    ctx.restore();
   }
 
   function restartTimer() {

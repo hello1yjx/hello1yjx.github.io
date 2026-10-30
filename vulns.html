@@ -12,7 +12,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://cdn.jsdelivr.net">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;800&family=Noto+Serif+SC:wght@700;900&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/styles.css?v=20261029-monster-defense">
+  <link rel="stylesheet" href="assets/styles.css?v=20261030-daily-update">
   <style>
     .vuln-banner { background: linear-gradient(135deg,#11151c,#1f2937); color:#fff; border-radius:18px; padding:26px 28px; display:flex; flex-wrap:wrap; gap:18px; align-items:center; justify-content:space-between; border:1px solid #374151; }
     .vuln-banner h3 { color:#fff; margin:6px 0; font-size:1.35rem; }
@@ -99,9 +99,9 @@
         <a class="button" href="https://www.php.net/ChangeLog-8.php" target="_blank" rel="noreferrer">查看 PHP 官方更新</a>
       </div>
       <div class="vuln-stat-grid">
-        <div class="vuln-stat"><strong>6</strong><span>本期分析 CVE 数量</span></div>
+        <div class="vuln-stat"><strong>8</strong><span>本期分析 CVE 数量</span></div>
         <div class="vuln-stat"><strong>10.0</strong><span>GitLab 正则编译器满分</span></div>
-        <div class="vuln-stat"><strong>9.8</strong><span>FortiMail 路径遍历评分</span></div>
+        <div class="vuln-stat"><strong>9.8</strong><span>AnyDesk 未授权 RCE</span></div>
         <div class="vuln-stat"><strong>510 万+</strong><span>暴露的 PHP 主机</span></div>
       </div>
     </section>
@@ -349,8 +349,72 @@ fatal_error_backtraces = 0</div>
     <section class="section">
       <div class="section-heading reveal">
         <div>
+          <p class="eyebrow">Remote Access & Collaboration</p>
+          <h2>四、远程协作与访问工具漏洞（Collabora CODE Server / AnyDesk）</h2>
+        </div>
+        <p>来源：NVD、MITRE、Nextcloud 官方帮助、AnyDesk 官方更新日志。</p>
+      </div>
+
+      <div class="vuln-card reveal">
+        <div class="vuln-card__head">
+          <span class="vuln-card__id">CVE-2026-110447</span>
+          <span><span class="vuln-badge vuln-badge--high">高危 · 在野利用</span> <span class="vuln-badge vuln-badge--high">OS 命令注入</span></span>
+        </div>
+        <div class="vuln-block">
+          <h4><span class="vuln-num">1</span>漏洞判断 / 类型</h4>
+          <p>OS 命令注入（CWE-78）导致的远程代码执行。受影响的是 Nextcloud 应用 <strong>Collabora Online Built-in CODE Server（richdocumentscode）26.4.303 之前版本</strong>，该漏洞在 2026 年 9 月至 10 月已被在野利用，与上一年的 CVE-2025-66208 是不同漏洞。</p>
+        </div>
+        <div class="vuln-block">
+          <h4><span class="vuln-num">2</span>漏洞成因</h4>
+          <p>漏洞位于 <code>proxy.php</code>：当内置 CODE 服务没有运行时（例如产品刚被重启），代理脚本对用于拼接系统命令的输入未做正确过滤，攻击者可注入并执行任意操作系统命令。独立部署的 Collabora Online 服务器不存在该问题，只有这种内置 CODE Server 的部署形态受影响。</p>
+        </div>
+        <div class="vuln-block">
+          <h4><span class="vuln-num">3</span>利用方法 / 场景</h4>
+          <ul>
+            <li>攻击者在 CODE 服务未运行的时间窗口，向 proxy.php 发送构造请求，注入命令并以服务账户权限执行。</li>
+            <li>重启后、服务拉起前的窗口期是高风险时段，在野利用正集中针对这一状态。</li>
+            <li>使用 Nextcloud 内置办公组件的个人站点和企业网盘均可能暴露，独立 Collabora 部署可排除。</li>
+          </ul>
+        </div>
+        <div class="vuln-block">
+          <h4><span class="vuln-num">4</span>修复方案</h4>
+          <p>将 richdocumentscode 升级到 <strong>26.4.303 或更高版本</strong>，并在 Nextcloud 应用管理中确认更新生效。修复后检查服务器日志中针对 proxy.php 的异常请求、异常进程与计划任务，确认是否已被利用；条件允许时改用独立部署的 Collabora Online，可规避内置 CODE Server 的同类风险。</p>
+        </div>
+      </div>
+
+      <div class="vuln-card reveal">
+        <div class="vuln-card__head">
+          <span class="vuln-card__id">CVE-2026-109390</span>
+          <span><span class="vuln-badge vuln-badge--crit">严重 · CVSS 9.8</span> <span class="vuln-badge vuln-badge--high">未授权 RCE · root</span></span>
+        </div>
+        <div class="vuln-block">
+          <h4><span class="vuln-num">1</span>漏洞判断 / 类型</h4>
+          <p>堆缓冲区溢出（CWE-130，长度参数不一致）导致的未授权远程代码执行。<strong>AnyDesk 8.0.3 之前版本</strong>的远程攻击者无需受害者批准桌面控制，即可执行任意代码，在 Linux 上已演示以 root 权限执行命令。</p>
+        </div>
+        <div class="vuln-block">
+          <h4><span class="vuln-num">2</span>漏洞成因</h4>
+          <p>会话协议中 mode 5 的流数据包处理器（stream packet handler）对载荷长度（payload length）字段没有做有效校验，攻击者提供异常长度值触发堆缓冲区溢出，进而破坏内存、劫持执行流。</p>
+        </div>
+        <div class="vuln-block">
+          <h4><span class="vuln-num">3</span>利用方法 / 场景</h4>
+          <ul>
+            <li>攻击者主动发起会话，在协议层发送构造的 mode 5 数据包，利用长度校验缺陷完成堆溢出并提权。</li>
+            <li>关键危害：无需用户点击“接受”或批准远程控制，攻击发生在交互授权之前。</li>
+            <li>远程运维、办公环境中广泛部署 AnyDesk，暴露在公网或可被触达的主机风险最高。</li>
+          </ul>
+        </div>
+        <div class="vuln-block">
+          <h4><span class="vuln-num">4</span>修复方案</h4>
+          <p>升级到 <strong>AnyDesk 8.0.3 或更高版本</strong>，覆盖所有安装该客户端的终端并确认版本号。修复后排查异常会话日志与陌生进程；在管理策略上限制远程访问来源、关闭不必要的无人值守访问，并收敛远控工具的暴露面。</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-heading reveal">
+        <div>
           <p class="eyebrow">Learning & Compliance</p>
-          <h2>四、学习路径与合规提醒</h2>
+          <h2>五、学习路径与合规提醒</h2>
         </div>
       </div>
       <div class="vuln-card reveal">

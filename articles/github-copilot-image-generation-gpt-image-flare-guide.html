@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GitHub Copilot 自然语言生成图片实战：不出编辑器就能做配图 | 学习资源库</title>
+  <meta name="description" content="做网站、写文档、做演示时总需要配图、图标和占位图，以前要切到外部绘图工具、重新描述需求、再手动导回项目，思路频繁被打断。GitHub Copilot 新增图片生成能力：在聊天里用自然语言描述，由 GPT Image 2.5 Flare 出图，内联预览并直接保存到工作区，还能在编码过程中追加修改。这篇教程讲清它的能力边界、出图提示词写法、编辑迭代、计费口径、管理员策略与水印设置，帮你把配图流程收进同一个编辑器。">
+  <meta name="robots" content="index,follow,max-image-preview:large">
+  <link rel="canonical" href="https://hello1yjx.github.io/articles/github-copilot-image-generation-gpt-image-flare-guide.html">
+  <link rel="icon" type="image/png" href="../assets/images/brand-book-line.png">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"GitHub Copilot 自然语言生成图片实战：不出编辑器就能做配图","description":"做网站、写文档、做演示时总需要配图、图标和占位图，以前要切到外部绘图工具、重新描述需求、再手动导回项目，思路频繁被打断。GitHub Copilot 新增图片生成能力：在聊天里用自然语言描述，由 GPT Image 2.5 Flare 出图，内联预览并直接保存到工作区，还能在编码过程中追加修改。这篇教程讲清它的能力边界、出图提示词写法、编辑迭代、计费口径、管理员策略与水印设置，帮你把配图流程收进同一个编辑器。","datePublished":"2026-10-30","dateModified":"2026-10-30","author":{"@type":"Person","name":"Avery Lin","url":"https://hello1yjx.github.io/about.html"},"publisher":{"@type":"Organization","name":"学习资源库","url":"https://hello1yjx.github.io/"},"mainEntityOfPage":"https://hello1yjx.github.io/articles/github-copilot-image-generation-gpt-image-flare-guide.html","inLanguage":"zh-CN"}</script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6621999105936318" crossorigin="anonymous"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;800&family=Noto+Serif+SC:wght@700;900&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/styles.css?v=20261030-daily-update">
+</head>
+<body>
+  <header class="site-header">
+    <div class="page-shell site-header__inner">
+      <a class="brand" href="../index.html" aria-label="返回首页">
+        <span class="brand-mark" aria-hidden="true"><img src="../assets/images/brand-book-line.png" alt="" width="36" height="33"></span>
+        <span class="brand-copy"><strong>学习资源库</strong><span>分享知识 · 提升自己 · 成就未来</span></span>
+      </a>
+      <button class="menu-button" data-menu-button aria-expanded="false" aria-label="切换导航菜单">☰</button>
+      <nav class="site-nav" data-mobile-nav>
+        <a href="../index.html">首页</a>
+        <a class="is-active" href="../posts.html" aria-current="page">教程</a>
+        <a href="../resources.html">资源下载</a>
+        <a href="../hotspots.html">技术资讯</a>
+        <a href="../projects.html">开源项目</a>
+        <a href="../vulns.html">漏洞分析</a>
+        <a href="../kaogong.html">考公专区</a>
+        <a href="../about.html">关于我们</a>
+      </nav>
+      <form class="header-search" action="../posts.html" method="get">
+        <input type="search" name="q" placeholder="搜索教程、资源、工具或关键词...">
+        <button type="submit" aria-label="搜索">/</button>
+      </form>
+      <a class="header-github" href="https://github.com/hello1yjx/hello1yjx.github.io" target="_blank" rel="noreferrer" aria-label="GitHub">
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="" width="24" height="24">
+      </a>
+      <a class="header-cta" href="../posts.html">开始学习</a>
+    </div>
+  </header>
+
+  <main class="page-shell section article-page">
+    <header class="detail-hero">
+      <span class="pill">AI 编程</span>
+      <h1>GitHub Copilot 自然语言生成图片实战：不出编辑器就能做配图</h1>
+      <div class="detail-hero__meta">
+        <time datetime="2026-10-30">2026年10月30日</time>
+        <span>10 分钟</span>
+        <span>作者：Avery Lin</span>
+      </div>
+      <p>做网站、写文档、做演示时总需要配图、图标和占位图，以前要切到外部绘图工具、重新描述需求、再手动导回项目，思路频繁被打断。GitHub Copilot 新增图片生成能力：在聊天里用自然语言描述，由 GPT Image 2.5 Flare 出图，内联预览并直接保存到工作区，还能在编码过程中追加修改。这篇教程讲清它的能力边界、出图提示词写法、编辑迭代、计费口径、管理员策略与水印设置，帮你把配图流程收进同一个编辑器。</p>
+    </header>
+    <div class="article-layout">
+      <article class="article-body">
+        <div class="inline-promo">
+          <p class="label">来源与增量价值</p>
+          <h3>本文基于官方资料整理，并补充适用场景、限制条件和实践检查步骤。</h3>
+          <p>首要来源：<a href="https://github.blog/changelog/2026-10-28-generate-and-edit-images-directly-in-copilot/" target="_blank" rel="noreferrer">Generate and edit images directly in Copilot</a>。事实以原始来源为准，本站建议需结合自己的环境验证。</p>
+        </div>
+
+    <p>一个完整的前端或文档项目，不只是代码和文字，还需要大量视觉素材：封面图、功能图标、插画、空状态配图、占位图等。过去这些工作要在编辑器和外部绘图工具之间来回切换，把同一个需求再描述一遍，生成后还要下载、改名、拖回项目目录，既耗时又容易打断心流。</p><p>GitHub 在 Universe 2026 给 Copilot 加上了图片生成能力，背后是 GPT Image 2.5 Flare 模型。你在任意聊天会话里用自然语言描述想要的图，它会内联预览并直接保存到工作区。这篇教程基于官方 changelog，带你从能力原理、提示词写法到计费和合规控制完整走一遍，让配图不再需要离开编辑器。</p>
+    <h2>这篇内容适合谁</h2>
+    <ul><li>需要为网站、文档、演示制作配图和图标的开发者与站长</li><li>想把素材生成纳入现有 AI 编程流程、减少工具切换的人</li><li>需要为组织管控图片生成功能与合规水印的管理员</li></ul>
+    <h2>实践与验证步骤</h2>
+    <ul><li>理解外部绘图工具带来的上下文切换成本</li><li>搞懂 Copilot 图片生成的工作原理与模型</li><li>确认计划与客户端满足公开预览条件</li><li>写出能稳定得到可用素材的提示词</li><li>在对话中追加、编辑、迭代图片</li><li>确认图片保存位置并在项目中引用</li><li>理解按图片 token 计费的口径</li><li>配置模型策略、水印等合规控制并完成验收</li></ul>
+    <h2>官方资料入口</h2>
+
+    <ul>
+
+            <li>
+              <a href="https://github.blog/changelog/2026-10-28-generate-and-edit-images-directly-in-copilot/" target="_blank" rel="noreferrer">Generate and edit images directly in Copilot</a>
+              <span>：官方发布</span>
+            </li>
+
+            <li>
+              <a href="https://github.blog/changelog/2026-10-28-github-copilot-app-universe-releases/" target="_blank" rel="noreferrer">GitHub Copilot app, Universe releases</a>
+              <span>：官方发布</span>
+            </li>
+
+            <li>
+              <a href="https://github.blog/news-insights/company-news/github-universe-2026-evolving-every-layer-of-the-stack/" target="_blank" rel="noreferrer">GitHub Universe 2026 总览</a>
+              <span>：官方公告</span>
+            </li>
+
+    </ul>
+
+    <h2>重点判断与使用建议</h2>
+    <ul><li>图片生成由 GPT Image 2.5 Flare 驱动，推理模型按需调用专用出图工具</li><li>可在 VS Code、Copilot App、Copilot CLI 的任意聊天会话中使用</li><li>生成结果内联预览，并直接保存到工作区</li><li>支持在编码任务中途追加描述、持续编辑同一张图</li><li>公开预览面向 Copilot Pro、Pro+、Business、Enterprise</li><li>图片按图片 token 单独计费，计入套餐 AI 额度，与聊天模型分开</li><li>组织可用 Copilot 模型策略关闭图片生成模型</li><li>“Made with AI”水印默认关闭，用户可手动开启</li></ul>
+
+        <h2>一、为什么要在编辑器里直接生成图片</h2>
+
+        <ul><li>项目配图需求量大，封面、图标、插画、占位图贯穿整个开发过程</li><li>外部工具流程冗长：切换应用、重新描述、下载、改名、拖回项目</li><li>频繁切换会打断编码心流，重复描述也容易产生理解偏差</li><li>素材常需多轮微调，跨工具迭代成本更高</li><li>在同一聊天里出图，能让代码、文案和配图保持统一上下文</li></ul>
+
+
+
+        <h2>二、Copilot 图片生成是什么、怎么工作</h2>
+
+        <ul><li>它是 Copilot 聊天中的一项能力，而非独立的绘图软件</li><li>你用自然语言提出图片需求，当前推理模型调用专用出图工具</li><li>出图模型为 GPT Image 2.5 Flare，负责实际渲染</li><li>结果在聊天中内联预览，并自动保存到工作区</li><li>可在新会话或编码任务中途使用，围绕同一素材持续对话</li></ul>
+
+
+
+        <h2>三、前提条件与准备</h2>
+
+        <ul><li>功能处于公开预览，需 Copilot Pro、Pro+、Business 或 Enterprise 计划</li><li>在 VS Code、GitHub Copilot App 或 Copilot CLI 中均可使用</li><li>确认客户端已更新到支持图片生成的版本</li><li>首次使用前了解其按图片 token 计费，避免意外消耗额度</li><li>企业用户先确认管理员没有在模型策略中禁用出图模型</li></ul>
+
+
+
+        <h2>四、写出可用素材的提示词方法</h2>
+
+        <ul><li>明确主体：画什么对象、数量、姿态或状态</li><li>说明风格：扁平插画、写实、像素、线稿、极简等</li><li>交代构图与视角：正面、俯视、留白位置、横版或竖版</li><li>给出配色与氛围：主色调、明暗、情绪，尽量与项目视觉统一</li><li>指定用途和尺寸线索：图标、封面、Banner，便于控制比例</li><li>一次只聚焦一个清晰目标，复杂场景可拆成多轮生成</li></ul>
+
+
+
+        <h2>五、在对话中编辑与迭代</h2>
+
+        <ul><li>出图后不必重新描述全部需求，可直接追加“把背景换成蓝色”这类指令</li><li>针对局部修改：颜色、构图、元素增删、风格微调</li><li>保留满意版本，再让其生成变体进行横向比较</li><li>迭代时引用上一张图，避免需求漂移</li><li>若方向错误，及时重写提示词而非在错误方向上反复修补</li></ul>
+
+
+
+        <h2>六、保存与在项目中引用</h2>
+
+        <ul><li>生成图片会直接保存到工作区，确认文件名和目录符合项目约定</li><li>在 HTML、CSS 或文档中用相对路径引用，注意路径大小写</li><li>检查图片实际尺寸和体积，必要时压缩以控制加载性能</li><li>图标类素材确认背景透明或与容器底色一致</li><li>部署后在真实页面验证图片正常显示、没有 404</li></ul>
+
+
+
+        <h2>七、计费口径与额度管理</h2>
+
+        <ul><li>图片生成与聊天模型分开计费，按图片 token 计算</li><li>费用计入所属套餐的 AI 额度，出图越多消耗越大</li><li>批量生成前先少量试错，确认方向后再铺开，节省额度</li><li>定期查看用量，区分聊天与图片各自的消耗</li><li>团队可约定生成规范，减少无效出图带来的浪费</li></ul>
+
+
+
+        <h2>八、管理员策略、水印与合规</h2>
+
+        <ul><li>组织和企业所有者可通过 Copilot 模型策略禁用图片生成模型</li><li>“Made with AI”水印默认关闭，可按需手动开启以标识 AI 内容</li><li>涉及人物、品牌或版权素材时，应确认使用授权与合规要求</li><li>对外发布的 AI 图片建议保留生成记录，便于追溯</li><li>敏感项目应先确认图片数据是否符合团队的数据治理规定</li></ul>
+
+
+
+        <h2>九、验收与常见问题</h2>
+
+        <ul><li>验收一：聊天中描述需求后能正常出图并内联预览</li><li>验收二：追加修改能作用于图片，保存文件可在项目中打开</li><li>验收三：用量看板正确记录图片 token 消耗</li><li>常见问题：找不到出图入口，多因客户端过旧或被策略禁用</li><li>常见问题：图片不符合预期，优先补足风格、构图和配色描述</li><li>常见问题：额度消耗快，减少批量试错、先定方向再生成</li></ul>
+
+
+
+        <h2>十、检查清单</h2>
+
+        <ul><li>计划与客户端满足公开预览条件</li><li>提示词包含主体、风格、构图、配色和用途</li><li>通过多轮对话完成编辑与变体比较</li><li>图片已保存到工作区并在项目中正确引用</li><li>已检查尺寸、体积和部署后的显示效果</li><li>了解按图片 token 计费并核对用量</li><li>管理员策略、水印与版权合规已确认</li></ul>
+
+
+
+
+        <div class="inline-promo">
+          <p class="label">更正与更新</p>
+          <h3>发现版本变化、来源失效或事实错误时，请通过联系页反馈。</h3>
+          <p>本站会核对一手来源后更新内容，不使用无来源转载填充文章。</p>
+          <a class="button button--secondary" href="../editorial.html">查看内容标准</a>
+        </div>
+      </article>
+      <aside class="article-sidebar">
+        <div class="sidebar-card">
+          <p class="label">本页标签</p>
+          <div class="tag-row"><span>GitHub Copilot</span><span>图片生成</span><span>GPT Image</span><span>AI 配图</span><span>提示词</span><span>AI 编程</span></div>
+        </div>
+        <div class="sidebar-card">
+          <p class="label">继续阅读</p>
+          <a href="github-copilot-local-sandboxing-security-guide.html">GitHub Copilot 本地沙箱使用教程：让 AI agent 安全操作你的电脑</a><a href="2027-guokao-baoming-zuihou-jieduan-xuangang-shenhe-jiaofei-guide.html">2027 国考报名最后阶段攻略：选岗、审核、缴费与避坑（截至 10 月 18 日数据）</a><a href="xingce-wu-da-mokuai-zuotifangfa-zhenti-shuati-guide.html">行测做题方法：五大模块提分技巧、时间分配与真题刷题法</a><a href="shenlun-wu-lei-tixing-zuotifangfa-zhenti-jinglian-guide.html">申论做题方法：五类题型答题框架、材料提炼与真题精练</a>
+        </div>
+        <div class="sidebar-card sidebar-card--accent">
+          <p class="label">作者与方法</p>
+          <h3>了解本站如何选题、核验来源与处理更正。</h3>
+          <a class="button button--dark" href="../about.html">关于作者</a>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="page-shell footer__inner">
+      <div><strong>学习资源库</strong><p>分享知识 · 提升自己 · 成就未来</p></div>
+      <div>
+        <a href="../editorial.html">内容标准</a><br>
+        <a href="../privacy.html">隐私政策</a><br>
+        <a href="../contact.html">联系</a>
+      </div>
+    </div>
+  </footer>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      var button = document.querySelector("[data-menu-button]");
+      var nav = document.querySelector("[data-mobile-nav]");
+      if (!button || !nav) return;
+      button.addEventListener("click", function () {
+        var expanded = button.getAttribute("aria-expanded") === "true";
+        button.setAttribute("aria-expanded", String(!expanded));
+        nav.classList.toggle("site-nav--open", !expanded);
+      });
+    });
+  </script>
+</body>
+</html>

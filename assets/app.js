@@ -29,6 +29,164 @@ const siteData = {
   },
   posts: [
     {
+      id: "github-copilot-image-generation-gpt-image-flare-guide",
+      title: "GitHub Copilot 自然语言生成图片实战：不出编辑器就能做配图",
+      date: "2026-10-30",
+      category: "AI 编程",
+      readTime: "10 分钟",
+      excerpt: "做网站、写文档、做演示时总需要配图、图标和占位图，以前要切到外部绘图工具、重新描述需求、再手动导回项目，思路频繁被打断。GitHub Copilot 新增图片生成能力：在聊天里用自然语言描述，由 GPT Image 2.5 Flare 出图，内联预览并直接保存到工作区，还能在编码过程中追加修改。这篇教程讲清它的能力边界、出图提示词写法、编辑迭代、计费口径、管理员策略与水印设置，帮你把配图流程收进同一个编辑器。",
+      tags: ["GitHub Copilot", "图片生成", "GPT Image", "AI 配图", "提示词", "AI 编程"],
+      featured: true,
+      intro: [
+        "一个完整的前端或文档项目，不只是代码和文字，还需要大量视觉素材：封面图、功能图标、插画、空状态配图、占位图等。过去这些工作要在编辑器和外部绘图工具之间来回切换，把同一个需求再描述一遍，生成后还要下载、改名、拖回项目目录，既耗时又容易打断心流。",
+        "GitHub 在 Universe 2026 给 Copilot 加上了图片生成能力，背后是 GPT Image 2.5 Flare 模型。你在任意聊天会话里用自然语言描述想要的图，它会内联预览并直接保存到工作区。这篇教程基于官方 changelog，带你从能力原理、提示词写法到计费和合规控制完整走一遍，让配图不再需要离开编辑器。"
+      ],
+      audience: [
+        "需要为网站、文档、演示制作配图和图标的开发者与站长",
+        "想把素材生成纳入现有 AI 编程流程、减少工具切换的人",
+        "需要为组织管控图片生成功能与合规水印的管理员"
+      ],
+      format: [
+        "全文按“为什么 → 能力原理 → 准备 → 提示词 → 编辑迭代 → 保存 → 计费 → 管理与合规 → 验收 → 检查清单”组织",
+        "配合可验证的操作步骤"
+      ],
+      roadmap: [
+        "理解外部绘图工具带来的上下文切换成本",
+        "搞懂 Copilot 图片生成的工作原理与模型",
+        "确认计划与客户端满足公开预览条件",
+        "写出能稳定得到可用素材的提示词",
+        "在对话中追加、编辑、迭代图片",
+        "确认图片保存位置并在项目中引用",
+        "理解按图片 token 计费的口径",
+        "配置模型策略、水印等合规控制并完成验收"
+      ],
+      officialLinks: [
+        { label: "Generate and edit images directly in Copilot", url: "https://github.blog/changelog/2026-10-28-generate-and-edit-images-directly-in-copilot/", note: "官方发布" },
+        { label: "GitHub Copilot app, Universe releases", url: "https://github.blog/changelog/2026-10-28-github-copilot-app-universe-releases/", note: "官方发布" },
+        { label: "GitHub Universe 2026 总览", url: "https://github.blog/news-insights/company-news/github-universe-2026-evolving-every-layer-of-the-stack/", note: "官方公告" }
+      ],
+      curatedLinks: [
+        "图片生成由 GPT Image 2.5 Flare 驱动，推理模型按需调用专用出图工具",
+        "可在 VS Code、Copilot App、Copilot CLI 的任意聊天会话中使用",
+        "生成结果内联预览，并直接保存到工作区",
+        "支持在编码任务中途追加描述、持续编辑同一张图",
+        "公开预览面向 Copilot Pro、Pro+、Business、Enterprise",
+        "图片按图片 token 单独计费，计入套餐 AI 额度，与聊天模型分开",
+        "组织可用 Copilot 模型策略关闭图片生成模型",
+        "“Made with AI”水印默认关闭，用户可手动开启"
+      ],
+      downloadIdeas: [
+        "做一张“配图提示词模板卡”：主体 + 风格 + 构图 + 配色 + 尺寸",
+        "整理一份“项目常用素材清单”：封面、图标、空状态、占位图"
+      ],
+      extraSections: [
+        {
+          title: "一、为什么要在编辑器里直接生成图片",
+          items: [
+            "项目配图需求量大，封面、图标、插画、占位图贯穿整个开发过程",
+            "外部工具流程冗长：切换应用、重新描述、下载、改名、拖回项目",
+            "频繁切换会打断编码心流，重复描述也容易产生理解偏差",
+            "素材常需多轮微调，跨工具迭代成本更高",
+            "在同一聊天里出图，能让代码、文案和配图保持统一上下文"
+          ]
+        },
+        {
+          title: "二、Copilot 图片生成是什么、怎么工作",
+          items: [
+            "它是 Copilot 聊天中的一项能力，而非独立的绘图软件",
+            "你用自然语言提出图片需求，当前推理模型调用专用出图工具",
+            "出图模型为 GPT Image 2.5 Flare，负责实际渲染",
+            "结果在聊天中内联预览，并自动保存到工作区",
+            "可在新会话或编码任务中途使用，围绕同一素材持续对话"
+          ]
+        },
+        {
+          title: "三、前提条件与准备",
+          items: [
+            "功能处于公开预览，需 Copilot Pro、Pro+、Business 或 Enterprise 计划",
+            "在 VS Code、GitHub Copilot App 或 Copilot CLI 中均可使用",
+            "确认客户端已更新到支持图片生成的版本",
+            "首次使用前了解其按图片 token 计费，避免意外消耗额度",
+            "企业用户先确认管理员没有在模型策略中禁用出图模型"
+          ]
+        },
+        {
+          title: "四、写出可用素材的提示词方法",
+          items: [
+            "明确主体：画什么对象、数量、姿态或状态",
+            "说明风格：扁平插画、写实、像素、线稿、极简等",
+            "交代构图与视角：正面、俯视、留白位置、横版或竖版",
+            "给出配色与氛围：主色调、明暗、情绪，尽量与项目视觉统一",
+            "指定用途和尺寸线索：图标、封面、Banner，便于控制比例",
+            "一次只聚焦一个清晰目标，复杂场景可拆成多轮生成"
+          ]
+        },
+        {
+          title: "五、在对话中编辑与迭代",
+          items: [
+            "出图后不必重新描述全部需求，可直接追加“把背景换成蓝色”这类指令",
+            "针对局部修改：颜色、构图、元素增删、风格微调",
+            "保留满意版本，再让其生成变体进行横向比较",
+            "迭代时引用上一张图，避免需求漂移",
+            "若方向错误，及时重写提示词而非在错误方向上反复修补"
+          ]
+        },
+        {
+          title: "六、保存与在项目中引用",
+          items: [
+            "生成图片会直接保存到工作区，确认文件名和目录符合项目约定",
+            "在 HTML、CSS 或文档中用相对路径引用，注意路径大小写",
+            "检查图片实际尺寸和体积，必要时压缩以控制加载性能",
+            "图标类素材确认背景透明或与容器底色一致",
+            "部署后在真实页面验证图片正常显示、没有 404"
+          ]
+        },
+        {
+          title: "七、计费口径与额度管理",
+          items: [
+            "图片生成与聊天模型分开计费，按图片 token 计算",
+            "费用计入所属套餐的 AI 额度，出图越多消耗越大",
+            "批量生成前先少量试错，确认方向后再铺开，节省额度",
+            "定期查看用量，区分聊天与图片各自的消耗",
+            "团队可约定生成规范，减少无效出图带来的浪费"
+          ]
+        },
+        {
+          title: "八、管理员策略、水印与合规",
+          items: [
+            "组织和企业所有者可通过 Copilot 模型策略禁用图片生成模型",
+            "“Made with AI”水印默认关闭，可按需手动开启以标识 AI 内容",
+            "涉及人物、品牌或版权素材时，应确认使用授权与合规要求",
+            "对外发布的 AI 图片建议保留生成记录，便于追溯",
+            "敏感项目应先确认图片数据是否符合团队的数据治理规定"
+          ]
+        },
+        {
+          title: "九、验收与常见问题",
+          items: [
+            "验收一：聊天中描述需求后能正常出图并内联预览",
+            "验收二：追加修改能作用于图片，保存文件可在项目中打开",
+            "验收三：用量看板正确记录图片 token 消耗",
+            "常见问题：找不到出图入口，多因客户端过旧或被策略禁用",
+            "常见问题：图片不符合预期，优先补足风格、构图和配色描述",
+            "常见问题：额度消耗快，减少批量试错、先定方向再生成"
+          ]
+        },
+        {
+          title: "十、检查清单",
+          items: [
+            "计划与客户端满足公开预览条件",
+            "提示词包含主体、风格、构图、配色和用途",
+            "通过多轮对话完成编辑与变体比较",
+            "图片已保存到工作区并在项目中正确引用",
+            "已检查尺寸、体积和部署后的显示效果",
+            "了解按图片 token 计费并核对用量",
+            "管理员策略、水印与版权合规已确认"
+          ]
+        }
+      ]
+    },
+    {
       id: "github-copilot-fusion-multi-model-routing-guide",
       title: "GitHub Copilot Fusion 多模型自动路由实战：不再手动选模型",
       date: "2026-10-29",
@@ -9824,6 +9982,36 @@ git push origin main`,
     "github-agentic-workflows-public-preview-guide"
   ],
   hotspots: [
+    {
+      date: "2026-10-30",
+      tag: "AI 编程",
+      title: "GitHub Copilot 可直接用自然语言生成、编辑图片：GPT Image 2.5 Flare 内联出图",
+      summary: "GitHub 在 Universe 2026 宣布 Copilot 新增图片生成能力，在任意聊天会话中用自然语言描述，推理模型调用由 GPT Image 2.5 Flare 驱动的专用出图工具，结果内联预览并直接保存到工作区，无需切换到外部绘图工具；支持在编码过程中追加修改，图片按图片 token 单独计费、计入套餐 AI 额度。",
+      why: "为什么值得关注：做网站、文档、演示时需要配图、图标、占位图，以前要另开工具重复描述再手动导回，现在不打断编码流程即可拿到可用素材。注意该功能为公开预览，面向 Pro/Pro+/Business/Enterprise，与聊天模型分开计费；组织管理员可用 Copilot 模型策略关闭，“Made with AI”水印默认关闭、需手动开启。",
+      sourceLabel: "GitHub Changelog",
+      sourceUrl: "https://github.blog/changelog/2026-10-28-generate-and-edit-images-directly-in-copilot/",
+      articleIdea: "已扩写：Copilot 自然语言生成图片实战"
+    },
+    {
+      date: "2026-10-30",
+      tag: "AI 编程",
+      title: "Copilot Dreaming 公开预览：让 AI 复盘过往工作，持续改进记忆与技能",
+      summary: "GitHub 推出 Copilot Dreaming 并公开预览，代理会在空闲时回顾过去的对话与工作，自动改进后续会话，目前提供三类“梦”：个人记忆整理（按对话更新个人偏好记忆）、仓库定制（管理仓库级记忆并提议改进技能与自定义指令文件）、代码评审定制（把反复被采纳的评审意见沉淀为规则）。",
+      why: "为什么值得关注：AI 助手“用过即忘”是长期痛点，Dreaming 让它把你的编码习惯、项目约定和评审偏好沉淀下来，减少重复说明。注意它基于历史对话生成，涉及隐私与团队规范，企业应确认记忆范围与保留策略；生成的记忆和技能建议仍需人工核对，不应盲目全盘接受。",
+      sourceLabel: "GitHub Changelog",
+      sourceUrl: "https://github.blog/changelog/2026-10-28-github-intelligence-puts-your-code-context-and-history-to-work/",
+      articleIdea: "候选：Copilot Dreaming 记忆与技能沉淀"
+    },
+    {
+      date: "2026-10-30",
+      tag: "AI 编程",
+      title: "Copilot Computer Use 公开预览：让 AI 操作没有 API 的桌面应用（macOS/Windows）",
+      summary: "GitHub 宣布 Copilot Computer Use 在 macOS 和 Windows 公开预览，Copilot 可读取应用内容、点击控件、输入或编辑文字、跨应用导航，包括那些没有 API、命令行或扩展接口的桌面软件；同时 Copilot Projects 公开预览，可直接给代理一个目标让其自主推进。",
+      why: "为什么值得关注：过去自动化只能覆盖有接口的软件，Computer Use 把可自动化范围扩展到任意桌面 GUI，适合处理重复的表单、跨软件搬运等任务。注意它能控制真实桌面，权限和误操作风险高，应在受控环境、最小授权下使用，并保留人工确认环节；公开预览阶段稳定性和准确率仍需实测验证。",
+      sourceLabel: "GitHub Changelog",
+      sourceUrl: "https://github.blog/changelog/2026-10-28-github-copilot-app-universe-releases/",
+      articleIdea: "候选：Copilot 桌面自动化与安全边界"
+    },
     {
       date: "2026-10-29",
       tag: "AI 编程",
