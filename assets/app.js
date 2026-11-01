@@ -29,6 +29,163 @@ const siteData = {
   },
   posts: [
     {
+      id: "github-copilot-fusion-local-model-routing-setup-guide",
+      title: "Copilot Fusion 本地模型路由配置实战：让简单任务跑在自己显卡上",
+      date: "2026-11-01",
+      category: "AI 编程",
+      readTime: "11 分钟",
+      excerpt: "有独立显卡、跑过本地大模型的人常遇到一个矛盾：简单补全也要发到云端，既费额度又依赖网络，可手动切到本地模型又太麻烦。GitHub Copilot Fusion 新增本地模型智能路由并进入实验预览，能在设备端模型和云端模型之间自动切换，简单任务走本地、复杂任务走云端。这篇教程讲清它的工作原理、两种接入方式（Windows ML 托管下载与自带 OpenAI 兼容服务器）、实验开关、路由验证、资源要求和“本地≠离线”的安全边界，帮你把闲置显卡真正用进日常编程。",
+      tags: ["GitHub Copilot", "Fusion", "本地模型", "Windows ML", "模型路由", "AI 编程"],
+      featured: true,
+      intro: [
+        "本地部署大模型这两年越来越流行，不少人机器上装着 Ollama、跑着 Qwen，显卡平时却大多闲置。真正写代码时又习惯性地把每个请求都发到云端：简单的补全、解释、改名也要走云端模型，消耗套餐额度，还强依赖网络，断网或网络抖动就卡住。想手动切到本地模型，又要在每次会话里反复切换，体验割裂。",
+        "GitHub 在 Universe 2026 后给 Copilot Fusion 加上了本地模型路由（实验预览）：你把本地模型接入后，Fusion 会判断每个任务，自动在设备端和云端之间选合适的模型。这篇教程基于官方 changelog，带你从原理、两种接入方式到验证和安全边界完整配置一遍，让本地显卡参与到真实工作流，而不是只在测试时跑一次。"
+      ],
+      audience: [
+        "有独立显卡、希望把本地算力用进日常 AI 编程的开发者",
+        "已经在用 Ollama 等本地模型、想省去手动切换的人",
+        "需要评估本地模型路由能力与安全边界的团队和管理员"
+      ],
+      format: [
+        "全文按“为什么 → 原理 → 资源要求 → 两种接入 → 实验开关 → 验证 → 安全边界 → 验收 → 检查清单”组织",
+        "配合可验证的操作步骤"
+      ],
+      roadmap: [
+        "理解全部走云端的额度与网络成本",
+        "搞懂 Fusion 本地模型路由的工作原理",
+        "确认设备显存、内存满足本地推理要求",
+        "用 Windows ML 托管下载 MAI Code 1.1 Flash",
+        "或用 OpenAI 兼容服务器自带本地模型（跨平台）",
+        "启用实验开关并在 Fusion 选择标准路由",
+        "验证任务确实在本地与云端之间切换",
+        "确认本地模型的安全防护与“本地≠离线”边界"
+      ],
+      officialLinks: [
+        { label: "GitHub Copilot Fusion now supports selection of local models", url: "https://github.blog/changelog/2026-10-28-github-copilot-fusion-now-supports-selection-of-local-models/", note: "官方发布" },
+        { label: "Route and orchestrate models with GitHub Copilot Fusion", url: "https://github.blog/changelog/2026-10-28-route-and-orchestrate-models-with-github-copilot-fusion/", note: "官方发布" },
+        { label: "Copilot 云连接体验", url: "https://github.blog/changelog/2026-10-28-work-from-anywhere-with-a-new-connected-copilot-cloud-experience/", note: "官方发布" }
+      ],
+      curatedLinks: [
+        "本地模型路由为 opt-in 实验预览，覆盖 Copilot CLI、Copilot 应用和 VS Code",
+        "Windows 可通过 Windows ML 提供方托管下载 MAI Code 1.1 Flash",
+        "自带模型支持 Windows/macOS/Linux，经本地 OpenAI 兼容服务器接入",
+        "自带可选 MAI Code 1.1 Flash 或 Qwen3.8 Flash Next",
+        "在 Fusion 选择 Standard 即由系统在本地与云端间自动选择",
+        "也可以在会话中直接指定本地模型",
+        "本地推理不代表离线，路由决策仍在云端做出",
+        "BYOK 添加的模型不会自动进入 Fusion 候选，需满足条件并启用实验路由"
+      ],
+      downloadIdeas: [
+        "整理一张“本地模型资源核对表”：显存、内存、磁盘、推理端口",
+        "做一份“本地/云端任务分流清单”：哪些任务适合先走本地"
+      ],
+      extraSections: [
+        {
+          title: "一、为什么要让一部分任务跑在本地",
+          items: [
+            "简单补全、改名、解释代码也走云端，会持续消耗套餐额度",
+            "云端请求强依赖网络，断网或抖动时工作流被卡住",
+            "独立显卡平时利用率低，本地算力处于闲置状态",
+            "手动在本地与云端模型间切换太繁琐，难以坚持",
+            "本地处理部分任务还能减少代码片段外发，降低敏感信息暴露"
+          ]
+        },
+        {
+          title: "二、本地模型路由是什么、怎么工作",
+          items: [
+            "它是 Copilot Fusion 的一项实验能力，而非单独的本地客户端",
+            "你先把一个受支持的本地模型接入 Copilot",
+            "Fusion 分析每个任务，判断更适合本地还是云端模型",
+            "在 Fusion 选择 Standard 后，系统自动完成路由，无需逐次手动选",
+            "也可以直接在会话里固定使用本地模型，由你完全掌控"
+          ]
+        },
+        {
+          title: "三、前提条件与资源要求",
+          items: [
+            "确认设备有足够显存和内存运行所选本地模型，资源不足会明显卡顿或失败",
+            "预留足够磁盘空间存放模型文件",
+            "使用 VS Code、Copilot 应用或 Copilot CLI 之一，并更新到支持版本",
+            "本地模型路由属于实验功能，需要先开启实验模式",
+            "企业环境先确认管理员没有限制本地模型提供方或实验开关"
+          ]
+        },
+        {
+          title: "四、方式一：Windows ML 托管下载 MAI Code 1.1 Flash",
+          items: [
+            "在受支持的 Windows 设备上可直接走托管下载，无需自己装推理运行时",
+            "Copilot CLI：启用实验模式后打开 /model，按提示完成安装",
+            "Copilot 应用：在 Settings > Model providers 配置 Windows ML，再到 Settings > Experiments 开启 Local model auto routing 并新建会话",
+            "VS Code：启用 chat.copilot.localModel.enabled",
+            "Windows 上 Windows ML 本地模型默认启用，模型就绪后在 Fusion 选择 Standard"
+          ]
+        },
+        {
+          title: "五、方式二：自带本地模型（OpenAI 兼容服务器，跨平台）",
+          items: [
+            "托管下载仅限 Windows，但 CLI 的本地路由在 Windows/macOS/Linux 都可用",
+            "自己用本地 OpenAI 兼容服务器提供 MAI Code 1.1 Flash 或 Qwen3.8 Flash Next",
+            "模型下载和推理运行时由你自己管理，需保证设备资源充足",
+            "把该服务器配置为受支持的本地模型提供方，再启用实验本地路由",
+            "注意：仅通过 BYOK 添加或发现模型，并不会让它自动具备 Fusion 候选资格"
+          ]
+        },
+        {
+          title: "六、启用实验开关与 Fusion 标准路由",
+          items: [
+            "确认本地模型在客户端中显示为已就绪、可正常调用",
+            "在对应客户端打开实验性质的本地路由开关",
+            "在 Copilot Fusion 中选择 Standard，把选择权交给系统",
+            "想对比效果时，可分别用固定本地模型与 Standard 各跑同一任务",
+            "新建会话让配置生效，避免旧会话仍沿用旧的模型设置"
+          ]
+        },
+        {
+          title: "七、验证路由是否真正生效",
+          items: [
+            "先发起一个简单任务，观察是否由本地模型响应、本机显存占用是否上升",
+            "再发起一个明显复杂的推理任务，确认它能切到云端模型",
+            "断网测试时要注意：本地推理可继续，但路由决策仍需联网，不要假设完全离线",
+            "检查任务结果与耗时，确认本地模型能胜任而不是被强行承接",
+            "若本地模型未被选用，核对其是否满足 Fusion 候选条件而不只是 BYOK 接入"
+          ]
+        },
+        {
+          title: "八、安全、隐私与“本地≠离线”边界",
+          items: [
+            "本地推理并不等于离线会话，Fusion 仍在云端做出路由决策",
+            "本地模型的安全防护与 Copilot 云端模型可能不同，需要单独评估",
+            "敏感代码即使走本地，相关元数据和路由信息仍可能经过云端",
+            "自行管理的推理服务要注意端口访问控制，避免本地服务被他人调用",
+            "组织应明确哪些项目允许本地路由，并保留对模型来源的审计"
+          ]
+        },
+        {
+          title: "九、验收与常见问题",
+          items: [
+            "验收一：本地模型在客户端显示就绪，简单任务由本地响应",
+            "验收二：复杂任务能自动切到云端，Standard 路由按任务分流",
+            "验收三：切换过程无报错，任务结果正确、耗时合理",
+            "常见问题：模型不可选，多因只做了 BYOK 而未满足 Fusion 候选条件",
+            "常见问题：本地响应慢或失败，优先核对显存、内存和推理服务状态",
+            "常见问题：以为能离线使用，忽略了路由决策仍在云端这一限制"
+          ]
+        },
+        {
+          title: "十、检查清单",
+          items: [
+            "设备显存、内存和磁盘满足本地模型运行要求",
+            "已通过 Windows ML 或 OpenAI 兼容服务器接入受支持模型",
+            "实验模式与本地路由开关已开启并新建会话",
+            "Fusion 选择 Standard，任务能在本地与云端间自动分流",
+            "已用简单与复杂两类任务验证路由真实生效",
+            "理解本地≠离线，并评估了本地模型的安全防护差异",
+            "本地推理服务的端口访问与模型来源已做安全确认"
+          ]
+        }
+      ]
+    },
+    {
       id: "github-copilot-image-generation-gpt-image-flare-guide",
       title: "GitHub Copilot 自然语言生成图片实战：不出编辑器就能做配图",
       date: "2026-10-30",
@@ -9982,6 +10139,36 @@ git push origin main`,
     "github-agentic-workflows-public-preview-guide"
   ],
   hotspots: [
+    {
+      date: "2026-11-01",
+      tag: "AI 编程",
+      title: "Copilot Fusion 支持本地模型智能路由：设备算力与云端模型自动切换（实验预览）",
+      summary: "GitHub 宣布 Copilot Fusion 新增本地模型路由并进入实验预览，可在受支持的设备端模型与云端模型之间智能选择，覆盖 Copilot CLI、Copilot 应用和 VS Code。Windows 设备可通过 Windows ML 提供方一键下载配置 MAI Code 1.1 Flash；也支持在 Windows/macOS/Linux 上用本地 OpenAI 兼容服务器自带 MAI Code 1.1 Flash 或 Qwen3.8 Flash Next，无需每次手动切换模型。",
+      why: "为什么值得关注：有独立显卡、跑过本地大模型的人，可以让简单任务走本地、复杂任务走云端，既省云端额度又用上设备算力。注意这是 opt-in 实验功能，本地推理并不等于离线——路由决策仍在云端，且本地模型的安全防护与云端模型可能不同；通过 BYOK 添加的模型不会自动进入 Fusion 候选，设备必须有足够显存和内存。",
+      sourceLabel: "GitHub Changelog",
+      sourceUrl: "https://github.blog/changelog/2026-10-28-github-copilot-fusion-now-supports-selection-of-local-models/",
+      articleIdea: "已扩写：Copilot Fusion 本地模型路由配置实战"
+    },
+    {
+      date: "2026-11-01",
+      tag: "AI 编程",
+      title: "Copilot 升级为一体化云连接体验：任意端发起任务、跨端续接，云沙箱正式可用",
+      summary: "GitHub 推出全新的 Copilot 云连接体验并在付费计划正式可用，可在 github.com、GitHub Mobile、CLI、Copilot 应用、VS Code 以及 Slack、Teams 中任一处发起云任务，再到任意工作端接着做。每个会话默认运行在 GitHub 托管的安全云沙箱中，启动快、可凭快照恢复且没有一小时时长限制；原有 Actions 算力额度改为统一的按金额计算的共享池，可同时用于标准 runner、云沙箱和大型托管 runner。",
+      why: "为什么值得关注：手机上用语音或截图起一个改动，回到电脑无缝接着做，且不受本机算力限制。注意云沙箱计费从 2026 年 11 月开始、从 Actions 共享额度中扣减，超额按既有费率结算；云访问受“Copilot in the cloud”策略管控，组织的 SSO、MCP 白名单和代理权限策略会一并生效，无写权限的仓库会自动只读。",
+      sourceLabel: "GitHub Changelog",
+      sourceUrl: "https://github.blog/changelog/2026-10-28-work-from-anywhere-with-a-new-connected-copilot-cloud-experience/",
+      articleIdea: "候选：Copilot 云沙箱与跨端协作"
+    },
+    {
+      date: "2026-11-01",
+      tag: "AI 编程",
+      title: "部分 Copilot 模型将于 11 月 16 日弃用：Claude Opus 4.8/5、GPT-5.6 Terra 需提前迁移",
+      summary: "GitHub 预告将于 2026 年 11 月 16 日在所有 Copilot 体验（聊天、内联编辑、问答与代理模式、代码补全）中弃用三款模型：Claude Opus 4.8、Claude Opus 5 建议改用 Claude Opus 5.5，GPT-5.6 Terra 建议改用 GPT-6.1 Sol 或 GPT-6 Luna。其中按年订阅的个人用户可继续保留 Claude Opus 4.8。",
+      why: "为什么值得关注：如果你的工作流、脚本或固定指令里写死了这几个模型，弃用后会直接受影响，需要提前切换。默认模型启用策略下，企业版和商业版客户会自动启用建议的替代模型，除非管理员关闭了全局默认或显式禁用；曾关闭全局默认的，需要在 Copilot 模型策略里手动开启替代模型，弃用当天无需手动删除旧模型。",
+      sourceLabel: "GitHub Changelog",
+      sourceUrl: "https://github.blog/changelog/2026-10-15-upcoming-deprecation-of-selected-github-copilot-models-in-mid-November/",
+      articleIdea: "候选：Copilot 模型迁移与兼容检查"
+    },
     {
       date: "2026-10-30",
       tag: "AI 编程",
