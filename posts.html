@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://cdn.jsdelivr.net">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;800&family=Noto+Serif+SC:wght@700;900&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/styles.css?v=20261101-daily-update">
+  <link rel="stylesheet" href="assets/styles.css?v=20261106-daily-update">
 </head>
 <body>
   <header class="site-header">
@@ -69,6 +69,57 @@
       <div class="content-grid" data-post-list>
         <!-- STATIC_POSTS_START -->
 <article class="article-card reveal">
+      <a class="article-card__media article-card__media--ai" href="articles/jetbrains-air-copilot-parallel-workflow-guide.html">
+        <span class="article-card__badge">推荐</span>
+        <span class="article-card__icon"><img class="visual-icon visual-icon--card" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="AI 编程 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <strong>AI 编程</strong>
+      </a>
+      <div class="article-card__body">
+        <div class="meta-row">
+          <span>AI 编程</span>
+          <span>12 分钟</span>
+          <time datetime="2026-11-06">2026年11月6日</time>
+        </div>
+        <h3><a href="articles/jetbrains-air-copilot-parallel-workflow-guide.html">JetBrains Air 接入 Copilot 多代理并行实战：IDE 里同时盯多个 agent</a></h3>
+        <p>用 JetBrains 系 IDE 的人过去想用 GitHub Copilot 的 agent，只能在官方插件里单线程跑一个任务，想同时推进两个改动就得来回切。现在 JetBrains Air 的 agent 选择器直接接入 GitHub Copilot，基于 Agent Client Protocol（ACP）通信，支持在 IDE 内并行跟踪多个 agent 会话、结合项目上下文审查改动，也能通过 Air Teams 把任务丢进全新虚拟机的 Docker 云沙箱，消耗的是 Copilot 套餐而不是 JetBrains 积分。这篇教程讲清两者关系、本地与云端两种接入、多代理并行方法、云沙箱计费边界和管理员策略，帮你把多任务并行真正跑起来。</p>
+      </div>
+    </article>
+
+    <article class="article-card reveal">
+      <a class="article-card__media article-card__media--github" href="articles/ai-crawler-robots-txt-unified-signal-guide.html">
+        <span class="article-card__badge">AI 建站</span>
+        <span class="article-card__icon"><img class="visual-icon visual-icon--card" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/python/python-original.svg" alt="AI 建站 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <strong>AI 建站</strong>
+      </a>
+      <div class="article-card__body">
+        <div class="meta-row">
+          <span>AI 建站</span>
+          <span>10 分钟</span>
+          <time datetime="2026-11-06">2026年11月6日</time>
+        </div>
+        <h3><a href="articles/ai-crawler-robots-txt-unified-signal-guide.html">AI 爬虫统一管控信号配置实战：一行 robots.txt 向四家声明退出训练</a></h3>
+        <p>想让自己的网站内容不被拿去训练大模型，过去得在 robots.txt 里分别点名 GPTBot、Google-Extended、ClaudeBot、Bingbot，语法各不相同，漏一家就照抓。现在 OpenAI、谷歌、微软、Anthropic 共同承诺遵循 IETF 草案里的策略令牌 __usage_ai-training，加一个 User-Agent 组就能一次向四家表达退出训练的偏好。这篇教程讲清草案的来龙去脉、它管什么不管什么、robots.txt 具体写法、与各家原有控制的关系、页面级训练与引用的区分，以及如何验证信号生效，帮独立站长低成本把偏好声明清楚。</p>
+      </div>
+    </article>
+
+    <article class="article-card reveal">
+      <a class="article-card__media article-card__media--github" href="articles/2027-guokao-kaoqian-23tian-chongci-zhunkaozheng-guide.html">
+        <span class="article-card__badge">考公专区</span>
+        <span class="article-card__icon"><img class="visual-icon visual-icon--card" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="考公专区 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <strong>考公专区</strong>
+      </a>
+      <div class="article-card__body">
+        <div class="meta-row">
+          <span>考公专区</span>
+          <span>11 分钟</span>
+          <time datetime="2026-11-06">2026年11月6日</time>
+        </div>
+        <h3><a href="articles/2027-guokao-kaoqian-23tian-chongci-zhunkaozheng-guide.html">国考考前 23 天冲刺指南：准考证节点、节奏安排与临场准备</a></h3>
+        <p>2027 国考报名确认与缴费在 11 月 6 日 24 点截止，逾期未完成视为自动放弃；笔试 11 月 29 日进行，准考证打印窗口为 11 月 23 日 0 点至 11 月 29 日 15 点。满打满算只剩 23 天，这篇教程按时间线讲清当前节点、准考证打印注意事项、23 天冲刺的总体节奏、行测与申论的具体安排、全真模考与生物钟调整，以及考前一周和考试当天的清单，帮你把最后阶段用在刀刃上，避免临场遗漏。</p>
+      </div>
+    </article>
+
+    <article class="article-card reveal">
       <a class="article-card__media article-card__media--ai" href="articles/github-copilot-fusion-local-model-routing-setup-guide.html">
         <span class="article-card__badge">推荐</span>
         <span class="article-card__icon"><img class="visual-icon visual-icon--card" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="AI 编程 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
@@ -1735,6 +1786,6 @@
     </div>
   </footer>
 
-  <script src="assets/app.js?v=20261101-daily-update"></script>
+  <script src="assets/app.js?v=20261106-daily-update"></script>
 </body>
 </html>

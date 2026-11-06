@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://cdn.jsdelivr.net">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;800&family=Noto+Serif+SC:wght@700;900&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/styles.css?v=20261101-daily-update">
+  <link rel="stylesheet" href="assets/styles.css?v=20261106-daily-update">
 </head>
 <body>
   <header class="site-header">
@@ -78,6 +78,126 @@
       <div class="hotspot-grid" data-hotspot-list>
         <!-- STATIC_HOTSPOTS_START -->
 <article class="hotspot-card reveal">
+      <div class="hotspot-card__head">
+        <span class="hotspot-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/python/python-original.svg" alt="网络安全 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <div>
+          <div class="hotspot-card__meta">
+            <span>网络安全</span>
+            <time datetime="2026-11-06">2026年11月6日</time>
+          </div>
+          <h3>OpenAI 发布安全研究模型 GPT-6 Cyber：漏洞利用基准较前代提升 51%，仅向审核客户开放</h3>
+        </div>
+      </div>
+      <p>OpenAI 推出网络安全研究专用模型 GPT-6 Cyber，在漏洞利用基准上得分较前代提升 51%，已为 Linux 内核 948 个漏洞开发出可用的利用程序；模型不开放公开注册，仅向经过资质审核的客户提供，用于防御性安全研究。OpenAI 同时预告下一代模型家族 Astra、Sol 以及新的网络安全模型。</p>
+      <div class="hotspot-card__why">
+        <strong>为什么值得关注</strong>
+        <p>为什么值得关注：AI 正在把漏洞挖掘从手工活变成规模化能力，安全专业学生要理解这类模型的能力边界——它能快速把老缺陷转化为可工作利用，但输出同样可能出错，且利用能力本身受严格管控。注意 GPT-6 Cyber 不是公开 API，普通账号无法直接调用；相关利用只允许在授权环境进行。</p>
+      </div>
+      <p class="hotspot-card__idea">候选：AI 辅助漏洞挖掘的能力边界与合规使用</p>
+      <a class="text-link" href="https://www.jiemian.com/article/15300991.html" target="_blank" rel="noreferrer">查看来源：界面新闻</a>
+    </article>
+
+    <article class="hotspot-card reveal">
+      <div class="hotspot-card__head">
+        <span class="hotspot-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/python/python-original.svg" alt="AI 建站 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <div>
+          <div class="hotspot-card__meta">
+            <span>AI 建站</span>
+            <time datetime="2026-11-04">2026年11月4日</time>
+          </div>
+          <h3>Cloudflare 上线个人 Agent 可视化与分级管控：看清是哪个 AI 在访问、按 Agent 单独设策略</h3>
+        </div>
+      </div>
+      <p>Cloudflare 推出面向个人智能体（personal agents）的分析与访问控制：安全分析的 Bot Analysis 新增 Personal Assistants 分类，可看到具体是哪些 agent（如 Gemini Spark、Claude Duet、dot、Muse）在访问、各自请求量、路径、状态码和来源网络；原有 Agents 策略升级并更名为 AI Crawler and Agent access policies，可对每个受支持的个人 agent 单独设置 Allow、Block on pages with ads、Block 三档策略。</p>
+      <div class="hotspot-card__why">
+        <strong>为什么值得关注</strong>
+        <p>为什么值得关注：个人 agent 替用户比价、找客服、下单，对站长都表现为自动化流量，一刀切拦截可能丢掉客户。现在能看清每个 agent 在做什么再按自己的条款放行。注意策略依赖 Cloudflare 的 bot 目录识别，未识别的 agent 不会出现在分级列表里；账号滥用防护（Account Abuse Protection）仍处于早期访问。</p>
+      </div>
+      <p class="hotspot-card__idea">候选：个人 Agent 流量识别与分级访问策略</p>
+      <a class="text-link" href="https://blog.cloudflare.com/personal-agents-visibility-control/" target="_blank" rel="noreferrer">查看来源：Cloudflare Blog</a>
+    </article>
+
+    <article class="hotspot-card reveal">
+      <div class="hotspot-card__head">
+        <span class="hotspot-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/python/python-original.svg" alt="网络安全 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <div>
+          <div class="hotspot-card__meta">
+            <span>网络安全</span>
+            <time datetime="2026-11-03">2026年11月3日</time>
+          </div>
+          <h3>Cloudflare Radar 推出 Zero Wire：关键漏洞情报速递，事实与待解问题分开写</h3>
+        </div>
+      </div>
+      <p>Cloudflare 在 Radar 安全板块上线公开漏洞情报源 Zero Wire，每份简报用通俗语言讲清漏洞、谁该排查、建议动作和证据链接，并把已确认事实与开放问题分开；首页分 Needs attention 与 Reference 两类，还提供可直接喂给 AI agent 的预编译提示词，用于只读评估自身资产受影响情况，非 Cloudflare 客户也能用。</p>
+      <div class="hotspot-card__why">
+        <strong>为什么值得关注</strong>
+        <p>为什么值得关注：漏洞披露越来越密集，Zero Wire 像安全通讯社，帮你快速判断是否受影响而不是在各家公告里翻找。注意它只聚焦面向互联网的关键 CVE、不是全量漏洞库，且厂商防护规则不是入选前提；简报不能替代对自己资产的实际版本核查。</p>
+      </div>
+      <p class="hotspot-card__idea">候选：用 Zero Wire 建立漏洞情报分诊流程</p>
+      <a class="text-link" href="https://blog.cloudflare.com/zero-wire" target="_blank" rel="noreferrer">查看来源：Cloudflare Blog</a>
+    </article>
+
+    <article class="hotspot-card reveal">
+      <div class="hotspot-card__head">
+        <span class="hotspot-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="AI 编程 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <div>
+          <div class="hotspot-card__meta">
+            <span>AI 编程</span>
+            <time datetime="2026-11-03">2026年11月3日</time>
+          </div>
+          <h3>GitHub Copilot 登陆 JetBrains Air：一个界面并行跟踪多个 agent，云任务走 Copilot 套餐</h3>
+        </div>
+      </div>
+      <p>JetBrains Air 的 agent 选择器新增 GitHub Copilot，基于 Agent Client Protocol（ACP）接入，可在 JetBrains IDE 内或云端委派编码任务，支持并行跟踪多个 agent 会话、结合项目上下文和 IDE 工具并在代码旁审查改动；通过 Air Teams 运行的云任务跑在全新虚拟机的 Docker 容器里，消耗 Copilot 套餐而非 JetBrains AI 积分。</p>
+      <div class="hotspot-card__why">
+        <strong>为什么值得关注</strong>
+        <p>为什么值得关注：习惯 JetBrains 系 IDE 的人不用换工具就能用 Copilot，还能同时盯多个 agent 任务。注意云任务需要 Air Teams 企业组织、且无法选择走个人还是组织套餐；Air 的治理分析不包含 Copilot 用量，管理员可在策略中禁用 Copilot 但不能在 Air 内设置其消费上限。</p>
+      </div>
+      <p class="hotspot-card__idea">已扩写：JetBrains Air 接入 Copilot 多代理并行实战</p>
+      <a class="text-link" href="https://github.blog/changelog/2026-11-03-github-copilot-is-now-available-in-jetbrains-air/" target="_blank" rel="noreferrer">查看来源：GitHub Changelog</a>
+    </article>
+
+    <article class="hotspot-card reveal">
+      <div class="hotspot-card__head">
+        <span class="hotspot-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="AI 编程 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <div>
+          <div class="hotspot-card__meta">
+            <span>AI 编程</span>
+            <time datetime="2026-11-03">2026年11月3日</time>
+          </div>
+          <h3>Copilot Usage API 新增 BYOK 与企业自定义模型用量：自带密钥消耗可单独统计</h3>
+        </div>
+      </div>
+      <p>GitHub Copilot 使用指标 API 现在能展示 BYOK（bring your own key）用量，把开发者在客户端用本地自带密钥产生的消耗与 Copilot 托管模型用量分开，同时覆盖企业自定义模型，方便管理员看清谁在通过自带密钥发请求、分别用了多少。</p>
+      <div class="hotspot-card__why">
+        <strong>为什么值得关注</strong>
+        <p>为什么值得关注：企业里有人用 BYOK 把代码发到外部模型时，过去在用量报表里看不清，现在能单独治理和审计。注意该功能面向企业管理员、通过 API 拉取，个人用户用不到；BYOK 的数据安全责任在密钥和模型提供方，不会因进入报表而改变。</p>
+      </div>
+      <p class="hotspot-card__idea">候选：BYOK 用量审计与外部模型治理</p>
+      <a class="text-link" href="https://github.blog/changelog/2026-11-03-byok-and-enterprise-custom-models-in-the-copilot-usage-api/" target="_blank" rel="noreferrer">查看来源：GitHub Changelog</a>
+    </article>
+
+    <article class="hotspot-card reveal">
+      <div class="hotspot-card__head">
+        <span class="hotspot-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/python/python-original.svg" alt="AI 建站 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <div>
+          <div class="hotspot-card__meta">
+            <span>AI 建站</span>
+            <time datetime="2026-11-02">2026年11月2日</time>
+          </div>
+          <h3>四大 AI 巨头统一 robots.txt 拒爬信号：一行 __usage_ai-training 同时声明退出训练</h3>
+        </div>
+      </div>
+      <p>OpenAI、谷歌、微软、Anthropic 10/30 共同宣布遵循 IETF 草案中的 robots.txt 策略令牌 __usage_ai-training，网站主加一个 User-Agent 组即可一次向四家声明内容不用于 AI 训练，无需再分别配置 GPTBot、Google-Extended、ClaudeBot、Bingbot。草案由 Anthropic 标准负责人 Kevin Kelley 起草，目前仍是个人提交的互联网草案、未经 IETF 背书。</p>
+      <div class="hotspot-card__why">
+        <strong>为什么值得关注</strong>
+        <p>为什么值得关注：它解决的是表达成本——一次写入四家通用，但令牌表达的是偏好而非指令，不阻止抓取本身，也不覆盖基于实时网页内容的 AI 回答；现实中约三成 AI 抓取已不遵守 robots.txt。落地节奏不一：Anthropic 已开始，微软 2027/2/1 生效，谷歌目标 2027 年初，Meta 仅表态未承诺。</p>
+      </div>
+      <p class="hotspot-card__idea">已扩写：AI 爬虫统一管控信号配置实战</p>
+      <a class="text-link" href="https://www.tmtpost.com/agent/ai-article/21976" target="_blank" rel="noreferrer">查看来源：钛媒体</a>
+    </article>
+
+    <article class="hotspot-card reveal">
       <div class="hotspot-card__head">
         <span class="hotspot-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="AI 编程 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
         <div>
@@ -5615,6 +5735,6 @@
     </div>
   </footer>
 
-  <script src="assets/app.js?v=20261101-daily-update"></script>
+  <script src="assets/app.js?v=20261106-daily-update"></script>
 </body>
 </html>

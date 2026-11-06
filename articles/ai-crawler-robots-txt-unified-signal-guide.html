@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AI 爬虫统一管控信号配置实战：一行 robots.txt 向四家声明退出训练 | 学习资源库</title>
+  <meta name="description" content="想让自己的网站内容不被拿去训练大模型，过去得在 robots.txt 里分别点名 GPTBot、Google-Extended、ClaudeBot、Bingbot，语法各不相同，漏一家就照抓。现在 OpenAI、谷歌、微软、Anthropic 共同承诺遵循 IETF 草案里的策略令牌 __usage_ai-training，加一个 User-Agent 组就能一次向四家表达退出训练的偏好。这篇教程讲清草案的来龙去脉、它管什么不管什么、robots.txt 具体写法、与各家原有控制的关系、页面级训练与引用的区分，以及如何验证信号生效，帮独立站长低成本把偏好声明清楚。">
+  <meta name="robots" content="index,follow,max-image-preview:large">
+  <link rel="canonical" href="https://hello1yjx.github.io/articles/ai-crawler-robots-txt-unified-signal-guide.html">
+  <link rel="icon" type="image/png" href="../assets/images/brand-book-line.png">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"AI 爬虫统一管控信号配置实战：一行 robots.txt 向四家声明退出训练","description":"想让自己的网站内容不被拿去训练大模型，过去得在 robots.txt 里分别点名 GPTBot、Google-Extended、ClaudeBot、Bingbot，语法各不相同，漏一家就照抓。现在 OpenAI、谷歌、微软、Anthropic 共同承诺遵循 IETF 草案里的策略令牌 __usage_ai-training，加一个 User-Agent 组就能一次向四家表达退出训练的偏好。这篇教程讲清草案的来龙去脉、它管什么不管什么、robots.txt 具体写法、与各家原有控制的关系、页面级训练与引用的区分，以及如何验证信号生效，帮独立站长低成本把偏好声明清楚。","datePublished":"2026-11-06","dateModified":"2026-11-06","author":{"@type":"Person","name":"Avery Lin","url":"https://hello1yjx.github.io/about.html"},"publisher":{"@type":"Organization","name":"学习资源库","url":"https://hello1yjx.github.io/"},"mainEntityOfPage":"https://hello1yjx.github.io/articles/ai-crawler-robots-txt-unified-signal-guide.html","inLanguage":"zh-CN"}</script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6621999105936318" crossorigin="anonymous"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;800&family=Noto+Serif+SC:wght@700;900&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/styles.css?v=20261106-daily-update">
+</head>
+<body>
+  <header class="site-header">
+    <div class="page-shell site-header__inner">
+      <a class="brand" href="../index.html" aria-label="返回首页">
+        <span class="brand-mark" aria-hidden="true"><img src="../assets/images/brand-book-line.png" alt="" width="36" height="33"></span>
+        <span class="brand-copy"><strong>学习资源库</strong><span>分享知识 · 提升自己 · 成就未来</span></span>
+      </a>
+      <button class="menu-button" data-menu-button aria-expanded="false" aria-label="切换导航菜单">☰</button>
+      <nav class="site-nav" data-mobile-nav>
+        <a href="../index.html">首页</a>
+        <a class="is-active" href="../posts.html" aria-current="page">教程</a>
+        <a href="../resources.html">资源下载</a>
+        <a href="../hotspots.html">技术资讯</a>
+        <a href="../projects.html">开源项目</a>
+        <a href="../vulns.html">漏洞分析</a>
+        <a href="../kaogong.html">考公专区</a>
+        <a href="../about.html">关于我们</a>
+      </nav>
+      <form class="header-search" action="../posts.html" method="get">
+        <input type="search" name="q" placeholder="搜索教程、资源、工具或关键词...">
+        <button type="submit" aria-label="搜索">/</button>
+      </form>
+      <a class="header-github" href="https://github.com/hello1yjx/hello1yjx.github.io" target="_blank" rel="noreferrer" aria-label="GitHub">
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="" width="24" height="24">
+      </a>
+      <a class="header-cta" href="../posts.html">开始学习</a>
+    </div>
+  </header>
+
+  <main class="page-shell section article-page">
+    <header class="detail-hero">
+      <span class="pill">AI 建站</span>
+      <h1>AI 爬虫统一管控信号配置实战：一行 robots.txt 向四家声明退出训练</h1>
+      <div class="detail-hero__meta">
+        <time datetime="2026-11-06">2026年11月6日</time>
+        <span>10 分钟</span>
+        <span>作者：Avery Lin</span>
+      </div>
+      <p>想让自己的网站内容不被拿去训练大模型，过去得在 robots.txt 里分别点名 GPTBot、Google-Extended、ClaudeBot、Bingbot，语法各不相同，漏一家就照抓。现在 OpenAI、谷歌、微软、Anthropic 共同承诺遵循 IETF 草案里的策略令牌 __usage_ai-training，加一个 User-Agent 组就能一次向四家表达退出训练的偏好。这篇教程讲清草案的来龙去脉、它管什么不管什么、robots.txt 具体写法、与各家原有控制的关系、页面级训练与引用的区分，以及如何验证信号生效，帮独立站长低成本把偏好声明清楚。</p>
+    </header>
+    <div class="article-layout">
+      <article class="article-body">
+        <div class="inline-promo">
+          <p class="label">来源与增量价值</p>
+          <h3>本文基于官方资料整理，并补充适用场景、限制条件和实践检查步骤。</h3>
+          <p>首要来源：<a href="https://www.tmtpost.com/agent/ai-article/21976" target="_blank" rel="noreferrer">四大 AI 巨头联手设拒爬标准（钛媒体）</a>。事实以原始来源为准，本站建议需结合自己的环境验证。</p>
+        </div>
+
+    <p>这两年 AI 爬虫四处抓取网页内容喂给模型，站长想拒绝却要同时应付好几套机制：每家公司的爬虫名字、语法和语义都不一样，像给互不往来的几个衙门分别递状子，写漏一家内容就被抓走。更麻烦的是，越来越多的 AI 抓取干脆不遵守 robots.txt。</p><p>2026 年 10 月 30 日，OpenAI、谷歌、微软和 Anthropic 罕见站到一起，宣布支持同一个 robots.txt 策略令牌。这篇教程基于 IETF 草案和公开报道，带你搞清楚这个信号能做什么、不能做什么，并给出可直接使用的配置和验证方法。</p>
+    <h2>这篇内容适合谁</h2>
+    <ul><li>运营独立站、博客或论坛，希望声明内容不用于 AI 训练的站长</li><li>被各家爬虫配置搞晕、想一次写全的人</li><li>需要理解统一信号法律与技术边界的内容运营</li></ul>
+    <h2>实践与验证步骤</h2>
+    <ul><li>理解分别配置多家爬虫的成本</li><li>认识 IETF 草案与 __usage_ai-training 令牌</li><li>分清偏好与指令、训练与引用的边界</li><li>配置前备份并检查现有 robots.txt</li><li>写出统一的 User-Agent 组规则</li><li>梳理与四家原有爬虫控制的关系</li><li>配置页面级训练与引用区分</li><li>验证信号是否被正确识别</li></ul>
+    <h2>官方资料入口</h2>
+
+    <ul>
+
+            <li>
+              <a href="https://www.tmtpost.com/agent/ai-article/21976" target="_blank" rel="noreferrer">四大 AI 巨头联手设拒爬标准（钛媒体）</a>
+              <span>：中文解读</span>
+            </li>
+
+            <li>
+              <a href="https://www.engadget.com/2303225/google-openai-anthropic-ai-crawling-controls/" target="_blank" rel="noreferrer">Google joins OpenAI and Anthropic in promising new scraping controls</a>
+              <span>：英文报道</span>
+            </li>
+
+    </ul>
+
+    <h2>重点判断与使用建议</h2>
+    <ul><li>IETF 草案由 Anthropic 标准负责人 Kevin Kelley 起草，2026/10/30 发布</li><li>策略令牌名为 __usage_ai-training，写在 robots.txt 的 User-Agent 组里</li><li>目前仍是个人提交的互联网草案，未经 IETF 背书</li><li>令牌表达偏好而非指令，不阻止抓取本身</li><li>不覆盖基于实时网页内容的 AI 回答与引用</li><li>私下授权协议可以覆盖该信号，它不建立付费或许可安排</li><li>落地节奏不一：Anthropic 已开始，微软 2027/2/1 生效，谷歌目标 2027 年初</li><li>Meta 仅表态支持，未承诺遵循</li></ul>
+
+        <h2>一、为什么需要统一拒爬信号</h2>
+
+        <ul><li>过去要分别配置 GPTBot、Google-Extended、ClaudeBot、Bingbot</li><li>各家语法和语义不同，漏配一家内容就被抓取</li><li>独立站长维护多套规则的成本高、容易出错</li><li>监管在推进，欧盟 AI 法案已承认 robots.txt 是偏好表达渠道</li><li>统一信号让一次声明覆盖多家，降低表达成本</li></ul>
+
+
+
+        <h2>二、新信号是什么：IETF 草案与策略令牌</h2>
+
+        <ul><li>草案名为机器可读训练偏好信号，由 Anthropic 的 Kevin Kelley 起草</li><li>核心是名为 __usage_ai-training 的策略令牌</li><li>站长在 robots.txt 中新增一个 User-Agent 组引用该令牌</li><li>它目前是个人提交的互联网草案，没有正式标准地位</li><li>金融时报、BBC、贝塔斯曼等出版方参与了草案讨论</li></ul>
+
+
+
+        <h2>三、它管什么、不管什么</h2>
+
+        <ul><li>它表达不希望内容用于 AI 训练的偏好</li><li>它不命令爬虫停止抓取，也不是访问控制机制</li><li>它不覆盖基于实时网页内容生成的 AI 回答</li><li>它不建立许可或付费安排，私下协议可将其覆盖</li><li>对选择无视 robots.txt 的抓取方，信号本身没有强制力</li></ul>
+
+
+
+        <h2>四、配置前的准备与备份</h2>
+
+        <ul><li>先完整备份现有 robots.txt，避免改坏现有规则</li><li>盘点已有的各家爬虫条目，确认哪些要保留</li><li>确认站点目录结构，哪些路径允许、哪些拒绝</li><li>用标准工具检查 robots.txt 当前语法是否合法</li><li>记录改动日期，方便后续对照各家生效时间</li></ul>
+
+
+
+        <h2>五、robots.txt 具体写法</h2>
+
+        <ul><li>新增一个 User-Agent 组，名称写 __usage_ai-training</li><li>用 Disallow 声明不希望被训练的路径，如整站 Disallow</li><li>用 Allow 保留例外路径，如允许公开的新闻资料包目录</li><li>规则按先具体后宽泛的顺序书写，避免被通配规则覆盖</li><li>保存后用在线 robots 测试工具逐条核对路径匹配</li></ul>
+
+
+
+        <h2>六、与四家原有爬虫控制的关系</h2>
+
+        <ul><li>新信号是补充，不立即替代 GPTBot、ClaudeBot 等原有控制</li><li>OpenAI 现有 GPTBot 规则在过渡期继续有效</li><li>微软 2027/2/1 起以新信号取代 NoArchive 和 NoCache 标签</li><li>谷歌目标 2027 年初支持，旧的 Google-Extended 暂时保留</li><li>Anthropic 已开始实施，边界情况仍在持续完善</li></ul>
+
+
+
+        <h2>七、页面级控制：训练与引用分开</h2>
+
+        <ul><li>微软同时提供页面级 grounding 控制，区分训练用途与回答引用</li><li>可允许自家产品引用、同时屏蔽对外售卖的引用服务</li><li>站长不必在被收录和决定内容如何使用之间二选一</li><li>训练退出与实时引用是两件事，需要分别声明</li><li>其他平台的页面级能力不同，应按各自文档核对</li></ul>
+
+
+
+        <h2>八、验证信号是否生效</h2>
+
+        <ul><li>用 robots.txt 校验工具确认新组语法和路径匹配正确</li><li>分别模拟各爬虫 UA 访问，确认返回的允许与拒绝结果</li><li>对照各家公布的生效时间表，不要假设声明当天就全部生效</li><li>保留抓取日志，观察相关 UA 是否按偏好收敛</li><li>站点更新后重新检查，防止 robots.txt 被部署流程覆盖</li></ul>
+
+
+
+        <h2>九、验收与常见问题</h2>
+
+        <ul><li>验收一：robots.txt 中 __usage_ai-training 组语法合法、路径匹配正确</li><li>验收二：例外路径可被识别，其余路径正确表达退出训练</li><li>验收三：理解各家生效时间不同，原有规则在过渡期保留</li><li>常见问题：以为配了就不被抓，忽略它只是偏好不是拦截</li><li>常见问题：把引用也一起挡掉，需用页面级控制单独处理</li></ul>
+
+
+
+        <h2>十、检查清单</h2>
+
+        <ul><li>已备份原 robots.txt 并盘点现有爬虫条目</li><li>已正确写入 __usage_ai-training 组及允许、拒绝路径</li><li>理解信号表达偏好、不阻止抓取、不覆盖实时回答</li><li>已梳理与四家原有控制的过渡关系</li><li>需要区分训练与引用时配置了页面级控制</li><li>已用校验工具和日志验证信号生效</li></ul>
+
+
+
+
+        <div class="inline-promo">
+          <p class="label">更正与更新</p>
+          <h3>发现版本变化、来源失效或事实错误时，请通过联系页反馈。</h3>
+          <p>本站会核对一手来源后更新内容，不使用无来源转载填充文章。</p>
+          <a class="button button--secondary" href="../editorial.html">查看内容标准</a>
+        </div>
+      </article>
+      <aside class="article-sidebar">
+        <div class="sidebar-card">
+          <p class="label">本页标签</p>
+          <div class="tag-row"><span>robots.txt</span><span>AI 爬虫</span><span>__usage_ai-training</span><span>IETF</span><span>版权</span><span>AI 建站</span></div>
+        </div>
+        <div class="sidebar-card">
+          <p class="label">继续阅读</p>
+          <a href="github-copilot-fusion-multi-model-routing-guide.html">GitHub Copilot Fusion 多模型自动路由实战：不再手动选模型</a><a href="vercel-websocket-realtime-app-beginner-guide.html">Vercel WebSocket 实时应用入门：不写独立服务器做实时聊天</a><a href="cloudflare-ai-gateway-web-search-integration-guide.html">Cloudflare AI Gateway 接入 Web Search 实战：让 AI 应用实时联网</a><a href="2027-guokao-baoming-jieshu-hou-jiaofei-zhunkaozheng-chongci-guide.html">国考报名结束后做什么：缴费确认、准考证打印与 35 天冲刺安排</a>
+        </div>
+        <div class="sidebar-card sidebar-card--accent">
+          <p class="label">作者与方法</p>
+          <h3>了解本站如何选题、核验来源与处理更正。</h3>
+          <a class="button button--dark" href="../about.html">关于作者</a>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="page-shell footer__inner">
+      <div><strong>学习资源库</strong><p>分享知识 · 提升自己 · 成就未来</p></div>
+      <div>
+        <a href="../editorial.html">内容标准</a><br>
+        <a href="../privacy.html">隐私政策</a><br>
+        <a href="../contact.html">联系</a>
+      </div>
+    </div>
+  </footer>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      var button = document.querySelector("[data-menu-button]");
+      var nav = document.querySelector("[data-mobile-nav]");
+      if (!button || !nav) return;
+      button.addEventListener("click", function () {
+        var expanded = button.getAttribute("aria-expanded") === "true";
+        button.setAttribute("aria-expanded", String(!expanded));
+        nav.classList.toggle("site-nav--open", !expanded);
+      });
+    });
+  </script>
+</body>
+</html>

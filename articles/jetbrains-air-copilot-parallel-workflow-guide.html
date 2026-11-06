@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>JetBrains Air 接入 Copilot 多代理并行实战：IDE 里同时盯多个 agent | 学习资源库</title>
+  <meta name="description" content="用 JetBrains 系 IDE 的人过去想用 GitHub Copilot 的 agent，只能在官方插件里单线程跑一个任务，想同时推进两个改动就得来回切。现在 JetBrains Air 的 agent 选择器直接接入 GitHub Copilot，基于 Agent Client Protocol（ACP）通信，支持在 IDE 内并行跟踪多个 agent 会话、结合项目上下文审查改动，也能通过 Air Teams 把任务丢进全新虚拟机的 Docker 云沙箱，消耗的是 Copilot 套餐而不是 JetBrains 积分。这篇教程讲清两者关系、本地与云端两种接入、多代理并行方法、云沙箱计费边界和管理员策略，帮你把多任务并行真正跑起来。">
+  <meta name="robots" content="index,follow,max-image-preview:large">
+  <link rel="canonical" href="https://hello1yjx.github.io/articles/jetbrains-air-copilot-parallel-workflow-guide.html">
+  <link rel="icon" type="image/png" href="../assets/images/brand-book-line.png">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"JetBrains Air 接入 Copilot 多代理并行实战：IDE 里同时盯多个 agent","description":"用 JetBrains 系 IDE 的人过去想用 GitHub Copilot 的 agent，只能在官方插件里单线程跑一个任务，想同时推进两个改动就得来回切。现在 JetBrains Air 的 agent 选择器直接接入 GitHub Copilot，基于 Agent Client Protocol（ACP）通信，支持在 IDE 内并行跟踪多个 agent 会话、结合项目上下文审查改动，也能通过 Air Teams 把任务丢进全新虚拟机的 Docker 云沙箱，消耗的是 Copilot 套餐而不是 JetBrains 积分。这篇教程讲清两者关系、本地与云端两种接入、多代理并行方法、云沙箱计费边界和管理员策略，帮你把多任务并行真正跑起来。","datePublished":"2026-11-06","dateModified":"2026-11-06","author":{"@type":"Person","name":"Avery Lin","url":"https://hello1yjx.github.io/about.html"},"publisher":{"@type":"Organization","name":"学习资源库","url":"https://hello1yjx.github.io/"},"mainEntityOfPage":"https://hello1yjx.github.io/articles/jetbrains-air-copilot-parallel-workflow-guide.html","inLanguage":"zh-CN"}</script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6621999105936318" crossorigin="anonymous"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;800&family=Noto+Serif+SC:wght@700;900&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/styles.css?v=20261106-daily-update">
+</head>
+<body>
+  <header class="site-header">
+    <div class="page-shell site-header__inner">
+      <a class="brand" href="../index.html" aria-label="返回首页">
+        <span class="brand-mark" aria-hidden="true"><img src="../assets/images/brand-book-line.png" alt="" width="36" height="33"></span>
+        <span class="brand-copy"><strong>学习资源库</strong><span>分享知识 · 提升自己 · 成就未来</span></span>
+      </a>
+      <button class="menu-button" data-menu-button aria-expanded="false" aria-label="切换导航菜单">☰</button>
+      <nav class="site-nav" data-mobile-nav>
+        <a href="../index.html">首页</a>
+        <a class="is-active" href="../posts.html" aria-current="page">教程</a>
+        <a href="../resources.html">资源下载</a>
+        <a href="../hotspots.html">技术资讯</a>
+        <a href="../projects.html">开源项目</a>
+        <a href="../vulns.html">漏洞分析</a>
+        <a href="../kaogong.html">考公专区</a>
+        <a href="../about.html">关于我们</a>
+      </nav>
+      <form class="header-search" action="../posts.html" method="get">
+        <input type="search" name="q" placeholder="搜索教程、资源、工具或关键词...">
+        <button type="submit" aria-label="搜索">/</button>
+      </form>
+      <a class="header-github" href="https://github.com/hello1yjx/hello1yjx.github.io" target="_blank" rel="noreferrer" aria-label="GitHub">
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="" width="24" height="24">
+      </a>
+      <a class="header-cta" href="../posts.html">开始学习</a>
+    </div>
+  </header>
+
+  <main class="page-shell section article-page">
+    <header class="detail-hero">
+      <span class="pill">AI 编程</span>
+      <h1>JetBrains Air 接入 Copilot 多代理并行实战：IDE 里同时盯多个 agent</h1>
+      <div class="detail-hero__meta">
+        <time datetime="2026-11-06">2026年11月6日</time>
+        <span>12 分钟</span>
+        <span>作者：Avery Lin</span>
+      </div>
+      <p>用 JetBrains 系 IDE 的人过去想用 GitHub Copilot 的 agent，只能在官方插件里单线程跑一个任务，想同时推进两个改动就得来回切。现在 JetBrains Air 的 agent 选择器直接接入 GitHub Copilot，基于 Agent Client Protocol（ACP）通信，支持在 IDE 内并行跟踪多个 agent 会话、结合项目上下文审查改动，也能通过 Air Teams 把任务丢进全新虚拟机的 Docker 云沙箱，消耗的是 Copilot 套餐而不是 JetBrains 积分。这篇教程讲清两者关系、本地与云端两种接入、多代理并行方法、云沙箱计费边界和管理员策略，帮你把多任务并行真正跑起来。</p>
+    </header>
+    <div class="article-layout">
+      <article class="article-body">
+        <div class="inline-promo">
+          <p class="label">来源与增量价值</p>
+          <h3>本文基于官方资料整理，并补充适用场景、限制条件和实践检查步骤。</h3>
+          <p>首要来源：<a href="https://github.blog/changelog/2026-11-03-github-copilot-is-now-available-in-jetbrains-air/" target="_blank" rel="noreferrer">GitHub Copilot is now available in JetBrains Air</a>。事实以原始来源为准，本站建议需结合自己的环境验证。</p>
+        </div>
+
+    <p>编码代理越来越多，IntelliJ IDEA、PyCharm、WebStorm 这些 JetBrains 系 IDE 的用户却常遇到一个尴尬：内置的 AI 工具和自己付费的 GitHub Copilot 是两套体系，想让 Copilot 以 agent 模式自主干活，只能在官方插件里一个任务一个任务地等，遇到两个不相关的改动也没法并行。</p><p>JetBrains Air 现在把 GitHub Copilot 放进了 agent 选择器，底层走开放的 Agent Client Protocol。你可以在本地 IDE 里同时盯多个代理会话，也可以把任务交给 Air Teams 的云端容器。这篇教程基于官方 changelog，从账号准备、本地与云端接入、并行审查到计费和管理员策略完整走一遍。</p>
+    <h2>这篇内容适合谁</h2>
+    <ul><li>使用 IntelliJ IDEA、PyCharm、WebStorm 等 JetBrains IDE 且已订阅 Copilot 的开发者</li><li>希望同时推进多个 agent 任务、减少等待的人</li><li>需要评估 Air 云沙箱与 Copilot 治理边界的团队管理员</li></ul>
+    <h2>实践与验证步骤</h2>
+    <ul><li>理解单线程跑 agent 的等待成本</li><li>搞懂 Air 与 Copilot 基于 ACP 的关系</li><li>确认 IDE、账号与订阅满足前置条件</li><li>本地安装 Air 并连接 Copilot 账号</li><li>用浏览器或 IDE 发起云端任务</li><li>并行跟踪多个 agent 并在上下文里审查改动</li><li>理解云沙箱的隔离方式与计费边界</li><li>掌握管理员策略与常见报错处理</li></ul>
+    <h2>官方资料入口</h2>
+
+    <ul>
+
+            <li>
+              <a href="https://github.blog/changelog/2026-11-03-github-copilot-is-now-available-in-jetbrains-air/" target="_blank" rel="noreferrer">GitHub Copilot is now available in JetBrains Air</a>
+              <span>：官方发布</span>
+            </li>
+
+            <li>
+              <a href="https://github.blog/changelog/2026-11-03-github-copilot-is-now-available-in-jetbrains-air/" target="_blank" rel="noreferrer">JetBrains Air 中的 Copilot 对比与 FAQ</a>
+              <span>：官方文档</span>
+            </li>
+
+    </ul>
+
+    <h2>重点判断与使用建议</h2>
+    <ul><li>Air 的 agent 选择器新增 GitHub Copilot，基于 Agent Client Protocol 接入</li><li>本地任务需在 JetBrains IDE 安装 Air 并连接 Copilot 账号</li><li>云任务需要 Air Teams 企业组织，且管理员已启用 Copilot</li><li>浏览器发起云任务：Settings > VCS Providers 连接 GitHub 后建任务</li><li>IDE 发起云任务：在环境选择器切换到 Cloud</li><li>云任务运行在全新虚拟机的 Docker 容器，流量经代理、任务间不保留状态</li><li>云任务消耗 Copilot 套餐，不扣 JetBrains AI 积分</li><li>Air 管理员可在治理策略中禁用 Copilot，但不能在 Air 内设置 Copilot 消费上限</li></ul>
+
+        <h2>一、为什么要在 Air 里用 Copilot</h2>
+
+        <ul><li>官方 Copilot 插件以单个会话为主，两个不相关改动只能排队等</li><li>手动在多个窗口间复制任务和分支，容易串改、漏看</li><li>Air 提供统一的 agent 选择器，Copilot 与其他代理并列可选</li><li>并行推进后，短任务不必等长任务跑完，整体耗时明显缩短</li><li>云任务可借用云端算力，不占用本机环境和资源</li></ul>
+
+
+
+        <h2>二、Air 与 Copilot 是什么关系</h2>
+
+        <ul><li>Air 是 JetBrains 的代理编排平台，本身不替代 Copilot 模型</li><li>两者通过开放的 Agent Client Protocol（ACP）通信</li><li>选中 GitHub Copilot 后，实际推理与代理能力仍由 Copilot 提供</li><li>它可与原有 GitHub Copilot 插件并存，按工作流自行选择</li><li>云任务由 Air Teams 提供环境、Copilot 在容器内执行</li></ul>
+
+
+
+        <h2>三、前置条件与账号准备</h2>
+
+        <ul><li>使用受支持的 JetBrains IDE，并安装 Air 插件</li><li>拥有有效的 GitHub Copilot 订阅，账号可正常登录</li><li>云任务还需一个启用 Air Teams 的企业 JetBrains 账号</li><li>确认 Air 管理员没有在治理策略中禁用 GitHub Copilot</li><li>本地任务建议先在 IDE 内确认 Git 仓库与分支状态正常</li></ul>
+
+
+
+        <h2>四、本地任务：安装 Air 并接入 Copilot</h2>
+
+        <ul><li>在 JetBrains IDE 插件市场安装 Air</li><li>打开 agent 选择器，选择 GitHub Copilot</li><li>按提示连接并授权 GitHub Copilot 账号</li><li>在本地会话中输入任务，代理会结合当前项目上下文工作</li><li>可继续使用原 Copilot 插件，两者互不冲突</li></ul>
+
+
+
+        <h2>五、云任务：浏览器与 IDE 两种发起方式</h2>
+
+        <ul><li>浏览器方式：打开 Air 网页，在 Settings > VCS Providers 连接 GitHub</li><li>新建任务时选择目标仓库与远程分支，再选 GitHub Copilot 并发送提示</li><li>IDE 方式：在 Air 插件的环境选择器切换到 Cloud</li><li>云任务需要 Air Teams 组织且 Copilot 已被管理员启用</li><li>任务启动时才校验订阅与额度，不可用会直接在会话中报错</li></ul>
+
+
+
+        <h2>六、多代理并行与上下文审查</h2>
+
+        <ul><li>可同时打开多个 agent 会话，分别绑定不同任务或分支</li><li>每个会话独立跟踪，项目上下文与 IDE 工具可被代理调用</li><li>在代码旁的审查视图里直接对比改动，确认后再处理</li><li>建议给每个会话起清晰名称，避免并行时看错分支</li><li>合并前逐一核对每个代理的改动，不因为并行就跳过审查</li></ul>
+
+
+
+        <h2>七、云沙箱环境与计费边界</h2>
+
+        <ul><li>云任务运行在全新虚拟机上的 Docker 容器，所有流量经过代理</li><li>任务之间不保留状态，可在容器内构建、测试、安装依赖而不动本机</li><li>云任务消耗 Copilot 套餐，而非 JetBrains AI 积分</li><li>无法为单个任务选择走个人还是组织套餐，需提前确认</li><li>Air 的治理与分析不包含 Copilot 用量，用量要到 GitHub 侧查看</li></ul>
+
+
+
+        <h2>八、常见坑与管理员策略</h2>
+
+        <ul><li>任务启动即失败，多为订阅或额度不可用，先确认 Copilot 状态</li><li>看不到 Copilot 选项，检查 Air 管理员是否在治理策略中禁用</li><li>管理员可禁用 Copilot，但不能在 Air 内设置其消费上限</li><li>并行会话过多时注意分支隔离，避免多个代理改同一文件</li><li>云端容器不保留状态，需要持久化的产物要提交到仓库</li></ul>
+
+
+
+        <h2>九、验收与常见问题</h2>
+
+        <ul><li>验收一：agent 选择器中能选中 GitHub Copilot 且账号连接正常</li><li>验收二：本地任务可结合项目上下文执行，云任务在容器内完成构建测试</li><li>验收三：多个会话并行不串改，改动可在审查视图逐一确认</li><li>常见问题：云任务入口找不到，确认是否属于 Air Teams 企业组织</li><li>常见问题：用量对不上，记住 Air 分析不含 Copilot 消耗</li></ul>
+
+
+
+        <h2>十、检查清单</h2>
+
+        <ul><li>JetBrains IDE 已安装 Air 且 Copilot 订阅有效</li><li>本地会接接入 Copilot，云端具备 Air Teams 与管理员授权</li><li>掌握浏览器与 IDE 两种云任务发起路径</li><li>多会话按任务和分支命名，改动逐一审查后再合并</li><li>理解云沙箱不留状态、计费走 Copilot 套餐</li><li>已确认管理员策略与 GitHub 侧用量查看方式</li></ul>
+
+
+
+
+        <div class="inline-promo">
+          <p class="label">更正与更新</p>
+          <h3>发现版本变化、来源失效或事实错误时，请通过联系页反馈。</h3>
+          <p>本站会核对一手来源后更新内容，不使用无来源转载填充文章。</p>
+          <a class="button button--secondary" href="../editorial.html">查看内容标准</a>
+        </div>
+      </article>
+      <aside class="article-sidebar">
+        <div class="sidebar-card">
+          <p class="label">本页标签</p>
+          <div class="tag-row"><span>JetBrains Air</span><span>GitHub Copilot</span><span>ACP</span><span>多代理</span><span>云沙箱</span><span>AI 编程</span></div>
+        </div>
+        <div class="sidebar-card">
+          <p class="label">继续阅读</p>
+          <a href="github-copilot-fusion-multi-model-routing-guide.html">GitHub Copilot Fusion 多模型自动路由实战：不再手动选模型</a><a href="vercel-websocket-realtime-app-beginner-guide.html">Vercel WebSocket 实时应用入门：不写独立服务器做实时聊天</a><a href="cloudflare-ai-gateway-web-search-integration-guide.html">Cloudflare AI Gateway 接入 Web Search 实战：让 AI 应用实时联网</a><a href="2027-guokao-baoming-jieshu-hou-jiaofei-zhunkaozheng-chongci-guide.html">国考报名结束后做什么：缴费确认、准考证打印与 35 天冲刺安排</a>
+        </div>
+        <div class="sidebar-card sidebar-card--accent">
+          <p class="label">作者与方法</p>
+          <h3>了解本站如何选题、核验来源与处理更正。</h3>
+          <a class="button button--dark" href="../about.html">关于作者</a>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="page-shell footer__inner">
+      <div><strong>学习资源库</strong><p>分享知识 · 提升自己 · 成就未来</p></div>
+      <div>
+        <a href="../editorial.html">内容标准</a><br>
+        <a href="../privacy.html">隐私政策</a><br>
+        <a href="../contact.html">联系</a>
+      </div>
+    </div>
+  </footer>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      var button = document.querySelector("[data-menu-button]");
+      var nav = document.querySelector("[data-mobile-nav]");
+      if (!button || !nav) return;
+      button.addEventListener("click", function () {
+        var expanded = button.getAttribute("aria-expanded") === "true";
+        button.setAttribute("aria-expanded", String(!expanded));
+        nav.classList.toggle("site-nav--open", !expanded);
+      });
+    });
+  </script>
+</body>
+</html>

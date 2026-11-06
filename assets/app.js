@@ -29,6 +29,467 @@ const siteData = {
   },
   posts: [
     {
+      id: "jetbrains-air-copilot-parallel-workflow-guide",
+      title: "JetBrains Air 接入 Copilot 多代理并行实战：IDE 里同时盯多个 agent",
+      date: "2026-11-06",
+      category: "AI 编程",
+      readTime: "12 分钟",
+      excerpt: "用 JetBrains 系 IDE 的人过去想用 GitHub Copilot 的 agent，只能在官方插件里单线程跑一个任务，想同时推进两个改动就得来回切。现在 JetBrains Air 的 agent 选择器直接接入 GitHub Copilot，基于 Agent Client Protocol（ACP）通信，支持在 IDE 内并行跟踪多个 agent 会话、结合项目上下文审查改动，也能通过 Air Teams 把任务丢进全新虚拟机的 Docker 云沙箱，消耗的是 Copilot 套餐而不是 JetBrains 积分。这篇教程讲清两者关系、本地与云端两种接入、多代理并行方法、云沙箱计费边界和管理员策略，帮你把多任务并行真正跑起来。",
+      tags: ["JetBrains Air", "GitHub Copilot", "ACP", "多代理", "云沙箱", "AI 编程"],
+      featured: true,
+      intro: [
+        "编码代理越来越多，IntelliJ IDEA、PyCharm、WebStorm 这些 JetBrains 系 IDE 的用户却常遇到一个尴尬：内置的 AI 工具和自己付费的 GitHub Copilot 是两套体系，想让 Copilot 以 agent 模式自主干活，只能在官方插件里一个任务一个任务地等，遇到两个不相关的改动也没法并行。",
+        "JetBrains Air 现在把 GitHub Copilot 放进了 agent 选择器，底层走开放的 Agent Client Protocol。你可以在本地 IDE 里同时盯多个代理会话，也可以把任务交给 Air Teams 的云端容器。这篇教程基于官方 changelog，从账号准备、本地与云端接入、并行审查到计费和管理员策略完整走一遍。"
+      ],
+      audience: [
+        "使用 IntelliJ IDEA、PyCharm、WebStorm 等 JetBrains IDE 且已订阅 Copilot 的开发者",
+        "希望同时推进多个 agent 任务、减少等待的人",
+        "需要评估 Air 云沙箱与 Copilot 治理边界的团队管理员"
+      ],
+      format: [
+        "全文按为什么 → 协议关系 → 前置准备 → 本地与云端接入 → 并行审查 → 沙箱计费 → 常见坑 → 验收 → 检查清单组织",
+        "配合可核对的操作步骤与官方链接"
+      ],
+      roadmap: [
+        "理解单线程跑 agent 的等待成本",
+        "搞懂 Air 与 Copilot 基于 ACP 的关系",
+        "确认 IDE、账号与订阅满足前置条件",
+        "本地安装 Air 并连接 Copilot 账号",
+        "用浏览器或 IDE 发起云端任务",
+        "并行跟踪多个 agent 并在上下文里审查改动",
+        "理解云沙箱的隔离方式与计费边界",
+        "掌握管理员策略与常见报错处理"
+      ],
+      officialLinks: [
+        { label: "GitHub Copilot is now available in JetBrains Air", url: "https://github.blog/changelog/2026-11-03-github-copilot-is-now-available-in-jetbrains-air/", note: "官方发布" },
+        { label: "JetBrains Air 中的 Copilot 对比与 FAQ", url: "https://github.blog/changelog/2026-11-03-github-copilot-is-now-available-in-jetbrains-air/", note: "官方文档" }
+      ],
+      curatedLinks: [
+        "Air 的 agent 选择器新增 GitHub Copilot，基于 Agent Client Protocol 接入",
+        "本地任务需在 JetBrains IDE 安装 Air 并连接 Copilot 账号",
+        "云任务需要 Air Teams 企业组织，且管理员已启用 Copilot",
+        "浏览器发起云任务：Settings > VCS Providers 连接 GitHub 后建任务",
+        "IDE 发起云任务：在环境选择器切换到 Cloud",
+        "云任务运行在全新虚拟机的 Docker 容器，流量经代理、任务间不保留状态",
+        "云任务消耗 Copilot 套餐，不扣 JetBrains AI 积分",
+        "Air 管理员可在治理策略中禁用 Copilot，但不能在 Air 内设置 Copilot 消费上限"
+      ],
+      downloadIdeas: [
+        "整理一张多代理并行任务看板模板：任务、分支、agent、状态",
+        "做一份本地与云端任务选择清单"
+      ],
+      extraSections: [
+        {
+          title: "一、为什么要在 Air 里用 Copilot",
+          items: [
+            "官方 Copilot 插件以单个会话为主，两个不相关改动只能排队等",
+            "手动在多个窗口间复制任务和分支，容易串改、漏看",
+            "Air 提供统一的 agent 选择器，Copilot 与其他代理并列可选",
+            "并行推进后，短任务不必等长任务跑完，整体耗时明显缩短",
+            "云任务可借用云端算力，不占用本机环境和资源"
+          ]
+        },
+        {
+          title: "二、Air 与 Copilot 是什么关系",
+          items: [
+            "Air 是 JetBrains 的代理编排平台，本身不替代 Copilot 模型",
+            "两者通过开放的 Agent Client Protocol（ACP）通信",
+            "选中 GitHub Copilot 后，实际推理与代理能力仍由 Copilot 提供",
+            "它可与原有 GitHub Copilot 插件并存，按工作流自行选择",
+            "云任务由 Air Teams 提供环境、Copilot 在容器内执行"
+          ]
+        },
+        {
+          title: "三、前置条件与账号准备",
+          items: [
+            "使用受支持的 JetBrains IDE，并安装 Air 插件",
+            "拥有有效的 GitHub Copilot 订阅，账号可正常登录",
+            "云任务还需一个启用 Air Teams 的企业 JetBrains 账号",
+            "确认 Air 管理员没有在治理策略中禁用 GitHub Copilot",
+            "本地任务建议先在 IDE 内确认 Git 仓库与分支状态正常"
+          ]
+        },
+        {
+          title: "四、本地任务：安装 Air 并接入 Copilot",
+          items: [
+            "在 JetBrains IDE 插件市场安装 Air",
+            "打开 agent 选择器，选择 GitHub Copilot",
+            "按提示连接并授权 GitHub Copilot 账号",
+            "在本地会话中输入任务，代理会结合当前项目上下文工作",
+            "可继续使用原 Copilot 插件，两者互不冲突"
+          ]
+        },
+        {
+          title: "五、云任务：浏览器与 IDE 两种发起方式",
+          items: [
+            "浏览器方式：打开 Air 网页，在 Settings > VCS Providers 连接 GitHub",
+            "新建任务时选择目标仓库与远程分支，再选 GitHub Copilot 并发送提示",
+            "IDE 方式：在 Air 插件的环境选择器切换到 Cloud",
+            "云任务需要 Air Teams 组织且 Copilot 已被管理员启用",
+            "任务启动时才校验订阅与额度，不可用会直接在会话中报错"
+          ]
+        },
+        {
+          title: "六、多代理并行与上下文审查",
+          items: [
+            "可同时打开多个 agent 会话，分别绑定不同任务或分支",
+            "每个会话独立跟踪，项目上下文与 IDE 工具可被代理调用",
+            "在代码旁的审查视图里直接对比改动，确认后再处理",
+            "建议给每个会话起清晰名称，避免并行时看错分支",
+            "合并前逐一核对每个代理的改动，不因为并行就跳过审查"
+          ]
+        },
+        {
+          title: "七、云沙箱环境与计费边界",
+          items: [
+            "云任务运行在全新虚拟机上的 Docker 容器，所有流量经过代理",
+            "任务之间不保留状态，可在容器内构建、测试、安装依赖而不动本机",
+            "云任务消耗 Copilot 套餐，而非 JetBrains AI 积分",
+            "无法为单个任务选择走个人还是组织套餐，需提前确认",
+            "Air 的治理与分析不包含 Copilot 用量，用量要到 GitHub 侧查看"
+          ]
+        },
+        {
+          title: "八、常见坑与管理员策略",
+          items: [
+            "任务启动即失败，多为订阅或额度不可用，先确认 Copilot 状态",
+            "看不到 Copilot 选项，检查 Air 管理员是否在治理策略中禁用",
+            "管理员可禁用 Copilot，但不能在 Air 内设置其消费上限",
+            "并行会话过多时注意分支隔离，避免多个代理改同一文件",
+            "云端容器不保留状态，需要持久化的产物要提交到仓库"
+          ]
+        },
+        {
+          title: "九、验收与常见问题",
+          items: [
+            "验收一：agent 选择器中能选中 GitHub Copilot 且账号连接正常",
+            "验收二：本地任务可结合项目上下文执行，云任务在容器内完成构建测试",
+            "验收三：多个会话并行不串改，改动可在审查视图逐一确认",
+            "常见问题：云任务入口找不到，确认是否属于 Air Teams 企业组织",
+            "常见问题：用量对不上，记住 Air 分析不含 Copilot 消耗"
+          ]
+        },
+        {
+          title: "十、检查清单",
+          items: [
+            "JetBrains IDE 已安装 Air 且 Copilot 订阅有效",
+            "本地会接接入 Copilot，云端具备 Air Teams 与管理员授权",
+            "掌握浏览器与 IDE 两种云任务发起路径",
+            "多会话按任务和分支命名，改动逐一审查后再合并",
+            "理解云沙箱不留状态、计费走 Copilot 套餐",
+            "已确认管理员策略与 GitHub 侧用量查看方式"
+          ]
+        }
+      ]
+    },
+    {
+      id: "ai-crawler-robots-txt-unified-signal-guide",
+      title: "AI 爬虫统一管控信号配置实战：一行 robots.txt 向四家声明退出训练",
+      date: "2026-11-06",
+      category: "AI 建站",
+      readTime: "10 分钟",
+      excerpt: "想让自己的网站内容不被拿去训练大模型，过去得在 robots.txt 里分别点名 GPTBot、Google-Extended、ClaudeBot、Bingbot，语法各不相同，漏一家就照抓。现在 OpenAI、谷歌、微软、Anthropic 共同承诺遵循 IETF 草案里的策略令牌 __usage_ai-training，加一个 User-Agent 组就能一次向四家表达退出训练的偏好。这篇教程讲清草案的来龙去脉、它管什么不管什么、robots.txt 具体写法、与各家原有控制的关系、页面级训练与引用的区分，以及如何验证信号生效，帮独立站长低成本把偏好声明清楚。",
+      tags: ["robots.txt", "AI 爬虫", "__usage_ai-training", "IETF", "版权", "AI 建站"],
+      featured: false,
+      intro: [
+        "这两年 AI 爬虫四处抓取网页内容喂给模型，站长想拒绝却要同时应付好几套机制：每家公司的爬虫名字、语法和语义都不一样，像给互不往来的几个衙门分别递状子，写漏一家内容就被抓走。更麻烦的是，越来越多的 AI 抓取干脆不遵守 robots.txt。",
+        "2026 年 10 月 30 日，OpenAI、谷歌、微软和 Anthropic 罕见站到一起，宣布支持同一个 robots.txt 策略令牌。这篇教程基于 IETF 草案和公开报道，带你搞清楚这个信号能做什么、不能做什么，并给出可直接使用的配置和验证方法。"
+      ],
+      audience: [
+        "运营独立站、博客或论坛，希望声明内容不用于 AI 训练的站长",
+        "被各家爬虫配置搞晕、想一次写全的人",
+        "需要理解统一信号法律与技术边界的内容运营"
+      ],
+      format: [
+        "全文按为什么 → 草案与令牌 → 边界 → 准备 → 写法 → 原有控制 → 页面级控制 → 验证 → 验收 → 检查清单组织",
+        "配合可直接复制的 robots.txt 示例"
+      ],
+      roadmap: [
+        "理解分别配置多家爬虫的成本",
+        "认识 IETF 草案与 __usage_ai-training 令牌",
+        "分清偏好与指令、训练与引用的边界",
+        "配置前备份并检查现有 robots.txt",
+        "写出统一的 User-Agent 组规则",
+        "梳理与四家原有爬虫控制的关系",
+        "配置页面级训练与引用区分",
+        "验证信号是否被正确识别"
+      ],
+      officialLinks: [
+        { label: "四大 AI 巨头联手设拒爬标准（钛媒体）", url: "https://www.tmtpost.com/agent/ai-article/21976", note: "中文解读" },
+        { label: "Google joins OpenAI and Anthropic in promising new scraping controls", url: "https://www.engadget.com/2303225/google-openai-anthropic-ai-crawling-controls/", note: "英文报道" }
+      ],
+      curatedLinks: [
+        "IETF 草案由 Anthropic 标准负责人 Kevin Kelley 起草，2026/10/30 发布",
+        "策略令牌名为 __usage_ai-training，写在 robots.txt 的 User-Agent 组里",
+        "目前仍是个人提交的互联网草案，未经 IETF 背书",
+        "令牌表达偏好而非指令，不阻止抓取本身",
+        "不覆盖基于实时网页内容的 AI 回答与引用",
+        "私下授权协议可以覆盖该信号，它不建立付费或许可安排",
+        "落地节奏不一：Anthropic 已开始，微软 2027/2/1 生效，谷歌目标 2027 年初",
+        "Meta 仅表态支持，未承诺遵循"
+      ],
+      downloadIdeas: [
+        "整理一份 robots.txt 多爬虫配置模板",
+        "做一张训练退出与引用许可的决策表"
+      ],
+      extraSections: [
+        {
+          title: "一、为什么需要统一拒爬信号",
+          items: [
+            "过去要分别配置 GPTBot、Google-Extended、ClaudeBot、Bingbot",
+            "各家语法和语义不同，漏配一家内容就被抓取",
+            "独立站长维护多套规则的成本高、容易出错",
+            "监管在推进，欧盟 AI 法案已承认 robots.txt 是偏好表达渠道",
+            "统一信号让一次声明覆盖多家，降低表达成本"
+          ]
+        },
+        {
+          title: "二、新信号是什么：IETF 草案与策略令牌",
+          items: [
+            "草案名为机器可读训练偏好信号，由 Anthropic 的 Kevin Kelley 起草",
+            "核心是名为 __usage_ai-training 的策略令牌",
+            "站长在 robots.txt 中新增一个 User-Agent 组引用该令牌",
+            "它目前是个人提交的互联网草案，没有正式标准地位",
+            "金融时报、BBC、贝塔斯曼等出版方参与了草案讨论"
+          ]
+        },
+        {
+          title: "三、它管什么、不管什么",
+          items: [
+            "它表达不希望内容用于 AI 训练的偏好",
+            "它不命令爬虫停止抓取，也不是访问控制机制",
+            "它不覆盖基于实时网页内容生成的 AI 回答",
+            "它不建立许可或付费安排，私下协议可将其覆盖",
+            "对选择无视 robots.txt 的抓取方，信号本身没有强制力"
+          ]
+        },
+        {
+          title: "四、配置前的准备与备份",
+          items: [
+            "先完整备份现有 robots.txt，避免改坏现有规则",
+            "盘点已有的各家爬虫条目，确认哪些要保留",
+            "确认站点目录结构，哪些路径允许、哪些拒绝",
+            "用标准工具检查 robots.txt 当前语法是否合法",
+            "记录改动日期，方便后续对照各家生效时间"
+          ]
+        },
+        {
+          title: "五、robots.txt 具体写法",
+          items: [
+            "新增一个 User-Agent 组，名称写 __usage_ai-training",
+            "用 Disallow 声明不希望被训练的路径，如整站 Disallow",
+            "用 Allow 保留例外路径，如允许公开的新闻资料包目录",
+            "规则按先具体后宽泛的顺序书写，避免被通配规则覆盖",
+            "保存后用在线 robots 测试工具逐条核对路径匹配"
+          ]
+        },
+        {
+          title: "六、与四家原有爬虫控制的关系",
+          items: [
+            "新信号是补充，不立即替代 GPTBot、ClaudeBot 等原有控制",
+            "OpenAI 现有 GPTBot 规则在过渡期继续有效",
+            "微软 2027/2/1 起以新信号取代 NoArchive 和 NoCache 标签",
+            "谷歌目标 2027 年初支持，旧的 Google-Extended 暂时保留",
+            "Anthropic 已开始实施，边界情况仍在持续完善"
+          ]
+        },
+        {
+          title: "七、页面级控制：训练与引用分开",
+          items: [
+            "微软同时提供页面级 grounding 控制，区分训练用途与回答引用",
+            "可允许自家产品引用、同时屏蔽对外售卖的引用服务",
+            "站长不必在被收录和决定内容如何使用之间二选一",
+            "训练退出与实时引用是两件事，需要分别声明",
+            "其他平台的页面级能力不同，应按各自文档核对"
+          ]
+        },
+        {
+          title: "八、验证信号是否生效",
+          items: [
+            "用 robots.txt 校验工具确认新组语法和路径匹配正确",
+            "分别模拟各爬虫 UA 访问，确认返回的允许与拒绝结果",
+            "对照各家公布的生效时间表，不要假设声明当天就全部生效",
+            "保留抓取日志，观察相关 UA 是否按偏好收敛",
+            "站点更新后重新检查，防止 robots.txt 被部署流程覆盖"
+          ]
+        },
+        {
+          title: "九、验收与常见问题",
+          items: [
+            "验收一：robots.txt 中 __usage_ai-training 组语法合法、路径匹配正确",
+            "验收二：例外路径可被识别，其余路径正确表达退出训练",
+            "验收三：理解各家生效时间不同，原有规则在过渡期保留",
+            "常见问题：以为配了就不被抓，忽略它只是偏好不是拦截",
+            "常见问题：把引用也一起挡掉，需用页面级控制单独处理"
+          ]
+        },
+        {
+          title: "十、检查清单",
+          items: [
+            "已备份原 robots.txt 并盘点现有爬虫条目",
+            "已正确写入 __usage_ai-training 组及允许、拒绝路径",
+            "理解信号表达偏好、不阻止抓取、不覆盖实时回答",
+            "已梳理与四家原有控制的过渡关系",
+            "需要区分训练与引用时配置了页面级控制",
+            "已用校验工具和日志验证信号生效"
+          ]
+        }
+      ]
+    },
+    {
+      id: "2027-guokao-kaoqian-23tian-chongci-zhunkaozheng-guide",
+      title: "国考考前 23 天冲刺指南：准考证节点、节奏安排与临场准备",
+      date: "2026-11-06",
+      category: "考公专区",
+      readTime: "11 分钟",
+      excerpt: "2027 国考报名确认与缴费在 11 月 6 日 24 点截止，逾期未完成视为自动放弃；笔试 11 月 29 日进行，准考证打印窗口为 11 月 23 日 0 点至 11 月 29 日 15 点。满打满算只剩 23 天，这篇教程按时间线讲清当前节点、准考证打印注意事项、23 天冲刺的总体节奏、行测与申论的具体安排、全真模考与生物钟调整，以及考前一周和考试当天的清单，帮你把最后阶段用在刀刃上，避免临场遗漏。",
+      tags: ["国考", "准考证", "冲刺计划", "行测", "申论", "考公"],
+      featured: false,
+      intro: [
+        "报名结束后，不少考生松了一口气，却容易忽略报名确认和缴费才是真正拿到考试资格的最后一环。2027 国考的网上报名确认与缴费窗口是 11 月 1 日到 11 月 6 日，逾期未完成直接视为自动放弃，后面的复习再充分也进不了考场。",
+        "确认缴费完成后，节奏就要立刻切到笔试冲刺。笔试在 11 月 29 日，准考证 11 月 23 日起开放打印。这篇教程按官方时间节点，把 23 天的复习节奏、模考安排和临场准备整理成可执行的清单。"
+      ],
+      audience: [
+        "已通过资格审查、正在准备 2027 国考笔试的考生",
+        "想在最后 23 天安排行测与申论冲刺节奏的人",
+        "需要准考证打印和考场临场清单的考生"
+      ],
+      format: [
+        "全文按当前节点 → 准考证 → 总体节奏 → 行测 → 申论 → 模考 → 考前安排 → 考场策略 → 验收 → 检查清单组织",
+        "时间节点均来自官方招考公告与专题网站"
+      ],
+      roadmap: [
+        "确认报名缴费在 11/6 24 点前完成",
+        "记住准考证 11/23 至 11/29 打印",
+        "制定 23 天冲刺总体节奏",
+        "行测用套题和错题收敛方法",
+        "申论坚持真题动笔与素材收敛",
+        "安排全真模考并调整生物钟",
+        "落实考前一周与考试当天准备",
+        "掌握考场策略与应急处理"
+      ],
+      officialLinks: [
+        { label: "中央机关及其直属机构 2027 年度考试录用公务员专题", url: "http://bm.scs.gov.cn/pp/gkweb/core/web/ui/business/home/gkhome.html", note: "官方专题" },
+        { label: "2027 国考招考日程（金溪县政府转载）", url: "https://www.jinxi.gov.cn/art/2026/10/14/art_10613_4484962.html", note: "时间节点" }
+      ],
+      curatedLinks: [
+        "报名确认并缴费：2026/11/1 0:00 至 11/6 24:00，逾期视为自动放弃",
+        "准考证打印：2026/11/23 0:00 至 11/29 15:00",
+        "笔试时间：2026/11/29",
+        "报名确认及准考证打印网址与咨询电话已在专题网站公布",
+        "准考证建议多打印几份，电子版 PDF 同时留存",
+        "缴费成功后以专题网站显示的确认状态为准",
+        "后续节点以官方专题网站公告为准，不依赖非官方预测"
+      ],
+      downloadIdeas: [
+        "整理一张 23 天每日冲刺计划表",
+        "做一份考试当天物品与时间清单"
+      ],
+      extraSections: [
+        {
+          title: "一、当前节点：缴费收尾，笔试进入倒计时",
+          items: [
+            "网上报名确认并缴费 11 月 6 日 24 点截止，今天是最后一天",
+            "逾期未完成确认缴费，视为自动放弃报考资格",
+            "确认缴费后，以专题网站显示的报名确认成功状态为准",
+            "笔试 11 月 29 日进行，距今天约 23 天",
+            "从现在起把重心从信息收集切换到笔试本身"
+          ]
+        },
+        {
+          title: "二、准考证打印：时间、入口与注意事项",
+          items: [
+            "打印时间为 11 月 23 日 0 点至 11 月 29 日 15 点，登录专题网站打印",
+            "建议开放第一天就打印，避开最后一天网络拥堵",
+            "多打印几份纸质准考证，分别放在不同包里以防丢失",
+            "同时保存电子版 PDF，方便随时补打",
+            "仔细核对准考证上的姓名、证件号、考点地址和考试时间"
+          ]
+        },
+        {
+          title: "三、23 天冲刺的总体节奏",
+          items: [
+            "前 10 天以专项突破和真题精练为主，补齐明显短板",
+            "中间 8 天以整套真题和限时训练为主，强化做题节奏",
+            "最后 5 天回归错题和基础，调整状态而非再学新内容",
+            "每天固定行测、申论的学习块，避免只练一科",
+            "把复习计划具体到天，完成一项勾一项"
+          ]
+        },
+        {
+          title: "四、行测：套题、错题与时间分配",
+          items: [
+            "以历年真题套题为主，严格按考试时间限时完成",
+            "整理错题本，按模块归纳反复出错的题型",
+            "先稳住资料分析、判断推理等性价比高的模块",
+            "训练固定的做题顺序和每部分时间上限，不纠缠单题",
+            "常识判断重在日常积累，不投入大块时间突击"
+          ]
+        },
+        {
+          title: "五、申论：真题、动笔与素材收敛",
+          items: [
+            "坚持用真题练习，每道题都要真正动笔写而不是只看答案",
+            "小题重在审题、找点和条理，对照参考答案找差距",
+            "大作文每周限时写完整篇，训练开头、分论点和结尾结构",
+            "把素材收敛到少量通用案例和规范表达，不再大量囤积",
+            "注意字迹和卷面，工整清晰本身就是加分项"
+          ]
+        },
+        {
+          title: "六、全真模考与生物钟调整",
+          items: [
+            "按笔试当天的科目时间安排至少 3 次全真模考",
+            "模考时严格计时、不中断，模拟真实考场约束",
+            "用模考结果调整做题顺序和时间分配",
+            "逐步把作息调整到与考试时间同步，保证上午精力充沛",
+            "考前减少熬夜，避免模考成绩好但当天状态差"
+          ]
+        },
+        {
+          title: "七、考前一周与考试当天安排",
+          items: [
+            "考前一周确认准考证、有效身份证件和考点路线",
+            "外地或距离远的考生提前安排住宿，预留通勤时间",
+            "按准考证要求准备文具、手表等物品，不携带违禁品",
+            "考试当天提前到达考点，配合入场核验",
+            "考前一晚再次检查物品，定好闹钟并留足余量"
+          ]
+        },
+        {
+          title: "八、考场策略与应急处理",
+          items: [
+            "拿到试卷先通览，按训练好的顺序和节奏作答",
+            "遇到难题先跳过，保证会做的题先拿到分",
+            "申论注意审题身份、字数和作答范围，留足书写时间",
+            "若发现证件或物品遗漏，第一时间联系考点工作人员",
+            "涂卡和填涂信息提前完成，不拖到最后一刻"
+          ]
+        },
+        {
+          title: "九、验收与常见问题",
+          items: [
+            "验收一：专题网站显示报名确认成功，缴费状态无误",
+            "验收二：11/23 起完成准考证打印并核对信息",
+            "验收三：完成至少 3 次限时模考，错题已回顾",
+            "常见问题：忘记缴费，截止后无法补报，务必今天处理",
+            "常见问题：准考证丢失，凭电子版在打印窗口内补打"
+          ]
+        },
+        {
+          title: "十、检查清单",
+          items: [
+            "11/6 24 点前完成报名确认与缴费",
+            "已保存专题网站入口，11/23 起打印准考证",
+            "23 天计划具体到天，行测申论都有固定学习块",
+            "真题限时训练和错题回顾已安排",
+            "考前一周落实证件、路线、住宿和文具",
+            "考试当天时间和物品清单已核对"
+          ]
+        }
+      ]
+    },
+    {
       id: "github-copilot-fusion-local-model-routing-setup-guide",
       title: "Copilot Fusion 本地模型路由配置实战：让简单任务跑在自己显卡上",
       date: "2026-11-01",
@@ -10139,6 +10600,66 @@ git push origin main`,
     "github-agentic-workflows-public-preview-guide"
   ],
   hotspots: [
+    {
+      date: "2026-11-06",
+      tag: "网络安全",
+      title: "OpenAI 发布安全研究模型 GPT-6 Cyber：漏洞利用基准较前代提升 51%，仅向审核客户开放",
+      summary: "OpenAI 推出网络安全研究专用模型 GPT-6 Cyber，在漏洞利用基准上得分较前代提升 51%，已为 Linux 内核 948 个漏洞开发出可用的利用程序；模型不开放公开注册，仅向经过资质审核的客户提供，用于防御性安全研究。OpenAI 同时预告下一代模型家族 Astra、Sol 以及新的网络安全模型。",
+      why: "为什么值得关注：AI 正在把漏洞挖掘从手工活变成规模化能力，安全专业学生要理解这类模型的能力边界——它能快速把老缺陷转化为可工作利用，但输出同样可能出错，且利用能力本身受严格管控。注意 GPT-6 Cyber 不是公开 API，普通账号无法直接调用；相关利用只允许在授权环境进行。",
+      sourceLabel: "界面新闻",
+      sourceUrl: "https://www.jiemian.com/article/15300991.html",
+      articleIdea: "候选：AI 辅助漏洞挖掘的能力边界与合规使用"
+    },
+    {
+      date: "2026-11-04",
+      tag: "AI 建站",
+      title: "Cloudflare 上线个人 Agent 可视化与分级管控：看清是哪个 AI 在访问、按 Agent 单独设策略",
+      summary: "Cloudflare 推出面向个人智能体（personal agents）的分析与访问控制：安全分析的 Bot Analysis 新增 Personal Assistants 分类，可看到具体是哪些 agent（如 Gemini Spark、Claude Duet、dot、Muse）在访问、各自请求量、路径、状态码和来源网络；原有 Agents 策略升级并更名为 AI Crawler and Agent access policies，可对每个受支持的个人 agent 单独设置 Allow、Block on pages with ads、Block 三档策略。",
+      why: "为什么值得关注：个人 agent 替用户比价、找客服、下单，对站长都表现为自动化流量，一刀切拦截可能丢掉客户。现在能看清每个 agent 在做什么再按自己的条款放行。注意策略依赖 Cloudflare 的 bot 目录识别，未识别的 agent 不会出现在分级列表里；账号滥用防护（Account Abuse Protection）仍处于早期访问。",
+      sourceLabel: "Cloudflare Blog",
+      sourceUrl: "https://blog.cloudflare.com/personal-agents-visibility-control/",
+      articleIdea: "候选：个人 Agent 流量识别与分级访问策略"
+    },
+    {
+      date: "2026-11-03",
+      tag: "网络安全",
+      title: "Cloudflare Radar 推出 Zero Wire：关键漏洞情报速递，事实与待解问题分开写",
+      summary: "Cloudflare 在 Radar 安全板块上线公开漏洞情报源 Zero Wire，每份简报用通俗语言讲清漏洞、谁该排查、建议动作和证据链接，并把已确认事实与开放问题分开；首页分 Needs attention 与 Reference 两类，还提供可直接喂给 AI agent 的预编译提示词，用于只读评估自身资产受影响情况，非 Cloudflare 客户也能用。",
+      why: "为什么值得关注：漏洞披露越来越密集，Zero Wire 像安全通讯社，帮你快速判断是否受影响而不是在各家公告里翻找。注意它只聚焦面向互联网的关键 CVE、不是全量漏洞库，且厂商防护规则不是入选前提；简报不能替代对自己资产的实际版本核查。",
+      sourceLabel: "Cloudflare Blog",
+      sourceUrl: "https://blog.cloudflare.com/zero-wire",
+      articleIdea: "候选：用 Zero Wire 建立漏洞情报分诊流程"
+    },
+    {
+      date: "2026-11-03",
+      tag: "AI 编程",
+      title: "GitHub Copilot 登陆 JetBrains Air：一个界面并行跟踪多个 agent，云任务走 Copilot 套餐",
+      summary: "JetBrains Air 的 agent 选择器新增 GitHub Copilot，基于 Agent Client Protocol（ACP）接入，可在 JetBrains IDE 内或云端委派编码任务，支持并行跟踪多个 agent 会话、结合项目上下文和 IDE 工具并在代码旁审查改动；通过 Air Teams 运行的云任务跑在全新虚拟机的 Docker 容器里，消耗 Copilot 套餐而非 JetBrains AI 积分。",
+      why: "为什么值得关注：习惯 JetBrains 系 IDE 的人不用换工具就能用 Copilot，还能同时盯多个 agent 任务。注意云任务需要 Air Teams 企业组织、且无法选择走个人还是组织套餐；Air 的治理分析不包含 Copilot 用量，管理员可在策略中禁用 Copilot 但不能在 Air 内设置其消费上限。",
+      sourceLabel: "GitHub Changelog",
+      sourceUrl: "https://github.blog/changelog/2026-11-03-github-copilot-is-now-available-in-jetbrains-air/",
+      articleIdea: "已扩写：JetBrains Air 接入 Copilot 多代理并行实战"
+    },
+    {
+      date: "2026-11-03",
+      tag: "AI 编程",
+      title: "Copilot Usage API 新增 BYOK 与企业自定义模型用量：自带密钥消耗可单独统计",
+      summary: "GitHub Copilot 使用指标 API 现在能展示 BYOK（bring your own key）用量，把开发者在客户端用本地自带密钥产生的消耗与 Copilot 托管模型用量分开，同时覆盖企业自定义模型，方便管理员看清谁在通过自带密钥发请求、分别用了多少。",
+      why: "为什么值得关注：企业里有人用 BYOK 把代码发到外部模型时，过去在用量报表里看不清，现在能单独治理和审计。注意该功能面向企业管理员、通过 API 拉取，个人用户用不到；BYOK 的数据安全责任在密钥和模型提供方，不会因进入报表而改变。",
+      sourceLabel: "GitHub Changelog",
+      sourceUrl: "https://github.blog/changelog/2026-11-03-byok-and-enterprise-custom-models-in-the-copilot-usage-api/",
+      articleIdea: "候选：BYOK 用量审计与外部模型治理"
+    },
+    {
+      date: "2026-11-02",
+      tag: "AI 建站",
+      title: "四大 AI 巨头统一 robots.txt 拒爬信号：一行 __usage_ai-training 同时声明退出训练",
+      summary: "OpenAI、谷歌、微软、Anthropic 10/30 共同宣布遵循 IETF 草案中的 robots.txt 策略令牌 __usage_ai-training，网站主加一个 User-Agent 组即可一次向四家声明内容不用于 AI 训练，无需再分别配置 GPTBot、Google-Extended、ClaudeBot、Bingbot。草案由 Anthropic 标准负责人 Kevin Kelley 起草，目前仍是个人提交的互联网草案、未经 IETF 背书。",
+      why: "为什么值得关注：它解决的是表达成本——一次写入四家通用，但令牌表达的是偏好而非指令，不阻止抓取本身，也不覆盖基于实时网页内容的 AI 回答；现实中约三成 AI 抓取已不遵守 robots.txt。落地节奏不一：Anthropic 已开始，微软 2027/2/1 生效，谷歌目标 2027 年初，Meta 仅表态未承诺。",
+      sourceLabel: "钛媒体",
+      sourceUrl: "https://www.tmtpost.com/agent/ai-article/21976",
+      articleIdea: "已扩写：AI 爬虫统一管控信号配置实战"
+    },
     {
       date: "2026-11-01",
       tag: "AI 编程",
