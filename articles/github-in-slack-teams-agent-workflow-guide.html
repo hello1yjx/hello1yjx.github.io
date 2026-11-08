@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>@GitHub 进 Slack 与 Teams：把群聊里的 bug 变成可评审的 PR | 学习资源库</title>
+  <meta name="description" content="@GitHub 在 Slack 与 Teams 里正式可用：在对话中排查 bug、创建 issue、实现改动并打开 PR，不用切出聊天窗口。Teams 侧新增 Canvas，可以在对话旁查看实现计划、代码改动与预览；Slack 侧能从消息自动识别仓库并直接启动会话。便利的另一面是权限和留痕：谁能触发写操作、聊天内容会不会被带进 issue，都需要事先约定。这篇教程给出接入前置、提问模板、从 issue 到 PR 的交接方式，以及一套安全边界清单。">
+  <meta name="robots" content="index,follow,max-image-preview:large">
+  <link rel="canonical" href="https://hello1yjx.github.io/articles/github-in-slack-teams-agent-workflow-guide.html">
+  <link rel="icon" type="image/png" href="../assets/images/brand-book-line.png">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"@GitHub 进 Slack 与 Teams：把群聊里的 bug 变成可评审的 PR","description":"@GitHub 在 Slack 与 Teams 里正式可用：在对话中排查 bug、创建 issue、实现改动并打开 PR，不用切出聊天窗口。Teams 侧新增 Canvas，可以在对话旁查看实现计划、代码改动与预览；Slack 侧能从消息自动识别仓库并直接启动会话。便利的另一面是权限和留痕：谁能触发写操作、聊天内容会不会被带进 issue，都需要事先约定。这篇教程给出接入前置、提问模板、从 issue 到 PR 的交接方式，以及一套安全边界清单。","datePublished":"2026-11-08","dateModified":"2026-11-08","author":{"@type":"Person","name":"Avery Lin","url":"https://hello1yjx.github.io/about.html"},"publisher":{"@type":"Organization","name":"学习资源库","url":"https://hello1yjx.github.io/"},"mainEntityOfPage":"https://hello1yjx.github.io/articles/github-in-slack-teams-agent-workflow-guide.html","inLanguage":"zh-CN"}</script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6621999105936318" crossorigin="anonymous"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;800&family=Noto+Serif+SC:wght@700;900&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/styles.css?v=20261108-daily-update">
+</head>
+<body>
+  <header class="site-header">
+    <div class="page-shell site-header__inner">
+      <a class="brand" href="../index.html" aria-label="返回首页">
+        <span class="brand-mark" aria-hidden="true"><img src="../assets/images/brand-book-line.png" alt="" width="36" height="33"></span>
+        <span class="brand-copy"><strong>学习资源库</strong><span>分享知识 · 提升自己 · 成就未来</span></span>
+      </a>
+      <button class="menu-button" data-menu-button aria-expanded="false" aria-label="切换导航菜单">☰</button>
+      <nav class="site-nav" data-mobile-nav>
+        <a href="../index.html">首页</a>
+        <a class="is-active" href="../posts.html" aria-current="page">教程</a>
+        <a href="../resources.html">资源下载</a>
+        <a href="../hotspots.html">技术资讯</a>
+        <a href="../projects.html">开源项目</a>
+        <a href="../vulns.html">漏洞分析</a>
+        <a href="../kaogong.html">考公专区</a>
+        <a href="../about.html">关于我们</a>
+      </nav>
+      <form class="header-search" action="../posts.html" method="get">
+        <input type="search" name="q" placeholder="搜索教程、资源、工具或关键词...">
+        <button type="submit" aria-label="搜索">/</button>
+      </form>
+      <a class="header-github" href="https://github.com/hello1yjx/hello1yjx.github.io" target="_blank" rel="noreferrer" aria-label="GitHub">
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="" width="24" height="24">
+      </a>
+      <a class="header-cta" href="../posts.html">开始学习</a>
+    </div>
+  </header>
+
+  <main class="page-shell section article-page">
+    <header class="detail-hero">
+      <span class="pill">AI Agent</span>
+      <h1>@GitHub 进 Slack 与 Teams：把群聊里的 bug 变成可评审的 PR</h1>
+      <div class="detail-hero__meta">
+        <time datetime="2026-11-08">2026年11月8日</time>
+        <span>10 分钟</span>
+        <span>作者：Avery Lin</span>
+      </div>
+      <p>@GitHub 在 Slack 与 Teams 里正式可用：在对话中排查 bug、创建 issue、实现改动并打开 PR，不用切出聊天窗口。Teams 侧新增 Canvas，可以在对话旁查看实现计划、代码改动与预览；Slack 侧能从消息自动识别仓库并直接启动会话。便利的另一面是权限和留痕：谁能触发写操作、聊天内容会不会被带进 issue，都需要事先约定。这篇教程给出接入前置、提问模板、从 issue 到 PR 的交接方式，以及一套安全边界清单。</p>
+    </header>
+    <div class="article-layout">
+      <article class="article-body">
+        <div class="inline-promo">
+          <p class="label">来源与增量价值</p>
+          <h3>本文基于官方资料整理，并补充适用场景、限制条件和实践检查步骤。</h3>
+          <p>首要来源：<a href="https://github.blog/changelog/2026-11-06-github-copilot-in-slack-and-teams-is-generally-available/" target="_blank" rel="noreferrer">@GitHub in Slack and Teams is generally available</a>。事实以原始来源为准，本站建议需结合自己的环境验证。</p>
+        </div>
+
+    <p>很多 bug 的第一现场不是 issue 列表，而是群聊：同事贴一张截图、两句复现步骤，讨论几轮就沉下去了。等有人想起来要建 issue，上下文已经散在几十条消息里，补信息比修 bug 还费劲。</p><p>@GitHub 现在在 Slack 与 Teams 里正式可用，能把这段搬运省掉：在对话里排查、建 issue、改代码、开 PR。这篇教程重点不在「点哪个按钮」，而在怎么把它用成一条可审计的流程——什么该让它做，什么必须留给人，权限和留痕怎么收。</p>
+    <h2>这篇内容适合谁</h2>
+    <ul><li>团队日常沟通在 Slack 或 Teams、代码托管在 GitHub 的开发者</li><li>想把 bug 讨论直接转成可追踪工单的研发负责人</li><li>需要评估机器人在聊天工具里能拿到多少权限的安全同学</li></ul>
+    <h2>实践与验证步骤</h2>
+    <ul><li>理解群聊上下文丢失的真实成本</li><li>分清代理能做与必须由人做的部分</li><li>完成应用安装与最小权限授权</li><li>在 Slack 里走通第一次提问到建 issue</li><li>用 Teams 的 Canvas 做方案对齐</li><li>掌握把讨论写成合格 issue 的模板</li><li>把 issue 交给代理实现并开 PR</li><li>建立归属审计与安全边界</li></ul>
+    <h2>官方资料入口</h2>
+
+    <ul>
+
+            <li>
+              <a href="https://github.blog/changelog/2026-11-06-github-copilot-in-slack-and-teams-is-generally-available/" target="_blank" rel="noreferrer">@GitHub in Slack and Teams is generally available</a>
+              <span>：官方发布</span>
+            </li>
+
+            <li>
+              <a href="https://docs.github.com/en/copilot/how-tos/use-copilot-agents/github-in-slack" target="_blank" rel="noreferrer">GitHub in Slack 与 Teams 使用文档</a>
+              <span>：官方文档</span>
+            </li>
+
+    </ul>
+
+    <h2>重点判断与使用建议</h2>
+    <ul><li>在 Slack 与 Teams 里 @GitHub 可以排查 bug、创建 issue、实现改动、打开 PR</li><li>Teams 的 Canvas 能在对话旁查看实现计划、代码改动与预览</li><li>Slack 会从消息里识别仓库并直接启动会话，不用再手动选</li><li>未登录、没有默认仓库、需要切换仓库或申请权限时有对应引导</li><li>修复了后续追问可能收不到回复的问题</li><li>创建的 issue 与 PR 描述会标注来自哪位用户的会话</li><li>标注不包含会话链接，避免把聊天记录整体外泄</li><li>写操作依赖仓库访问权限，没有权限就调不动</li><li>合并仍需要人工批准，代理不替代评审</li><li>跨仓库的大改造建议回 IDE 完成</li></ul>
+
+        <h2>一、为什么编码代理要进 IM</h2>
+
+        <ul><li>bug 讨论常发生在聊天里，转成 issue 全靠人工搬运</li><li>搬运过程最容易丢上下文：复现步骤、截图、结论各散一处</li><li>代理直接在对话里读这些信息，省掉一次转述</li><li>交付物仍然是 issue 与 PR，原有流程不用重造</li><li>对不写代码的同事，门槛从「会用 Git」降到「会 @ 一下」</li><li>真正的收益是缩短从发现问题到有人动手之间的空档</li></ul>
+
+
+
+        <h2>二、它能做什么、不能做什么</h2>
+
+        <ul><li>能做：查 bug、建 issue、实现改动、开 PR</li><li>能在 Teams 的 Canvas 里展示实现计划、代码改动与预览</li><li>不能替代评审，合并依然要人批准</li><li>不能越过仓库权限，没有访问权时连读都读不到</li><li>跨仓库、跨服务的大改造仍建议回 IDE 做</li><li>对模糊需求的判断力有限，描述越差产出越差</li></ul>
+
+
+
+        <h2>三、接入前：仓库与权限</h2>
+
+        <ul><li>确认 Slack 或 Teams 工作区已安装 GitHub 应用</li><li>只授权必要仓库，别一上来就给整个组织</li><li>确认应用身份有创建分支与 PR 所需权限</li><li>私有仓库需要额外授权，否则会表现为「找不到仓库」</li><li>约定哪些频道允许触发写操作，哪些只允许查询</li><li>指定一名管理员负责应用授权变更，避免多人乱改</li></ul>
+
+
+
+        <h2>四、Slack 里的最小上手路径</h2>
+
+        <ul><li>在频道里 @GitHub 描述问题，附上复现步骤与截图</li><li>它会从消息内容识别仓库并直接启动会话，不必再选一次</li><li>没有默认仓库或需要切换时，按提示完成一次设置</li><li>需要应用权限时走一次授权，之后不再重复弹</li><li>后续追问现在能稳定接上，不会出现「问了两遍没回应」</li><li>第一次试点选低频仓库，出错也不会影响主流程</li></ul>
+
+
+
+        <h2>五、Teams 里的 Canvas 协作</h2>
+
+        <ul><li>在对话旁打开 Canvas，先看实现计划再看代码</li><li>代码改动与预览集中呈现，不用来回切窗口</li><li>团队成员直接在 Canvas 上留反馈，形成并行的讨论</li><li>迭代结论回到对话，保留可追溯的决策记录</li><li>适合评审前的方案对齐，不适合当作正式评审</li><li>Canvas 里的结论要落回 issue 或 PR 描述，否则会丢</li></ul>
+
+
+
+        <h2>六、把讨论变成 issue 的写法</h2>
+
+        <ul><li>一句话说清现象与影响面，别只写「有个 bug」</li><li>给出复现步骤、期望行为、实际行为三段</li><li>附日志或截图，避免用「详见上文」把上下文留给读者脑补</li><li>写明验收标准，代理才知道什么时候算完成</li><li>让 @GitHub 按仓库模板建 issue，减少来回补字段</li><li>敏感信息先脱敏再贴，issue 是长期留痕的地方</li></ul>
+
+
+
+        <h2>七、从 issue 到 PR 的交接</h2>
+
+        <ul><li>在同一个 issue 会话里让它继续实现，而不是新开一轮</li><li>明确分支命名与目标分支，避免推到错误基线</li><li>要求先给计划再动代码，计划不对时及时打断</li><li>PR 描述里保留 issue 链接，评审时能回溯动机</li><li>人工评审通过后再合并，别把自动创建当成自动可信</li><li>合并后确认部署与回滚路径，代理不负责线上验证</li></ul>
+
+
+
+        <h2>八、归属与审计</h2>
+
+        <ul><li>创建的 issue 与 PR 描述会带「来自某用户的会话」标注</li><li>标注不含会话链接，避免整段聊天被外部读到</li><li>审计时按来源标注追到发起人，责任链清晰</li><li>机器人账号的操作与人类操作要能区分开</li><li>定期抽查自动创建的 PR，看质量是否稳定</li><li>把抽查结果反馈到提问模板，形成正向循环</li></ul>
+
+
+
+        <h2>九、安全边界与团队约定</h2>
+
+        <ul><li>敏感频道禁用写操作，只保留只读查询</li><li>不在对话里贴密钥、客户数据、内网地址</li><li>限制应用可访问的仓库清单，按项目分批放开</li><li>对自动创建的 PR 强制要求人工批准与至少一位评审</li><li>建立误操作回滚流程：关 PR、撤授权、清理分支</li><li>新成员入职时讲清约定，别等出事再补规则</li></ul>
+
+
+
+        <h2>十、落地清单</h2>
+
+        <ul><li>选一个低频仓库做两周试点</li><li>写一份 @GitHub 提问模板并置顶在频道</li><li>约定分支命名、PR 模板与评审人规则</li><li>配好应用权限与频道白名单</li><li>两周后复盘：省了多少搬运时间、出了哪些误操作</li><li>再决定是否扩大到核心仓库与更多频道</li></ul>
+
+
+
+
+        <div class="inline-promo">
+          <p class="label">更正与更新</p>
+          <h3>发现版本变化、来源失效或事实错误时，请通过联系页反馈。</h3>
+          <p>本站会核对一手来源后更新内容，不使用无来源转载填充文章。</p>
+          <a class="button button--secondary" href="../editorial.html">查看内容标准</a>
+        </div>
+      </article>
+      <aside class="article-sidebar">
+        <div class="sidebar-card">
+          <p class="label">本页标签</p>
+          <div class="tag-row"><span>GitHub</span><span>Slack</span><span>Teams</span><span>编码代理</span><span>团队协作</span><span>AI Agent</span></div>
+        </div>
+        <div class="sidebar-card">
+          <p class="label">继续阅读</p>
+          <a href="ai-crawler-robots-txt-unified-signal-guide.html">AI 爬虫统一管控信号配置实战：一行 robots.txt 向四家声明退出训练</a><a href="2027-guokao-kaoqian-23tian-chongci-zhunkaozheng-guide.html">国考考前 23 天冲刺指南：准考证节点、节奏安排与临场准备</a><a href="github-copilot-fusion-local-model-routing-setup-guide.html">Copilot Fusion 本地模型路由配置实战：让简单任务跑在自己显卡上</a><a href="github-copilot-image-generation-gpt-image-flare-guide.html">GitHub Copilot 自然语言生成图片实战：不出编辑器就能做配图</a>
+        </div>
+        <div class="sidebar-card sidebar-card--accent">
+          <p class="label">作者与方法</p>
+          <h3>了解本站如何选题、核验来源与处理更正。</h3>
+          <a class="button button--dark" href="../about.html">关于作者</a>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="page-shell footer__inner">
+      <div><strong>学习资源库</strong><p>分享知识 · 提升自己 · 成就未来</p></div>
+      <div>
+        <a href="../editorial.html">内容标准</a><br>
+        <a href="../privacy.html">隐私政策</a><br>
+        <a href="../contact.html">联系</a>
+      </div>
+    </div>
+  </footer>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      var button = document.querySelector("[data-menu-button]");
+      var nav = document.querySelector("[data-mobile-nav]");
+      if (!button || !nav) return;
+      button.addEventListener("click", function () {
+        var expanded = button.getAttribute("aria-expanded") === "true";
+        button.setAttribute("aria-expanded", String(!expanded));
+        nav.classList.toggle("site-nav--open", !expanded);
+      });
+    });
+  </script>
+</body>
+</html>

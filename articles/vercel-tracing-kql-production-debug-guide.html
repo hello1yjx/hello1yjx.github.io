@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Vercel Tracing 正式可用：用 KQL 从慢请求追到具体 span | 学习资源库</title>
+  <meta name="description" content="日志能告诉你出错了，却很难告诉你两秒钟花在哪一层。Vercel Tracing 11 月 6 日转为正式可用，所有套餐都能用：新的 Traces 页面把 trace 与 span 集中展示，支持项目级或团队级范围、KQL 过滤和 Live 模式；CLI 提供 search、inspect、config 三个命令，与网页共用同一套查询语法。Next.js 16.5 起新建项目首次构建成功后自动开启追踪。这篇教程讲清 trace 与日志的分工、采样怎么配、KQL 怎么写，并用一个慢接口案例走完排障全程。">
+  <meta name="robots" content="index,follow,max-image-preview:large">
+  <link rel="canonical" href="https://hello1yjx.github.io/articles/vercel-tracing-kql-production-debug-guide.html">
+  <link rel="icon" type="image/png" href="../assets/images/brand-book-line.png">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"Vercel Tracing 正式可用：用 KQL 从慢请求追到具体 span","description":"日志能告诉你出错了，却很难告诉你两秒钟花在哪一层。Vercel Tracing 11 月 6 日转为正式可用，所有套餐都能用：新的 Traces 页面把 trace 与 span 集中展示，支持项目级或团队级范围、KQL 过滤和 Live 模式；CLI 提供 search、inspect、config 三个命令，与网页共用同一套查询语法。Next.js 16.5 起新建项目首次构建成功后自动开启追踪。这篇教程讲清 trace 与日志的分工、采样怎么配、KQL 怎么写，并用一个慢接口案例走完排障全程。","datePublished":"2026-11-08","dateModified":"2026-11-08","author":{"@type":"Person","name":"Avery Lin","url":"https://hello1yjx.github.io/about.html"},"publisher":{"@type":"Organization","name":"学习资源库","url":"https://hello1yjx.github.io/"},"mainEntityOfPage":"https://hello1yjx.github.io/articles/vercel-tracing-kql-production-debug-guide.html","inLanguage":"zh-CN"}</script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6621999105936318" crossorigin="anonymous"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;800&family=Noto+Serif+SC:wght@700;900&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/styles.css?v=20261108-daily-update">
+</head>
+<body>
+  <header class="site-header">
+    <div class="page-shell site-header__inner">
+      <a class="brand" href="../index.html" aria-label="返回首页">
+        <span class="brand-mark" aria-hidden="true"><img src="../assets/images/brand-book-line.png" alt="" width="36" height="33"></span>
+        <span class="brand-copy"><strong>学习资源库</strong><span>分享知识 · 提升自己 · 成就未来</span></span>
+      </a>
+      <button class="menu-button" data-menu-button aria-expanded="false" aria-label="切换导航菜单">☰</button>
+      <nav class="site-nav" data-mobile-nav>
+        <a href="../index.html">首页</a>
+        <a class="is-active" href="../posts.html" aria-current="page">教程</a>
+        <a href="../resources.html">资源下载</a>
+        <a href="../hotspots.html">技术资讯</a>
+        <a href="../projects.html">开源项目</a>
+        <a href="../vulns.html">漏洞分析</a>
+        <a href="../kaogong.html">考公专区</a>
+        <a href="../about.html">关于我们</a>
+      </nav>
+      <form class="header-search" action="../posts.html" method="get">
+        <input type="search" name="q" placeholder="搜索教程、资源、工具或关键词...">
+        <button type="submit" aria-label="搜索">/</button>
+      </form>
+      <a class="header-github" href="https://github.com/hello1yjx/hello1yjx.github.io" target="_blank" rel="noreferrer" aria-label="GitHub">
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="" width="24" height="24">
+      </a>
+      <a class="header-cta" href="../posts.html">开始学习</a>
+    </div>
+  </header>
+
+  <main class="page-shell section article-page">
+    <header class="detail-hero">
+      <span class="pill">云端部署</span>
+      <h1>Vercel Tracing 正式可用：用 KQL 从慢请求追到具体 span</h1>
+      <div class="detail-hero__meta">
+        <time datetime="2026-11-08">2026年11月8日</time>
+        <span>11 分钟</span>
+        <span>作者：Avery Lin</span>
+      </div>
+      <p>日志能告诉你出错了，却很难告诉你两秒钟花在哪一层。Vercel Tracing 11 月 6 日转为正式可用，所有套餐都能用：新的 Traces 页面把 trace 与 span 集中展示，支持项目级或团队级范围、KQL 过滤和 Live 模式；CLI 提供 search、inspect、config 三个命令，与网页共用同一套查询语法。Next.js 16.5 起新建项目首次构建成功后自动开启追踪。这篇教程讲清 trace 与日志的分工、采样怎么配、KQL 怎么写，并用一个慢接口案例走完排障全程。</p>
+    </header>
+    <div class="article-layout">
+      <article class="article-body">
+        <div class="inline-promo">
+          <p class="label">来源与增量价值</p>
+          <h3>本文基于官方资料整理，并补充适用场景、限制条件和实践检查步骤。</h3>
+          <p>首要来源：<a href="https://vercel.com/changelog/vercel-tracing-is-now-generally-available" target="_blank" rel="noreferrer">Vercel Tracing is now generally available</a>。事实以原始来源为准，本站建议需结合自己的环境验证。</p>
+        </div>
+
+    <p>线上接口变慢，第一反应是翻日志。可日志是离散事件，你能看到「请求完成」，却看不出边缘路由、缓存、函数执行各占了多少时间。Serverless 把一次请求拆到多个组件，这个问题更明显：错误日志指向函数，真正的瓶颈可能在前面某一层。</p><p>Vercel Tracing 在 11 月 6 日转为正式可用，把 trace 与 span 放到同一个页面，还给 CLI 配了同一套 KQL。这篇教程按「trace 是什么 → 怎么开 → 怎么查 → 怎么调优」推进，最后用一个慢接口案例把查询串起来，读完可以直接在自己项目里复现。</p>
+    <h2>这篇内容适合谁</h2>
+    <ul><li>在 Vercel 上跑 Next.js、遇到性能问题只能靠日志猜的开发者</li><li>需要给团队建立一套统一排障入口的负责人</li><li>想把 trace 查询固化进巡检脚本的运维同学</li></ul>
+    <h2>实践与验证步骤</h2>
+    <ul><li>分清日志与 trace 各自回答什么问题</li><li>了解正式版新增的页面、命令与留存变化</li><li>确认项目是否已开启追踪与采样</li><li>在仪表盘里打开第一条 trace 并读懂瀑布</li><li>掌握常用 KQL 查询写法</li><li>把同一套查询搬到 CLI 做批量检索</li><li>避开自动开启、留存与采样的边界</li><li>用一个真实慢接口完成端到端排障</li></ul>
+    <h2>官方资料入口</h2>
+
+    <ul>
+
+            <li>
+              <a href="https://vercel.com/changelog/vercel-tracing-is-now-generally-available" target="_blank" rel="noreferrer">Vercel Tracing is now generally available</a>
+              <span>：官方发布</span>
+            </li>
+
+            <li>
+              <a href="https://vercel.com/docs/observability/tracing" target="_blank" rel="noreferrer">Vercel Tracing 文档</a>
+              <span>：官方文档</span>
+            </li>
+
+    </ul>
+
+    <h2>重点判断与使用建议</h2>
+    <ul><li>所有套餐可用，价格与 beta 阶段保持一致</li><li>Traces 页面统一展示 trace 与 span，可在项目或团队范围切换</li><li>支持 Spans 与 Traces 两种列表视图，各自可过滤</li><li>KQL 搜索，Live 模式可流式查看新产生的 trace</li><li>vercel traces search --query 与仪表盘共用同一套 KQL</li><li>vercel traces inspect <request-id> 查看单条 trace 的细节</li><li>vercel traces config 管理项目的采样规则</li><li>Next.js 16.5 起，新建且含至少一个 Node.js 函数的项目首次构建成功后自动开启</li><li>自动开启会注入一条 100% 采样的规则，并在构建时注入 instrumentation</li><li>留存：Hobby 3 天、Pro 与 Enterprise 14 天</li></ul>
+
+        <h2>一、trace 与日志解决的不是同一个问题</h2>
+
+        <ul><li>日志是离散事件，能回答「发生了什么」</li><li>trace 是调用链，能回答「时间花在哪一层」</li><li>一次请求跨边缘路由、缓存、函数执行，日志之间对不上号</li><li>span 是链路中的一段，带服务名与耗时，是可比较的最小单位</li><li>排障顺序通常是先看错误日志定位现象，再拉 trace 定位层级</li><li>两者都缺时不要硬猜，先补观测再优化代码</li></ul>
+
+
+
+        <h2>二、正式版带来了什么</h2>
+
+        <ul><li>所有套餐可用，定价与 beta 阶段相同，不必重算预算</li><li>新增 Traces 页面，把散落在日志里的 trace 集中起来</li><li>支持项目级与团队级两种范围，跨项目问题也能查</li><li>Spans 与 Traces 两种视图，一个看细节一个看整体</li><li>KQL 过滤加 Live 模式，复现中的问题可以边跑边看</li><li>CLI 补齐 search、inspect、config，脚本化成为可能</li><li>留存时间整体延长，事故回溯不再只有一小时窗口</li></ul>
+
+
+
+        <h2>三、开通与确认采样</h2>
+
+        <ul><li>beta 阶段不配采样规则就什么都不收，这是最常见的「没数据」原因</li><li>正式版对新建 Next.js 项目默认开启，存量项目仍需手动加规则</li><li>自动开启的条件是 Next.js 16.5 起、至少一个 Node.js 函数、首次构建成功</li><li>默认注入一条采样 100% 请求的规则，所有环境都生效</li><li>构建时注入 instrumentation，框架 span 不需要手工埋点</li><li>确认方式：Traces 页面能查到数据，且时间范围与采样规则一致</li></ul>
+
+
+
+        <h2>四、仪表盘里查第一条 trace</h2>
+
+        <ul><li>先进入项目的 Traces 页面，确认范围选的是项目还是团队</li><li>用 Traces 列表看整体分布，再用 Spans 列表看单段耗时</li><li>把时间范围缩到出问题的那几分钟，避免被正常流量淹没</li><li>打开单条 trace 看瀑布图，从总耗时往下逐层拆</li><li>找耗时最长的 span，而不是第一个标红的 span</li><li>记下可疑 span 的服务名与名称，作为下一步过滤条件</li></ul>
+
+
+
+        <h2>五、KQL 写法与常用查询</h2>
+
+        <ul><li>span.name:db* AND span.duration > 500 用来找慢数据库段</li><li>span.duration > 2000 找超过两秒的段，适合先粗筛</li><li>加 --status error 与 --since 1h 找最近一小时内的错误</li><li>布尔组合与通配符要收窄范围，全量扫描既慢又费额度</li><li>字段名以实际 schema 为准，先小范围试再扩大</li><li>把验证过的查询存成模板，团队共用一套口径</li></ul>
+
+
+
+        <h2>六、CLI 与仪表盘共用查询</h2>
+
+        <ul><li>vercel traces search --query 接受与页面相同的 KQL，写好就能搬</li><li>默认搜整个团队，加 --project 限定到单个项目</li><li>vercel traces inspect <request-id> 看单条 trace 的完整细节</li><li>vercel traces config 管理采样规则，不必回网页点</li><li>把常用查询写进脚本，做成定时巡检与告警前置</li><li>CI 里只做只读查询，避免脚本误改采样配置</li></ul>
+
+
+
+        <h2>七、Next.js 自动开启的边界</h2>
+
+        <ul><li>只覆盖新建项目，存量项目不会因为升级自动获得数据</li><li>只对至少含一个 Node.js 函数的项目生效，纯静态站点不触发</li><li>首次成功构建之后才开启，之前的请求没有 trace</li><li>100% 采样在生产环境通常偏重，需要按流量调整</li><li>退出方式是删掉所有采样规则，只删一条不够</li><li>所有环境都会开，测试环境的噪声也会进入同一视图</li></ul>
+
+
+
+        <h2>八、留存、成本与采样权衡</h2>
+
+        <ul><li>Hobby 保留 3 天，Pro 与 Enterprise 保留 14 天</li><li>采样率直接决定数据量与成本，满采样只适合低流量项目</li><li>高频接口降采样，关键链路保持高采样</li><li>留存决定你能回看多久，事故复盘常发生在几天之后</li><li>观测数据本身含请求参数，注意隐私与合规边界</li><li>按周复核一次数据量，比出事时才发现超额更省心</li></ul>
+
+
+
+        <h2>九、排障案例：一次慢接口</h2>
+
+        <ul><li>现象：某个 API 路由的 P95 从 300 毫秒涨到 2 秒</li><li>第一步用 KQL 过滤该路由相关的 span，限定到故障时间段</li><li>瀑布显示函数执行占 1.6 秒，边缘路由与缓存都正常</li><li>继续下钻函数内部 span，定位到一次外部请求耗时异常</li><li>修复后取同时段 trace 对比，确认总耗时回落到基线</li><li>把这条查询固化成巡检脚本，下类似问题直接跑</li></ul>
+
+
+
+        <h2>十、上线检查清单</h2>
+
+        <ul><li>确认采样规则覆盖了需要观察的环境</li><li>确认留存期满足团队的回溯习惯</li><li>关键路由补自定义 span，命名统一便于过滤</li><li>常用 KQL 写进 runbook，新人照抄可用</li><li>设置成本观察项，按周复核数据量</li><li>让团队成员都知道排障从哪个页面开始</li></ul>
+
+
+
+
+        <div class="inline-promo">
+          <p class="label">更正与更新</p>
+          <h3>发现版本变化、来源失效或事实错误时，请通过联系页反馈。</h3>
+          <p>本站会核对一手来源后更新内容，不使用无来源转载填充文章。</p>
+          <a class="button button--secondary" href="../editorial.html">查看内容标准</a>
+        </div>
+      </article>
+      <aside class="article-sidebar">
+        <div class="sidebar-card">
+          <p class="label">本页标签</p>
+          <div class="tag-row"><span>Vercel</span><span>Tracing</span><span>KQL</span><span>可观测性</span><span>Serverless</span><span>Next.js</span></div>
+        </div>
+        <div class="sidebar-card">
+          <p class="label">继续阅读</p>
+          <a href="ai-crawler-robots-txt-unified-signal-guide.html">AI 爬虫统一管控信号配置实战：一行 robots.txt 向四家声明退出训练</a><a href="2027-guokao-kaoqian-23tian-chongci-zhunkaozheng-guide.html">国考考前 23 天冲刺指南：准考证节点、节奏安排与临场准备</a><a href="github-copilot-fusion-local-model-routing-setup-guide.html">Copilot Fusion 本地模型路由配置实战：让简单任务跑在自己显卡上</a><a href="github-copilot-image-generation-gpt-image-flare-guide.html">GitHub Copilot 自然语言生成图片实战：不出编辑器就能做配图</a>
+        </div>
+        <div class="sidebar-card sidebar-card--accent">
+          <p class="label">作者与方法</p>
+          <h3>了解本站如何选题、核验来源与处理更正。</h3>
+          <a class="button button--dark" href="../about.html">关于作者</a>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="page-shell footer__inner">
+      <div><strong>学习资源库</strong><p>分享知识 · 提升自己 · 成就未来</p></div>
+      <div>
+        <a href="../editorial.html">内容标准</a><br>
+        <a href="../privacy.html">隐私政策</a><br>
+        <a href="../contact.html">联系</a>
+      </div>
+    </div>
+  </footer>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      var button = document.querySelector("[data-menu-button]");
+      var nav = document.querySelector("[data-mobile-nav]");
+      if (!button || !nav) return;
+      button.addEventListener("click", function () {
+        var expanded = button.getAttribute("aria-expanded") === "true";
+        button.setAttribute("aria-expanded", String(!expanded));
+        nav.classList.toggle("site-nav--open", !expanded);
+      });
+    });
+  </script>
+</body>
+</html>

@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>漏洞分析 | 学习资源库</title>
-  <meta name="description" content="近期高危漏洞技术分析：WordPress 核心更新器竞态（CVE-2026-119977）、Ivanti Connect Secure 零日（CVE-2026-111357/118527）、PHP2Shell（CVE-2026-109618/109619）、Citrix NetScaler（CVE-2026-88779），按漏洞类型、成因、利用场景和修复方案整理，仅供授权环境学习。">
+  <meta name="description" content="近期高危漏洞技术分析：OpenSSH *SSHole 密码认证绕过（CVE-2026-123158）、Zyxel GS1900 零日（CVE-2026-107441）、WordPress 核心更新器竞态（CVE-2026-119977）、Ivanti Connect Secure 零日（CVE-2026-111357/118527）、PHP2Shell（CVE-2026-109618/109619），按漏洞类型、成因、利用场景和修复方案整理，仅供授权环境学习。">
   <meta name="robots" content="index,follow,max-image-preview:large">
   <link rel="canonical" href="https://hello1yjx.github.io/vulns.html">
   <link rel="icon" type="image/png" href="assets/images/brand-book-line.png">
@@ -12,7 +12,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://cdn.jsdelivr.net">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;800&family=Noto+Serif+SC:wght@700;900&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/styles.css?v=20261106-daily-update">
+  <link rel="stylesheet" href="assets/styles.css?v=20261108-daily-update">
   <style>
     .vuln-banner { background: linear-gradient(135deg,#11151c,#1f2937); color:#fff; border-radius:18px; padding:26px 28px; display:flex; flex-wrap:wrap; gap:18px; align-items:center; justify-content:space-between; border:1px solid #374151; }
     .vuln-banner h3 { color:#fff; margin:6px 0; font-size:1.35rem; }
@@ -93,16 +93,16 @@
       <div class="vuln-banner reveal">
         <div>
           <p class="eyebrow" style="color:#fca5a5;">本周重点 · 紧急修补</p>
-          <h3>WordPress 核心更新器竞态（CVE-2026-119977）在野利用，CISA 要求 11/6 前修复</h3>
-          <p>影响 WordPress Core 4.7 至 7.1.3，7.1.4 已修复；同时 Ivanti Connect Secure 两个零日（CVE-2026-111357/118527）与认证绕过组合成攻击链。PHP2Shell 修复版本 8.5.12 / 8.4.27 / 8.3.36 / 8.2.35 仍需确认已安装。</p>
+          <h3>OpenSSH *SSHole（CVE-2026-123158）公布 9 小时内已被利用并拿到 root</h3>
+          <p>影响 OpenSSH 10.6p2 之前版本，条件为 Linux + musl libc + 未启用 PAM，Alpine、OpenWrt、Buildroot、Yocto 均在其列；Alpine 官方云镜像默认账户带免密 doas，可直接提权。同周 Zyxel GS1900 零日（CVE-2026-107441）的补丁曾被另一缺陷绕过，须升级到 Patch 3。</p>
         </div>
         <a class="button" href="https://www.cisa.gov/known-exploited-vulnerabilities-catalog" target="_blank" rel="noreferrer">查看 CISA KEV</a>
       </div>
       <div class="vuln-stat-grid">
-        <div class="vuln-stat"><strong>12</strong><span>本期分析 CVE 数量</span></div>
+        <div class="vuln-stat"><strong>14</strong><span>本期分析 CVE 数量</span></div>
         <div class="vuln-stat"><strong>10.0</strong><span>GitLab 正则编译器满分</span></div>
-        <div class="vuln-stat"><strong>9.8</strong><span>AnyDesk 未授权 RCE</span></div>
-        <div class="vuln-stat"><strong>5000+</strong><span>暴露的 ICS 网关</span></div>
+        <div class="vuln-stat"><strong>8.1</strong><span>OpenSSH 密码绕过</span></div>
+        <div class="vuln-stat"><strong>9 小时</strong><span>公布到首个利用尝试</span></div>
       </div>
     </section>
 
@@ -534,8 +534,78 @@ fatal_error_backtraces = 0</div>
     <section class="section">
       <div class="section-heading reveal">
         <div>
+          <p class="eyebrow">System Service & Network Device</p>
+          <h2>六、系统服务与网络设备漏洞（OpenSSH / Zyxel GS1900）</h2>
+        </div>
+        <p>来源：NVD、腾讯云安全通告、Cloudflare Radar Zero Wire、Help Net Security、Binarly、GreyNoise、Zyxel 安全公告，2026-11-05 至 11-06。</p>
+      </div>
+
+      <div class="vuln-card reveal">
+        <div class="vuln-card__head">
+          <span class="vuln-card__id">CVE-2026-123158</span>
+          <span><span class="vuln-badge vuln-badge--high">高危 · CVSS 8.1</span> <span class="vuln-badge vuln-badge--kev">在野利用 · 9 小时内</span></span>
+        </div>
+        <div class="vuln-block">
+          <h4><span class="vuln-num">1</span>漏洞判断 / 类型</h4>
+          <p>密码认证绕过（CWE-394，不当的错误处理），代号 <strong>*SSHole</strong>。影响 <strong>OpenSSH 10.6p2 之前的版本</strong>，触发条件三者同时满足：运行在 Linux、使用 musl libc、未启用 PAM。典型受影响环境包括 Alpine Linux、OpenWrt、Buildroot 与 Yocto，容器镜像与边缘设备尤其常见。</p>
+        </div>
+        <div class="vuln-block">
+          <h4><span class="vuln-num">2</span>漏洞成因</h4>
+          <p>musl 的 <code>crypt()</code> 在密码长度超过 256 字节时，会把字符串 <code>*</code> 作为错误值返回。sshd 拿到这个 <code>*</code> 后与账户里存储的哈希字段比对，而部分账户的存储值同样是 <code>*</code>（表示该账户没有可用密码），两者相等，于是登录被判定为成功。<strong>在某些账户配置下，任意 256 至 1024 字符的密码都能通过验证。</strong></p>
+          <p>利用还需要一个额外条件：机器上存在另一个使用 <code>$5$</code> 或 <code>$6$</code> 哈希的账户，sshd 会借用它的 salt 参与比对。只要有一个这样的账户，所有没有密码的账户就都变得可达。该缺陷自 2016 年起就存在，属于长期潜伏的错误处理问题，不是新引入的代码。</p>
+        </div>
+        <div class="vuln-block">
+          <h4><span class="vuln-num">3</span>利用方法 / 场景</h4>
+          <ul>
+            <li>攻击者用超长密码尝试登录无密码账户，拿到 sshd 的普通用户会话，无需任何凭据。</li>
+            <li>Alpine 官方的 AWS 与 Azure 镜像中，默认 <code>alpine</code> 用户带免密 <code>doas</code> 权限，攻破后可<strong>直接获得 root</strong>，这也是本漏洞危害被抬高的主要原因。</li>
+            <li>Previdian 蜜罐记录到 CVE 公布后<strong>不到 9 小时</strong>的首个利用尝试，并在一台真实 Alpine Linux + OpenSSH 蜜罐上确认取得 root，来源 IP 为 89.116.89 段。</li>
+            <li>受影响发行版覆盖面广，暴露在公网的 SSH 服务、CI 容器、网络设备管理面都属于高风险面。</li>
+          </ul>
+        </div>
+        <div class="vuln-block">
+          <h4><span class="vuln-num">4</span>修复方案</h4>
+          <p>升级到 <strong>OpenSSH 10.6p2 或更高版本</strong>，发行版用户以官方仓库的安全版本为准。无法立即升级时，优先<strong>启用 PAM</strong>，或<strong>关闭密码认证、改用密钥登录</strong>，并限制可不经 PAM 认证的账户范围；同时检查系统中是否存在使用 <code>$5$</code>/<code>$6$</code> 哈希的账户，减少可被借用的 salt 来源。</p>
+          <p>排查失陷：检索 sshd 日志中长度异常密码的认证记录与来源 IP，核对是否出现陌生会话、<code>doas</code>/<code>sudo</code> 提权与新增公钥；容器镜像需重新构建而不是在运行实例里改配置。</p>
+        </div>
+      </div>
+
+      <div class="vuln-card reveal">
+        <div class="vuln-card__head">
+          <span class="vuln-card__id">CVE-2026-107441</span>
+          <span><span class="vuln-badge vuln-badge--high">高危零日 · 越界写</span> <span class="vuln-badge vuln-badge--kev">在野利用 · 补丁曾被绕过</span></span>
+        </div>
+        <div class="vuln-block">
+          <h4><span class="vuln-num">1</span>漏洞判断 / 类型</h4>
+          <p>Zyxel GS1900 系列交换机固件 CGI 程序中的<strong>越界写</strong>（out-of-bounds write）。官方描述为局域网内未认证攻击者可通过特制 HTTP 请求执行操作系统命令，影响 GS1900-8、GS1900-8HP、GS1900-10HP、GS1900-24E 等共十个型号。</p>
+        </div>
+        <div class="vuln-block">
+          <h4><span class="vuln-num">2</span>漏洞成因</h4>
+          <p>2026 年 6 月 Zyxel 修过一个栈溢出 <strong>CVE-2026-7273</strong>（影响 2.90(XXXX.1)C0 及更早，2.90(XXXX.2)C0 修复），该漏洞 9 月被列入 CISA KEV。但 Binarly 从攻击者服务器上取到名为 <code>gs1900_bundle.tar.gz</code> 的现成利用包，内含 PyArmor 混淆的 Python 脚本 <code>exp.py</code>，目标为 <code>/cgi-bin/dispatcher.cgi</code>。</p>
+          <p>测试发现，这个利用在<strong>已经打过 6 月补丁的全部十个固件版本上仍能未授权执行命令</strong>，说明攻击者依赖的并非 CVE-2026-7273，而是另一个缺陷——也就是 CVE-2026-107441。Patch 3 的修复方式是在复制数据前校验计数器，并对参数施加严格长度限制。</p>
+        </div>
+        <div class="vuln-block">
+          <h4><span class="vuln-num">3</span>利用方法 / 场景</h4>
+          <ul>
+            <li>攻击者向交换机管理界面的 CGI 端点提交构造请求，无需账号即可执行命令。</li>
+            <li>GreyNoise 观测到同一攻击者入侵约 <strong>1000 台设备、覆盖 48 个国家</strong>，外泄配置文件、网络信息与 root 级哈希凭据。</li>
+            <li>Binarly 认为该利用很可能由大模型生成；防守方同样用模型搭建了可运行受影响固件的仿真环境来验证。</li>
+            <li>管理界面暴露在公网、弱口令与默认配置会显著放大风险，即便官方公告写的是局域网条件。</li>
+          </ul>
+        </div>
+        <div class="vuln-block">
+          <h4><span class="vuln-num">4</span>修复方案</h4>
+          <p>升级到 <strong>2.90 Patch 3（(XXXX.3)C0）</strong>，十个受影响型号逐一确认版本号；仅打 Patch 2 仍可被该利用绕过。修复后按「配置与凭据已外泄」处理：更换管理员口令与 root 凭据、核查配置文件是否被篡改、检查异常登录与流量；把交换机管理界面移出公网、限制管理来源网段。</p>
+          <p>这类案例的教训是<strong>公告与版本号不能盲信</strong>：打了补丁不等于修的是被利用的那个缺陷，评估时应结合厂商公告、实际利用报告与二进制层面的复核。</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-heading reveal">
+        <div>
           <p class="eyebrow">Learning & Compliance</p>
-          <h2>六、学习路径与合规提醒</h2>
+          <h2>七、学习路径与合规提醒</h2>
         </div>
       </div>
       <div class="vuln-card reveal">

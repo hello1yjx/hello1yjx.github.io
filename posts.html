@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://cdn.jsdelivr.net">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;800&family=Noto+Serif+SC:wght@700;900&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/styles.css?v=20261106-daily-update">
+  <link rel="stylesheet" href="assets/styles.css?v=20261108-daily-update">
 </head>
 <body>
   <header class="site-header">
@@ -69,6 +69,74 @@
       <div class="content-grid" data-post-list>
         <!-- STATIC_POSTS_START -->
 <article class="article-card reveal">
+      <a class="article-card__media article-card__media--github" href="articles/2027-guangdong-shengkao-gonggao-jiaofei-zhunkaozheng-bishi-guide.html">
+        <span class="article-card__badge">推荐</span>
+        <span class="article-card__icon"><img class="visual-icon visual-icon--card" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="考公 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <strong>考公</strong>
+      </a>
+      <div class="article-card__body">
+        <div class="meta-row">
+          <span>考公</span>
+          <span>12 分钟</span>
+          <time datetime="2026-11-08">2026年11月8日</time>
+        </div>
+        <h3><a href="articles/2027-guangdong-shengkao-gonggao-jiaofei-zhunkaozheng-bishi-guide.html">2027 广东省考公告解读：10293 名招录、缴费确认与 12 月 6 日笔试全流程</a></h3>
+        <p>2027 年度广东省考公告已于 2026 年 10 月 30 日发布，计划招录 10293 名，报名 11 月 2 日至 6 日已经截止，接下来真正的关键动作是 11 月 14 日 9:00 至 16 日 16:00 的缴费确认——成功缴费才算确认参加考试，未缴视为自动放弃，且没有补缴通道。这篇教程按官方公告拆开讲：年龄与学历门槛、五个节点、缴费与退费规则、准考证与笔试当天安排、三类职位的成绩计算、面试比例与体测、国考省考双线衔接，最后给一份按日期排的行动清单。</p>
+      </div>
+    </article>
+
+    <article class="article-card reveal">
+      <a class="article-card__media article-card__media--ai" href="articles/copilot-code-review-api-three-layer-policy-guide.html">
+        <span class="article-card__badge">推荐</span>
+        <span class="article-card__icon"><img class="visual-icon visual-icon--card" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="AI 编程 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <strong>AI 编程</strong>
+      </a>
+      <div class="article-card__body">
+        <div class="meta-row">
+          <span>AI 编程</span>
+          <span>12 分钟</span>
+          <time datetime="2026-11-08">2026年11月8日</time>
+        </div>
+        <h3><a href="articles/copilot-code-review-api-three-layer-policy-guide.html">Copilot 代码评审接入 API：企业、组织、仓库三层策略落地教程</a></h3>
+        <p>Copilot 代码评审过去只能在网页上逐个仓库点开关，团队一大就管不过来。11 月 6 日 GitHub 把设置搬进了 REST 与 GraphQL API，分成企业、组织、仓库三层：企业决定全局开关还是下放，组织定默认强度与 runner，仓库定强度、自定义指令和 MCP 工具。同一批更新还加了归属字段，能查清哪条评论来自 Copilot、用了哪档强度、引用了哪些上下文。这篇教程按三层权限模型走一遍，给出调用前置条件、各层能改什么、常见报错和验收清单。</p>
+      </div>
+    </article>
+
+    <article class="article-card reveal">
+      <a class="article-card__media article-card__media--github" href="articles/vercel-tracing-kql-production-debug-guide.html">
+        <span class="article-card__badge">云端部署</span>
+        <span class="article-card__icon"><img class="visual-icon visual-icon--card" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/docker/docker-original.svg" alt="云端部署 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <strong>云端部署</strong>
+      </a>
+      <div class="article-card__body">
+        <div class="meta-row">
+          <span>云端部署</span>
+          <span>11 分钟</span>
+          <time datetime="2026-11-08">2026年11月8日</time>
+        </div>
+        <h3><a href="articles/vercel-tracing-kql-production-debug-guide.html">Vercel Tracing 正式可用：用 KQL 从慢请求追到具体 span</a></h3>
+        <p>日志能告诉你出错了，却很难告诉你两秒钟花在哪一层。Vercel Tracing 11 月 6 日转为正式可用，所有套餐都能用：新的 Traces 页面把 trace 与 span 集中展示，支持项目级或团队级范围、KQL 过滤和 Live 模式；CLI 提供 search、inspect、config 三个命令，与网页共用同一套查询语法。Next.js 16.5 起新建项目首次构建成功后自动开启追踪。这篇教程讲清 trace 与日志的分工、采样怎么配、KQL 怎么写，并用一个慢接口案例走完排障全程。</p>
+      </div>
+    </article>
+
+    <article class="article-card reveal">
+      <a class="article-card__media article-card__media--github" href="articles/github-in-slack-teams-agent-workflow-guide.html">
+        <span class="article-card__badge">AI Agent</span>
+        <span class="article-card__icon"><img class="visual-icon visual-icon--card" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="AI Agent 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <strong>AI Agent</strong>
+      </a>
+      <div class="article-card__body">
+        <div class="meta-row">
+          <span>AI Agent</span>
+          <span>10 分钟</span>
+          <time datetime="2026-11-08">2026年11月8日</time>
+        </div>
+        <h3><a href="articles/github-in-slack-teams-agent-workflow-guide.html">@GitHub 进 Slack 与 Teams：把群聊里的 bug 变成可评审的 PR</a></h3>
+        <p>@GitHub 在 Slack 与 Teams 里正式可用：在对话中排查 bug、创建 issue、实现改动并打开 PR，不用切出聊天窗口。Teams 侧新增 Canvas，可以在对话旁查看实现计划、代码改动与预览；Slack 侧能从消息自动识别仓库并直接启动会话。便利的另一面是权限和留痕：谁能触发写操作、聊天内容会不会被带进 issue，都需要事先约定。这篇教程给出接入前置、提问模板、从 issue 到 PR 的交接方式，以及一套安全边界清单。</p>
+      </div>
+    </article>
+
+    <article class="article-card reveal">
       <a class="article-card__media article-card__media--ai" href="articles/jetbrains-air-copilot-parallel-workflow-guide.html">
         <span class="article-card__badge">推荐</span>
         <span class="article-card__icon"><img class="visual-icon visual-icon--card" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="AI 编程 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
@@ -319,7 +387,7 @@
           <time datetime="2026-10-17">2026年10月17日</time>
         </div>
         <h3><a href="articles/2027-guangdong-shengkao-nianmo-moshi-guide.html">2027 广东省考报考指南：年末省考新模式、时间线与备考安排</a></h3>
-        <p>广东省考已从上半年联考改为年末省考：2026 年度公告在 2025 年 10 月 19 日发布、12 月 7 日笔试，2027 年度预计 2026 年 10 月中下旬发公告、12 月上旬笔试。这篇教程讲清广东年末省考的新节奏、和国考的区别、官方信息渠道、报名系统、考试科目和备考时间安排，帮助广东考生在国考之后无缝衔接省考。公告未发布前，所有具体日期以官方发布为准。</p>
+        <p>广东省考已从上半年联考改为年末省考：2026 年度公告在 2025 年 10 月 19 日发布、12 月 7 日笔试，2027 年度公告已于 2026 年 10 月 30 日发布、12 月 6 日笔试，计划招录 10293 名。这篇教程讲清广东年末省考的新节奏、和国考的区别、官方信息渠道、报名系统、考试科目和备考时间安排，帮助广东考生在国考之后无缝衔接省考。文内时间线为发布时的参照口径，最新节点见《2027 广东省考公告解读与缴费确认指南》。</p>
       </div>
     </article>
 
@@ -1786,6 +1854,6 @@
     </div>
   </footer>
 
-  <script src="assets/app.js?v=20261106-daily-update"></script>
+  <script src="assets/app.js?v=20261108-daily-update"></script>
 </body>
 </html>
