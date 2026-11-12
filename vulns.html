@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>漏洞分析 | 学习资源库</title>
-  <meta name="description" content="近期高危漏洞技术分析：OpenSSH *SSHole 密码认证绕过（CVE-2026-123158）、Zyxel GS1900 零日（CVE-2026-107441）、WordPress 核心更新器竞态（CVE-2026-119977）、Ivanti Connect Secure 零日（CVE-2026-111357/118527）、PHP2Shell（CVE-2026-109618/109619），按漏洞类型、成因、利用场景和修复方案整理，仅供授权环境学习。">
+  <meta name="description" content="近期高危漏洞技术分析：GPUStack 未认证管理员访问（CVE-2026-102895）、FreeSWITCH SIP 命令注入（CVE-2026-116779）、IBM Aspera Faspex 授权绕过（CVE-2026-123218）、OpenSSH *SSHole（CVE-2026-123158）、Zyxel GS1900 零日（CVE-2026-107441）、WordPress 核心更新器竞态（CVE-2026-119977），以及 PHP2Shell、GitLab、Citrix、Ivanti 等案例，按漏洞类型、成因、利用场景和修复方案整理，仅供授权环境学习。">
   <meta name="robots" content="index,follow,max-image-preview:large">
   <link rel="canonical" href="https://hello1yjx.github.io/vulns.html">
   <link rel="icon" type="image/png" href="assets/images/brand-book-line.png">
@@ -12,7 +12,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://cdn.jsdelivr.net">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;800&family=Noto+Serif+SC:wght@700;900&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/styles.css?v=20261108-daily-update">
+  <link rel="stylesheet" href="assets/styles.css?v=20261112-daily-update">
   <style>
     .vuln-banner { background: linear-gradient(135deg,#11151c,#1f2937); color:#fff; border-radius:18px; padding:26px 28px; display:flex; flex-wrap:wrap; gap:18px; align-items:center; justify-content:space-between; border:1px solid #374151; }
     .vuln-banner h3 { color:#fff; margin:6px 0; font-size:1.35rem; }
@@ -92,17 +92,17 @@
     <section class="section">
       <div class="vuln-banner reveal">
         <div>
-          <p class="eyebrow" style="color:#fca5a5;">本周重点 · 紧急修补</p>
-          <h3>OpenSSH *SSHole（CVE-2026-123158）公布 9 小时内已被利用并拿到 root</h3>
-          <p>影响 OpenSSH 10.6p2 之前版本，条件为 Linux + musl libc + 未启用 PAM，Alpine、OpenWrt、Buildroot、Yocto 均在其列；Alpine 官方云镜像默认账户带免密 doas，可直接提权。同周 Zyxel GS1900 零日（CVE-2026-107441）的补丁曾被另一缺陷绕过，须升级到 Patch 3。</p>
+          <p class="eyebrow" style="color:#fca5a5;">CISA KEV · 11 月 9 日四连收录</p>
+          <h3>GPUStack、FreeSWITCH、Aspera Faspex 同日进入 KEV：三个 9.8 分漏洞已确认在野利用</h3>
+          <p>CISA 于 11 月 9 日把 GPUStack（CVE-2026-102895）、SignalWire FreeSWITCH（CVE-2026-116779）、IBM Aspera Faspex（CVE-2026-123218）与 OpenSSH *SSHole 一起列入 KEV，联邦机构须在 11 月 12 日前完成修复与取证 triage。前三个漏洞 CVSS 均为 9.8，分别对应未认证管理员访问、SIP 命令注入与授权绕过提权；补丁虽已发布，但失陷后新建的凭据不会随升级自动失效。</p>
         </div>
         <a class="button" href="https://www.cisa.gov/known-exploited-vulnerabilities-catalog" target="_blank" rel="noreferrer">查看 CISA KEV</a>
       </div>
       <div class="vuln-stat-grid">
-        <div class="vuln-stat"><strong>14</strong><span>本期分析 CVE 数量</span></div>
+        <div class="vuln-stat"><strong>17</strong><span>本期分析 CVE 数量</span></div>
         <div class="vuln-stat"><strong>10.0</strong><span>GitLab 正则编译器满分</span></div>
-        <div class="vuln-stat"><strong>8.1</strong><span>OpenSSH 密码绕过</span></div>
-        <div class="vuln-stat"><strong>9 小时</strong><span>公布到首个利用尝试</span></div>
+        <div class="vuln-stat"><strong>9.8</strong><span>GPUStack / FreeSWITCH / Faspex</span></div>
+        <div class="vuln-stat"><strong>9 小时</strong><span>OpenSSH 公布到首个利用尝试</span></div>
       </div>
     </section>
 
@@ -604,8 +604,108 @@ fatal_error_backtraces = 0</div>
     <section class="section">
       <div class="section-heading reveal">
         <div>
+          <p class="eyebrow">CISA KEV · 2026-11-09</p>
+          <h2>七、AI 基础设施与通信平台漏洞（GPUStack / FreeSWITCH / IBM Aspera Faspex）</h2>
+        </div>
+        <p>来源：CISA KEV 公告、厂商安全公告、The Hacker News、eSecurity Planet，2026-11-09 至 11-10。</p>
+      </div>
+
+      <div class="vuln-card reveal">
+        <div class="vuln-card__head">
+          <span class="vuln-card__id">CVE-2026-102895</span>
+          <span><span class="vuln-badge vuln-badge--crit">严重 · CVSS 9.8</span> <span class="vuln-badge vuln-badge--kev">在野利用 · 已入 KEV</span></span>
+        </div>
+        <div class="vuln-block">
+          <h4><span class="vuln-num">1</span>漏洞判断 / 类型</h4>
+          <p>不当认证（CWE-287），CVSS 9.8。影响 <strong>GPUStack 2.2.0 之前的版本</strong>，远程攻击者无需任何凭据即可获得管理员权限，属于典型的「认证边界被内部信任假设击穿」。GPUStack 是用于管理 GPU 集群与推理服务的平台，一旦失守，攻击面直接落到模型服务、云凭据与 worker 节点上。</p>
+        </div>
+        <div class="vuln-block">
+          <h4><span class="vuln-num">2</span>漏洞成因</h4>
+          <p>应用会把远程请求误判为可信的本地流量：在特定反向代理配置下，或攻击者伪造 <code>X-GPUStack-Real-IP</code> 请求头时，来源判断被绕过，管理接口被当成内网本机调用。取得管理员能力后，攻击者可以创建管理员 API key、修改推理后端、读取云厂商凭据，并通过 <code>POST /v2/inference-backends/from-yaml</code> 在 worker 上执行命令。</p>
+          <p>厂商在公告中记录了一起真实攻击：一台 <strong>2.1.1 部署</strong>被植入恶意推理后端，进而反弹 shell。漏洞于 2026 年 7 月修复（公告 7 月 31 日），到 11 月 9 日进入 KEV，中间相隔约 <strong>101 天</strong>。</p>
+        </div>
+        <div class="vuln-block">
+          <h4><span class="vuln-num">3</span>利用方法 / 场景</h4>
+          <ul>
+            <li>攻击者直接访问暴露在公网或跨网段可达的管理端口，伪造来源头后调用管理员接口。</li>
+            <li>建立<strong>持久化管理员 API key</strong>，后续即使修补也不失效；这是升级后仍须人工吊销的原因。</li>
+            <li>篡改推理后端配置，把流量引向恶意服务，或在 worker 上执行命令、横向到其他节点。</li>
+            <li>读取 worker 与云厂商凭据，扩大到大模型服务、对象存储与集群管理面。</li>
+            <li>CISA 已确认在野利用，要求联邦机构在 11 月 12 日前完成修复并做取证 triage。</li>
+          </ul>
+        </div>
+        <div class="vuln-block">
+          <h4><span class="vuln-num">4</span>修复方案</h4>
+          <p>升级到 <strong>GPUStack 2.2.0 或更高版本</strong>。无法立即升级时，启用 <code>force_auth_localhost=true</code>，限制 API 访问来源，并在反向代理层<strong>禁止不可信客户端设置 <code>X-GPUStack-Real-IP</code></code>。</p>
+          <p>修复后必须按「可能已失陷」处理：审查管理员账号、API key、推理后端与 worker 配置，<strong>吊销未知或异常的管理员 key</strong>，轮换可能暴露的云与 worker 凭据。升级本身不会自动回收攻击者已创建的凭据，这一步不能省。</p>
+        </div>
+      </div>
+
+      <div class="vuln-card reveal">
+        <div class="vuln-card__head">
+          <span class="vuln-card__id">CVE-2026-116779</span>
+          <span><span class="vuln-badge vuln-badge--crit">严重 · CVSS 9.8</span> <span class="vuln-badge vuln-badge--kev">在野利用 · 已入 KEV</span></span>
+        </div>
+        <div class="vuln-block">
+          <h4><span class="vuln-num">1</span>漏洞判断 / 类型</h4>
+          <p>命令注入（CWE-78），CVSS 9.8，位于 SIP MESSAGE 处理路径。影响 <strong>FreeSWITCH 1.11.2 及更早版本</strong>，修复版本为 <strong>1.11.3</strong>。FreeSWITCH 广泛用于 PBX、呼叫中心与云通信平台，暴露 SIP 端口的实例是主要风险面。</p>
+        </div>
+        <div class="vuln-block">
+          <h4><span class="vuln-num">2</span>漏洞成因</h4>
+          <p>SIP MESSAGE 中的内容没有被正确约束，特制消息可以触达应用内部的 API 命令接口，从而把「发一条消息」升级成「执行一条命令」。是否需要认证取决于 SIP profile 配置：部分场景下攻击者需要持有 SIP 账号，另一些配置下无需认证即可投递消息。SignalWire 已确认存在野外利用。</p>
+        </div>
+        <div class="vuln-block">
+          <h4><span class="vuln-num">3</span>利用方法 / 场景</h4>
+          <ul>
+            <li>向暴露的 SIP 端口发送构造的 MESSAGE 请求，命中内部命令接口后执行系统命令。</li>
+            <li>读取配置文件与凭据，获取 SIP 账号、上游 trunk 口令与数据库连接信息。</li>
+            <li>任意控制通话：窃听、改路由、外呼欺诈，直接造成通信费用与数据泄露。</li>
+            <li>以 FreeSWITCH 主机为跳板横向进入内网，呼叫中心与多云通信环境风险更高。</li>
+            <li>仅依赖 SIP MESSAGE 认证并不能消除漏洞，官方明确要求升级。</li>
+          </ul>
+        </div>
+        <div class="vuln-block">
+          <h4><span class="vuln-num">4</span>修复方案</h4>
+          <p>升级到 <strong>FreeSWITCH 1.11.3 或更高版本</strong>。升级前后都要检查 SIP profile：确认 <code>enable-chat-api-proto</code> 处于关闭状态，业务不需要聊天能力时设置 <code>enable-chat=false</code>。</p>
+          <p>排查失陷：审查 SIP MESSAGE 流量与配置变更记录，检查异常进程、外连与新建账号；移除不必要的 SIP 账号，收敛暴露在公网的 profile，并对通话资费异常做对账。</p>
+        </div>
+      </div>
+
+      <div class="vuln-card reveal">
+        <div class="vuln-card__head">
+          <span class="vuln-card__id">CVE-2026-123218</span>
+          <span><span class="vuln-badge vuln-badge--crit">严重 · CVSS 9.8</span> <span class="vuln-badge vuln-badge--kev">在野利用 · 已入 KEV</span></span>
+        </div>
+        <div class="vuln-block">
+          <h4><span class="vuln-num">1</span>漏洞判断 / 类型</h4>
+          <p>授权不当导致的权限提升（CWE-863），CVSS 9.8。影响 <strong>IBM Aspera Faspex 5.0.0 至 5.0.19</strong>，修复版本为 <strong>5.0.19 PL1</strong>。成功利用可从普通用户提升到<strong>完全管理员权限</strong>，进而控制大文件传输平台与其中的业务数据。</p>
+        </div>
+        <div class="vuln-block">
+          <h4><span class="vuln-num">2</span>漏洞成因</h4>
+          <p>已认证用户构造特定消息即可绕过授权检查，触发权限提升。IBM 公告描述为「需要已认证用户」，但其 CVSS 向量标注不需要权限，公告没有解释这一矛盾。防守方应按最坏情况评估：即使需要账号，弱口令、外包账号与泄露的凭据都能满足前置条件。</p>
+        </div>
+        <div class="vuln-block">
+          <h4><span class="vuln-num">3</span>利用方法 / 场景</h4>
+          <ul>
+            <li>以低权限账号登录后发送构造消息，绕过授权成为管理员。</li>
+            <li>读取与篡改传输中的大文件，媒体、影视后期、基因数据与供应链文件交换场景尤其敏感。</li>
+            <li>新建高权限账号、修改传输策略与回调地址，把后续文件引流到攻击者控制端。</li>
+            <li>CISA 已确认在野利用，说明前置账号门槛并未阻止攻击者。</li>
+          </ul>
+        </div>
+        <div class="vuln-block">
+          <h4><span class="vuln-num">4</span>修复方案</h4>
+          <p>升级到 <strong>Faspex 5.0.19 PL1</strong>，并确认 <code>faspex-core</code> 容器镜像版本为 <code>5.0.19 (1ce4b13, Fix Pack: 1)</code>；只升应用不换镜像可能仍处于受影响状态。IBM 未提供 workaround，安全更新是唯一修复手段。</p>
+          <p>修复后审查管理员账号、权限变更与异常文件传输记录，排查新建的特权账号与被篡改的配置；对传输目录做完整性核对，必要时轮换与 Faspex 对接的凭据。</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-heading reveal">
+        <div>
           <p class="eyebrow">Learning & Compliance</p>
-          <h2>七、学习路径与合规提醒</h2>
+          <h2>八、学习路径与合规提醒</h2>
         </div>
       </div>
       <div class="vuln-card reveal">

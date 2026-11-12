@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://cdn.jsdelivr.net">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;800&family=Noto+Serif+SC:wght@700;900&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/styles.css?v=20261108-daily-update">
+  <link rel="stylesheet" href="assets/styles.css?v=20261112-daily-update">
 </head>
 <body>
   <header class="site-header">
@@ -78,6 +78,166 @@
       <div class="hotspot-grid" data-hotspot-list>
         <!-- STATIC_HOTSPOTS_START -->
 <article class="hotspot-card reveal">
+      <div class="hotspot-card__head">
+        <span class="hotspot-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="开发工具 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <div>
+          <div class="hotspot-card__meta">
+            <span>开发工具</span>
+            <time datetime="2026-11-11">2026年11月11日</time>
+          </div>
+          <h3>Issue 类型与字段下放到个人账号：个人仓库也能建 Bug、Task、Feature 和自定义字段</h3>
+        </div>
+      </div>
+      <p>GitHub 把 Issue types 与 issue fields 正式开放给个人账号拥有的仓库，个人开发者和开源维护者可以用同一套规划能力整理跨仓库的 issue。类型可在个人账号设置的 Planning 下自定义，默认是 Bug、Task、Feature，最多 25 个；字段默认 Priority、Effort、Start date、Target date，最多 25 个，支持文本、数字、日期、单选与多选，还能把字段固定到某个类型或让无类型 issue 也能用。新建或查看 issue 时可直接选类型和字段，也能在 Projects 里做自定义视图和批量修改，REST、GraphQL 与 webhook 都能程序化管理。另外，现在可以在 issue 里直接创建标签和里程碑，不用跳去仓库设置页。</p>
+      <div class="hotspot-card__why">
+        <strong>为什么值得关注</strong>
+        <p>为什么值得关注：个人仓库长期只有标签和里程碑，issue 一多就只能靠标题前缀区分。类型加字段后，开源项目可以用结构化方式收 issue，个人待办也能按优先级和工期排。注意上限是 25 个类型、25 个字段，字段类型一旦建好改动成本不低，先想清楚再批量建；跨仓库统一靠的是账号级设置，团队协作前最好先约定命名。</p>
+      </div>
+      <p class="hotspot-card__idea">候选：个人仓库的 issue 结构化实践</p>
+      <a class="text-link" href="https://github.blog/changelog/2026-11-11-issue-types-and-fields-are-available-for-personal-accounts/" target="_blank" rel="noreferrer">查看来源：GitHub Changelog</a>
+    </article>
+
+    <article class="hotspot-card reveal">
+      <div class="hotspot-card__head">
+        <span class="hotspot-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="AI 编程 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <div>
+          <div class="hotspot-card__meta">
+            <span>AI 编程</span>
+            <time datetime="2026-11-10">2026年11月10日</time>
+          </div>
+          <h3>Gemini 4 Carbon 进入 Copilot：主打安全代码生成，Pro+ 及以上可用</h3>
+        </div>
+      </div>
+      <p>Google 的新模型 Gemini 4 Carbon 在 GitHub Copilot 正式可用，定位复杂编码、agentic 与推理任务，重点强调安全代码生成和安全相关工作。Copilot Pro+、Max、Business、Enterprise 用户可以在模型选择器里选它，覆盖 VS Code、Visual Studio、Copilot CLI、Copilot coding agent、Copilot 应用、github.com、GitHub Mobile、JetBrains、Xcode 与 Eclipse，采用按量计费、按厂商标价结算，灰度逐步放开。企业管理侧通过模型策略控制：在默认启用模型的前提下，新模型会自动打开，除非管理员关掉了全局默认或显式禁用该模型。</p>
+      <div class="hotspot-card__why">
+        <strong>为什么值得关注</strong>
+        <p>为什么值得关注：模型选择已经细到「安全场景用哪个」的程度，安全团队可以把它作为默认评审或修复模型，而不必全局换模型。成本要盯住：按量计费叠加多模型策略时，账单会随使用面扩散；企业还要确认默认启用策略不会把新模型直接推给所有 seat，尤其是对数据出境和供应商合规有要求的组织。</p>
+      </div>
+      <p class="hotspot-card__idea">候选：Copilot 多模型策略与安全场景选型</p>
+      <a class="text-link" href="https://github.blog/changelog/2026-11-10-gemini-4-carbon-in-github-copilot/" target="_blank" rel="noreferrer">查看来源：GitHub Changelog</a>
+    </article>
+
+    <article class="hotspot-card reveal">
+      <div class="hotspot-card__head">
+        <span class="hotspot-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="供应链安全 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <div>
+          <div class="hotspot-card__meta">
+            <span>供应链安全</span>
+            <time datetime="2026-11-10">2026年11月10日</time>
+          </div>
+          <h3>Dependabot 将暂停一年无活动的仓库：告警归档不删除，一次 push 就能恢复</h3>
+        </div>
+      </div>
+      <p>从 2026 年 12 月 8 日起，GitHub 会对大多数「过去一年没有任何活动」的仓库关闭 Dependabot 告警，已有告警归档而不是删除，随时可以恢复。官方把活动定义为：向任意分支或标签 push、创建仓库、开启 Dependabot 告警，三者任一即可。恢复很简单：任何一次 push 会自动重新开启，也可以在仓库设置里手动打开，归档告警会恢复且一年计时重新开始。如果仓库启用了强制安全配置且其中包含 Dependabot 告警，或企业策略不允许仓库管理员开关告警，则不会被关闭。该变更覆盖 github.com 所有套餐与带数据驻留的 Enterprise Cloud，不适用于 GitHub Enterprise Server。</p>
+      <div class="hotspot-card__why">
+        <strong>为什么值得关注</strong>
+        <p>为什么值得关注：漏洞发现量和告警量增长太快，休眠仓库正在拖慢整个告警链路，官方选择用「暂停」换性能。副作用是长期不动的仓库会失去新漏洞覆盖，尤其是那些「代码不动但依赖仍在对公网提供服务」的项目，例如静态站点、内部工具镜像。建议在 12 月 8 日前盘一遍休眠仓库，把仍在使用的依赖仓库加进强制安全配置，或安排一次 push 保活。</p>
+      </div>
+      <p class="hotspot-card__idea">候选：休眠仓库的依赖治理清单</p>
+      <a class="text-link" href="https://github.blog/changelog/2026-11-10-dependabot-alerts-will-pause-on-inactive-repositories/" target="_blank" rel="noreferrer">查看来源：GitHub Changelog</a>
+    </article>
+
+    <article class="hotspot-card reveal">
+      <div class="hotspot-card__head">
+        <span class="hotspot-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="DevOps 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <div>
+          <div class="hotspot-card__meta">
+            <span>DevOps</span>
+            <time datetime="2026-11-10">2026年11月10日</time>
+          </div>
+          <h3>企业级 GitHub App 可管 Copilot seat：入离职能接进自动化流程</h3>
+        </div>
+      </div>
+      <p>企业级 GitHub App 现在可以调用企业层的 Copilot seat 管理 API，控制哪些用户和企业团队被分配 Copilot 席位。为此新增了一个细粒度的 App 权限 Enterprise Copilot license management，App 只要拿到这个权限，就能做席位分配与回收，不必再申请更宽的权限。</p>
+      <div class="hotspot-card__why">
+        <strong>为什么值得关注</strong>
+        <p>为什么值得关注：席位管理过去靠管理员在页面上点，几百人的组织入离职高峰很容易漏发或漏收，白花钱还留下权限残留。接进 HR 或 IdP 的自动化后，入职自动开、离职自动收，配合用量报表能算出真实成本。注意这是企业层能力，需要企业管理员审批 App 与权限；给自动化用的 App 应单独建、单独审，不要和通用运维 App 混用。</p>
+      </div>
+      <p class="hotspot-card__idea">候选：Copilot 席位自动化与成本治理</p>
+      <a class="text-link" href="https://github.blog/changelog/2026-11-10-github-app-support-for-enterprise-copilot-seat-management/" target="_blank" rel="noreferrer">查看来源：GitHub Changelog</a>
+    </article>
+
+    <article class="hotspot-card reveal">
+      <div class="hotspot-card__head">
+        <span class="hotspot-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="AI 编程 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <div>
+          <div class="hotspot-card__meta">
+            <span>AI 编程</span>
+            <time datetime="2026-11-09">2026年11月9日</time>
+          </div>
+          <h3>Claude Fable 5.2 上线 Copilot：更少步骤解决更多难题，但默认要求留存数据</h3>
+        </div>
+      </div>
+      <p>Anthropic 最新的 Fable 模型 Claude Fable 5.2 在 GitHub Copilot 正式可用，面向大型代码库里的复杂多步编码任务。早期测试里它比 Fable 5.1 解决更多任务，用的步骤和工具调用更少，也完成了前代漏掉的难题。Copilot Pro+、Max、Business、Enterprise 可用，模型选择器覆盖 VS Code、Visual Studio、CLI、coding agent、Copilot 应用、github.com、移动端、JetBrains、Xcode 与 Eclipse，按厂商标价计费。企业与商业版管理员必须在 Copilot 设置里启用 Fable 5.2 策略，该策略默认关闭。关键限制：该模型默认需要数据留存，Anthropic 会保留提示与输出用于运行安全分类器，但声明不用于训练模型；符合条件的部分企业可在年底前通过限时豁免获得零留存访问，之后要继续用需接入 Enterprise Frontier Safeguards。</p>
+      <div class="hotspot-card__why">
+        <strong>为什么值得关注</strong>
+        <p>为什么值得关注：能力提升意味着复杂任务可以少绕几圈，省下的是 token 和等待；但数据留存默认打开，这一点比模型强弱更值得先看。启用策略在形式上就等于确认留存要求，关掉策略则全组织不可用。ZDR 豁免是时间窗口而非永久，明年起的合规路径要提前和 Anthropic、GitHub 账号团队确认，GitHub Support 不能判定资格。</p>
+      </div>
+      <p class="hotspot-card__idea">已扩写：Fable 5.2 接入与数据留存决策</p>
+      <a class="text-link" href="https://github.blog/changelog/2026-11-09-claude-fable-5-2-in-github-copilot/" target="_blank" rel="noreferrer">查看来源：GitHub Changelog</a>
+    </article>
+
+    <article class="hotspot-card reveal">
+      <div class="hotspot-card__head">
+        <span class="hotspot-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="安全 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <div>
+          <div class="hotspot-card__meta">
+            <span>安全</span>
+            <time datetime="2026-11-09">2026年11月9日</time>
+          </div>
+          <h3>Secret scanning 开始扫 Actions 工作流日志：密钥打印进构建输出也会告警</h3>
+        </div>
+      </div>
+      <p>GitHub secret scanning 扩大了扫描范围，现在会检测 GitHub Actions 工作流日志里的密钥，此前已覆盖 issue、wiki、discussion 和 pull request。工作流运行结束后，GitHub 扫描日志中的厂商特征，命中的结果进入仓库的 secret scanning 告警列表，并附带回到该日志的链接；支持的密钥类型会做有效性校验，即使日志后来被删除，告警仍然保留。该能力目前是公开预览，开放给使用 GitHub Secret Protection 或 GitHub Advanced Security 的 GitHub Enterprise Cloud 企业（含 GHE.com 数据驻留），企业所有者需在 Policies → Advanced Security 里把 All repositories 设为 Enabled，默认关闭。</p>
+      <div class="hotspot-card__why">
+        <strong>为什么值得关注</strong>
+        <p>为什么值得关注：最常见的泄露路径之一，就是调试时把 token 打进 echo 或 curl，日志留存几十天且对协作者可见。这一步把「构建日志」纳入了密钥防线。预览期限制要清楚：只扫开启之后的运行，不回溯历史日志；通用规则、自定义规则、AI 检测的密钥和被 Actions 自动打码的内容都不会命中；预览期不发送通知，需要主动看告警列表。</p>
+      </div>
+      <p class="hotspot-card__idea">已扩写：构建日志密钥治理与供应链三件套</p>
+      <a class="text-link" href="https://github.blog/changelog/2026-11-09-secret-scanning-detects-secrets-in-github-actions-workflow-logs/" target="_blank" rel="noreferrer">查看来源：GitHub Changelog</a>
+    </article>
+
+    <article class="hotspot-card reveal">
+      <div class="hotspot-card__head">
+        <span class="hotspot-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/javascript/javascript-original.svg" alt="云端部署 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <div>
+          <div class="hotspot-card__meta">
+            <span>云端部署</span>
+            <time datetime="2026-11-02">2026年11月2日</time>
+          </div>
+          <h3>Vercel 支持 vercel.toml：能写注释、结构更平，和 vercel.json、vercel.ts 三选一</h3>
+        </div>
+      </div>
+      <p>Vercel 新增 vercel.toml 项目配置，支持的属性与 vercel.json 完全一致，但采用 TOML 格式：可以写注释，层级更平，长配置更容易读。示例里用 [services.frontend]、[services.backend] 定义多服务，再用 [[rewrites]] 把 /api 流量指到后端、其余指到前端，第一行用 $schema 指向官方 schema 以获得补全与校验。官方强调一个项目只能用一个配置文件：vercel.toml、vercel.json、vercel.ts 三选一。</p>
+      <div class="hotspot-card__why">
+        <strong>为什么值得关注</strong>
+        <p>为什么值得关注：monorepo 与多服务项目越来越多，JSON 不能写注释、深层嵌套难 review，TOML 在配置管理上更顺手。迁移时最容易踩的坑是同时留着两个配置文件，Vercel 只认其中一个，另一个会被忽略，排障时非常容易误判。团队里如果有人用 vercel.ts 做动态配置，就别再引入 toml，先统一到一种。</p>
+      </div>
+      <p class="hotspot-card__idea">已扩写：vercel.toml 迁移与多服务配置</p>
+      <a class="text-link" href="https://vercel.com/changelog/projects-can-now-be-configured-with-vercel-toml" target="_blank" rel="noreferrer">查看来源：Vercel Changelog</a>
+    </article>
+
+    <article class="hotspot-card reveal">
+      <div class="hotspot-card__head">
+        <span class="hotspot-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/docker/docker-original.svg" alt="供应链安全 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <div>
+          <div class="hotspot-card__meta">
+            <span>供应链安全</span>
+            <time datetime="2026-11-02">2026年11月2日</time>
+          </div>
+          <h3>Vercel 在安装前和安装中拦截恶意 npm 包：命中即构建失败并清缓存</h3>
+        </div>
+      </div>
+      <p>Vercel 现在会在依赖安装之前和安装过程中检查被封锁的 npm 包，阻止恶意安装脚本运行。检查依据是一份按具体包版本维护的封锁清单，条目因恶意代码或安全漏洞被列入，新规则通常几分钟内对新构建生效。安装前会检查受支持的 lockfile，包括从构建缓存恢复依赖的场景；安装中会拦截受影响的公共 npm 下载；原有的已安装依赖与产物检查继续在部署前运行。这些保护对所有套餐的新构建自动生效、无需配置。命中时部署直接失败，错误里给出包名和版本，并尝试让受影响的构建缓存失效；升级到安全版本、更新 lockfile 后重新部署即可。</p>
+      <div class="hotspot-card__why">
+        <strong>为什么值得关注</strong>
+        <p>为什么值得关注：供应链攻击最怕的是「装完才知道」，把检查提前到解析 lockfile 和下载阶段，能在脚本执行前掐断。但这不是万能防线：只覆盖清单内的版本，私有 registry 与自建镜像不在范围内，缓存失效也是尽力而为。真正有效的做法仍是锁版本、审 lockfile 变更、限制安装脚本权限，并把这条拦截当成最后一道闸。</p>
+      </div>
+      <p class="hotspot-card__idea">已扩写：构建期依赖拦截与 lockfile 治理</p>
+      <a class="text-link" href="https://vercel.com/changelog/blocking-malicious-npm-packages-before-and-during-installation" target="_blank" rel="noreferrer">查看来源：Vercel Changelog</a>
+    </article>
+
+    <article class="hotspot-card reveal">
       <div class="hotspot-card__head">
         <span class="hotspot-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="AI 编程 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
         <div>
@@ -5875,6 +6035,6 @@
     </div>
   </footer>
 
-  <script src="assets/app.js?v=20261108-daily-update"></script>
+  <script src="assets/app.js?v=20261112-daily-update"></script>
 </body>
 </html>

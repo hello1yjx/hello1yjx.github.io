@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://cdn.jsdelivr.net">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;800&family=Noto+Serif+SC:wght@700;900&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/styles.css?v=20261108-daily-update">
+  <link rel="stylesheet" href="assets/styles.css?v=20261112-daily-update">
 </head>
 <body>
   <header class="site-header">
@@ -69,6 +69,57 @@
       <div class="content-grid" data-post-list>
         <!-- STATIC_POSTS_START -->
 <article class="article-card reveal">
+      <a class="article-card__media article-card__media--ai" href="articles/claude-fable-5-2-copilot-retention-policy-guide.html">
+        <span class="article-card__badge">推荐</span>
+        <span class="article-card__icon"><img class="visual-icon visual-icon--card" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="AI 编程 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <strong>AI 编程</strong>
+      </a>
+      <div class="article-card__body">
+        <div class="meta-row">
+          <span>AI 编程</span>
+          <span>12 分钟</span>
+          <time datetime="2026-11-12">2026年11月12日</time>
+        </div>
+        <h3><a href="articles/claude-fable-5-2-copilot-retention-policy-guide.html">Claude Fable 5.2 接入 Copilot：能力提升、数据留存与企业管理策略</a></h3>
+        <p>Claude Fable 5.2 在 11 月 9 日进入 GitHub Copilot，早期测试里比 Fable 5.1 解决更多任务、用的步骤和工具调用更少。但这次更新真正的门槛不在模型强弱，而在数据留存：Fable 5.2 默认要求 Anthropic 保留提示与输出用于安全分类器，企业管理员必须手动打开策略，策略默认关闭；零留存访问只对符合条件的企业开放到年底。这篇教程把能力、可用范围、留存规则、ZDR 豁免窗口、启用流程、成本观测和常见坑一次讲清，给出一份可执行的决策清单。</p>
+      </div>
+    </article>
+
+    <article class="article-card reveal">
+      <a class="article-card__media article-card__media--github" href="articles/vercel-toml-migration-multiservice-config-guide.html">
+        <span class="article-card__badge">云端部署</span>
+        <span class="article-card__icon"><img class="visual-icon visual-icon--card" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/docker/docker-original.svg" alt="云端部署 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <strong>云端部署</strong>
+      </a>
+      <div class="article-card__body">
+        <div class="meta-row">
+          <span>云端部署</span>
+          <span>11 分钟</span>
+          <time datetime="2026-11-12">2026年11月12日</time>
+        </div>
+        <h3><a href="articles/vercel-toml-migration-multiservice-config-guide.html">vercel.toml 迁移实战：多服务项目怎么配、和 vercel.json 怎么选</a></h3>
+        <p>Vercel 在 11 月 2 日支持了 vercel.toml，属性和 vercel.json 完全一致，但能写注释、层级更平。对 monorepo 和多服务项目来说，配置终于能被 review。代价是一个项目只能保留一份配置文件：vercel.toml、vercel.json、vercel.ts 三选一，同时留着两个时另一个会被静默忽略。这篇教程给出最小示例、Services 与 rewrites 写法、从 JSON 迁移的步骤、常见坑和验收清单。</p>
+      </div>
+    </article>
+
+    <article class="article-card reveal">
+      <a class="article-card__media article-card__media--github" href="articles/github-actions-log-secret-scanning-supply-chain-guide.html">
+        <span class="article-card__badge">安全</span>
+        <span class="article-card__icon"><img class="visual-icon visual-icon--card" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="安全 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <strong>安全</strong>
+      </a>
+      <div class="article-card__body">
+        <div class="meta-row">
+          <span>安全</span>
+          <span>12 分钟</span>
+          <time datetime="2026-11-12">2026年11月12日</time>
+        </div>
+        <h3><a href="articles/github-actions-log-secret-scanning-supply-chain-guide.html">构建日志里的密钥也会告警：Actions 日志扫描、Dependabot 休眠与依赖拦截三件套</a></h3>
+        <p>11 月 9 日 GitHub secret scanning 开始扫描 Actions 工作流日志，调试时把 token 打进构建输出也会进告警列表；11 月 10 日官方宣布从 12 月 8 日起对一年无活动的仓库暂停 Dependabot 告警；11 月 2 日 Vercel 开始在安装前和安装中拦截被封锁的 npm 版本。三条更新分别对应检测、覆盖与阻断，拼起来才是一条完整的供应链防线。这篇教程讲清每条的适用范围与限制，给出开启步骤、告警分流和轮换预案。</p>
+      </div>
+    </article>
+
+    <article class="article-card reveal">
       <a class="article-card__media article-card__media--github" href="articles/2027-guangdong-shengkao-gonggao-jiaofei-zhunkaozheng-bishi-guide.html">
         <span class="article-card__badge">推荐</span>
         <span class="article-card__icon"><img class="visual-icon visual-icon--card" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="考公 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
@@ -1854,6 +1905,6 @@
     </div>
   </footer>
 
-  <script src="assets/app.js?v=20261108-daily-update"></script>
+  <script src="assets/app.js?v=20261112-daily-update"></script>
 </body>
 </html>

@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>网络安全知识闯关 · 学习资源库小游戏</title>
-<meta name="description" content="网络安全基础知识答题小游戏，10 道选择题，附答案解析，边玩边学。">
+<meta name="description" content="网络安全知识答题小游戏，30 道题库随机抽 12 道，覆盖法规、Web 安全、密码学、应急响应与供应链，答完可看错题解析。">
 <meta name="robots" content="noindex,follow">
 <link rel="icon" type="image/png" href="../assets/images/brand-book-line.png">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700&family=Space+Grotesk:wght@400;700&display=swap" rel="stylesheet">
@@ -30,9 +30,13 @@
     border:1px solid var(--line); border-radius:14px; padding:20px;
     box-shadow:0 0 40px rgba(52,211,153,.06);
   }
-  .progress { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; font-size:.82rem; color:var(--muted); }
-  .bar { height:6px; background:#0a1410; border-radius:999px; overflow:hidden; margin-bottom:18px; }
-  .bar i { display:block; height:100%; background:linear-gradient(90deg,var(--green-dim),var(--green)); width:10%; transition:width .3s; }
+  .progress { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; font-size:.82rem; color:var(--muted); }
+  .bar { height:6px; background:#0a1410; border-radius:999px; overflow:hidden; margin-bottom:16px; }
+  .bar i { display:block; height:100%; background:linear-gradient(90deg,var(--green-dim),var(--green)); width:0%; transition:width .3s; }
+  .meta-row { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:12px; }
+  .chip { font-size:.7rem; padding:3px 9px; border-radius:999px; border:1px solid var(--line); color:var(--muted); letter-spacing:.5px; }
+  .chip--tag { color:var(--green); border-color:var(--green-dim); }
+  .chip--level { color:var(--amber); border-color:#3a2f14; }
   .question { font-size:1.05rem; color:var(--green); font-weight:700; line-height:1.6; margin-bottom:18px; }
   .options { display:flex; flex-direction:column; gap:10px; }
   .opt {
@@ -44,6 +48,8 @@
   .opt.correct { border-color:var(--green); background:rgba(52,211,153,.12); color:var(--green); }
   .opt.wrong { border-color:var(--red); background:rgba(248,113,113,.1); color:var(--red); }
   .opt:disabled { cursor:default; }
+  .opt .key { display:inline-block; width:20px; color:var(--muted); }
+  .opt.correct .key { color:var(--green); }
   .explain {
     margin-top:16px; background:#0a1410; border-left:3px solid var(--amber);
     border-radius:8px; padding:13px 16px; font-size:.85rem; color:var(--muted); line-height:1.7;
@@ -51,17 +57,31 @@
   }
   .explain.show { display:block; }
   .explain strong { color:var(--amber); }
-  .next-row { margin-top:16px; display:flex; justify-content:flex-end; }
+  .next-row { margin-top:16px; display:flex; justify-content:space-between; align-items:center; gap:12px; }
+  .hint { font-size:.75rem; color:var(--muted); }
   .btn {
     background:transparent; color:var(--green); border:1px solid var(--green);
     border-radius:8px; padding:10px 24px; font-family:inherit; font-size:.9rem;
     font-weight:700; cursor:pointer; letter-spacing:1px;
   }
   .btn:hover { background:var(--green); color:#04130d; }
-  .result { text-align:center; padding:20px 0; }
-  .result .score-big { font-size:2.6rem; color:var(--amber); font-weight:700; margin:10px 0; }
-  .result p { color:var(--muted); line-height:1.8; font-size:.9rem; }
-  .result .btn { margin-top:18px; }
+  .btn--ghost { border-color:var(--line); color:var(--muted); }
+  .btn--ghost:hover { background:transparent; color:var(--green); border-color:var(--green); }
+  .result { padding:6px 0 0; }
+  .result .kicker { text-align:center; color:var(--green); font-weight:700; letter-spacing:2px; font-size:.8rem; }
+  .result .score-big { text-align:center; font-size:2.6rem; color:var(--amber); font-weight:700; margin:8px 0 2px; }
+  .result .score-big small { font-size:.9rem; color:var(--muted); font-weight:400; margin-left:4px; }
+  .result .verdict { text-align:center; color:var(--muted); line-height:1.8; font-size:.9rem; margin-bottom:16px; }
+  .review-title { font-size:.82rem; color:var(--red); margin:0 0 10px; letter-spacing:.5px; }
+  .review { max-height:320px; overflow-y:auto; padding-right:4px; display:flex; flex-direction:column; gap:10px; }
+  .review-item { background:#0a1410; border:1px solid var(--line); border-radius:10px; padding:12px 14px; }
+  .review-item p { color:var(--text); font-size:.86rem; line-height:1.6; margin-bottom:6px; }
+  .review-item .ans { font-size:.8rem; line-height:1.7; }
+  .review-item .ans .bad { color:var(--red); }
+  .review-item .ans .good { color:var(--green); }
+  .review-item .why { color:var(--muted); font-size:.78rem; line-height:1.7; margin-top:4px; }
+  .actions { display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin-top:18px; }
+  .note { color:var(--muted); font-size:.72rem; text-align:center; margin-top:12px; line-height:1.6; }
 </style>
 </head>
 <body>
@@ -72,16 +92,19 @@
   </div>
   <div class="panel" id="quizPanel">
     <div class="progress">
-      <span>第 <strong id="qNum">1</strong> / 10 题</span>
-      <span>得分 <strong id="qScore" style="color:var(--green)">0</strong></span>
+      <span>第 <strong id="qNum">1</strong> / <strong id="qTotal">12</strong> 题</span>
+      <span>答对 <strong id="qScore" style="color:var(--green)">0</strong></span>
     </div>
     <div class="bar"><i id="barFill"></i></div>
+    <div class="meta-row" id="metaRow"></div>
     <div class="question" id="question"></div>
     <div class="options" id="options"></div>
     <div class="explain" id="explain"></div>
     <div class="next-row">
+      <span class="hint" id="hint">按 1–4 选择，回车进入下一题</span>
       <button class="btn" id="nextBtn" style="display:none">下一题</button>
     </div>
+    <p class="note">题目用于学习自测，不构成任何实战指导；安全测试仅限授权环境或自有靶场。</p>
   </div>
 
 <script>
@@ -90,125 +113,365 @@
     {
       q: "在没有获得书面授权的情况下，对某网站进行漏洞扫描，最准确的说法是？",
       opts: ["只要不破坏数据就合法","属于学习行为，不违法","可能违反《网络安全法》《刑法》，存在法律风险","用公开工具就没事"],
-      a: 2,
+      a: 2, tag: "法律法规", level: "基础",
       e: "未授权扫描、入侵他人系统，即使没有造成破坏，也可能违反《网络安全法》《刑法》。学习目的不构成违法阻却事由，所有测试应在授权环境或靶场进行。"
     },
     {
       q: "SQL 注入漏洞最根本的成因是？",
       opts: ["数据库版本太旧","用户输入被当作 SQL 代码拼接执行","服务器内存不足","没有使用 HTTPS"],
-      a: 1,
+      a: 1, tag: "Web 安全", level: "基础",
       e: "SQL 注入源于把不可信输入直接拼进 SQL 语句，使输入被解析为代码。根本修复是使用参数化查询 / 预编译语句，而不是仅靠过滤关键字。"
     },
     {
       q: "下列哪种做法最能有效防御存储型 XSS？",
-      opts: ["页面所有输入输出做正确的编码 / 转义","隐藏输入框","把密码改复杂","定期重启服务器"],
-      a: 0,
+      opts: ["页面所有输出按上下文做正确的编码 / 转义","隐藏输入框","把密码改复杂","定期重启服务器"],
+      a: 0, tag: "Web 安全", level: "基础",
       e: "XSS 源于不可信脚本被浏览器执行。防御核心是对输出按上下文进行 HTML/JS 编码，并配合 CSP；输入校验是辅助手段。"
     },
     {
       q: "文件上传漏洞中，攻击者最想达到的目的通常是？",
       opts: ["让页面变好看","上传可被服务器执行的脚本（如 webshell）","提高网速","备份数据"],
-      a: 1,
+      a: 1, tag: "Web 安全", level: "基础",
       e: "文件上传漏洞的核心危害是上传可执行脚本（webshell）获取服务器权限。防御应校验类型、重命名、存储到非 Web 目录并禁止脚本执行。"
     },
     {
       q: "关于密码存储，最安全的做法是？",
       opts: ["明文存数据库","用 MD5 加密即可","加盐并使用慢哈希（如 bcrypt/Argon2）","写在前端代码里"],
-      a: 2,
+      a: 2, tag: "密码学", level: "基础",
       e: "明文和无盐 MD5 都不安全。应使用 bcrypt、scrypt、Argon2 等带盐的慢哈希算法，提高暴力破解成本。"
     },
     {
       q: "HTTPS 主要解决的问题是？",
       opts: ["让网站打开更快","传输过程的加密、完整性与身份认证","防止所有漏洞","替代备份"],
-      a: 1,
+      a: 1, tag: "密码学", level: "基础",
       e: "HTTPS（TLS）提供传输加密、数据完整性和服务器身份认证，防止中间人窃听篡改，但不能直接修复 SQL 注入等应用层漏洞。"
     },
     {
       q: "发现一个真实存在的高危漏洞后，比较负责任的做法是？",
       opts: ["立刻发到公开论坛","通过厂商安全渠道 / CNVD 报告，给修复时间","私下利用","不告诉任何人"],
-      a: 1,
+      a: 1, tag: "法律法规", level: "基础",
       e: "应通过厂商 SRC、CNVD/CNNVD 等渠道负责任披露，给厂商修复时间，避免公开利用细节被滥用。"
     },
     {
       q: "CSRF（跨站请求伪造）的有效防御手段不包括？",
       opts: ["校验 CSRF Token","校验 SameSite Cookie","仅靠前端隐藏按钮","关键操作二次确认"],
-      a: 2,
+      a: 2, tag: "Web 安全", level: "基础",
       e: "CSRF 防御依赖不可预测的 Token、SameSite Cookie、Referer 校验等。隐藏按钮在服务端仍可被伪造请求，无法防御。"
     },
     {
       q: "应急响应中，发现服务器被植入 webshell 后，第一步更应优先？",
       opts: ["先格式化硬盘","立即删除所有日志","先止损隔离并保留证据，再根除恢复","当作没发生"],
-      a: 2,
+      a: 2, tag: "应急响应", level: "基础",
       e: "应急响应遵循遏制、根除、恢复，先隔离止损并保留证据（日志、镜像），再清除后门、修补漏洞、恢复业务。"
     },
     {
       q: "关于使用 Burp Suite、Nmap 等安全工具，正确的是？",
       opts: ["工具合法，所以任何目标都能测","只在授权目标 / 自有靶场使用，从官方渠道下载","可以随便扫描公网","工具能自动规避法律"],
-      a: 1,
+      a: 1, tag: "法律法规", level: "基础",
       e: "工具本身合法，但使用范围受法律约束，只能用于授权目标或自有环境，并应从官方渠道下载以防后门。"
+    },
+    {
+      q: "三级信息系统原则上多久做一次等级测评？",
+      opts: ["每年至少一次","每两年一次","每三年一次","上线时做一次即可"],
+      a: 0, tag: "等保合规", level: "进阶",
+      e: "按等级保护相关规定，三级系统原则上每年至少测评一次，四级每半年一次；二级系统的测评周期要求相对宽松，具体以现行办法与行业要求为准。"
+    },
+    {
+      q: "《网络安全法》要求网络运营者留存相关网络日志不少于多长时间？",
+      opts: ["一个月","三个月","六个月","两年"],
+      a: 2, tag: "法律法规", level: "进阶",
+      e: "《网络安全法》第二十一条要求采取监测、记录网络运行状态与网络安全事件的技术措施，并留存相关网络日志不少于六个月。"
+    },
+    {
+      q: "SSRF（服务端请求伪造）最直接的危害是？",
+      opts: ["让服务器变慢","借服务器身份访问内网或云元数据等外部系统","篡改前端页面","盗取用户 Cookie"],
+      a: 1, tag: "Web 安全", level: "进阶",
+      e: "SSRF 让攻击者以服务器为跳板发起请求，可探测内网、访问云元数据服务获取临时凭据。防御应限制出站目标、禁用不必要协议并对元数据服务加固。"
+    },
+    {
+      q: "攻击者把请求里的 user_id 从 1001 改成 1002，读到了他人的订单，这属于？",
+      opts: ["水平越权（IDOR）","垂直越权","SQL 注入","CSRF"],
+      a: 0, tag: "Web 安全", level: "进阶",
+      e: "同权限级别用户之间越界访问他人资源属于水平越权，也叫 IDOR。修复关键是服务端按当前登录身份做对象级授权，而不是只校验是否登录。"
+    },
+    {
+      q: "关于 JWT 校验，下列哪种做法最危险？",
+      opts: ["服务端固定算法并验证签名","接受 alg=none 的令牌","校验 exp 过期时间","使用强随机密钥"],
+      a: 1, tag: "密码学", level: "进阶",
+      e: "接受 alg=none 等于允许攻击者伪造任意身份。服务端应固定允许的算法、验证签名，并校验 exp、iss、aud 等字段。"
+    },
+    {
+      q: "关于 WAF，下列说法正确的是？",
+      opts: ["部署 WAF 后不会再出现注入漏洞","WAF 能完全替代代码修复","WAF 是纵深防御的一层，存在绕过可能","WAF 只防 DDoS"],
+      a: 2, tag: "Web 安全", level: "进阶",
+      e: "WAF 通过规则与模型拦截已知攻击模式，可能被编码、分片、语义变形绕过。它是纵深防御的一层，根本修复仍在代码与配置。"
+    },
+    {
+      q: "端口 3389 默认对应的服务是？",
+      opts: ["SSH","RDP（远程桌面）","MySQL","HTTPS"],
+      a: 1, tag: "基础运维", level: "进阶",
+      e: "3389 是 RDP 默认端口，22 是 SSH，3306 是 MySQL，443 是 HTTPS。把管理端口直接暴露公网会显著放大爆破与漏洞利用风险。"
+    },
+    {
+      q: "“0day 漏洞”通常指？",
+      opts: ["当天发布的漏洞","尚未有公开补丁或未披露、可被利用的漏洞","评分 0 分的漏洞","只影响老旧系统的漏洞"],
+      a: 1, tag: "漏洞管理", level: "进阶",
+      e: "0day 强调厂商尚无补丁或漏洞尚未公开，攻击者可能已在使用。防守方更依赖缓解措施、行为检测与收敛攻击面。"
+    },
+    {
+      q: "识别钓鱼邮件时，最不可靠的判断依据是？",
+      opts: ["发件域名与官方域名是否一致","邮件正文是否制造紧急情绪","邮件签名里的公司 Logo 是否清晰","链接实际指向的地址"],
+      a: 2, tag: "账号安全", level: "进阶",
+      e: "Logo 可以随意复制，不能作为可信依据。应核对发件域名、链接真实指向、附件类型，并通过电话或其他独立渠道确认异常请求。"
+    },
+    {
+      q: "云主机上 169.254.169.254 通常是什么地址？",
+      opts: ["默认网关","云厂商元数据服务","DNS 服务器","内网广播地址"],
+      a: 1, tag: "云安全", level: "进阶",
+      e: "该链路本地地址常被云厂商用于实例元数据服务，可能返回临时凭据。SSRF 打到它会造成云账号凭据泄露，应限制实例访问并启用最小权限。"
+    },
+    {
+      q: "供应链攻击的典型形式是？",
+      opts: ["直接暴力破解数据库","通过被投毒的第三方依赖或构建流程植入恶意代码","在会议室偷听","用弱口令登录邮箱"],
+      a: 1, tag: "供应链安全", level: "进阶",
+      e: "供应链攻击借助依赖包、构建脚本、CI 凭据或更新通道进入目标，绕过边界防护。防御包括锁版本、审 lockfile、限制安装脚本与构建机权限。"
+    },
+    {
+      q: "CVSS 9.8 分通常对应哪个严重等级？",
+      opts: ["低危","中危","高危","严重（Critical）"],
+      a: 3, tag: "漏洞管理", level: "进阶",
+      e: "CVSS 基础评分 9.0–10.0 为严重，7.0–8.9 为高危，4.0–6.9 为中危，0.1–3.9 为低危。评分不等于实际风险，还要结合暴露面与利用条件。"
+    },
+    {
+      q: "在厂商 SRC 规则允许的范围内测试，但测试了规则明确排除的资产，最可能的结果是？",
+      opts: ["仍然受规则保护","超出授权范围，可能被认定为未授权测试","只要漏洞真实就没问题","厂商必须支付奖励"],
+      a: 1, tag: "法律法规", level: "实战",
+      e: "SRC 规则就是授权边界，资产范围、测试手法、数据访问都有约束。越界测试即使漏洞真实，也可能构成违法或违约，动手前先读清规则。"
+    },
+    {
+      q: "排查服务器是否被植入 webshell，下列思路最有效的是？",
+      opts: ["只看文件扩展名是不是 .php","结合文件修改时间、异常代码特征、访问日志与流量综合判断","只看首页能否打开","重启服务器观察"],
+      a: 1, tag: "应急响应", level: "实战",
+      e: "webshell 可能伪装扩展名、混淆代码或藏在正常文件中。应结合近期变更文件、异常请求参数、外连行为与日志做交叉验证，必要时比对镜像。"
+    },
+    {
+      q: "确认主机已被入侵并仍在与外网 C2 通信，处置顺序更合理的是？",
+      opts: ["立即重启清空进程","先网络隔离、保全内存与日志，再清除与恢复","先删掉可疑文件再说","直接重装不做取证"],
+      a: 1, tag: "应急响应", level: "实战",
+      e: "重启会丢失内存证据，直接重装会破坏溯源线索。应先隔离、保全内存镜像与日志，再按根除、恢复流程处理，并评估横向影响。"
+    },
+    {
+      q: "修复 SQL 注入时，最应优先采用的是？",
+      opts: ["在前端限制输入长度","统一改为参数化查询 / 预编译","把报错信息藏起来","给数据库改个复杂密码"],
+      a: 1, tag: "Web 安全", level: "实战",
+      e: "参数化查询把数据与语句结构分离，是根本修复。隐藏报错、前端校验只能降低可见性，不能阻止注入。"
+    },
+    {
+      q: "一份合格的漏洞报告，最应包含的是？",
+      opts: ["夸张的影响描述和攻击口号","可复现步骤、影响范围、证据与修复建议","只有一张截图","漏洞利用脚本全文"],
+      a: 1, tag: "漏洞管理", level: "实战",
+      e: "报告要让研发能复现、能判断优先级、能照着修。复现步骤、受影响版本与资产、证据、风险说明和修复建议缺一不可，避免夸大。"
+    },
+    {
+      q: "密码重置链接的安全设计，下列哪项最不必要？",
+      opts: ["令牌一次性使用","令牌短时效且不可预测","把令牌明文写进前端 JS 方便调试","令牌绑定对应用户"],
+      a: 2, tag: "账号安全", level: "实战",
+      e: "重置令牌应强随机、短时效、一次性、绑定用户，并通过安全渠道传递。写进前端 JS 等于公开泄露，任何人都能拿去重置他人密码。"
+    },
+    {
+      q: "测试 API 越权时，最关键的验证点是？",
+      opts: ["接口是否能返回 200","换用低权限账号后是否仍能访问高权限数据或操作","响应速度快不快","是否启用了 HTTPS"],
+      a: 1, tag: "Web 安全", level: "实战",
+      e: "越权测试的核心是横向与纵向对比：低权限账号访问他人资源、普通用户调用管理员接口。只有服务端按身份与对象做授权校验，才算真正修复。"
+    },
+    {
+      q: "构建机上的依赖安装脚本风险，最有效的降低方式是？",
+      opts: ["给构建机 root 权限方便安装","锁版本、审 lockfile、限制安装脚本与构建机凭据","关闭所有日志","只在本地安装依赖"],
+      a: 1, tag: "供应链安全", level: "实战",
+      e: "依赖投毒常借 postinstall 等脚本执行。应锁定版本与来源、审查 lockfile 变更、禁用不必要的安装脚本，并让构建机只持有最小凭据。"
     }
   ];
 
-  let idx = 0, score = 0, answered = false;
-  const qNum=document.getElementById('qNum'), qScore=document.getElementById('qScore');
-  const barFill=document.getElementById('barFill'), questionEl=document.getElementById('question');
-  const optionsEl=document.getElementById('options'), explainEl=document.getElementById('explain');
-  const nextBtn=document.getElementById('nextBtn'), panel=document.getElementById('quizPanel');
+  const ROUND_SIZE = 12;
+  let round = [], idx = 0, correctCount = 0, answered = false, wrongList = [];
+
+  const qNum = document.getElementById('qNum');
+  const qTotal = document.getElementById('qTotal');
+  const qScore = document.getElementById('qScore');
+  const barFill = document.getElementById('barFill');
+  const metaRow = document.getElementById('metaRow');
+  const questionEl = document.getElementById('question');
+  const optionsEl = document.getElementById('options');
+  const explainEl = document.getElementById('explain');
+  const nextBtn = document.getElementById('nextBtn');
+  const hintEl = document.getElementById('hint');
+  const panel = document.getElementById('quizPanel');
+
+  function shuffle(list){
+    const arr = list.slice();
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      const t = arr[i]; arr[i] = arr[j]; arr[j] = t;
+    }
+    return arr;
+  }
+
+  function prepareRound(){
+    return shuffle(QUESTIONS).slice(0, ROUND_SIZE).map(function(item){
+      const pairs = item.opts.map(function(text, i){
+        return { text: text, correct: i === item.a };
+      });
+      const mixed = shuffle(pairs);
+      return {
+        q: item.q,
+        tag: item.tag,
+        level: item.level,
+        e: item.e,
+        opts: mixed.map(function(p){ return p.text; }),
+        a: mixed.findIndex(function(p){ return p.correct; })
+      };
+    });
+  }
+
+  function startRound(){
+    round = prepareRound();
+    idx = 0;
+    correctCount = 0;
+    answered = false;
+    wrongList = [];
+    qTotal.textContent = String(ROUND_SIZE);
+    render();
+  }
 
   function render(){
-    answered=false;
-    const item=QUESTIONS[idx];
-    qNum.textContent=idx+1;
-    qScore.textContent=score;
-    barFill.style.width=((idx)/QUESTIONS.length*100)+'%';
-    questionEl.textContent=item.q;
-    optionsEl.innerHTML='';
-    item.opts.forEach((opt,i)=>{
-      const b=document.createElement('button');
-      b.className='opt'; b.textContent=String.fromCharCode(65+i)+'. '+opt;
-      b.onclick=()=>choose(i,b);
+    answered = false;
+    const item = round[idx];
+    qNum.textContent = String(idx + 1);
+    qScore.textContent = String(correctCount);
+    barFill.style.width = ((idx) / ROUND_SIZE * 100) + '%';
+    metaRow.innerHTML = '';
+    const tagChip = document.createElement('span');
+    tagChip.className = 'chip chip--tag';
+    tagChip.textContent = item.tag;
+    const levelChip = document.createElement('span');
+    levelChip.className = 'chip chip--level';
+    levelChip.textContent = item.level;
+    const bankChip = document.createElement('span');
+    bankChip.className = 'chip';
+    bankChip.textContent = '题库 ' + QUESTIONS.length + ' 题';
+    metaRow.appendChild(tagChip);
+    metaRow.appendChild(levelChip);
+    metaRow.appendChild(bankChip);
+
+    questionEl.textContent = item.q;
+    optionsEl.innerHTML = '';
+    item.opts.forEach(function(opt, i){
+      const b = document.createElement('button');
+      b.className = 'opt';
+      b.type = 'button';
+      const key = document.createElement('span');
+      key.className = 'key';
+      key.textContent = String.fromCharCode(65 + i);
+      b.appendChild(key);
+      b.appendChild(document.createTextNode(opt));
+      b.onclick = function(){ choose(i, b); };
       optionsEl.appendChild(b);
     });
     explainEl.classList.remove('show');
-    nextBtn.style.display='none';
+    explainEl.innerHTML = '';
+    nextBtn.style.display = 'none';
+    hintEl.style.display = 'inline';
   }
 
-  function choose(i,btn){
-    if(answered) return;
-    answered=true;
-    const item=QUESTIONS[idx];
-    const btns=optionsEl.querySelectorAll('.opt');
-    btns.forEach(b=>b.disabled=true);
+  function choose(i, btn){
+    if (answered) return;
+    answered = true;
+    const item = round[idx];
+    const btns = optionsEl.querySelectorAll('.opt');
+    btns.forEach(function(b){ b.disabled = true; });
     btns[item.a].classList.add('correct');
-    if(i===item.a){ score+=10; }
-    else { btn.classList.add('wrong'); }
-    qScore.textContent=score;
-    explainEl.innerHTML='<strong>解析：</strong>'+item.e;
+    if (i === item.a) {
+      correctCount += 1;
+    } else {
+      btn.classList.add('wrong');
+      wrongList.push({
+        q: item.q,
+        chosen: item.opts[i],
+        correct: item.opts[item.a],
+        e: item.e
+      });
+    }
+    qScore.textContent = String(correctCount);
+    barFill.style.width = ((idx + 1) / ROUND_SIZE * 100) + '%';
+    explainEl.innerHTML = '<strong>解析：</strong>' + item.e;
     explainEl.classList.add('show');
-    nextBtn.style.display='inline-block';
-    nextBtn.textContent = idx===QUESTIONS.length-1 ? '查看结果' : '下一题';
+    nextBtn.style.display = 'inline-block';
+    nextBtn.textContent = idx === ROUND_SIZE - 1 ? '查看结果' : '下一题';
+    hintEl.style.display = 'none';
   }
 
-  nextBtn.onclick=()=>{
-    idx++;
-    if(idx<QUESTIONS.length){ render(); }
+  nextBtn.onclick = function(){
+    idx += 1;
+    if (idx < ROUND_SIZE) { render(); }
     else { finish(); }
   };
 
   function finish(){
-    barFill.style.width='100%';
+    barFill.style.width = '100%';
+    const score = Math.round(correctCount / ROUND_SIZE * 100);
     let comment;
-    if(score>=90) comment='安全基础非常扎实，可以继续深入 CTF 和实战。';
-    else if(score>=60) comment='掌握了基本概念，建议结合靶场和漏洞分析巩固。';
-    else comment='基础还需加强，建议先系统学习 OWASP Top 10。';
-    panel.innerHTML='<div class="result">'+
-      '<p style="color:var(--green);font-weight:700;letter-spacing:1px">闯关完成</p>'+
-      '<div class="score-big">'+score+' 分</div>'+
-      '<p>'+comment+'</p>'+
-      '<button class="btn" onclick="location.reload()">再玩一次</button></div>';
+    if (score >= 90) comment = '基础很扎实，下一步可以把错题对应的知识点补成笔记，再去靶场验证。';
+    else if (score >= 70) comment = '主干概念已经掌握，失分多集中在细节与边界条件，建议回看错题解析。';
+    else if (score >= 50) comment = '能认出常见风险，但对成因和修复还不够熟，建议按错题分类系统过一遍。';
+    else comment = '基础还需要补，建议先看 OWASP Top 10 与等保基本要求，再来一轮。';
+
+    let reviewHtml = '';
+    if (wrongList.length) {
+      reviewHtml = '<p class="review-title">错题回顾（' + wrongList.length + ' 题）</p><div class="review">' +
+        wrongList.map(function(w, i){
+          return '<div class="review-item">' +
+            '<p>' + (i + 1) + '. ' + w.q + '</p>' +
+            '<div class="ans">你的答案：<span class="bad">' + w.chosen + '</span><br>正确答案：<span class="good">' + w.correct + '</span></div>' +
+            '<div class="why">' + w.e + '</div>' +
+          '</div>';
+        }).join('') + '</div>';
+    } else {
+      reviewHtml = '<p class="review-title" style="color:var(--green)">全对，没有错题。</p>';
+    }
+
+    panel.innerHTML = '<div class="result">' +
+      '<p class="kicker">ROUND COMPLETE</p>' +
+      '<div class="score-big">' + score + '<small>分</small></div>' +
+      '<p class="verdict">' + comment + '</p>' +
+      reviewHtml +
+      '<div class="actions">' +
+        '<button class="btn" id="againBtn">再来一局</button>' +
+        '<a class="btn btn--ghost" href="../games.html">游戏中心</a>' +
+      '</div>' +
+      '<p class="note">每局从 ' + QUESTIONS.length + ' 道题里随机抽 ' + ROUND_SIZE + ' 道，选项顺序也会打乱。</p>' +
+    '</div>';
+
+    document.getElementById('againBtn').onclick = function(){
+      location.reload();
+    };
   }
 
-  render();
+  document.addEventListener('keydown', function(e){
+    if (!panel.querySelector('.options')) {
+      if (e.key === 'Enter' && document.getElementById('againBtn')) {
+        document.getElementById('againBtn').click();
+      }
+      return;
+    }
+    if (e.key >= '1' && e.key <= '4') {
+      const btns = optionsEl.querySelectorAll('.opt');
+      const n = Number(e.key) - 1;
+      if (btns[n] && !answered) { btns[n].click(); }
+    }
+    if (e.key === 'Enter' && answered) { nextBtn.click(); }
+  });
+
+  startRound();
 })();
 </script>
 </body>

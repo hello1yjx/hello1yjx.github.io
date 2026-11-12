@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>vercel.toml 迁移实战：多服务项目怎么配、和 vercel.json 怎么选 | 学习资源库</title>
+  <meta name="description" content="Vercel 在 11 月 2 日支持了 vercel.toml，属性和 vercel.json 完全一致，但能写注释、层级更平。对 monorepo 和多服务项目来说，配置终于能被 review。代价是一个项目只能保留一份配置文件：vercel.toml、vercel.json、vercel.ts 三选一，同时留着两个时另一个会被静默忽略。这篇教程给出最小示例、Services 与 rewrites 写法、从 JSON 迁移的步骤、常见坑和验收清单。">
+  <meta name="robots" content="index,follow,max-image-preview:large">
+  <link rel="canonical" href="https://hello1yjx.github.io/articles/vercel-toml-migration-multiservice-config-guide.html">
+  <link rel="icon" type="image/png" href="../assets/images/brand-book-line.png">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"vercel.toml 迁移实战：多服务项目怎么配、和 vercel.json 怎么选","description":"Vercel 在 11 月 2 日支持了 vercel.toml，属性和 vercel.json 完全一致，但能写注释、层级更平。对 monorepo 和多服务项目来说，配置终于能被 review。代价是一个项目只能保留一份配置文件：vercel.toml、vercel.json、vercel.ts 三选一，同时留着两个时另一个会被静默忽略。这篇教程给出最小示例、Services 与 rewrites 写法、从 JSON 迁移的步骤、常见坑和验收清单。","datePublished":"2026-11-12","dateModified":"2026-11-12","author":{"@type":"Person","name":"Avery Lin","url":"https://hello1yjx.github.io/about.html"},"publisher":{"@type":"Organization","name":"学习资源库","url":"https://hello1yjx.github.io/"},"mainEntityOfPage":"https://hello1yjx.github.io/articles/vercel-toml-migration-multiservice-config-guide.html","inLanguage":"zh-CN"}</script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6621999105936318" crossorigin="anonymous"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;800&family=Noto+Serif+SC:wght@700;900&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/styles.css?v=20261112-daily-update">
+</head>
+<body>
+  <header class="site-header">
+    <div class="page-shell site-header__inner">
+      <a class="brand" href="../index.html" aria-label="返回首页">
+        <span class="brand-mark" aria-hidden="true"><img src="../assets/images/brand-book-line.png" alt="" width="36" height="33"></span>
+        <span class="brand-copy"><strong>学习资源库</strong><span>分享知识 · 提升自己 · 成就未来</span></span>
+      </a>
+      <button class="menu-button" data-menu-button aria-expanded="false" aria-label="切换导航菜单">☰</button>
+      <nav class="site-nav" data-mobile-nav>
+        <a href="../index.html">首页</a>
+        <a class="is-active" href="../posts.html" aria-current="page">教程</a>
+        <a href="../resources.html">资源下载</a>
+        <a href="../hotspots.html">技术资讯</a>
+        <a href="../projects.html">开源项目</a>
+        <a href="../vulns.html">漏洞分析</a>
+        <a href="../kaogong.html">考公专区</a>
+        <a href="../about.html">关于我们</a>
+      </nav>
+      <form class="header-search" action="../posts.html" method="get">
+        <input type="search" name="q" placeholder="搜索教程、资源、工具或关键词...">
+        <button type="submit" aria-label="搜索">/</button>
+      </form>
+      <a class="header-github" href="https://github.com/hello1yjx/hello1yjx.github.io" target="_blank" rel="noreferrer" aria-label="GitHub">
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="" width="24" height="24">
+      </a>
+      <a class="header-cta" href="../posts.html">开始学习</a>
+    </div>
+  </header>
+
+  <main class="page-shell section article-page">
+    <header class="detail-hero">
+      <span class="pill">云端部署</span>
+      <h1>vercel.toml 迁移实战：多服务项目怎么配、和 vercel.json 怎么选</h1>
+      <div class="detail-hero__meta">
+        <time datetime="2026-11-12">2026年11月12日</time>
+        <span>11 分钟</span>
+        <span>作者：Avery Lin</span>
+      </div>
+      <p>Vercel 在 11 月 2 日支持了 vercel.toml，属性和 vercel.json 完全一致，但能写注释、层级更平。对 monorepo 和多服务项目来说，配置终于能被 review。代价是一个项目只能保留一份配置文件：vercel.toml、vercel.json、vercel.ts 三选一，同时留着两个时另一个会被静默忽略。这篇教程给出最小示例、Services 与 rewrites 写法、从 JSON 迁移的步骤、常见坑和验收清单。</p>
+    </header>
+    <div class="article-layout">
+      <article class="article-body">
+        <div class="inline-promo">
+          <p class="label">来源与增量价值</p>
+          <h3>本文基于官方资料整理，并补充适用场景、限制条件和实践检查步骤。</h3>
+          <p>首要来源：<a href="https://vercel.com/changelog/projects-can-now-be-configured-with-vercel-toml" target="_blank" rel="noreferrer">Projects can now be configured with vercel.toml</a>。事实以原始来源为准，本站建议需结合自己的环境验证。</p>
+        </div>
+
+    <p>配置文件最怕两件事：一是不能写注释，二是嵌套太深没法 review。vercel.json 两条都占，项目一上多服务，rewrites 和 builds 叠起来就很难看懂。11 月 2 日 Vercel 支持 vercel.toml，属性和 JSON 版本一致，但换成 TOML 后可以写注释、结构更平。</p><p>迁移本身不难，难的是团队里同时存在 vercel.json、vercel.ts 和新的 vercel.toml。官方明确只认一个，多出来的会被忽略，而且不会有明显报错。这篇教程按「先看清规则、再写配置、最后验收」的顺序讲。</p>
+    <h2>这篇内容适合谁</h2>
+    <ul><li>用 Vercel 部署 monorepo 或前后端分离项目的前端与全栈工程师</li><li>希望把部署配置纳入代码评审的团队负责人</li><li>接手了历史 vercel.json、想整理配置的人</li></ul>
+    <h2>实践与验证步骤</h2>
+    <ul><li>确认项目当前用的是哪种配置文件</li><li>读懂三选一的互斥规则</li><li>写出最小可用的 vercel.toml</li><li>配置 Services 与 rewrites</li><li>从 vercel.json 逐步迁移</li><li>在 CI 里加 schema 校验</li><li>约定团队配置规范</li><li>按验收清单核对部署结果</li></ul>
+    <h2>官方资料入口</h2>
+
+    <ul>
+
+            <li>
+              <a href="https://vercel.com/changelog/projects-can-now-be-configured-with-vercel-toml" target="_blank" rel="noreferrer">Projects can now be configured with vercel.toml</a>
+              <span>：官方发布说明与示例</span>
+            </li>
+
+            <li>
+              <a href="https://vercel.com/docs" target="_blank" rel="noreferrer">Vercel 项目配置文档</a>
+              <span>：配置属性参考</span>
+            </li>
+
+    </ul>
+
+    <h2>重点判断与使用建议</h2>
+    <ul><li>上线时间：2026 年 11 月 2 日</li><li>能力范围：支持 vercel.json 的全部配置属性</li><li>格式优势：支持注释、结构更平</li><li>互斥规则：vercel.toml、vercel.json、vercel.ts 只能用一个</li><li>schema：首行可用 $schema 指向官方 schema 获得补全与校验</li></ul>
+
+        <h2>一、vercel.toml 是什么</h2>
+
+        <ul><li>Vercel 新增的项目配置文件格式，使用 TOML</li><li>支持 vercel.json 的全部配置属性，不存在只支持一半的情况</li><li>相比 JSON 的两个实际好处：可以写注释、层级更平</li><li>所有项目都可以使用，不限套餐</li><li>文件放在项目根目录，和 vercel.json 同一位置</li></ul>
+
+
+
+        <h2>二、三选一的互斥规则</h2>
+
+        <ul><li>vercel.toml、vercel.json、vercel.ts 三种格式只能保留一个</li><li>同时存在多个时，只有一个生效，其余被忽略且不会明显报错</li><li>迁移时先删旧文件再提交新文件，不要长期并存</li><li>如果项目用 vercel.ts 做动态配置，就不要引入 toml</li><li>团队里应在 README 写清当前使用哪一种，避免后来者加错</li></ul>
+
+
+
+        <h2>三、最小可用示例</h2>
+
+        <ul><li>首行写 $schema，指向官方 schema，编辑器可以获得补全与校验</li><li>顶层键值对对应原来的项目级设置，例如框架、构建命令、输出目录</li><li>注释用井号开头，适合标注「这段为什么这么配」</li><li>数组表用双层方括号，例如 [[rewrites]]，与 JSON 的数组元素对应</li><li>保存后先本地跑一次构建，再推到预览环境验证</li></ul>
+
+
+
+        <h2>四、多服务配置</h2>
+
+        <ul><li>用 [services.frontend] 定义前端服务，root 指向子目录</li><li>用 [services.backend] 定义后端服务，root 与 entrypoint 分别指定目录和入口</li><li>entrypoint 写法形如 main:app，对应 Python 应用的模块与对象</li><li>每个服务可以有独立的运行时与构建配置</li><li>服务拆分后，路由要靠 rewrites 明确指向，不能指望自动推断</li></ul>
+
+
+
+        <h2>五、rewrites 把流量分给服务</h2>
+
+        <ul><li>第一条规则把 /api/(.*) 指向 backend 服务</li><li>第二条规则把 /(.*) 兜底指向 frontend 服务</li><li>顺序重要：更具体的规则放前面，兜底放最后</li><li>destination 可以写成对象形式指定 service</li><li>改完路由务必在预览环境逐条访问验证，尤其是带查询参数的路径</li></ul>
+
+
+
+        <h2>六、从 vercel.json 迁移的步骤</h2>
+
+        <ul><li>第一步：复制一份 vercel.json 到临时分支，作为逐段对照的底稿</li><li>第二步：先迁移顶层设置，确认构建与输出行为不变</li><li>第三步：迁移 rewrites、redirects、headers 等数组段，注意数组表语法</li><li>第四步：删除 vercel.json，只保留 vercel.toml，提交到预览分支</li><li>第五步：对比预览部署的构建日志与路由行为，确认无差异再合并</li></ul>
+
+
+
+        <h2>七、常见坑</h2>
+
+        <ul><li>两个配置文件并存：旧文件被忽略，改新文件却「不生效」，排障方向直接跑偏</li><li>把 JSON 的逗号习惯带进 TOML：TOML 不允许尾逗号，会直接解析失败</li><li>数组表写成单括号：[[rewrites]] 写成 [rewrites] 后语义完全不同</li><li>注释里写敏感信息：配置文件进 Git，注释同样会被提交</li><li>本地编辑器没有 schema：拼错键名不会提示，部署时才报错</li></ul>
+
+
+
+        <h2>八、CI 与本地校验</h2>
+
+        <ul><li>在 CI 里加一步 TOML 语法解析，解析失败直接挡住合并</li><li>用 schema 做键名与类型校验，避免拼写错误拖到部署阶段</li><li>预览部署必须跑，配置文件的问题只有真实构建能暴露</li><li>把「只允许一个配置文件」写成脚本检查，防止有人补回旧文件</li><li>变更配置的 PR 要求至少一人 review，配置也是代码</li></ul>
+
+
+
+        <h2>九、团队协作规范</h2>
+
+        <ul><li>单一配置源：全仓库只认一种格式，写进 README</li><li>分段注释：每个非默认配置都写一行理由，方便后来者判断能否删</li><li>变更记录：路由与服务拆分的改动在 PR 描述里写清影响面</li><li>回滚预案：配置类变更出问题时，优先回滚提交而不是线上手改</li><li>新项目默认用 toml，老项目按排期迁移，不搞一次性全量替换</li></ul>
+
+
+
+        <h2>十、验收清单</h2>
+
+        <ul><li>项目中只剩一个配置文件</li><li>TOML 能被解析器与 schema 校验通过</li><li>构建命令、输出目录与迁移前一致</li><li>Services 的 root 与 entrypoint 指向正确</li><li>rewrites 顺序正确，兜底规则在最后</li><li>预览环境逐条验证了 API 与页面路径</li><li>README 已写明配置格式与修改流程</li><li>CI 已加入语法校验与单文件检查</li></ul>
+
+
+
+
+        <div class="inline-promo">
+          <p class="label">更正与更新</p>
+          <h3>发现版本变化、来源失效或事实错误时，请通过联系页反馈。</h3>
+          <p>本站会核对一手来源后更新内容，不使用无来源转载填充文章。</p>
+          <a class="button button--secondary" href="../editorial.html">查看内容标准</a>
+        </div>
+      </article>
+      <aside class="article-sidebar">
+        <div class="sidebar-card">
+          <p class="label">本页标签</p>
+          <div class="tag-row"><span>Vercel</span><span>vercel.toml</span><span>monorepo</span><span>多服务</span><span>部署配置</span><span>TOML</span></div>
+        </div>
+        <div class="sidebar-card">
+          <p class="label">继续阅读</p>
+          <a href="vercel-tracing-kql-production-debug-guide.html">Vercel Tracing 正式可用：用 KQL 从慢请求追到具体 span</a><a href="github-in-slack-teams-agent-workflow-guide.html">@GitHub 进 Slack 与 Teams：把群聊里的 bug 变成可评审的 PR</a><a href="jetbrains-air-copilot-parallel-workflow-guide.html">JetBrains Air 接入 Copilot 多代理并行实战：IDE 里同时盯多个 agent</a><a href="ai-crawler-robots-txt-unified-signal-guide.html">AI 爬虫统一管控信号配置实战：一行 robots.txt 向四家声明退出训练</a>
+        </div>
+        <div class="sidebar-card sidebar-card--accent">
+          <p class="label">作者与方法</p>
+          <h3>了解本站如何选题、核验来源与处理更正。</h3>
+          <a class="button button--dark" href="../about.html">关于作者</a>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="page-shell footer__inner">
+      <div><strong>学习资源库</strong><p>分享知识 · 提升自己 · 成就未来</p></div>
+      <div>
+        <a href="../editorial.html">内容标准</a><br>
+        <a href="../privacy.html">隐私政策</a><br>
+        <a href="../contact.html">联系</a>
+      </div>
+    </div>
+  </footer>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      var button = document.querySelector("[data-menu-button]");
+      var nav = document.querySelector("[data-mobile-nav]");
+      if (!button || !nav) return;
+      button.addEventListener("click", function () {
+        var expanded = button.getAttribute("aria-expanded") === "true";
+        button.setAttribute("aria-expanded", String(!expanded));
+        nav.classList.toggle("site-nav--open", !expanded);
+      });
+    });
+  </script>
+</body>
+</html>

@@ -29,6 +29,474 @@ const siteData = {
   },
   posts: [
     {
+      id: "claude-fable-5-2-copilot-retention-policy-guide",
+      title: "Claude Fable 5.2 接入 Copilot：能力提升、数据留存与企业管理策略",
+      date: "2026-11-12",
+      category: "AI 编程",
+      readTime: "12 分钟",
+      excerpt: "Claude Fable 5.2 在 11 月 9 日进入 GitHub Copilot，早期测试里比 Fable 5.1 解决更多任务、用的步骤和工具调用更少。但这次更新真正的门槛不在模型强弱，而在数据留存：Fable 5.2 默认要求 Anthropic 保留提示与输出用于安全分类器，企业管理员必须手动打开策略，策略默认关闭；零留存访问只对符合条件的企业开放到年底。这篇教程把能力、可用范围、留存规则、ZDR 豁免窗口、启用流程、成本观测和常见坑一次讲清，给出一份可执行的决策清单。",
+      tags: ["Claude Fable 5.2", "GitHub Copilot", "数据留存", "ZDR", "企业策略", "模型选型"],
+      featured: true,
+      intro: [
+        "11 月 9 日，Anthropic 的 Claude Fable 5.2 在 GitHub Copilot 正式可用。官方给的测试结论是：在大型代码库的复杂多步任务上，它比 Fable 5.1 解决得更多，用的步骤和工具调用更少，还完成了前代漏掉的难题。对每天和 agent 打交道的人来说，少几步就是少几分钟等待和少几十次 token。",
+        "但这条更新里最该先读的不是性能，而是数据条款：Fable 5.2 默认需要数据留存，Anthropic 会保留提示与输出用于运行安全分类器；企业策略默认关闭，管理员打开策略就等于确认这个要求；符合条件的部分企业可以通过限时豁免拿到零留存访问，窗口只到年底。能力可以试，合规要先想清楚。"
+      ],
+      audience: [
+        "负责 Copilot 企业策略与模型准入的平台或 IT 管理员",
+        "对代码与提示数据出境、留存有合规要求的安全与法务同学",
+        "想评估是否把复杂任务切到 Fable 5.2 的开发者",
+        "需要给团队解释「为什么模型看得见却用不了」的团队负责人"
+      ],
+      format: [
+        "全文按「能力 → 可用范围 → 留存规则 → 启用流程 → 成本 → 选型 → 坑 → 清单」组织",
+        "能力结论只引用官方测试口径，不把厂商宣传当成团队实测"
+      ],
+      roadmap: [
+        "确认团队是否有 Pro+、Max、Business 或 Enterprise 席位",
+        "判断当前合规框架能否接受提示与输出留存",
+        "核对是否符合零留存豁免条件与时间窗口",
+        "由企业管理员启用 Fable 5.2 策略",
+        "选一个复杂任务做小范围对比测试",
+        "用用量指标观察成本与采纳情况",
+        "确定 Fable 5.2 与 Gemini 4 Carbon 的分工",
+        "把结论写进模型准入清单并定期复核"
+      ],
+      officialLinks: [
+        { label: "Claude Fable 5.2 in GitHub Copilot", url: "https://github.blog/changelog/2026-11-09-claude-fable-5-2-in-github-copilot/", note: "官方发布说明与留存条款" },
+        { label: "Gemini 4 Carbon in GitHub Copilot", url: "https://github.blog/changelog/2026-11-10-gemini-4-carbon-in-github-copilot/", note: "同周另一款可用模型" },
+        { label: "GitHub Copilot 模型与定价", url: "https://docs.github.com/en/copilot", note: "模型列表与计费口径" }
+      ],
+      curatedLinks: [
+        "上线时间：2026 年 11 月 9 日，GitHub Copilot 正式可用",
+        "可用席位：Copilot Pro+、Max、Business、Enterprise",
+        "默认状态：企业策略关闭，管理员需在 Copilot 设置中启用",
+        "数据留存：默认保留提示与输出用于安全分类器，不用于训练模型",
+        "零留存：符合条件的企业可通过限时豁免用到年底，之后需 EFS"
+      ],
+      downloadIdeas: [
+        "做一张模型准入表，列出模型、数据留存、可用席位、计费方式、审批人五列",
+        "把 Fable 5.2 与 Gemini 4 Carbon 各挑一个真实任务做同题对比记录"
+      ],
+      extraSections: [
+        {
+          title: "一、这次更新到底变了什么",
+          items: [
+            "模型：Anthropic 最新的 Fable 系列，Claude Fable 5.2，在 Copilot 正式可用",
+            "定位：面向大型代码库里的复杂、多步编码任务，不是给单行补全用的",
+            "计费：按厂商标价、走按量计费，不包含在固定席位额度里",
+            "灰度：逐步放开，同一组织里不同人看到模型的时间可能不同",
+            "策略：企业与商业版管理员必须手动启用，默认是关闭状态"
+          ]
+        },
+        {
+          title: "二、Fable 5.2 强在哪",
+          items: [
+            "官方早期测试：解决的任务数量多于 Fable 5.1",
+            "效率：完成同类任务使用的步骤与工具调用更少",
+            "难题：完成了前代模型漏掉的高难度任务",
+            "适用面：跨文件重构、长链路调试、多步 agent 任务更可能受益",
+            "注意：这是厂商测试口径，换成你自己的仓库、语言和测试集，结论可能不同"
+          ]
+        },
+        {
+          title: "三、谁能用、在哪用",
+          items: [
+            "席位：Copilot Pro+、Max、Business、Enterprise",
+            "入口：VS Code、Visual Studio、Copilot CLI、Copilot coding agent、Copilot 应用、github.com、GitHub Mobile、JetBrains、Xcode、Eclipse",
+            "选择方式：在模型选择器里直接选 Claude Fable 5.2",
+            "企业侧：管理员在 Copilot 设置里打开 Claude Fable 5.2 策略",
+            "默认启用逻辑：如果组织关掉了全局默认，新模型不会自动对所有人生效"
+          ]
+        },
+        {
+          title: "四、数据留存：默认开启意味着什么",
+          items: [
+            "留存内容：提示与输出，用于运行 Anthropic 的安全分类器，检测有害使用",
+            "用途边界：官方声明留存数据不用于训练 Anthropic 的模型",
+            "范围差异：除 Fable 5、5.1、5.2 外，其他 Claude 模型仍按零留存运行",
+            "策略含义：启用 Fable 5.2 策略，等于组织确认并接受这一留存要求",
+            "实操影响：涉及客户数据、未公开源码、密钥片段的仓库，需要先做数据分类再决定是否开放"
+          ]
+        },
+        {
+          title: "五、零留存豁免的时间窗口",
+          items: [
+            "适用对象：符合条件的部分企业客户，需通过 GitHub 账号团队确认资格",
+            "窗口：在 Anthropic 推进 Enterprise Frontier Safeguards 期间，可用到本日历年底",
+            "之后：继续使用需要接入 EFS，EFS 提供自动安全监控与更多数据留存选项，包括自持存储与加密密钥",
+            "审批不等于启用：资格通过后，管理员仍要手动打开策略",
+            "支持边界：GitHub Support 无法判定资格，也无法代为开启"
+          ]
+        },
+        {
+          title: "六、企业启用流程建议",
+          items: [
+            "定决策人：平台、安全、法务三方共同签字，别让 IT 单独背合规责任",
+            "先分类：列出会用 Copilot 的仓库与数据等级，标出不能留存的类别",
+            "小范围试点：选 5 到 10 个复杂任务场景，记录成功率、步骤数、耗时",
+            "再开策略：确认留存条款可接受后，由企业管理员启用，保留审批记录",
+            "同步沟通：告诉开发者为什么这个模型可用或不可用，减少「看得见点不了」的困惑",
+            "定期复核：豁免到期前一个月启动 EFS 评估，避免年底突然断供"
+          ]
+        },
+        {
+          title: "七、成本与用量观测",
+          items: [
+            "计费方式：按量计费、厂商标价，复杂任务消耗的 token 会比小模型高",
+            "观测入口：Copilot 用量指标 API 与组织报表，看模型维度与席位维度",
+            "预算控制：给试点团队设额度上限，避免一个人跑长任务把月度预算打穿",
+            "对比方法：同题分别用 Fable 5.2 与现有默认模型跑一遍，比总成本而不是单价",
+            "判断标准：任务一次通过率提升带来的返工减少，能否覆盖模型溢价"
+          ]
+        },
+        {
+          title: "八、模型选型：什么时候用、什么时候不用",
+          items: [
+            "适合：跨多个文件的重构、复杂 bug 定位、需要多轮工具调用的 agent 任务",
+            "不适合：单文件小改、格式调整、文档改写，这类任务用小模型更快更便宜",
+            "安全场景可对比：同周的 Gemini 4 Carbon 主打安全代码生成，可作为评审与修复的备选",
+            "合规优先场景：不能接受留存的仓库，直接排除 Fable 5.2，不要靠「少贴敏感内容」来规避",
+            "组织策略：把「数据等级 → 可用模型」做成一张表，比逐个案例讨论更省事"
+          ]
+        },
+        {
+          title: "九、常见坑",
+          items: [
+            "以为正式可用就等于全员可用：企业策略默认关闭，不开就看不到",
+            "以为申请了 ZDR 就自动生效：审批通过后仍需管理员启用策略",
+            "以为留存只影响云端：只要请求发到该模型，提示与输出就进入留存链路",
+            "以为灰度是故障：同组织不同时间看到模型属正常，别反复提工单",
+            "把厂商测试结论直接写进团队规范：没有自己的对比数据，就无法判断是否值得溢价"
+          ]
+        },
+        {
+          title: "十、落地清单",
+          items: [
+            "已确认席位类型与可用入口",
+            "已完成使用仓库的数据分类",
+            "已确认留存条款并获得安全、法务签字",
+            "已核对 ZDR 资格与到期时间",
+            "已在企业设置中启用策略并留存审批记录",
+            "已完成至少 5 个真实任务的对比测试",
+            "已在用量报表中设置预算与告警",
+            "已把模型准入结论写入团队文档并设定复核日期"
+          ]
+        }
+      ]
+    },
+    {
+      id: "vercel-toml-migration-multiservice-config-guide",
+      title: "vercel.toml 迁移实战：多服务项目怎么配、和 vercel.json 怎么选",
+      date: "2026-11-12",
+      category: "云端部署",
+      readTime: "11 分钟",
+      excerpt: "Vercel 在 11 月 2 日支持了 vercel.toml，属性和 vercel.json 完全一致，但能写注释、层级更平。对 monorepo 和多服务项目来说，配置终于能被 review。代价是一个项目只能保留一份配置文件：vercel.toml、vercel.json、vercel.ts 三选一，同时留着两个时另一个会被静默忽略。这篇教程给出最小示例、Services 与 rewrites 写法、从 JSON 迁移的步骤、常见坑和验收清单。",
+      tags: ["Vercel", "vercel.toml", "monorepo", "多服务", "部署配置", "TOML"],
+      featured: false,
+      intro: [
+        "配置文件最怕两件事：一是不能写注释，二是嵌套太深没法 review。vercel.json 两条都占，项目一上多服务，rewrites 和 builds 叠起来就很难看懂。11 月 2 日 Vercel 支持 vercel.toml，属性和 JSON 版本一致，但换成 TOML 后可以写注释、结构更平。",
+        "迁移本身不难，难的是团队里同时存在 vercel.json、vercel.ts 和新的 vercel.toml。官方明确只认一个，多出来的会被忽略，而且不会有明显报错。这篇教程按「先看清规则、再写配置、最后验收」的顺序讲。"
+      ],
+      audience: [
+        "用 Vercel 部署 monorepo 或前后端分离项目的前端与全栈工程师",
+        "希望把部署配置纳入代码评审的团队负责人",
+        "接手了历史 vercel.json、想整理配置的人"
+      ],
+      format: [
+        "全文按「规则 → 示例 → 多服务 → 迁移 → 坑 → 验收」组织，示例均可直接改用",
+        "只讲官方支持的属性，不编造未文档化的字段"
+      ],
+      roadmap: [
+        "确认项目当前用的是哪种配置文件",
+        "读懂三选一的互斥规则",
+        "写出最小可用的 vercel.toml",
+        "配置 Services 与 rewrites",
+        "从 vercel.json 逐步迁移",
+        "在 CI 里加 schema 校验",
+        "约定团队配置规范",
+        "按验收清单核对部署结果"
+      ],
+      officialLinks: [
+        { label: "Projects can now be configured with vercel.toml", url: "https://vercel.com/changelog/projects-can-now-be-configured-with-vercel-toml", note: "官方发布说明与示例" },
+        { label: "Vercel 项目配置文档", url: "https://vercel.com/docs", note: "配置属性参考" }
+      ],
+      curatedLinks: [
+        "上线时间：2026 年 11 月 2 日",
+        "能力范围：支持 vercel.json 的全部配置属性",
+        "格式优势：支持注释、结构更平",
+        "互斥规则：vercel.toml、vercel.json、vercel.ts 只能用一个",
+        "schema：首行可用 $schema 指向官方 schema 获得补全与校验"
+      ],
+      downloadIdeas: [
+        "把现有 vercel.json 逐段翻译成 TOML，保留原文件在分支里做对照",
+        "做一份团队配置规范：谁改、怎么审、CI 怎么校验"
+      ],
+      extraSections: [
+        {
+          title: "一、vercel.toml 是什么",
+          items: [
+            "Vercel 新增的项目配置文件格式，使用 TOML",
+            "支持 vercel.json 的全部配置属性，不存在只支持一半的情况",
+            "相比 JSON 的两个实际好处：可以写注释、层级更平",
+            "所有项目都可以使用，不限套餐",
+            "文件放在项目根目录，和 vercel.json 同一位置"
+          ]
+        },
+        {
+          title: "二、三选一的互斥规则",
+          items: [
+            "vercel.toml、vercel.json、vercel.ts 三种格式只能保留一个",
+            "同时存在多个时，只有一个生效，其余被忽略且不会明显报错",
+            "迁移时先删旧文件再提交新文件，不要长期并存",
+            "如果项目用 vercel.ts 做动态配置，就不要引入 toml",
+            "团队里应在 README 写清当前使用哪一种，避免后来者加错"
+          ]
+        },
+        {
+          title: "三、最小可用示例",
+          items: [
+            "首行写 $schema，指向官方 schema，编辑器可以获得补全与校验",
+            "顶层键值对对应原来的项目级设置，例如框架、构建命令、输出目录",
+            "注释用井号开头，适合标注「这段为什么这么配」",
+            "数组表用双层方括号，例如 [[rewrites]]，与 JSON 的数组元素对应",
+            "保存后先本地跑一次构建，再推到预览环境验证"
+          ]
+        },
+        {
+          title: "四、多服务配置",
+          items: [
+            "用 [services.frontend] 定义前端服务，root 指向子目录",
+            "用 [services.backend] 定义后端服务，root 与 entrypoint 分别指定目录和入口",
+            "entrypoint 写法形如 main:app，对应 Python 应用的模块与对象",
+            "每个服务可以有独立的运行时与构建配置",
+            "服务拆分后，路由要靠 rewrites 明确指向，不能指望自动推断"
+          ]
+        },
+        {
+          title: "五、rewrites 把流量分给服务",
+          items: [
+            "第一条规则把 /api/(.*) 指向 backend 服务",
+            "第二条规则把 /(.*) 兜底指向 frontend 服务",
+            "顺序重要：更具体的规则放前面，兜底放最后",
+            "destination 可以写成对象形式指定 service",
+            "改完路由务必在预览环境逐条访问验证，尤其是带查询参数的路径"
+          ]
+        },
+        {
+          title: "六、从 vercel.json 迁移的步骤",
+          items: [
+            "第一步：复制一份 vercel.json 到临时分支，作为逐段对照的底稿",
+            "第二步：先迁移顶层设置，确认构建与输出行为不变",
+            "第三步：迁移 rewrites、redirects、headers 等数组段，注意数组表语法",
+            "第四步：删除 vercel.json，只保留 vercel.toml，提交到预览分支",
+            "第五步：对比预览部署的构建日志与路由行为，确认无差异再合并"
+          ]
+        },
+        {
+          title: "七、常见坑",
+          items: [
+            "两个配置文件并存：旧文件被忽略，改新文件却「不生效」，排障方向直接跑偏",
+            "把 JSON 的逗号习惯带进 TOML：TOML 不允许尾逗号，会直接解析失败",
+            "数组表写成单括号：[[rewrites]] 写成 [rewrites] 后语义完全不同",
+            "注释里写敏感信息：配置文件进 Git，注释同样会被提交",
+            "本地编辑器没有 schema：拼错键名不会提示，部署时才报错"
+          ]
+        },
+        {
+          title: "八、CI 与本地校验",
+          items: [
+            "在 CI 里加一步 TOML 语法解析，解析失败直接挡住合并",
+            "用 schema 做键名与类型校验，避免拼写错误拖到部署阶段",
+            "预览部署必须跑，配置文件的问题只有真实构建能暴露",
+            "把「只允许一个配置文件」写成脚本检查，防止有人补回旧文件",
+            "变更配置的 PR 要求至少一人 review，配置也是代码"
+          ]
+        },
+        {
+          title: "九、团队协作规范",
+          items: [
+            "单一配置源：全仓库只认一种格式，写进 README",
+            "分段注释：每个非默认配置都写一行理由，方便后来者判断能否删",
+            "变更记录：路由与服务拆分的改动在 PR 描述里写清影响面",
+            "回滚预案：配置类变更出问题时，优先回滚提交而不是线上手改",
+            "新项目默认用 toml，老项目按排期迁移，不搞一次性全量替换"
+          ]
+        },
+        {
+          title: "十、验收清单",
+          items: [
+            "项目中只剩一个配置文件",
+            "TOML 能被解析器与 schema 校验通过",
+            "构建命令、输出目录与迁移前一致",
+            "Services 的 root 与 entrypoint 指向正确",
+            "rewrites 顺序正确，兜底规则在最后",
+            "预览环境逐条验证了 API 与页面路径",
+            "README 已写明配置格式与修改流程",
+            "CI 已加入语法校验与单文件检查"
+          ]
+        }
+      ]
+    },
+    {
+      id: "github-actions-log-secret-scanning-supply-chain-guide",
+      title: "构建日志里的密钥也会告警：Actions 日志扫描、Dependabot 休眠与依赖拦截三件套",
+      date: "2026-11-12",
+      category: "安全",
+      readTime: "12 分钟",
+      excerpt: "11 月 9 日 GitHub secret scanning 开始扫描 Actions 工作流日志，调试时把 token 打进构建输出也会进告警列表；11 月 10 日官方宣布从 12 月 8 日起对一年无活动的仓库暂停 Dependabot 告警；11 月 2 日 Vercel 开始在安装前和安装中拦截被封锁的 npm 版本。三条更新分别对应检测、覆盖与阻断，拼起来才是一条完整的供应链防线。这篇教程讲清每条的适用范围与限制，给出开启步骤、告警分流和轮换预案。",
+      tags: ["Secret Scanning", "GitHub Actions", "Dependabot", "供应链安全", "npm", "Vercel"],
+      featured: false,
+      intro: [
+        "供应链风险很少以「被攻破」的形式出现，更多是「早就泄露了但没人看见」。构建日志里一行 curl 带 token、一个休眠仓库里三年没升的依赖、一次 npm install 拉到的恶意版本，单看都不致命，叠起来就是入口。",
+        "11 月上旬三条更新刚好覆盖三个环节：Actions 日志扫描负责发现，Dependabot 策略调整影响覆盖范围，Vercel 的依赖拦截负责在安装阶段阻断。这篇教程按「怎么发现、覆盖到哪、怎么阻断、怎么收尾」讲，最后给一份可以直接照做的清单。"
+      ],
+      audience: [
+        "负责 GitHub 组织安全配置与 CI/CD 的平台工程师",
+        "要处理密钥泄露告警的安全运营同学",
+        "用 Vercel 部署、关心依赖供应链的前端团队",
+        "需要向管理层解释「为什么休眠仓库也要管」的负责人"
+      ],
+      format: [
+        "全文按「检测 → 覆盖 → 阻断 → 治理 → 清单」组织，每条更新单独标注适用边界",
+        "预览期限制与未覆盖场景明确写出，不把新能力当成万能防线"
+      ],
+      roadmap: [
+        "确认组织是否具备 Secret Protection 或 GHAS",
+        "在企业设置中开启 Actions 日志扫描",
+        "梳理一年无活动的仓库清单",
+        "决定哪些仓库需要保活或强制安全配置",
+        "确认 Vercel 构建拦截是否覆盖现有依赖",
+        "建立密钥泄露的轮换与取证流程",
+        "把三类告警接入统一看板",
+        "按清单完成一次演练"
+      ],
+      officialLinks: [
+        { label: "Secret scanning 扫描 Actions 工作流日志", url: "https://github.blog/changelog/2026-11-09-secret-scanning-detects-secrets-in-github-actions-workflow-logs/", note: "能力范围与开启方式" },
+        { label: "Dependabot 告警将在休眠仓库暂停", url: "https://github.blog/changelog/2026-11-10-dependabot-alerts-will-pause-on-inactive-repositories/", note: "生效时间与恢复规则" },
+        { label: "Vercel 拦截恶意 npm 包", url: "https://vercel.com/changelog/blocking-malicious-npm-packages-before-and-during-installation", note: "构建期拦截机制" }
+      ],
+      curatedLinks: [
+        "Actions 日志扫描：公开预览，工作流结束后扫描日志中的厂商特征",
+        "告警去重：结果进入仓库 secret scanning 告警列表，附日志链接，日志删除后告警仍保留",
+        "Dependabot：2026 年 12 月 8 日起对一年无活动仓库暂停告警，归档不删除",
+        "恢复方式：任意 push、创建仓库或手动开启都会恢复并重置一年计时",
+        "Vercel：安装前检查 lockfile、安装中拦截公共 npm 下载，命中即构建失败"
+      ],
+      downloadIdeas: [
+        "做一张密钥泄露处置卡：发现、验证、轮换、取证、复盘五步",
+        "整理休眠仓库清单，标注「仍在使用 / 可归档 / 需保活」三类"
+      ],
+      extraSections: [
+        {
+          title: "一、三条更新为什么放在一起看",
+          items: [
+            "检测：Actions 日志扫描把构建输出纳入密钥发现范围",
+            "覆盖：Dependabot 策略调整改变了休眠仓库的漏洞可见度",
+            "阻断：Vercel 把恶意依赖拦在安装脚本执行之前",
+            "三者共同点是「提前」：提前发现、提前暴露、提前拦截",
+            "缺口也很清楚：私库、自建镜像、本地开发环境都不在覆盖内"
+          ]
+        },
+        {
+          title: "二、Actions 日志扫描怎么工作",
+          items: [
+            "触发时机：工作流运行完成后，扫描该次运行的日志",
+            "匹配方式：按服务商提供的密钥特征匹配，不是通用文本搜索",
+            "结果位置：仓库的 secret scanning 告警列表，和代码告警并列",
+            "附带信息：告警里给出回到该次 Actions 日志的链接",
+            "有效性校验：支持的密钥类型会调用服务商接口验证是否仍有效"
+          ]
+        },
+        {
+          title: "三、开启条件与范围",
+          items: [
+            "套餐要求：GitHub Enterprise Cloud，且拥有 GitHub Secret Protection 或 GitHub Advanced Security",
+            "数据驻留：包含 GHE.com 上的企业",
+            "操作人：企业所有者",
+            "路径：企业设置 → Policies → Advanced Security → All repositories 选择 Enabled",
+            "默认状态：关闭；只对已启用 secret scanning 的仓库生效"
+          ]
+        },
+        {
+          title: "四、预览期的四个限制",
+          items: [
+            "不回溯：只扫描开启之后的运行，历史日志不会补扫",
+            "不覆盖：通用规则、自定义规则、AI 检测的密钥都不会命中",
+            "不报打码内容：Actions 已自动掩码的密钥不会产生告警",
+            "不通知：预览期不发送通知，必须主动查看告警列表",
+            "结论：开启只是起点，历史泄露仍要靠人工排查与轮换"
+          ]
+        },
+        {
+          title: "五、Dependabot 的休眠策略",
+          items: [
+            "生效时间：2026 年 12 月 8 日",
+            "判定标准：过去一年没有向任意分支或标签 push、没有创建仓库、没有开启告警",
+            "处理方式：暂停告警，已有告警归档而非删除",
+            "恢复方式：任意一次 push 自动恢复，也可在仓库设置里手动开启，归档告警回归且计时重置",
+            "例外：启用强制安全配置且包含 Dependabot 告警的仓库、企业策略禁止管理员开关的仓库不会被暂停",
+            "范围：github.com 全套餐与带数据驻留的 Enterprise Cloud，不含 GitHub Enterprise Server"
+          ]
+        },
+        {
+          title: "六、Vercel 的构建期拦截",
+          items: [
+            "检查依据：按具体包版本维护的封锁清单，因恶意代码或漏洞被列入",
+            "安装前：检查受支持的 lockfile，包括从构建缓存恢复依赖的场景",
+            "安装中：拦截受影响的公共 npm 下载，阻止安装脚本执行",
+            "命中表现：部署失败，错误信息给出包名与版本，并尝试让受影响缓存失效",
+            "恢复方式：升级到安全版本、更新 lockfile、重新部署",
+            "覆盖范围：所有套餐的新构建自动生效，无需配置；私有 registry 不在范围内"
+          ]
+        },
+        {
+          title: "七、组合起来的治理逻辑",
+          items: [
+            "发现层：代码、issue、PR、wiki、日志，凡是密钥可能落地的地方都要有扫描",
+            "分诊层：有效性校验优先处理仍有效的密钥，已失效的降级处理",
+            "阻断层：依赖安装阶段拦截，避免恶意脚本在构建机上执行",
+            "覆盖层：休眠仓库要么保活、要么进强制安全配置，不能放任失明",
+            "复盘层：每次真实告警都要回溯「为什么会进日志」，改流程而不是只删日志"
+          ]
+        },
+        {
+          title: "八、落地步骤",
+          items: [
+            "第一天：确认套餐与许可，开启 Actions 日志扫描",
+            "第二天：导出一年无 push 的仓库清单，标注业务状态",
+            "第三天：对仍在服务的休眠仓库加强制安全配置或安排保活",
+            "第四天：核对 Vercel 项目依赖，确认封锁清单能覆盖主要依赖",
+            "第五天：把三类告警接到同一个看板，指定值班人",
+            "第六天：写密钥轮换预案，明确谁有权吊销、多久完成",
+            "第七天：做一次演练，故意在测试仓库打印假 token，验证告警链路"
+          ]
+        },
+        {
+          title: "九、常见误区",
+          items: [
+            "以为开启日志扫描就万事大吉：历史日志不回溯，旧泄露仍需排查",
+            "以为告警等于泄露：先用有效性校验确认，再决定轮换范围",
+            "把休眠仓库当成安全仓库：代码不动，依赖照样会被新漏洞击中",
+            "把 Vercel 拦截当成唯一防线：只覆盖清单内版本，私库与本地安装绕得过去",
+            "只删日志不查来源：密钥为什么会被打印，流程问题不解决还会再犯"
+          ]
+        },
+        {
+          title: "十、检查清单",
+          items: [
+            "已确认组织具备 Secret Protection 或 GHAS",
+            "已开启 Actions 工作流日志扫描并验证告警可见",
+            "已导出休眠仓库清单并完成分类",
+            "仍在服务的休眠仓库已加入强制安全配置",
+            "已确认 Vercel 构建拦截对现有 lockfile 生效",
+            "已建立密钥轮换责任人与时限",
+            "三类告警已接入统一看板并设值班",
+            "已完成一次从告警到轮换的完整演练"
+          ]
+        }
+      ]
+    },
+    {
       id: "2027-guangdong-shengkao-gonggao-jiaofei-zhunkaozheng-bishi-guide",
       title: "2027 广东省考公告解读：10293 名招录、缴费确认与 12 月 6 日笔试全流程",
       date: "2026-11-08",
@@ -11253,6 +11721,86 @@ git push origin main`,
     "github-agentic-workflows-public-preview-guide"
   ],
   hotspots: [
+    {
+      date: "2026-11-11",
+      tag: "开发工具",
+      title: "Issue 类型与字段下放到个人账号：个人仓库也能建 Bug、Task、Feature 和自定义字段",
+      summary: "GitHub 把 Issue types 与 issue fields 正式开放给个人账号拥有的仓库，个人开发者和开源维护者可以用同一套规划能力整理跨仓库的 issue。类型可在个人账号设置的 Planning 下自定义，默认是 Bug、Task、Feature，最多 25 个；字段默认 Priority、Effort、Start date、Target date，最多 25 个，支持文本、数字、日期、单选与多选，还能把字段固定到某个类型或让无类型 issue 也能用。新建或查看 issue 时可直接选类型和字段，也能在 Projects 里做自定义视图和批量修改，REST、GraphQL 与 webhook 都能程序化管理。另外，现在可以在 issue 里直接创建标签和里程碑，不用跳去仓库设置页。",
+      why: "为什么值得关注：个人仓库长期只有标签和里程碑，issue 一多就只能靠标题前缀区分。类型加字段后，开源项目可以用结构化方式收 issue，个人待办也能按优先级和工期排。注意上限是 25 个类型、25 个字段，字段类型一旦建好改动成本不低，先想清楚再批量建；跨仓库统一靠的是账号级设置，团队协作前最好先约定命名。",
+      sourceLabel: "GitHub Changelog",
+      sourceUrl: "https://github.blog/changelog/2026-11-11-issue-types-and-fields-are-available-for-personal-accounts/",
+      articleIdea: "候选：个人仓库的 issue 结构化实践"
+    },
+    {
+      date: "2026-11-10",
+      tag: "AI 编程",
+      title: "Gemini 4 Carbon 进入 Copilot：主打安全代码生成，Pro+ 及以上可用",
+      summary: "Google 的新模型 Gemini 4 Carbon 在 GitHub Copilot 正式可用，定位复杂编码、agentic 与推理任务，重点强调安全代码生成和安全相关工作。Copilot Pro+、Max、Business、Enterprise 用户可以在模型选择器里选它，覆盖 VS Code、Visual Studio、Copilot CLI、Copilot coding agent、Copilot 应用、github.com、GitHub Mobile、JetBrains、Xcode 与 Eclipse，采用按量计费、按厂商标价结算，灰度逐步放开。企业管理侧通过模型策略控制：在默认启用模型的前提下，新模型会自动打开，除非管理员关掉了全局默认或显式禁用该模型。",
+      why: "为什么值得关注：模型选择已经细到「安全场景用哪个」的程度，安全团队可以把它作为默认评审或修复模型，而不必全局换模型。成本要盯住：按量计费叠加多模型策略时，账单会随使用面扩散；企业还要确认默认启用策略不会把新模型直接推给所有 seat，尤其是对数据出境和供应商合规有要求的组织。",
+      sourceLabel: "GitHub Changelog",
+      sourceUrl: "https://github.blog/changelog/2026-11-10-gemini-4-carbon-in-github-copilot/",
+      articleIdea: "候选：Copilot 多模型策略与安全场景选型"
+    },
+    {
+      date: "2026-11-10",
+      tag: "供应链安全",
+      title: "Dependabot 将暂停一年无活动的仓库：告警归档不删除，一次 push 就能恢复",
+      summary: "从 2026 年 12 月 8 日起，GitHub 会对大多数「过去一年没有任何活动」的仓库关闭 Dependabot 告警，已有告警归档而不是删除，随时可以恢复。官方把活动定义为：向任意分支或标签 push、创建仓库、开启 Dependabot 告警，三者任一即可。恢复很简单：任何一次 push 会自动重新开启，也可以在仓库设置里手动打开，归档告警会恢复且一年计时重新开始。如果仓库启用了强制安全配置且其中包含 Dependabot 告警，或企业策略不允许仓库管理员开关告警，则不会被关闭。该变更覆盖 github.com 所有套餐与带数据驻留的 Enterprise Cloud，不适用于 GitHub Enterprise Server。",
+      why: "为什么值得关注：漏洞发现量和告警量增长太快，休眠仓库正在拖慢整个告警链路，官方选择用「暂停」换性能。副作用是长期不动的仓库会失去新漏洞覆盖，尤其是那些「代码不动但依赖仍在对公网提供服务」的项目，例如静态站点、内部工具镜像。建议在 12 月 8 日前盘一遍休眠仓库，把仍在使用的依赖仓库加进强制安全配置，或安排一次 push 保活。",
+      sourceLabel: "GitHub Changelog",
+      sourceUrl: "https://github.blog/changelog/2026-11-10-dependabot-alerts-will-pause-on-inactive-repositories/",
+      articleIdea: "候选：休眠仓库的依赖治理清单"
+    },
+    {
+      date: "2026-11-10",
+      tag: "DevOps",
+      title: "企业级 GitHub App 可管 Copilot seat：入离职能接进自动化流程",
+      summary: "企业级 GitHub App 现在可以调用企业层的 Copilot seat 管理 API，控制哪些用户和企业团队被分配 Copilot 席位。为此新增了一个细粒度的 App 权限 Enterprise Copilot license management，App 只要拿到这个权限，就能做席位分配与回收，不必再申请更宽的权限。",
+      why: "为什么值得关注：席位管理过去靠管理员在页面上点，几百人的组织入离职高峰很容易漏发或漏收，白花钱还留下权限残留。接进 HR 或 IdP 的自动化后，入职自动开、离职自动收，配合用量报表能算出真实成本。注意这是企业层能力，需要企业管理员审批 App 与权限；给自动化用的 App 应单独建、单独审，不要和通用运维 App 混用。",
+      sourceLabel: "GitHub Changelog",
+      sourceUrl: "https://github.blog/changelog/2026-11-10-github-app-support-for-enterprise-copilot-seat-management/",
+      articleIdea: "候选：Copilot 席位自动化与成本治理"
+    },
+    {
+      date: "2026-11-09",
+      tag: "AI 编程",
+      title: "Claude Fable 5.2 上线 Copilot：更少步骤解决更多难题，但默认要求留存数据",
+      summary: "Anthropic 最新的 Fable 模型 Claude Fable 5.2 在 GitHub Copilot 正式可用，面向大型代码库里的复杂多步编码任务。早期测试里它比 Fable 5.1 解决更多任务，用的步骤和工具调用更少，也完成了前代漏掉的难题。Copilot Pro+、Max、Business、Enterprise 可用，模型选择器覆盖 VS Code、Visual Studio、CLI、coding agent、Copilot 应用、github.com、移动端、JetBrains、Xcode 与 Eclipse，按厂商标价计费。企业与商业版管理员必须在 Copilot 设置里启用 Fable 5.2 策略，该策略默认关闭。关键限制：该模型默认需要数据留存，Anthropic 会保留提示与输出用于运行安全分类器，但声明不用于训练模型；符合条件的部分企业可在年底前通过限时豁免获得零留存访问，之后要继续用需接入 Enterprise Frontier Safeguards。",
+      why: "为什么值得关注：能力提升意味着复杂任务可以少绕几圈，省下的是 token 和等待；但数据留存默认打开，这一点比模型强弱更值得先看。启用策略在形式上就等于确认留存要求，关掉策略则全组织不可用。ZDR 豁免是时间窗口而非永久，明年起的合规路径要提前和 Anthropic、GitHub 账号团队确认，GitHub Support 不能判定资格。",
+      sourceLabel: "GitHub Changelog",
+      sourceUrl: "https://github.blog/changelog/2026-11-09-claude-fable-5-2-in-github-copilot/",
+      articleIdea: "已扩写：Fable 5.2 接入与数据留存决策"
+    },
+    {
+      date: "2026-11-09",
+      tag: "安全",
+      title: "Secret scanning 开始扫 Actions 工作流日志：密钥打印进构建输出也会告警",
+      summary: "GitHub secret scanning 扩大了扫描范围，现在会检测 GitHub Actions 工作流日志里的密钥，此前已覆盖 issue、wiki、discussion 和 pull request。工作流运行结束后，GitHub 扫描日志中的厂商特征，命中的结果进入仓库的 secret scanning 告警列表，并附带回到该日志的链接；支持的密钥类型会做有效性校验，即使日志后来被删除，告警仍然保留。该能力目前是公开预览，开放给使用 GitHub Secret Protection 或 GitHub Advanced Security 的 GitHub Enterprise Cloud 企业（含 GHE.com 数据驻留），企业所有者需在 Policies → Advanced Security 里把 All repositories 设为 Enabled，默认关闭。",
+      why: "为什么值得关注：最常见的泄露路径之一，就是调试时把 token 打进 echo 或 curl，日志留存几十天且对协作者可见。这一步把「构建日志」纳入了密钥防线。预览期限制要清楚：只扫开启之后的运行，不回溯历史日志；通用规则、自定义规则、AI 检测的密钥和被 Actions 自动打码的内容都不会命中；预览期不发送通知，需要主动看告警列表。",
+      sourceLabel: "GitHub Changelog",
+      sourceUrl: "https://github.blog/changelog/2026-11-09-secret-scanning-detects-secrets-in-github-actions-workflow-logs/",
+      articleIdea: "已扩写：构建日志密钥治理与供应链三件套"
+    },
+    {
+      date: "2026-11-02",
+      tag: "云端部署",
+      title: "Vercel 支持 vercel.toml：能写注释、结构更平，和 vercel.json、vercel.ts 三选一",
+      summary: "Vercel 新增 vercel.toml 项目配置，支持的属性与 vercel.json 完全一致，但采用 TOML 格式：可以写注释，层级更平，长配置更容易读。示例里用 [services.frontend]、[services.backend] 定义多服务，再用 [[rewrites]] 把 /api 流量指到后端、其余指到前端，第一行用 $schema 指向官方 schema 以获得补全与校验。官方强调一个项目只能用一个配置文件：vercel.toml、vercel.json、vercel.ts 三选一。",
+      why: "为什么值得关注：monorepo 与多服务项目越来越多，JSON 不能写注释、深层嵌套难 review，TOML 在配置管理上更顺手。迁移时最容易踩的坑是同时留着两个配置文件，Vercel 只认其中一个，另一个会被忽略，排障时非常容易误判。团队里如果有人用 vercel.ts 做动态配置，就别再引入 toml，先统一到一种。",
+      sourceLabel: "Vercel Changelog",
+      sourceUrl: "https://vercel.com/changelog/projects-can-now-be-configured-with-vercel-toml",
+      articleIdea: "已扩写：vercel.toml 迁移与多服务配置"
+    },
+    {
+      date: "2026-11-02",
+      tag: "供应链安全",
+      title: "Vercel 在安装前和安装中拦截恶意 npm 包：命中即构建失败并清缓存",
+      summary: "Vercel 现在会在依赖安装之前和安装过程中检查被封锁的 npm 包，阻止恶意安装脚本运行。检查依据是一份按具体包版本维护的封锁清单，条目因恶意代码或安全漏洞被列入，新规则通常几分钟内对新构建生效。安装前会检查受支持的 lockfile，包括从构建缓存恢复依赖的场景；安装中会拦截受影响的公共 npm 下载；原有的已安装依赖与产物检查继续在部署前运行。这些保护对所有套餐的新构建自动生效、无需配置。命中时部署直接失败，错误里给出包名和版本，并尝试让受影响的构建缓存失效；升级到安全版本、更新 lockfile 后重新部署即可。",
+      why: "为什么值得关注：供应链攻击最怕的是「装完才知道」，把检查提前到解析 lockfile 和下载阶段，能在脚本执行前掐断。但这不是万能防线：只覆盖清单内的版本，私有 registry 与自建镜像不在范围内，缓存失效也是尽力而为。真正有效的做法仍是锁版本、审 lockfile 变更、限制安装脚本权限，并把这条拦截当成最后一道闸。",
+      sourceLabel: "Vercel Changelog",
+      sourceUrl: "https://vercel.com/changelog/blocking-malicious-npm-packages-before-and-during-installation",
+      articleIdea: "已扩写：构建期依赖拦截与 lockfile 治理"
+    },
     {
       date: "2026-11-06",
       tag: "AI 编程",
