@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Copilot 12 月 14 日下架 6 个模型：一份能照着做的迁移清单 | 学习资源库</title>
+  <meta name="description" content="GitHub 在 11 月 13 日宣布，12 月 14 日从所有 Copilot 体验中下架 Claude Fable 5、Claude Haiku 4.5、Gemini 3.8 Flash、Gemini 4 Argon、Grok 4.6 与 Kimi K3，并给出了替代模型。真正需要动的往往不是界面，而是写死模型 ID 的脚本、按模型计费的路由、固定模型的评测基线和企业的模型策略。这篇教程按「清单 → 影响面 → 迁移顺序 → 验证」给出一份可执行方案。">
+  <meta name="robots" content="index,follow,max-image-preview:large">
+  <link rel="canonical" href="https://hello1yjx.github.io/articles/copilot-model-deprecation-december-migration-guide.html">
+  <link rel="icon" type="image/png" href="../assets/images/brand-book-line.png">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"Copilot 12 月 14 日下架 6 个模型：一份能照着做的迁移清单","description":"GitHub 在 11 月 13 日宣布，12 月 14 日从所有 Copilot 体验中下架 Claude Fable 5、Claude Haiku 4.5、Gemini 3.8 Flash、Gemini 4 Argon、Grok 4.6 与 Kimi K3，并给出了替代模型。真正需要动的往往不是界面，而是写死模型 ID 的脚本、按模型计费的路由、固定模型的评测基线和企业的模型策略。这篇教程按「清单 → 影响面 → 迁移顺序 → 验证」给出一份可执行方案。","datePublished":"2026-11-15","dateModified":"2026-11-15","author":{"@type":"Person","name":"Avery Lin","url":"https://hello1yjx.github.io/about.html"},"publisher":{"@type":"Organization","name":"学习资源库","url":"https://hello1yjx.github.io/"},"mainEntityOfPage":"https://hello1yjx.github.io/articles/copilot-model-deprecation-december-migration-guide.html","inLanguage":"zh-CN"}</script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6621999105936318" crossorigin="anonymous"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;800&family=Noto+Serif+SC:wght@700;900&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/styles.css?v=20261115-daily-update">
+</head>
+<body>
+  <header class="site-header">
+    <div class="page-shell site-header__inner">
+      <a class="brand" href="../index.html" aria-label="返回首页">
+        <span class="brand-mark" aria-hidden="true"><img src="../assets/images/brand-book-line.png" alt="" width="36" height="33"></span>
+        <span class="brand-copy"><strong>学习资源库</strong><span>分享知识 · 提升自己 · 成就未来</span></span>
+      </a>
+      <button class="menu-button" data-menu-button aria-expanded="false" aria-label="切换导航菜单">☰</button>
+      <nav class="site-nav" data-mobile-nav>
+        <a href="../index.html">首页</a>
+        <a class="is-active" href="../posts.html" aria-current="page">教程</a>
+        <a href="../resources.html">资源下载</a>
+        <a href="../hotspots.html">技术资讯</a>
+        <a href="../projects.html">开源项目</a>
+        <a href="../vulns.html">漏洞分析</a>
+        <a href="../kaogong.html">考公专区</a>
+        <a href="../about.html">关于我们</a>
+      </nav>
+      <form class="header-search" action="../posts.html" method="get">
+        <input type="search" name="q" placeholder="搜索教程、资源、工具或关键词...">
+        <button type="submit" aria-label="搜索">/</button>
+      </form>
+      <a class="header-github" href="https://github.com/hello1yjx/hello1yjx.github.io" target="_blank" rel="noreferrer" aria-label="GitHub">
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="" width="24" height="24">
+      </a>
+      <a class="header-cta" href="../posts.html">开始学习</a>
+    </div>
+  </header>
+
+  <main class="page-shell section article-page">
+    <header class="detail-hero">
+      <span class="pill">AI 编程</span>
+      <h1>Copilot 12 月 14 日下架 6 个模型：一份能照着做的迁移清单</h1>
+      <div class="detail-hero__meta">
+        <time datetime="2026-11-15">2026年11月15日</time>
+        <span>11 分钟</span>
+        <span>作者：Avery Lin</span>
+      </div>
+      <p>GitHub 在 11 月 13 日宣布，12 月 14 日从所有 Copilot 体验中下架 Claude Fable 5、Claude Haiku 4.5、Gemini 3.8 Flash、Gemini 4 Argon、Grok 4.6 与 Kimi K3，并给出了替代模型。真正需要动的往往不是界面，而是写死模型 ID 的脚本、按模型计费的路由、固定模型的评测基线和企业的模型策略。这篇教程按「清单 → 影响面 → 迁移顺序 → 验证」给出一份可执行方案。</p>
+    </header>
+    <div class="article-layout">
+      <article class="article-body">
+        <div class="inline-promo">
+          <p class="label">来源与增量价值</p>
+          <h3>本文基于官方资料整理，并补充适用场景、限制条件和实践检查步骤。</h3>
+          <p>首要来源：<a href="https://github.blog/changelog/2026-11-13-upcoming-deprecation-of-selected-github-copilot-models-in-december/" target="_blank" rel="noreferrer">Upcoming deprecation of selected GitHub Copilot models in December</a>。事实以原始来源为准，本站建议需结合自己的环境验证。</p>
+        </div>
+
+    <p>模型迭代的速度已经快过很多团队的配置管理节奏。11 月 13 日 GitHub 公布了一份下架清单：12 月 14 日起，6 个模型会从 Copilot Chat、inline edits、ask/agent 模式与代码补全里一起消失。替代模型已经给出，但「换哪个」只是第一步。</p><p>更麻烦的是隐性依赖：代码里写死的模型名、网关里按模型做的路由、评测集里固定的小模型、按模型名拆分的账单。界面切换是分钟级的事，这些地方不改，12 月 14 日之后会以各种奇怪的报错出现。</p>
+    <h2>这篇内容适合谁</h2>
+    <ul><li>维护 Copilot 集成、SDK 调用或自建网关的开发者</li><li>负责企业模型策略与采购的管理员</li><li>用固定模型跑评测、做成本对比的团队</li><li>需要提前向业务解释「为什么模型变了」的负责人</li></ul>
+    <h2>实践与验证步骤</h2>
+    <ul><li>导出所有在用的模型 ID</li><li>搜索代码与配置里的硬编码</li><li>标记受影响的流水线与评测任务</li><li>确认企业策略与年度订阅例外</li><li>按厂商分线切换替代模型</li><li>重跑评测基线并记录差异</li><li>更新文档与账单维度</li><li>在 12 月 14 日前完成验证</li></ul>
+    <h2>官方资料入口</h2>
+
+    <ul>
+
+            <li>
+              <a href="https://github.blog/changelog/2026-11-13-upcoming-deprecation-of-selected-github-copilot-models-in-december/" target="_blank" rel="noreferrer">Upcoming deprecation of selected GitHub Copilot models in December</a>
+              <span>：官方下架清单与替代模型</span>
+            </li>
+
+            <li>
+              <a href="https://github.blog/changelog/2026-11-13-gemini-4-hydrogen-in-github-copilot/" target="_blank" rel="noreferrer">Gemini 4 Hydrogen in GitHub Copilot</a>
+              <span>：Gemini 3.8 Flash 的替代模型</span>
+            </li>
+
+            <li>
+              <a href="https://docs.github.com/en/copilot" target="_blank" rel="noreferrer">GitHub Copilot 模型文档</a>
+              <span>：当前可用模型与计费口径</span>
+            </li>
+
+    </ul>
+
+    <h2>重点判断与使用建议</h2>
+    <ul><li>下架日期：2026 年 12 月 14 日，覆盖 Chat、inline edits、ask/agent 模式与代码补全</li><li>Claude Fable 5 → Claude Fable 5.2；Claude Haiku 4.5 → Claude Haiku 5.5</li><li>Gemini 3.8 Flash → Gemini 4 Hydrogen；Gemini 4 Argon → Gemini 4 Carbon</li><li>Grok 4.6 → Grok 4.7；Kimi K3 的替代模型待公布</li><li>例外：个人年度订阅用户可继续使用 Claude Haiku 4.5</li></ul>
+
+        <h2>一、下架清单与替代关系</h2>
+
+        <ul><li>Claude Fable 5：12 月 14 日下架，替代 Claude Fable 5.2</li><li>Claude Haiku 4.5：同时下架，替代 Claude Haiku 5.5，个人年度订阅用户例外</li><li>Gemini 3.8 Flash：下架，替代 Gemini 4 Hydrogen</li><li>Gemini 4 Argon：下架，替代 Gemini 4 Carbon</li><li>Grok 4.6：下架，替代 Grok 4.7</li><li>Kimi K3：下架，替代模型待公布，需要准备回退方案</li></ul>
+
+
+
+        <h2>二、为什么这次不能只看界面</h2>
+
+        <ul><li>界面里的模型选择器会自动更新，但代码里的模型 ID 不会</li><li>按模型名做计费拆分的报表，下架后会出现空维度或对不上账</li><li>固定模型的评测任务会直接失败，或者悄悄回退到默认模型，导致结果不可比</li><li>企业策略里若显式禁用了替代模型，用户会看不到新模型</li><li>文档、培训材料和客户承诺里提到的模型名也需要同步</li></ul>
+
+
+
+        <h2>三、影响面盘点：五类位置</h2>
+
+        <ul><li>代码：SDK 调用、API 请求体、agent 配置、CLI 参数里的模型字符串</li><li>CI：评测脚本、回归任务、按模型并行的测试矩阵</li><li>网关：AI Gateway、自建代理、路由规则与降级链</li><li>策略：企业 Copilot 设置里的模型开关与默认启用状态</li><li>账务与报表：按模型分组的用量、预算与对外账单</li></ul>
+
+
+
+        <h2>四、迁移前先冻结评测基线</h2>
+
+        <ul><li>在下架前用旧模型跑一遍固定任务集，保存通过率、步骤数、耗时与成本</li><li>替代模型上线后跑同一套任务，比较差异而不是只看单次体感</li><li>记录失败类型：是能力下降、工具调用不兼容，还是提示词需要调整</li><li>把结论写进模型准入表，作为后续选型依据</li><li>不要在迁移窗口内同时改提示词和模型，否则无法判断差异来源</li></ul>
+
+
+
+        <h2>五、Claude 线怎么迁</h2>
+
+        <ul><li>Fable 5 升到 Fable 5.2：注意 5.2 默认要求数据留存，企业需先确认合规</li><li>Haiku 4.5 升到 Haiku 5.5：速度敏感型任务先做延迟对比</li><li>检查是否有按 Fable 5 特调的提示词或工具 schema，换模型后重新验证</li><li>个人年度订阅用户不受 Haiku 4.5 下架影响，但团队版仍需迁移</li><li>把模型策略里的旧模型开关关掉，避免用户继续选中即将消失的条目</li></ul>
+
+
+
+        <h2>六、Gemini、Grok 与 Kimi 线怎么迁</h2>
+
+        <ul><li>Gemini 3.8 Flash → Gemini 4 Hydrogen：轻量任务优先切，注意 Hydrogen 覆盖 Pro 套餐</li><li>Gemini 4 Argon → Gemini 4 Carbon：推理与安全场景可在同一任务上对比</li><li>Grok 4.6 → Grok 4.7：检查工具调用格式与函数名约束是否变化</li><li>Kimi K3 暂无替代：先把依赖它的任务摘出来，临时指向默认模型或人工兜底</li><li>所有替代都要确认所在套餐可用，Pro 与 Business 的模型范围不同</li></ul>
+
+
+
+        <h2>七、企业策略与年度订阅例外</h2>
+
+        <ul><li>默认启用策略下，替代模型会自动开启，除非管理员关掉全局默认</li><li>关掉全局默认的组织，需要为每个替代模型单独打开策略</li><li>显式禁用过替代模型的组织，会在下架后出现「无模型可用」的空窗</li><li>年度订阅的 Haiku 4.5 例外只针对个人订阅者，不覆盖企业席位</li><li>策略变更要留审批记录，方便解释为什么某个人看不到新模型</li></ul>
+
+
+
+        <h2>八、改代码：把模型名变成配置</h2>
+
+        <ul><li>把所有模型 ID 收进一个配置对象或环境变量，禁止散落在业务代码里</li><li>为每次调用保留一个降级链，主模型不可用时自动切换备用模型</li><li>对模型名做启动校验：不在允许清单里就快速失败，而不是运行到一半才报错</li><li>日志里记录实际使用的模型与版本，方便账单核对与问题复现</li><li>在 SDK 升级说明里标注模型迁移，避免下游团队重复踩坑</li></ul>
+
+
+
+        <h2>九、迁移窗口与验证</h2>
+
+        <ul><li>第一周：完成盘点与基线，确认替代模型在当前套餐可用</li><li>第二周：在测试环境切换，跑评测集与关键业务流程</li><li>第三周：灰度到少量用户，观察失败率、延迟与成本</li><li>第四周：全量切换，保留一周回退窗口但不再新增旧模型调用</li><li>12 月 14 日后：清理旧模型配置与文档，避免误导后来者</li></ul>
+
+
+
+        <h2>十、检查清单</h2>
+
+        <ul><li>已导出全部在用的模型 ID 与调用位置</li><li>已完成旧模型的评测基线</li><li>已确认替代模型在套餐内可用</li><li>已更新企业模型策略与默认启用设置</li><li>已把模型名改为配置项并加启动校验</li><li>已准备 Kimi K3 的临时替代方案</li><li>已更新账单维度与对外文档</li><li>已在 12 月 14 日前完成全量验证</li></ul>
+
+
+
+
+        <div class="inline-promo">
+          <p class="label">更正与更新</p>
+          <h3>发现版本变化、来源失效或事实错误时，请通过联系页反馈。</h3>
+          <p>本站会核对一手来源后更新内容，不使用无来源转载填充文章。</p>
+          <a class="button button--secondary" href="../editorial.html">查看内容标准</a>
+        </div>
+      </article>
+      <aside class="article-sidebar">
+        <div class="sidebar-card">
+          <p class="label">本页标签</p>
+          <div class="tag-row"><span>GitHub Copilot</span><span>模型下架</span><span>迁移</span><span>企业策略</span><span>评测基线</span></div>
+        </div>
+        <div class="sidebar-card">
+          <p class="label">继续阅读</p>
+          <a href="github-actions-log-secret-scanning-supply-chain-guide.html">构建日志里的密钥也会告警：Actions 日志扫描、Dependabot 休眠与依赖拦截三件套</a><a href="2027-guangdong-shengkao-gonggao-jiaofei-zhunkaozheng-bishi-guide.html">2027 广东省考公告解读：10293 名招录、缴费确认与 12 月 6 日笔试全流程</a><a href="copilot-code-review-api-three-layer-policy-guide.html">Copilot 代码评审接入 API：企业、组织、仓库三层策略落地教程</a><a href="vercel-tracing-kql-production-debug-guide.html">Vercel Tracing 正式可用：用 KQL 从慢请求追到具体 span</a>
+        </div>
+        <div class="sidebar-card sidebar-card--accent">
+          <p class="label">作者与方法</p>
+          <h3>了解本站如何选题、核验来源与处理更正。</h3>
+          <a class="button button--dark" href="../about.html">关于作者</a>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="page-shell footer__inner">
+      <div><strong>学习资源库</strong><p>分享知识 · 提升自己 · 成就未来</p></div>
+      <div>
+        <a href="../editorial.html">内容标准</a><br>
+        <a href="../privacy.html">隐私政策</a><br>
+        <a href="../contact.html">联系</a>
+      </div>
+    </div>
+  </footer>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      var button = document.querySelector("[data-menu-button]");
+      var nav = document.querySelector("[data-mobile-nav]");
+      if (!button || !nav) return;
+      button.addEventListener("click", function () {
+        var expanded = button.getAttribute("aria-expanded") === "true";
+        button.setAttribute("aria-expanded", String(!expanded));
+        nav.classList.toggle("site-nav--open", !expanded);
+      });
+    });
+  </script>
+</body>
+</html>

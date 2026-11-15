@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Vercel 三处提速：64GB 构建磁盘、亚秒级沙箱快照与决策模型 | 学习资源库</title>
+  <meta name="description" content="11 月上旬 Vercel 连发几条更新：构建磁盘从 32GB 提到 64GB，Sandbox 快照中位创建时间从 4.4 秒降到 0.4 秒以内，AI Gateway 接入 Gemini Decision 1 直接输出布尔、选项与评分。三条更新分别对应构建、运行时与请求决策三个环节。这篇教程讲清各自的实际收益、边界与验收方法，避免把「容量变大」误当成「可以随便堆文件」。">
+  <meta name="robots" content="index,follow,max-image-preview:large">
+  <link rel="canonical" href="https://hello1yjx.github.io/articles/vercel-build-capacity-sandbox-decision-guide.html">
+  <link rel="icon" type="image/png" href="../assets/images/brand-book-line.png">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"Vercel 三处提速：64GB 构建磁盘、亚秒级沙箱快照与决策模型","description":"11 月上旬 Vercel 连发几条更新：构建磁盘从 32GB 提到 64GB，Sandbox 快照中位创建时间从 4.4 秒降到 0.4 秒以内，AI Gateway 接入 Gemini Decision 1 直接输出布尔、选项与评分。三条更新分别对应构建、运行时与请求决策三个环节。这篇教程讲清各自的实际收益、边界与验收方法，避免把「容量变大」误当成「可以随便堆文件」。","datePublished":"2026-11-15","dateModified":"2026-11-15","author":{"@type":"Person","name":"Avery Lin","url":"https://hello1yjx.github.io/about.html"},"publisher":{"@type":"Organization","name":"学习资源库","url":"https://hello1yjx.github.io/"},"mainEntityOfPage":"https://hello1yjx.github.io/articles/vercel-build-capacity-sandbox-decision-guide.html","inLanguage":"zh-CN"}</script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6621999105936318" crossorigin="anonymous"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;800&family=Noto+Serif+SC:wght@700;900&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/styles.css?v=20261115-daily-update">
+</head>
+<body>
+  <header class="site-header">
+    <div class="page-shell site-header__inner">
+      <a class="brand" href="../index.html" aria-label="返回首页">
+        <span class="brand-mark" aria-hidden="true"><img src="../assets/images/brand-book-line.png" alt="" width="36" height="33"></span>
+        <span class="brand-copy"><strong>学习资源库</strong><span>分享知识 · 提升自己 · 成就未来</span></span>
+      </a>
+      <button class="menu-button" data-menu-button aria-expanded="false" aria-label="切换导航菜单">☰</button>
+      <nav class="site-nav" data-mobile-nav>
+        <a href="../index.html">首页</a>
+        <a class="is-active" href="../posts.html" aria-current="page">教程</a>
+        <a href="../resources.html">资源下载</a>
+        <a href="../hotspots.html">技术资讯</a>
+        <a href="../projects.html">开源项目</a>
+        <a href="../vulns.html">漏洞分析</a>
+        <a href="../kaogong.html">考公专区</a>
+        <a href="../about.html">关于我们</a>
+      </nav>
+      <form class="header-search" action="../posts.html" method="get">
+        <input type="search" name="q" placeholder="搜索教程、资源、工具或关键词...">
+        <button type="submit" aria-label="搜索">/</button>
+      </form>
+      <a class="header-github" href="https://github.com/hello1yjx/hello1yjx.github.io" target="_blank" rel="noreferrer" aria-label="GitHub">
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="" width="24" height="24">
+      </a>
+      <a class="header-cta" href="../posts.html">开始学习</a>
+    </div>
+  </header>
+
+  <main class="page-shell section article-page">
+    <header class="detail-hero">
+      <span class="pill">云端部署</span>
+      <h1>Vercel 三处提速：64GB 构建磁盘、亚秒级沙箱快照与决策模型</h1>
+      <div class="detail-hero__meta">
+        <time datetime="2026-11-15">2026年11月15日</time>
+        <span>11 分钟</span>
+        <span>作者：Avery Lin</span>
+      </div>
+      <p>11 月上旬 Vercel 连发几条更新：构建磁盘从 32GB 提到 64GB，Sandbox 快照中位创建时间从 4.4 秒降到 0.4 秒以内，AI Gateway 接入 Gemini Decision 1 直接输出布尔、选项与评分。三条更新分别对应构建、运行时与请求决策三个环节。这篇教程讲清各自的实际收益、边界与验收方法，避免把「容量变大」误当成「可以随便堆文件」。</p>
+    </header>
+    <div class="article-layout">
+      <article class="article-body">
+        <div class="inline-promo">
+          <p class="label">来源与增量价值</p>
+          <h3>本文基于官方资料整理，并补充适用场景、限制条件和实践检查步骤。</h3>
+          <p>首要来源：<a href="https://vercel.com/changelog/build-disk-space-on-vercel-increased-to-64-gb" target="_blank" rel="noreferrer">Build disk space increased to 64 GB</a>。事实以原始来源为准，本站建议需结合自己的环境验证。</p>
+        </div>
+
+    <p>构建失败有很多种，磁盘写满是最容易被误判成内存不足的一种；agent 慢也有很多种，环境恢复往往比模型推理更耗时；路由判断看似很轻，却经常被迫调用大模型生成一段 JSON。Vercel 这三条更新，正好各打中一个。</p><p>三条更新都不需要改配置：磁盘自动扩容、新快照自动用新格式、决策模型按调用计费。真正要做的不是「打开开关」，而是确认自己的项目能否吃到收益，以及边界在哪里。</p>
+    <h2>这篇内容适合谁</h2>
+    <ul><li>在 Vercel 上跑 monorepo、原生依赖或大型静态生成的开发者</li><li>用 Sandbox 跑 agent 任务、关心冷启动的团队</li><li>需要做请求路由、策略判断与工具过滤的 AI 应用开发者</li></ul>
+    <h2>实践与验证步骤</h2>
+    <ul><li>确认当前构建失败是否与磁盘有关</li><li>检查构建缓存与产物清理</li><li>确认沙箱是否使用持久化模式</li><li>评估存量快照是否需要重建</li><li>选一个路由场景试用决策模型</li><li>设置阈值与兜底逻辑</li><li>观察日志与预算</li><li>按验收清单核对</li></ul>
+    <h2>官方资料入口</h2>
+
+    <ul>
+
+            <li>
+              <a href="https://vercel.com/changelog/build-disk-space-on-vercel-increased-to-64-gb" target="_blank" rel="noreferrer">Build disk space increased to 64 GB</a>
+              <span>：构建磁盘扩容范围</span>
+            </li>
+
+            <li>
+              <a href="https://vercel.com/changelog/vercel-sandbox-snapshot-creation-is-now-up-to-10x-faster" target="_blank" rel="noreferrer">Sandbox snapshot creation up to 10x faster</a>
+              <span>：快照格式与恢复速度</span>
+            </li>
+
+            <li>
+              <a href="https://vercel.com/changelog/gemini-decision-1-now-available-on-ai-gateway" target="_blank" rel="noreferrer">Gemini Decision 1 on AI Gateway</a>
+              <span>：决策模型接口与模态</span>
+            </li>
+
+            <li>
+              <a href="https://vercel.com/changelog/speed-insights-and-web-analytics-now-support-custom-environments" target="_blank" rel="noreferrer">Speed Insights and Web Analytics custom environments</a>
+              <span>：自定义环境数据归属</span>
+            </li>
+
+    </ul>
+
+    <h2>重点判断与使用建议</h2>
+    <ul><li>构建磁盘：32GB → 64GB，Basic 与 Standard 对齐 Enhanced/Turbo</li><li>快照：中位创建 4.4s → 0.4s 以内，恢复 p50 500ms → 250ms</li><li>决策模型调用名：google/gemini-decision-1</li><li>决策调用计入日志与预算，不生成输出 token</li><li>自定义环境：数据不再归到 Preview，历史数据不重算</li></ul>
+
+        <h2>一、三处提速分别解决什么</h2>
+
+        <ul><li>构建磁盘：解决依赖与生成文件把磁盘写满导致的失败</li><li>沙箱快照：解决每次任务开工前环境恢复太慢</li><li>决策模型：解决路由与策略判断必须生成文本再解析的问题</li><li>三者共同点是「不改变业务代码也能吃到收益」</li><li>但都不是无限资源，边界比收益更值得先看</li></ul>
+
+
+
+        <h2>二、64GB 磁盘的实际收益</h2>
+
+        <ul><li>Basic 与 Standard 构建机从 32GB 提升到 64GB</li><li>Enhanced 与 Turbo 原本就是 64GB，现在四类机器持平</li><li>适用于所有套餐与构建机类型，不额外收费</li><li>不需要改配置，新构建自动生效</li><li>对 monorepo、原生依赖、大型静态生成项目收益最明显</li></ul>
+
+
+
+        <h2>三、构建缓存与磁盘的边界</h2>
+
+        <ul><li>磁盘变大不等于可以不做缓存清理</li><li>构建缓存应只保留命中率高的目录，避免把旧产物越堆越多</li><li>大文件不要进仓库，改用对象存储或构建时下载</li><li>磁盘告警仍要监控，别等到再次写满才发现</li><li>构建日志里要能区分「磁盘不足」与「内存不足」</li></ul>
+
+
+
+        <h2>四、Sandbox 快照为什么快了</h2>
+
+        <ul><li>改用 Vercel Hive Snapshot（VHS）格式复用帧</li><li>索引方式更高效，读写可以更多并行</li><li>基础镜像与用户数据可以并行恢复</li><li>中位创建时间从 4.4 秒降到 0.4 秒以内</li><li>恢复 p50 从 500 毫秒降到 250 毫秒</li></ul>
+
+
+
+        <h2>五、VHS 格式与存量快照</h2>
+
+        <ul><li>新快照自动使用新格式，无需配置</li><li>已有快照保持旧格式，不会自动迁移</li><li>想要提速的老项目需要重建一次快照</li><li>持久化沙箱默认在会话结束时自动快照，下次从最新恢复</li><li>快照不是备份，关键数据仍要落持久化存储</li></ul>
+
+
+
+        <h2>六、决策模型是什么</h2>
+
+        <ul><li>Gemini Decision 1 是多模态决策模型，不生成文本</li><li>输出包括布尔概率、选项与评分</li><li>可处理文本、图片、音频、视频与 PDF</li><li>调用名 google/gemini-decision-1</li><li>适合路由、策略判断、工具过滤与结果排序</li></ul>
+
+
+
+        <h2>七、用决策模型做路由</h2>
+
+        <ul><li>把「是否转人工」「是否退款」「该调哪个工具」拆成独立问题</li><li>为每个问题设置阈值，而不是只看概率最高的选项</li><li>低置信度时走兜底：规则、人工或默认模型</li><li>把决策结果与最终人工判断做对比，持续校准</li><li>不要在决策模型里塞超长上下文，输入越长越难稳定</li></ul>
+
+
+
+        <h2>八、接口与模态限制</h2>
+
+        <ul><li>AI SDK 支持 PDF、音频、视频输入，需要 AI SDK 7</li><li>TypeSafe 兼容 API 与 Decisions API 只支持文本与图片</li><li>决策调用会出现在日志里，并与普通请求一起计入预算</li><li>不同接口的返回结构不同，封装时要统一成内部格式</li><li>上线前用真实样本覆盖每种模态，别只测文本</li></ul>
+
+
+
+        <h2>九、成本与可观测</h2>
+
+        <ul><li>决策模型按调用计费，不按输出 token 计费</li><li>把决策调用单独打标签，避免和生成调用混在一个预算项</li><li>记录每次决策的输入摘要、概率与最终动作</li><li>定期抽样复核，防止阈值漂移导致错误路由</li><li>自定义环境的数据归属已拆分，分析时注意历史口径</li></ul>
+
+
+
+        <h2>十、验收清单</h2>
+
+        <ul><li>已确认构建失败是否由磁盘导致</li><li>已清理低命中率缓存与大产物</li><li>已确认沙箱使用持久化模式</li><li>存量快照已评估是否重建</li><li>已选一个路由场景完成决策模型对比</li><li>阈值与兜底逻辑已写入代码</li><li>决策调用已单独标记并纳入预算</li><li>自定义环境报表口径已更新说明</li></ul>
+
+
+
+
+        <div class="inline-promo">
+          <p class="label">更正与更新</p>
+          <h3>发现版本变化、来源失效或事实错误时，请通过联系页反馈。</h3>
+          <p>本站会核对一手来源后更新内容，不使用无来源转载填充文章。</p>
+          <a class="button button--secondary" href="../editorial.html">查看内容标准</a>
+        </div>
+      </article>
+      <aside class="article-sidebar">
+        <div class="sidebar-card">
+          <p class="label">本页标签</p>
+          <div class="tag-row"><span>Vercel</span><span>构建优化</span><span>Sandbox</span><span>AI Gateway</span><span>决策模型</span><span>可观测性</span></div>
+        </div>
+        <div class="sidebar-card">
+          <p class="label">继续阅读</p>
+          <a href="github-actions-log-secret-scanning-supply-chain-guide.html">构建日志里的密钥也会告警：Actions 日志扫描、Dependabot 休眠与依赖拦截三件套</a><a href="2027-guangdong-shengkao-gonggao-jiaofei-zhunkaozheng-bishi-guide.html">2027 广东省考公告解读：10293 名招录、缴费确认与 12 月 6 日笔试全流程</a><a href="copilot-code-review-api-three-layer-policy-guide.html">Copilot 代码评审接入 API：企业、组织、仓库三层策略落地教程</a><a href="vercel-tracing-kql-production-debug-guide.html">Vercel Tracing 正式可用：用 KQL 从慢请求追到具体 span</a>
+        </div>
+        <div class="sidebar-card sidebar-card--accent">
+          <p class="label">作者与方法</p>
+          <h3>了解本站如何选题、核验来源与处理更正。</h3>
+          <a class="button button--dark" href="../about.html">关于作者</a>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="page-shell footer__inner">
+      <div><strong>学习资源库</strong><p>分享知识 · 提升自己 · 成就未来</p></div>
+      <div>
+        <a href="../editorial.html">内容标准</a><br>
+        <a href="../privacy.html">隐私政策</a><br>
+        <a href="../contact.html">联系</a>
+      </div>
+    </div>
+  </footer>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      var button = document.querySelector("[data-menu-button]");
+      var nav = document.querySelector("[data-mobile-nav]");
+      if (!button || !nav) return;
+      button.addEventListener("click", function () {
+        var expanded = button.getAttribute("aria-expanded") === "true";
+        button.setAttribute("aria-expanded", String(!expanded));
+        nav.classList.toggle("site-nav--open", !expanded);
+      });
+    });
+  </script>
+</body>
+</html>

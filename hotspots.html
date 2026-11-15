@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://cdn.jsdelivr.net">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;800&family=Noto+Serif+SC:wght@700;900&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/styles.css?v=20261112-daily-update">
+  <link rel="stylesheet" href="assets/styles.css?v=20261115-daily-update">
 </head>
 <body>
   <header class="site-header">
@@ -78,6 +78,226 @@
       <div class="hotspot-grid" data-hotspot-list>
         <!-- STATIC_HOTSPOTS_START -->
 <article class="hotspot-card reveal">
+      <div class="hotspot-card__head">
+        <span class="hotspot-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="AI 编程 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <div>
+          <div class="hotspot-card__meta">
+            <span>AI 编程</span>
+            <time datetime="2026-11-13">2026年11月13日</time>
+          </div>
+          <h3>Gemini 4 Hydrogen 进入 Copilot：轻量 Flash 模型主打快速 agent 与工具调用</h3>
+        </div>
+      </div>
+      <p>Google 最新的 Flash 模型 Gemini 4 Hydrogen 在 GitHub Copilot 正式可用，定位快速、高效的 agentic 编码、工具调用与多步工作流，指令遵循能力比 Gemini 3.8 Flash 更好。可用范围比同周的 Carbon 更宽：Copilot Pro、Pro+、Max、Business、Enterprise 都能选，入口覆盖 VS Code、Visual Studio、Copilot CLI、coding agent、Copilot 应用、github.com、移动端、JetBrains、Xcode、Eclipse，还支持 Copilot SDK；按厂商标价、按量计费，灰度逐步放开。企业侧仍由模型策略控制，默认启用策略下新模型会自动打开，除非管理员关掉全局默认或显式禁用。</p>
+      <div class="hotspot-card__why">
+        <strong>为什么值得关注</strong>
+        <p>为什么值得关注：Pro 用户终于有一个便宜、快、适合多步工具调用的新选择，日常跑 agent 不必每次都上重模型。限制也要看清：Flash 定位是效率优先，复杂重构和长链路推理仍应交给 Carbon 或 Fable 5.2；按量计费叠加多模型后，账单会随调用面扩散，建议给 Pro 用户设默认模型而不是让他们自由切。</p>
+      </div>
+      <p class="hotspot-card__idea">候选：轻量模型与重模型的日常分工</p>
+      <a class="text-link" href="https://github.blog/changelog/2026-11-13-gemini-4-hydrogen-in-github-copilot/" target="_blank" rel="noreferrer">查看来源：GitHub Changelog</a>
+    </article>
+
+    <article class="hotspot-card reveal">
+      <div class="hotspot-card__head">
+        <span class="hotspot-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="AI 编程 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <div>
+          <div class="hotspot-card__meta">
+            <span>AI 编程</span>
+            <time datetime="2026-11-13">2026年11月13日</time>
+          </div>
+          <h3>Copilot 12 月 14 日下架 6 个模型：Fable 5、Haiku 4.5、Gemini 3.8 Flash 等在列</h3>
+        </div>
+      </div>
+      <p>GitHub 宣布 2026 年 12 月 14 日在所有 Copilot 体验中下架 6 个模型，包括 Copilot Chat、inline edits、ask 与 agent 模式、代码补全。清单与替代：Claude Fable 5 → Fable 5.2；Claude Haiku 4.5 → Haiku 5.5（个人年度订阅用户不受影响，可继续使用）；Gemini 3.8 Flash → Gemini 4 Hydrogen；Gemini 4 Argon → Gemini 4 Carbon；Grok 4.6 → Grok 4.7；Kimi K3 的替代模型待公布。官方要求在此日期前把工作流与集成切到受支持模型；默认启用策略下替代模型会自动开启，除非管理员关掉了全局默认或显式禁用。下架后不需要手动移除模型。</p>
+      <div class="hotspot-card__why">
+        <strong>为什么值得关注</strong>
+        <p>为什么值得关注：模型下架不是「界面上少一个选项」，写死模型名的脚本、SDK 调用、企业策略和评测基线都会一起失效。最该先查的是三类地方：代码里硬编码的模型 ID、CI 里固定模型的评测任务、按模型名做计费或路由的网关配置。Kimi K3 暂无替代，依赖它的团队要提前准备回退方案。</p>
+      </div>
+      <p class="hotspot-card__idea">已扩写：Copilot 模型下架迁移清单</p>
+      <a class="text-link" href="https://github.blog/changelog/2026-11-13-upcoming-deprecation-of-selected-github-copilot-models-in-december/" target="_blank" rel="noreferrer">查看来源：GitHub Changelog</a>
+    </article>
+
+    <article class="hotspot-card reveal">
+      <div class="hotspot-card__head">
+        <span class="hotspot-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="AI 编程 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <div>
+          <div class="hotspot-card__meta">
+            <span>AI 编程</span>
+            <time datetime="2026-11-13">2026年11月13日</time>
+          </div>
+          <h3>Copilot 应用支持 GitHub Enterprise Server：GHES 仓库、Issue、PR 都能接入</h3>
+        </div>
+      </div>
+      <p>GitHub Copilot 应用结束 GHES 支持的 opt-in 预览，转为正式可用：可以把 GitHub Enterprise Server 上的远程仓库、Issue 与 Pull Request 接进应用。使用前需先用 GitHub.com 或 GHE.com 账号登录，再进入 Settings → Accounts → Add account，选择 GitHub Enterprise Server 添加账号。该能力要求 Copilot 应用 1.2.0 及以上版本；GHES 不支持云会话（cloud sessions）。</p>
+      <div class="hotspot-card__why">
+        <strong>为什么值得关注</strong>
+        <p>为什么值得关注：大量企业代码仍在自建 GHES 上，过去只能用 Copilot 的云端能力，数据出不了内网。现在客户端能把 GHES 工作区接进来，内部仓库也能用同一套 agent 体验。坑在「云会话不可用」：涉及云端跑任务的功能在 GHES 场景下不可用，排障时别把它当成故障；另外应用版本低于 1.2.0 时入口不会出现。</p>
+      </div>
+      <p class="hotspot-card__idea">候选：GHES 团队的 Copilot 客户端接入</p>
+      <a class="text-link" href="https://github.blog/changelog/2026-11-13-github-enterprise-server-support-in-the-github-copilot-app/" target="_blank" rel="noreferrer">查看来源：GitHub Changelog</a>
+    </article>
+
+    <article class="hotspot-card reveal">
+      <div class="hotspot-card__head">
+        <span class="hotspot-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="安全 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <div>
+          <div class="hotspot-card__meta">
+            <span>安全</span>
+            <time datetime="2026-11-13">2026年11月13日</time>
+          </div>
+          <h3>AI Scan 可以用 REST API 批量开关：组织和仓库两级，支持基础设施即代码</h3>
+        </div>
+      </div>
+      <p>GitHub code scanning 的 AI Scan for repositories 开放 REST API 管理，组织和仓库两级都能开关。现有 AI Scan 启用端点新增 repository_scan 设置，取值为 enabled 或 disabled，对应 GET/PATCH /orgs/{org}/code-scanning/ai-scan 与 /repos/{owner}/{repo}/code-scanning/ai-scan。继承规则与 pr_scan 一致：组织关闭时仓库不能自行开启；组织开启时仓库继承并可单独退出；企业策略不允许时请求返回 422。pr_scan 与 repository_scan 可在同一请求里更新，任一被阻止则整体 422、两者都不变。开启不等于开始扫描，有写权限的用户仍需按需触发，每次扫描消耗 Code Security AI credits。</p>
+      <div class="hotspot-card__why">
+        <strong>为什么值得关注</strong>
+        <p>为什么值得关注：安全能力终于能写进 IaC 和批量脚本，几百个仓库不用手点。注意三个边界：只覆盖组织拥有的公开仓库，以及有 Code Security 或 GHAS 的私有/内部仓库；企业必须先允许 AI Scan，GHES 不支持；组织关闭会压过仓库设置，排障先看继承链而不是仓库本身。</p>
+      </div>
+      <p class="hotspot-card__idea">已扩写：AI Scan 批量治理与权限继承</p>
+      <a class="text-link" href="https://github.blog/changelog/2026-11-13-manage-ai-scan-for-repositories-using-the-rest-api/" target="_blank" rel="noreferrer">查看来源：GitHub Changelog</a>
+    </article>
+
+    <article class="hotspot-card reveal">
+      <div class="hotspot-card__head">
+        <span class="hotspot-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="安全 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <div>
+          <div class="hotspot-card__meta">
+            <span>安全</span>
+            <time datetime="2026-11-12">2026年11月12日</time>
+          </div>
+          <h3>Secret scanning 新增 Cloudflare Access 服务令牌检测：公开仓库命中会自动通报 Cloudflare</h3>
+        </div>
+      </div>
+      <p>GitHub secret scanning 新增对 Cloudflare Access service token 的检测，支持的密钥类型为 cloudflare_access_service_token。作为合作伙伴密钥，在公开仓库中发现时会通过 secret scanning 合作计划自动通报给签发方 Cloudflare；作为用户密钥时，在公开或私有仓库命中都会生成 secret scanning 告警。该检测自动生效，不需要额外配置。</p>
+      <div class="hotspot-card__why">
+        <strong>为什么值得关注</strong>
+        <p>为什么值得关注：Cloudflare Access 服务令牌常用于绕过 Access 策略访问内部应用，一旦泄露等于给内网开了一道门，而且这类令牌往往被写进 CI 变量或前端配置里。自动通报只能缩短暴露窗口，不能替你吊销；团队仍要在告警后完成轮换、排查访问日志，并确认令牌没有被写进构建产物。</p>
+      </div>
+      <p class="hotspot-card__idea">候选：边缘访问令牌的泄露治理</p>
+      <a class="text-link" href="https://github.blog/changelog/2026-11-12-secret-scanning-adds-a-detector-for-cloudflare/" target="_blank" rel="noreferrer">查看来源：GitHub Changelog</a>
+    </article>
+
+    <article class="hotspot-card reveal">
+      <div class="hotspot-card__head">
+        <span class="hotspot-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="安全 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <div>
+          <div class="hotspot-card__meta">
+            <span>安全</span>
+            <time datetime="2026-11-12">2026年11月12日</time>
+          </div>
+          <h3>Public monitoring 告警支持直达链接：每条告警都能收藏和转发</h3>
+        </div>
+      </div>
+      <p>企业 Public monitoring 视图里的每条告警现在都有独立链接：点击告警编号即可打开详情页，URL 可以收藏，也可以发给有权限的同事。Public monitoring 面向拥有 GitHub Secret Protection 或 GitHub Advanced Security 的 GitHub Enterprise Cloud 客户，不额外收费。</p>
+      <div class="hotspot-card__why">
+        <strong>为什么值得关注</strong>
+        <p>为什么值得关注：告警治理最耗时的环节是「把链接贴到工单里」。直达链接让告警能进 Jira、值班群和复盘文档，讨论时指向同一条记录，不用再描述「那个 11 月 3 号的泄露」。注意链接仍受权限控制，转发给没有 Secret Protection 权限的人打不开，别把「打不开」误判成告警被删。</p>
+      </div>
+      <p class="hotspot-card__idea">候选：告警工单化与值班流程</p>
+      <a class="text-link" href="https://github.blog/changelog/2026-11-12-public-monitoring-alerts-now-have-direct-links/" target="_blank" rel="noreferrer">查看来源：GitHub Changelog</a>
+    </article>
+
+    <article class="hotspot-card reveal">
+      <div class="hotspot-card__head">
+        <span class="hotspot-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="DevOps 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <div>
+          <div class="hotspot-card__meta">
+            <span>DevOps</span>
+            <time datetime="2026-11-12">2026年11月12日</time>
+          </div>
+          <h3>Actions 托管运行器 12 月 8 日停止 ARM32：Windows 与 Linux 都不再执行 AArch32 任务</h3>
+        </div>
+      </div>
+      <p>GitHub Actions 托管运行器将在 2026 年 12 月 8 日前结束对 Windows 与 Linux 上 ARM32 作业执行的支持，同时移除托管运行器上的原生 AArch32 用户态执行能力。官方说明这与 node20 结束支持有关：Node 24 不再支持 ARM32。</p>
+      <div class="hotspot-card__why">
+        <strong>为什么值得关注</strong>
+        <p>为什么值得关注：还在用 32 位 ARM 交叉编译、老式嵌入式构建或 32 位 .NET 工具的流水线，会在这天之后直接跑不起来，而且报错通常出现在 runner 选择阶段，不容易第一时间联想到架构退役。排查方法：搜 workflow 里的 `runs-on` 架构标签、容器镜像的 platform 字段，以及依赖 32 位二进制的构建步骤；能换 64 位就换，换不了就自托管 runner。</p>
+      </div>
+      <p class="hotspot-card__idea">候选：ARM32 退役的流水线排查</p>
+      <a class="text-link" href="https://github.blog/changelog/2026-11-12-actions-for-arm32-linux-windows-retirement/" target="_blank" rel="noreferrer">查看来源：GitHub Changelog</a>
+    </article>
+
+    <article class="hotspot-card reveal">
+      <div class="hotspot-card__head">
+        <span class="hotspot-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/python/python-original.svg" alt="AI 应用 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <div>
+          <div class="hotspot-card__meta">
+            <span>AI 应用</span>
+            <time datetime="2026-11-11">2026年11月11日</time>
+          </div>
+          <h3>Vercel AI Gateway 接入 Gemini Decision 1：不生成文本，直接返回布尔、选项与评分</h3>
+        </div>
+      </div>
+      <p>Google 的 Gemini Decision 1 上架 Vercel AI Gateway。它是多模态决策模型，可处理文本、图片、音频、视频与 PDF，输出布尔概率、选项和评分，适合做请求路由、策略判断、agent 工具过滤与结果排序，不需要生成输出 token。调用名为 google/gemini-decision-1，可通过 AI SDK、TypeSafe 兼容 API 或 Decisions API 使用；PDF、音频、视频输入需 AI SDK 7，另外两种接口只支持文本与图片。决策调用会出现在日志里，并与普通模型请求一起计入预算。</p>
+      <div class="hotspot-card__why">
+        <strong>为什么值得关注</strong>
+        <p>为什么值得关注：过去做「要不要转人工」「该调哪个工具」这类判断，要么写规则，要么让大模型生成一段 JSON 再解析，既慢又容易跑偏。决策模型把这一步变成结构化输出，延迟和成本都更可控。边界是输入模态因接口而异，别拿 TypeSafe 接口去喂 PDF；判断结果也要设阈值和兜底，不能把概率当确定性结论。</p>
+      </div>
+      <p class="hotspot-card__idea">候选：决策模型替代规则路由</p>
+      <a class="text-link" href="https://vercel.com/changelog/gemini-decision-1-now-available-on-ai-gateway" target="_blank" rel="noreferrer">查看来源：Vercel Changelog</a>
+    </article>
+
+    <article class="hotspot-card reveal">
+      <div class="hotspot-card__head">
+        <span class="hotspot-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/docker/docker-original.svg" alt="云端部署 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <div>
+          <div class="hotspot-card__meta">
+            <span>云端部署</span>
+            <time datetime="2026-11-09">2026年11月9日</time>
+          </div>
+          <h3>Vercel 构建磁盘从 32GB 提到 64GB：Basic 与 Standard 机器也够用了</h3>
+        </div>
+      </div>
+      <p>Vercel 把构建磁盘空间从 32GB 提升到 64GB，Basic 与 Standard 机器现在与 Enhanced、Turbo 持平。新增空间用于依赖包和构建过程中生成的文件，降低磁盘写满导致的构建失败。该变更对所有套餐与构建机类型自动生效，不额外收费，也不需要改配置。</p>
+      <div class="hotspot-card__why">
+        <strong>为什么值得关注</strong>
+        <p>为什么值得关注：monorepo、带原生依赖或大型静态生成的项目，经常在「依赖装完磁盘就满了」这一步失败，报错还常被误判成内存问题。容量翻倍后这类失败会明显减少。但别把它当成无限空间：构建产物仍应清理，缓存策略仍要管，尤其是把大文件塞进仓库的项目。</p>
+      </div>
+      <p class="hotspot-card__idea">已扩写：构建容量与缓存治理</p>
+      <a class="text-link" href="https://vercel.com/changelog/build-disk-space-on-vercel-increased-to-64-gb" target="_blank" rel="noreferrer">查看来源：Vercel Changelog</a>
+    </article>
+
+    <article class="hotspot-card reveal">
+      <div class="hotspot-card__head">
+        <span class="hotspot-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/docker/docker-original.svg" alt="云端部署 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <div>
+          <div class="hotspot-card__meta">
+            <span>云端部署</span>
+            <time datetime="2026-11-09">2026年11月9日</time>
+          </div>
+          <h3>Vercel Sandbox 快照提速 10 倍：中位创建时间从 4.4 秒降到 0.4 秒以内</h3>
+        </div>
+      </div>
+      <p>Vercel Sandbox 的快照创建速度提升至多 10 倍，中位时间从 4.4 秒降到 0.4 秒以内；恢复速度也从 p50 的 500 毫秒降到 250 毫秒。底层改用 Vercel Hive Snapshot（VHS）格式复用帧，索引方式更高效，读写可以更多并行，基础镜像与用户数据也能并行恢复。默认的持久化沙箱会在会话结束时自动快照，下次从最新快照恢复；新快照自动享受新格式，已有快照保持旧格式，无需配置。</p>
+      <div class="hotspot-card__why">
+        <strong>为什么值得关注</strong>
+        <p>为什么值得关注：agent 沙箱的体感瓶颈往往不是模型，而是每次开工前等环境恢复。快照进入亚秒级后，「一任务一沙箱」才真正可用。要注意存量快照不会自动迁移，老项目想提速得重建一次快照；另外快照不是备份，别拿它替代持久化存储。</p>
+      </div>
+      <p class="hotspot-card__idea">候选：亚秒级沙箱与 agent 任务隔离</p>
+      <a class="text-link" href="https://vercel.com/changelog/vercel-sandbox-snapshot-creation-is-now-up-to-10x-faster" target="_blank" rel="noreferrer">查看来源：Vercel Changelog</a>
+    </article>
+
+    <article class="hotspot-card reveal">
+      <div class="hotspot-card__head">
+        <span class="hotspot-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/docker/docker-original.svg" alt="云端部署 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <div>
+          <div class="hotspot-card__meta">
+            <span>云端部署</span>
+            <time datetime="2026-11-09">2026年11月9日</time>
+          </div>
+          <h3>Vercel 分析支持自定义环境：staging、QA、金丝雀流量不再算进 Preview</h3>
+        </div>
+      </div>
+      <p>Speed Insights 与 Web Analytics 现在完整支持自定义环境。此前部署到自定义环境的数据会被归到 Preview，现在会归属到实际来源环境，staging、QA、金丝雀等环境的性能与流量可以和生产、预览分开看。查看入口包括仪表盘的环境下拉、CLI 的 vc metrics、查询构建器，以及聚合 API（仅 Web Analytics）。该变更只影响数据归属，不改变采集方式。</p>
+      <div class="hotspot-card__why">
+        <strong>为什么值得关注</strong>
+        <p>为什么值得关注：把 QA 的低质量流量混进 Preview，会让预览环境的性能指标长期失真，金丝雀发布的效果也无法单独评估。分开归属后，发布决策终于有干净的数据。注意历史数据不会重新归属，切换前的时间段仍是旧口径，做同比时要标注。</p>
+      </div>
+      <p class="hotspot-card__idea">候选：多环境可观测性口径</p>
+      <a class="text-link" href="https://vercel.com/changelog/speed-insights-and-web-analytics-now-support-custom-environments" target="_blank" rel="noreferrer">查看来源：Vercel Changelog</a>
+    </article>
+
+    <article class="hotspot-card reveal">
       <div class="hotspot-card__head">
         <span class="hotspot-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="开发工具 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
         <div>
@@ -6035,6 +6255,6 @@
     </div>
   </footer>
 
-  <script src="assets/app.js?v=20261112-daily-update"></script>
+  <script src="assets/app.js?v=20261115-daily-update"></script>
 </body>
 </html>

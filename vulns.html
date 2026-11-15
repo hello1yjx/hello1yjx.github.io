@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>漏洞分析 | 学习资源库</title>
-  <meta name="description" content="近期高危漏洞技术分析：GPUStack 未认证管理员访问（CVE-2026-102895）、FreeSWITCH SIP 命令注入（CVE-2026-116779）、IBM Aspera Faspex 授权绕过（CVE-2026-123218）、OpenSSH *SSHole（CVE-2026-123158）、Zyxel GS1900 零日（CVE-2026-107441）、WordPress 核心更新器竞态（CVE-2026-119977），以及 PHP2Shell、GitLab、Citrix、Ivanti 等案例，按漏洞类型、成因、利用场景和修复方案整理，仅供授权环境学习。">
+  <meta name="description" content="近期高危漏洞技术分析：UnrealIRCd 服务器命令注入（CVE-2026-114713）、Check Point Gaia OS 本地提权（CVE-2026-123039）、GPUStack 未认证管理员访问（CVE-2026-102895）、FreeSWITCH SIP 命令注入（CVE-2026-116779）、IBM Aspera Faspex 授权绕过（CVE-2026-123218）、OpenSSH *SSHole（CVE-2026-123158）、Zyxel GS1900 零日（CVE-2026-107441）、WordPress 核心更新器竞态（CVE-2026-119977），以及 PHP2Shell、GitLab、Citrix、Ivanti 等案例，按漏洞类型、成因、利用场景和修复方案整理，仅供授权环境学习。">
   <meta name="robots" content="index,follow,max-image-preview:large">
   <link rel="canonical" href="https://hello1yjx.github.io/vulns.html">
   <link rel="icon" type="image/png" href="assets/images/brand-book-line.png">
@@ -12,7 +12,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://cdn.jsdelivr.net">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;800&family=Noto+Serif+SC:wght@700;900&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/styles.css?v=20261112-daily-update">
+  <link rel="stylesheet" href="assets/styles.css?v=20261115-daily-update">
   <style>
     .vuln-banner { background: linear-gradient(135deg,#11151c,#1f2937); color:#fff; border-radius:18px; padding:26px 28px; display:flex; flex-wrap:wrap; gap:18px; align-items:center; justify-content:space-between; border:1px solid #374151; }
     .vuln-banner h3 { color:#fff; margin:6px 0; font-size:1.35rem; }
@@ -92,17 +92,17 @@
     <section class="section">
       <div class="vuln-banner reveal">
         <div>
-          <p class="eyebrow" style="color:#fca5a5;">CISA KEV · 11 月 9 日四连收录</p>
-          <h3>GPUStack、FreeSWITCH、Aspera Faspex 同日进入 KEV：三个 9.8 分漏洞已确认在野利用</h3>
-          <p>CISA 于 11 月 9 日把 GPUStack（CVE-2026-102895）、SignalWire FreeSWITCH（CVE-2026-116779）、IBM Aspera Faspex（CVE-2026-123218）与 OpenSSH *SSHole 一起列入 KEV，联邦机构须在 11 月 12 日前完成修复与取证 triage。前三个漏洞 CVSS 均为 9.8，分别对应未认证管理员访问、SIP 命令注入与授权绕过提权；补丁虽已发布，但失陷后新建的凭据不会随升级自动失效。</p>
+          <p class="eyebrow" style="color:#fca5a5;">CISA KEV · 11 月 13 日再收录</p>
+          <h3>Check Point 网关被 PHP2Shell 打穿后提权到 root，UnrealIRCd 同日进入 KEV</h3>
+          <p>CISA 于 11 月 13 日把 UnrealIRCd 命令注入（CVE-2026-114713，8.6）与 Check Point Gaia OS 本地提权（CVE-2026-123039，7.8）列入 KEV，联邦机构须在 11 月 16 日前修复并做取证 triage。Check Point 的案例是一条完整攻击链：先用 PHP2Shell 从 Mobile Access 门户取得初始访问，再借 DynamicCLI 的本地 socket 提权到 root，随后植入 webshell、TSGA 后门，部分场景还在 ESXi 上投放破坏性 wiper。</p>
         </div>
         <a class="button" href="https://www.cisa.gov/known-exploited-vulnerabilities-catalog" target="_blank" rel="noreferrer">查看 CISA KEV</a>
       </div>
       <div class="vuln-stat-grid">
-        <div class="vuln-stat"><strong>17</strong><span>本期分析 CVE 数量</span></div>
+        <div class="vuln-stat"><strong>19</strong><span>本期分析 CVE 数量</span></div>
         <div class="vuln-stat"><strong>10.0</strong><span>GitLab 正则编译器满分</span></div>
         <div class="vuln-stat"><strong>9.8</strong><span>GPUStack / FreeSWITCH / Faspex</span></div>
-        <div class="vuln-stat"><strong>9 小时</strong><span>OpenSSH 公布到首个利用尝试</span></div>
+        <div class="vuln-stat"><strong>8.6</strong><span>UnrealIRCd 命令注入</span></div>
       </div>
     </section>
 
@@ -704,8 +704,79 @@ fatal_error_backtraces = 0</div>
     <section class="section">
       <div class="section-heading reveal">
         <div>
+          <p class="eyebrow">CISA KEV · 2026-11-13</p>
+          <h2>八、通信服务与安全网关漏洞（UnrealIRCd / Check Point）</h2>
+        </div>
+        <p>来源：CISA KEV 公告、Security Affairs、NVD、UnrealIRCd 与 Check Point 官方公告，2026-11-13 至 11-14。</p>
+      </div>
+
+      <div class="vuln-card reveal">
+        <div class="vuln-card__head">
+          <span class="vuln-card__id">CVE-2026-114713</span>
+          <span><span class="vuln-badge vuln-badge--high">高危 · CVSS 8.6</span> <span class="vuln-badge vuln-badge--kev">在野利用 · 已入 KEV</span></span>
+        </div>
+        <div class="vuln-block">
+          <h4><span class="vuln-num">1</span>漏洞判断 / 类型</h4>
+          <p>命令注入，CWE-140（分隔符中和不当），CVSS 8.6。影响 <strong>UnrealIRCd 6.0.0 起、6.2.7.1 之前</strong>的版本。漏洞位于 <code>labeled-response</code> 模块，触发前提是 IRC 网络里至少有两台已互联（server linking）的服务器。</p>
+        </div>
+        <div class="vuln-block">
+          <h4><span class="vuln-num">2</span>漏洞成因</h4>
+          <p>IRC 是行文本协议，服务端在回显 IRCv3 的 <code>label</code> 消息标签时没有做转义。普通用户只要在 label 里塞入换行，就能让一台服务器转发给另一台服务器的回包里多出一行；接收端会把这一行当成<strong>服务器之间的命令</strong>执行。项目维护者称这是 UnrealIRCd 十五年来最严重的问题。</p>
+        </div>
+        <div class="vuln-block">
+          <h4><span class="vuln-num">3</span>利用方法 / 场景</h4>
+          <ul>
+            <li>任意普通用户、无需任何特权，在多服务器互联的网络上即可注入服务器级命令。</li>
+            <li>可强制断开用户、封禁账号、修改频道与网络配置，甚至中断整个 IRC 服务。</li>
+            <li>若服务进程以 root 或高权限账号运行，命令执行可进一步扩大到主机层面。</li>
+            <li>补丁于 11 月 7 日发布，11 月 8 日就观测到利用尝试，属于典型的「补丁即被逆向」。</li>
+            <li>CISA 11 月 13 日列入 KEV，要求 11 月 16 日前修复并做取证 triage。</li>
+          </ul>
+        </div>
+        <div class="vuln-block">
+          <h4><span class="vuln-num">4</span>修复方案</h4>
+          <p>把网络内<strong>每一台</strong>互联服务器都升级到 <strong>UnrealIRCd 6.2.7.1</strong>；只升其中一台，注入仍可从旧节点发起。暂时无法升级时，按官方说明使用 hot-patch 或 spamfilter 规则临时缓解，但这只是缓解，不是修复。</p>
+          <p>排查失陷：检查日志中非管理员发起的 kill、ban、操作员变更与新增 server link；确认服务不以 root 运行；限制 server linking 的来源地址；对异常重启与配置改动做完整性核对。</p>
+        </div>
+      </div>
+
+      <div class="vuln-card reveal">
+        <div class="vuln-card__head">
+          <span class="vuln-card__id">CVE-2026-123039</span>
+          <span><span class="vuln-badge vuln-badge--high">高危 · CVSS 7.8</span> <span class="vuln-badge vuln-badge--kev">在野利用 · 已入 KEV</span></span>
+        </div>
+        <div class="vuln-block">
+          <h4><span class="vuln-num">1</span>漏洞判断 / 类型</h4>
+          <p>关键资源权限分配不当（CWE-732），本地权限提升，CVSS 7.8。影响 Check Point Security Gateway 与 Security Management 产品上的 Gaia OS。攻击者需要先取得一个低权限本地账号，随后可提升到 root，完全控制设备。</p>
+        </div>
+        <div class="vuln-block">
+          <h4><span class="vuln-num">2</span>漏洞成因</h4>
+          <p>Gaia OS 的 DynamicCLI 守护进程以 root 权限运行，监听本地 Unix socket <code>/tmp/dynamic_socket</code>，而该 socket 对所有用户可写，且没有正确认证连接进程的身份。任何本地低权限用户都能连上去，让 root 进程代为执行命令。</p>
+          <p>真正危险的是它被串进了一条完整攻击链：Check Point Research 观察到攻击者先用 <strong>PHP2Shell（CVE-2026-109618 / CVE-2026-109619）</strong>从 Mobile Access 门户取得初始访问，再用本漏洞提权到 root。这与本站此前收录的 PHP 运行时漏洞是同两个 CVE。</p>
+        </div>
+        <div class="vuln-block">
+          <h4><span class="vuln-num">3</span>利用方法 / 场景</h4>
+          <ul>
+            <li>首轮攻击于 10 月 30 日针对以色列组织，部分受害单位出现破坏性后果；11 月 2 日第二波扩散到多个国家和行业。</li>
+            <li>提权后植入 webshell 与 TSGA 后门，建立持久化并向内网横向移动。</li>
+            <li>部分场景在 VMware ESXi 主机上投放 <code>destroy_v6</code> wiper，直接擦除数据。</li>
+            <li>攻击代码与基础设施和 PhiliKit 存在重叠，后者曾与 UNC5221 关联，但 Check Point 认为证据不足以确认整场行动归属。</li>
+            <li>CISA 11 月 13 日列入 KEV，要求 11 月 16 日前修复并做取证 triage。</li>
+          </ul>
+        </div>
+        <div class="vuln-block">
+          <h4><span class="vuln-num">4</span>修复方案</h4>
+          <p>按 Check Point 官方公告安装 Gaia OS 对应 hotfix，同时确认 Mobile Access 门户已修复 PHP2Shell 两个漏洞；只修补其中一个环节，攻击链仍可从另一半进入。无法立即升级时，收紧对 <code>/tmp/dynamic_socket</code> 的本地访问、清理不必要的本地账号，并限制管理面暴露范围。</p>
+          <p>按「可能已失陷」排查：检查 webshell、TSGA 后门与异常进程，核对管理账号与登录日志，审查 Mobile Access 访问记录；对 ESXi 做离线备份与快照保护，确认 wiper 未触及备份链路；轮换设备与对接系统的凭据。</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-heading reveal">
+        <div>
           <p class="eyebrow">Learning & Compliance</p>
-          <h2>八、学习路径与合规提醒</h2>
+          <h2>九、学习路径与合规提醒</h2>
         </div>
       </div>
       <div class="vuln-card reveal">

@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AI Scan 批量治理：用 REST API 管组织和仓库的两级开关 | 学习资源库</title>
+  <meta name="description" content="11 月 13 日，GitHub 给 AI Scan for repositories 加了 REST API：组织与仓库两级都能开关，设置项叫 repository_scan，可以写进 IaC 批量滚动。继承规则、422 报错、AI credits 和适用范围都有明确边界。这篇教程把 API 形态、权限、继承链、滚动策略和验收清单讲清楚，适合要管几十上百个仓库的安全与平台团队。">
+  <meta name="robots" content="index,follow,max-image-preview:large">
+  <link rel="canonical" href="https://hello1yjx.github.io/articles/github-ai-scan-rest-api-governance-guide.html">
+  <link rel="icon" type="image/png" href="../assets/images/brand-book-line.png">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"AI Scan 批量治理：用 REST API 管组织和仓库的两级开关","description":"11 月 13 日，GitHub 给 AI Scan for repositories 加了 REST API：组织与仓库两级都能开关，设置项叫 repository_scan，可以写进 IaC 批量滚动。继承规则、422 报错、AI credits 和适用范围都有明确边界。这篇教程把 API 形态、权限、继承链、滚动策略和验收清单讲清楚，适合要管几十上百个仓库的安全与平台团队。","datePublished":"2026-11-15","dateModified":"2026-11-15","author":{"@type":"Person","name":"Avery Lin","url":"https://hello1yjx.github.io/about.html"},"publisher":{"@type":"Organization","name":"学习资源库","url":"https://hello1yjx.github.io/"},"mainEntityOfPage":"https://hello1yjx.github.io/articles/github-ai-scan-rest-api-governance-guide.html","inLanguage":"zh-CN"}</script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6621999105936318" crossorigin="anonymous"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;800&family=Noto+Serif+SC:wght@700;900&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/styles.css?v=20261115-daily-update">
+</head>
+<body>
+  <header class="site-header">
+    <div class="page-shell site-header__inner">
+      <a class="brand" href="../index.html" aria-label="返回首页">
+        <span class="brand-mark" aria-hidden="true"><img src="../assets/images/brand-book-line.png" alt="" width="36" height="33"></span>
+        <span class="brand-copy"><strong>学习资源库</strong><span>分享知识 · 提升自己 · 成就未来</span></span>
+      </a>
+      <button class="menu-button" data-menu-button aria-expanded="false" aria-label="切换导航菜单">☰</button>
+      <nav class="site-nav" data-mobile-nav>
+        <a href="../index.html">首页</a>
+        <a class="is-active" href="../posts.html" aria-current="page">教程</a>
+        <a href="../resources.html">资源下载</a>
+        <a href="../hotspots.html">技术资讯</a>
+        <a href="../projects.html">开源项目</a>
+        <a href="../vulns.html">漏洞分析</a>
+        <a href="../kaogong.html">考公专区</a>
+        <a href="../about.html">关于我们</a>
+      </nav>
+      <form class="header-search" action="../posts.html" method="get">
+        <input type="search" name="q" placeholder="搜索教程、资源、工具或关键词...">
+        <button type="submit" aria-label="搜索">/</button>
+      </form>
+      <a class="header-github" href="https://github.com/hello1yjx/hello1yjx.github.io" target="_blank" rel="noreferrer" aria-label="GitHub">
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="" width="24" height="24">
+      </a>
+      <a class="header-cta" href="../posts.html">开始学习</a>
+    </div>
+  </header>
+
+  <main class="page-shell section article-page">
+    <header class="detail-hero">
+      <span class="pill">安全</span>
+      <h1>AI Scan 批量治理：用 REST API 管组织和仓库的两级开关</h1>
+      <div class="detail-hero__meta">
+        <time datetime="2026-11-15">2026年11月15日</time>
+        <span>10 分钟</span>
+        <span>作者：Avery Lin</span>
+      </div>
+      <p>11 月 13 日，GitHub 给 AI Scan for repositories 加了 REST API：组织与仓库两级都能开关，设置项叫 repository_scan，可以写进 IaC 批量滚动。继承规则、422 报错、AI credits 和适用范围都有明确边界。这篇教程把 API 形态、权限、继承链、滚动策略和验收清单讲清楚，适合要管几十上百个仓库的安全与平台团队。</p>
+    </header>
+    <div class="article-layout">
+      <article class="article-body">
+        <div class="inline-promo">
+          <p class="label">来源与增量价值</p>
+          <h3>本文基于官方资料整理，并补充适用场景、限制条件和实践检查步骤。</h3>
+          <p>首要来源：<a href="https://github.blog/changelog/2026-11-13-manage-ai-scan-for-repositories-using-the-rest-api/" target="_blank" rel="noreferrer">Manage AI Scan for repositories using the REST API</a>。事实以原始来源为准，本站建议需结合自己的环境验证。</p>
+        </div>
+
+    <p>安全能力上线的第一道坎不是「有没有」，而是「能不能批量开」。仓库一多，逐个点设置既慢又容易漏，出了问题还很难证明覆盖范围。11 月 13 日 GitHub 给 AI Scan for repositories 补上了 REST API，组织与仓库两级都能程序化管理。</p><p>但批量开关最容易踩的是继承与报错：组织关了仓库开不了，企业策略不允许时请求整体失败，两个设置放在一个请求里还会一起回滚。先把这些规则弄明白，再写脚本。</p>
+    <h2>这篇内容适合谁</h2>
+    <ul><li>管理大量仓库的安全工程师与平台团队</li><li>用 Terraform、脚本或内部平台做安全配置的 DevOps</li><li>需要向审计解释覆盖范围的负责人</li></ul>
+    <h2>实践与验证步骤</h2>
+    <ul><li>确认企业已允许 AI Scan</li><li>确认仓库类型与许可</li><li>读取组织当前设置</li><li>小批量试开并验证继承</li><li>写进 IaC 与审批流程</li><li>处理 422 与回滚</li><li>观察 credits 消耗</li><li>按清单验收</li></ul>
+    <h2>官方资料入口</h2>
+
+    <ul>
+
+            <li>
+              <a href="https://github.blog/changelog/2026-11-13-manage-ai-scan-for-repositories-using-the-rest-api/" target="_blank" rel="noreferrer">Manage AI Scan for repositories using the REST API</a>
+              <span>：接口、继承规则与限制</span>
+            </li>
+
+            <li>
+              <a href="https://docs.github.com/en/code-security/code-scanning" target="_blank" rel="noreferrer">GitHub Code Scanning 文档</a>
+              <span>：AI Scan 与 code scanning 基础</span>
+            </li>
+
+    </ul>
+
+    <h2>重点判断与使用建议</h2>
+    <ul><li>新字段：repository_scan，取值 enabled / disabled</li><li>组织端点：GET/PATCH /orgs/{org}/code-scanning/ai-scan</li><li>仓库端点：GET/PATCH /repos/{owner}/{repo}/code-scanning/ai-scan</li><li>与 pr_scan 可在同一请求更新，任一被阻止则整体 422、都不生效</li><li>开启不会自动扫描，每次扫描消耗 Code Security AI credits</li></ul>
+
+        <h2>一、这次新增了什么</h2>
+
+        <ul><li>AI Scan for repositories 支持用 REST API 开关</li><li>新增设置字段 repository_scan，取值 enabled 或 disabled</li><li>组织级与仓库级各有一组 GET/PATCH 端点</li><li>可与已有的 pr_scan 设置在同一请求中更新</li><li>能力处于公开预览阶段，接口可能继续调整</li></ul>
+
+
+
+        <h2>二、谁能调用</h2>
+
+        <ul><li>组织所有者与安全经理可以管理组织级设置</li><li>仓库管理员可以将单个仓库退出继承</li><li>企业所有者必须先在 enterprise policy 中允许 AI Scan</li><li>适用仓库：组织拥有的公开仓库，以及有 Code Security 或 GHAS 的私有/内部仓库</li><li>GitHub Enterprise Server 不支持该能力</li></ul>
+
+
+
+        <h2>三、继承规则</h2>
+
+        <ul><li>组织关闭时，下属仓库不能自行开启</li><li>组织开启时，仓库默认继承，也可以单独选择退出</li><li>企业策略不允许时，开启请求返回 422</li><li>继承是「组织兜底、仓库微调」，不是两边平级投票</li><li>排障时先看组织与企业策略，再看仓库自身设置</li></ul>
+
+
+
+        <h2>四、把开关写进 IaC</h2>
+
+        <ul><li>先 GET 读取现状，避免 PATCH 覆盖掉别人刚改的设置</li><li>把组织级设为唯一事实来源，仓库级只记录显式例外</li><li>仓库创建模板里默认继承组织设置，减少新仓库漏配</li><li>变更走 PR 与审批，配置也是代码</li><li>定期跑一次漂移检测，发现被手工改回的仓库</li></ul>
+
+
+
+        <h2>五、422 从哪来</h2>
+
+        <ul><li>企业策略不允许 AI Scan</li><li>组织已关闭，仓库却请求开启</li><li>同一请求里 pr_scan 与 repository_scan 有一个被阻止</li><li>权限不足或令牌缺少对应 scope</li><li>处理原则：先修策略与父级设置，不要靠重试绕过</li></ul>
+
+
+
+        <h2>六、开启不等于扫描</h2>
+
+        <ul><li>打开开关只代表允许使用，不会自动启动扫描</li><li>有写权限的用户仍需按需触发扫描</li><li>每次扫描消耗 GitHub Code Security AI credits</li><li>批量开启前先估算扫描频率与 credits 预算</li><li>把「开了多少仓库」和「实际扫了多少次」分开统计</li></ul>
+
+
+
+        <h2>七、适用面与例外</h2>
+
+        <ul><li>公开仓库要求由组织拥有</li><li>私有与内部仓库需要 Code Security 或 GHAS</li><li>GHES 环境完全不在支持范围</li><li>企业策略是总闸，组织与仓库都在其下</li><li>审计时要同时给出企业、组织、仓库三层的证据</li></ul>
+
+
+
+        <h2>八、滚动发布策略</h2>
+
+        <ul><li>第一批选 5 到 10 个低风险仓库，验证接口与继承</li><li>第二批覆盖核心业务仓库，观察扫描耗时与误报</li><li>第三批全量，保留一份例外清单</li><li>每批之间留观察窗口，不要一次性全开</li><li>异常时先关组织级开关止损，再逐仓排查</li></ul>
+
+
+
+        <h2>九、和 pr_scan 的关系</h2>
+
+        <ul><li>pr_scan 管 Pull Request 扫描，repository_scan 管仓库级扫描</li><li>两者可以分开配置，也可以在同一请求里一起改</li><li>任一设置被阻止时，整个请求 422 且两项都不变</li><li>不要假设「改一个成功、另一个失败」的部分成功语义</li><li>脚本里要显式处理 422，并回读确认实际状态</li></ul>
+
+
+
+        <h2>十、验收清单</h2>
+
+        <ul><li>企业策略已允许 AI Scan</li><li>已确认目标仓库类型与许可匹配</li><li>已完成组织与仓库现状盘点</li><li>IaC 中组织级为唯一事实来源</li><li>仓库级例外有清单与负责人</li><li>422 处理与回读校验已实现</li><li>credits 预算与扫描频率已评估</li><li>漂移检测已上线并定期执行</li></ul>
+
+
+
+
+        <div class="inline-promo">
+          <p class="label">更正与更新</p>
+          <h3>发现版本变化、来源失效或事实错误时，请通过联系页反馈。</h3>
+          <p>本站会核对一手来源后更新内容，不使用无来源转载填充文章。</p>
+          <a class="button button--secondary" href="../editorial.html">查看内容标准</a>
+        </div>
+      </article>
+      <aside class="article-sidebar">
+        <div class="sidebar-card">
+          <p class="label">本页标签</p>
+          <div class="tag-row"><span>GitHub</span><span>AI Scan</span><span>Code Scanning</span><span>REST API</span><span>安全治理</span><span>IaC</span></div>
+        </div>
+        <div class="sidebar-card">
+          <p class="label">继续阅读</p>
+          <a href="github-actions-log-secret-scanning-supply-chain-guide.html">构建日志里的密钥也会告警：Actions 日志扫描、Dependabot 休眠与依赖拦截三件套</a><a href="2027-guangdong-shengkao-gonggao-jiaofei-zhunkaozheng-bishi-guide.html">2027 广东省考公告解读：10293 名招录、缴费确认与 12 月 6 日笔试全流程</a><a href="copilot-code-review-api-three-layer-policy-guide.html">Copilot 代码评审接入 API：企业、组织、仓库三层策略落地教程</a><a href="vercel-tracing-kql-production-debug-guide.html">Vercel Tracing 正式可用：用 KQL 从慢请求追到具体 span</a>
+        </div>
+        <div class="sidebar-card sidebar-card--accent">
+          <p class="label">作者与方法</p>
+          <h3>了解本站如何选题、核验来源与处理更正。</h3>
+          <a class="button button--dark" href="../about.html">关于作者</a>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="page-shell footer__inner">
+      <div><strong>学习资源库</strong><p>分享知识 · 提升自己 · 成就未来</p></div>
+      <div>
+        <a href="../editorial.html">内容标准</a><br>
+        <a href="../privacy.html">隐私政策</a><br>
+        <a href="../contact.html">联系</a>
+      </div>
+    </div>
+  </footer>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      var button = document.querySelector("[data-menu-button]");
+      var nav = document.querySelector("[data-mobile-nav]");
+      if (!button || !nav) return;
+      button.addEventListener("click", function () {
+        var expanded = button.getAttribute("aria-expanded") === "true";
+        button.setAttribute("aria-expanded", String(!expanded));
+        nav.classList.toggle("site-nav--open", !expanded);
+      });
+    });
+  </script>
+</body>
+</html>

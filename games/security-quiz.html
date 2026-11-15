@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>网络安全知识闯关 · 学习资源库小游戏</title>
-<meta name="description" content="网络安全知识答题小游戏，30 道题库随机抽 12 道，覆盖法规、Web 安全、密码学、应急响应与供应链，答完可看错题解析。">
+<meta name="description" content="网络安全知识答题小游戏，36 道题库随机抽 12 道，覆盖法规、Web 安全、密码学、应急响应、云安全与供应链，答完可看错题解析并重练错题。">
 <meta name="robots" content="noindex,follow">
 <link rel="icon" type="image/png" href="../assets/images/brand-book-line.png">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700&family=Space+Grotesk:wght@400;700&display=swap" rel="stylesheet">
@@ -289,23 +289,72 @@
       opts: ["给构建机 root 权限方便安装","锁版本、审 lockfile、限制安装脚本与构建机凭据","关闭所有日志","只在本地安装依赖"],
       a: 1, tag: "供应链安全", level: "实战",
       e: "依赖投毒常借 postinstall 等脚本执行。应锁定版本与来源、审查 lockfile 变更、禁用不必要的安装脚本，并让构建机只持有最小凭据。"
+    },
+    {
+      q: "Cloudflare Access 服务令牌被提交进公开仓库后，最先应做的是？",
+      opts: ["等扫描告警自动消失","立即吊销并轮换令牌，再查访问日志确认是否被滥用","把仓库改成私有就没事","在 README 里说明这是测试令牌"],
+      a: 1, tag: "云安全", level: "实战",
+      e: "服务令牌泄露等于给内部应用开了一道门。检测与通报只能缩短暴露窗口，处置必须包含吊销、轮换、访问日志排查，以及确认令牌没有进入构建产物和历史提交。"
+    },
+    {
+      q: "某 root 守护进程监听一个所有用户都可写的本地 socket，且不校验连接方身份，这最可能导致？",
+      opts: ["磁盘空间不足","本地低权限用户提权到 root","网络带宽被占满","证书过期"],
+      a: 1, tag: "基础运维", level: "进阶",
+      e: "关键资源权限分配不当（CWE-732）会让低权限进程借用高权限服务执行操作。修复应限制 socket 权限、校验连接进程身份，并让服务以最小权限运行。"
+    },
+    {
+      q: "一个由多台服务器互联组成的 IRC 网络被曝出服务器级命令注入，只升级其中一台的风险是？",
+      opts: ["没有风险，升级一台就够","其他旧节点仍可能被注入，必须全网升级","升级越多越不安全","只要改端口就能解决"],
+      a: 1, tag: "基础运维", level: "实战",
+      e: "服务器间命令注入的入口可能落在任意一台旧节点上，注入后再传播到互联服务器。修复要求网络内所有节点都升级到修复版本，单点升级不构成修复。"
+    },
+    {
+      q: "收到 secret scanning 的密钥泄露告警后，最不应该做的是？",
+      opts: ["确认密钥是否仍然有效","立即吊销并轮换","直接关闭告警或标记为误报后不再处理","排查密钥是否进入构建产物"],
+      a: 2, tag: "漏洞管理", level: "实战",
+      e: "告警的价值在于缩短暴露窗口。未核实就关闭或长期忽略，会让有效凭据一直暴露。正确顺序是确认有效性、吊销轮换、排查使用痕迹，最后才判断是否为误报。"
+    },
+    {
+      q: "备份系统与生产环境处于同一域且使用同一套可写凭据，最主要的风险是？",
+      opts: ["备份速度变慢","勒索软件或 wiper 可连带加密删除备份，导致无法恢复","备份文件变好看","不影响任何东西"],
+      a: 1, tag: "应急响应", level: "实战",
+      e: "破坏性攻击会优先清除可触及的备份。备份应隔离存放、使用独立凭据、保留离线或不可变副本，并定期做恢复演练，而不是只验证备份任务成功。"
+    },
+    {
+      q: "AI 生成的代码里出现硬编码的 API Key，最合适的处理方式是？",
+      opts: ["继续使用，等上线再说","立即吊销该密钥、迁到密钥管理服务，并清理代码与历史提交","只把变量名改得隐蔽一点","把它写进前端配置方便调用"],
+      a: 1, tag: "账号安全", level: "实战",
+      e: "硬编码密钥一旦进入提交历史就很难彻底删除。应先吊销，再改用密钥管理或环境注入，清理当前代码与历史记录，并加上提交前扫描防止复发。"
     }
   ];
 
   const ROUND_SIZE = 12;
-  let round = [], idx = 0, correctCount = 0, answered = false, wrongList = [];
-
-  const qNum = document.getElementById('qNum');
-  const qTotal = document.getElementById('qTotal');
-  const qScore = document.getElementById('qScore');
-  const barFill = document.getElementById('barFill');
-  const metaRow = document.getElementById('metaRow');
-  const questionEl = document.getElementById('question');
-  const optionsEl = document.getElementById('options');
-  const explainEl = document.getElementById('explain');
-  const nextBtn = document.getElementById('nextBtn');
-  const hintEl = document.getElementById('hint');
+  const BEST_KEY = 'secQuizBest';
   const panel = document.getElementById('quizPanel');
+  const panelTemplate = panel.innerHTML;
+  let round = [], idx = 0, correctCount = 0, answered = false, wrongList = [], isReplay = false;
+  let qNum, qTotal, qScore, barFill, metaRow, questionEl, optionsEl, explainEl, nextBtn, hintEl;
+
+  function bindEls(){
+    qNum = document.getElementById('qNum');
+    qTotal = document.getElementById('qTotal');
+    qScore = document.getElementById('qScore');
+    barFill = document.getElementById('barFill');
+    metaRow = document.getElementById('metaRow');
+    questionEl = document.getElementById('question');
+    optionsEl = document.getElementById('options');
+    explainEl = document.getElementById('explain');
+    nextBtn = document.getElementById('nextBtn');
+    hintEl = document.getElementById('hint');
+  }
+  bindEls();
+
+  function readBest(){
+    try { return Number(localStorage.getItem(BEST_KEY)) || 0; } catch (e) { return 0; }
+  }
+  function writeBest(v){
+    try { localStorage.setItem(BEST_KEY, String(v)); } catch (e) {}
+  }
 
   function shuffle(list){
     const arr = list.slice();
@@ -316,8 +365,8 @@
     return arr;
   }
 
-  function prepareRound(){
-    return shuffle(QUESTIONS).slice(0, ROUND_SIZE).map(function(item){
+  function prepareRound(pool, max){
+    return shuffle(pool).slice(0, max).map(function(item){
       const pairs = item.opts.map(function(text, i){
         return { text: text, correct: i === item.a };
       });
@@ -333,13 +382,16 @@
     });
   }
 
-  function startRound(){
-    round = prepareRound();
+  function startRound(pool, replay){
+    panel.innerHTML = panelTemplate;
+    bindEls();
+    isReplay = !!replay;
+    round = prepareRound(pool || QUESTIONS, ROUND_SIZE);
     idx = 0;
     correctCount = 0;
     answered = false;
     wrongList = [];
-    qTotal.textContent = String(ROUND_SIZE);
+    qTotal.textContent = String(round.length);
     render();
   }
 
@@ -348,7 +400,7 @@
     const item = round[idx];
     qNum.textContent = String(idx + 1);
     qScore.textContent = String(correctCount);
-    barFill.style.width = ((idx) / ROUND_SIZE * 100) + '%';
+    barFill.style.width = ((idx) / round.length * 100) + '%';
     metaRow.innerHTML = '';
     const tagChip = document.createElement('span');
     tagChip.className = 'chip chip--tag';
@@ -398,32 +450,45 @@
         q: item.q,
         chosen: item.opts[i],
         correct: item.opts[item.a],
-        e: item.e
+        e: item.e,
+        item: item
       });
     }
     qScore.textContent = String(correctCount);
-    barFill.style.width = ((idx + 1) / ROUND_SIZE * 100) + '%';
+    barFill.style.width = ((idx + 1) / round.length * 100) + '%';
     explainEl.innerHTML = '<strong>解析：</strong>' + item.e;
     explainEl.classList.add('show');
     nextBtn.style.display = 'inline-block';
-    nextBtn.textContent = idx === ROUND_SIZE - 1 ? '查看结果' : '下一题';
+    nextBtn.textContent = idx === round.length - 1 ? '查看结果' : '下一题';
     hintEl.style.display = 'none';
   }
 
   nextBtn.onclick = function(){
     idx += 1;
-    if (idx < ROUND_SIZE) { render(); }
+    if (idx < round.length) { render(); }
     else { finish(); }
   };
 
   function finish(){
     barFill.style.width = '100%';
-    const score = Math.round(correctCount / ROUND_SIZE * 100);
+    const total = round.length;
+    const score = Math.round(correctCount / total * 100);
     let comment;
     if (score >= 90) comment = '基础很扎实，下一步可以把错题对应的知识点补成笔记，再去靶场验证。';
     else if (score >= 70) comment = '主干概念已经掌握，失分多集中在细节与边界条件，建议回看错题解析。';
     else if (score >= 50) comment = '能认出常见风险，但对成因和修复还不够熟，建议按错题分类系统过一遍。';
     else comment = '基础还需要补，建议先看 OWASP Top 10 与等保基本要求，再来一轮。';
+
+    let best = readBest();
+    let isRecord = false;
+    if (!isReplay && score > best) {
+      best = score;
+      writeBest(best);
+      isRecord = true;
+    }
+    const bestLine = best > 0
+      ? '<p class="note">历史最佳：<strong style="color:var(--amber)">' + best + ' 分</strong>' + (isRecord ? ' · 本次刷新纪录' : '') + '</p>'
+      : '';
 
     let reviewHtml = '';
     if (wrongList.length) {
@@ -443,17 +508,25 @@
       '<p class="kicker">ROUND COMPLETE</p>' +
       '<div class="score-big">' + score + '<small>分</small></div>' +
       '<p class="verdict">' + comment + '</p>' +
+      bestLine +
       reviewHtml +
       '<div class="actions">' +
         '<button class="btn" id="againBtn">再来一局</button>' +
+        (wrongList.length ? '<button class="btn" id="replayBtn">错题重练</button>' : '') +
         '<a class="btn btn--ghost" href="../games.html">游戏中心</a>' +
       '</div>' +
-      '<p class="note">每局从 ' + QUESTIONS.length + ' 道题里随机抽 ' + ROUND_SIZE + ' 道，选项顺序也会打乱。</p>' +
+      '<p class="note">每局从 ' + QUESTIONS.length + ' 道题里随机抽 ' + ROUND_SIZE + ' 道，选项顺序也会打乱；错题重练只考本轮做错的题。</p>' +
     '</div>';
 
     document.getElementById('againBtn').onclick = function(){
-      location.reload();
+      startRound();
     };
+    const replayBtn = document.getElementById('replayBtn');
+    if (replayBtn) {
+      replayBtn.onclick = function(){
+        startRound(wrongList.map(function(w){ return w.item; }), true);
+      };
+    }
   }
 
   document.addEventListener('keydown', function(e){

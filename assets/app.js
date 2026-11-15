@@ -29,6 +29,470 @@ const siteData = {
   },
   posts: [
     {
+      id: "copilot-model-deprecation-december-migration-guide",
+      title: "Copilot 12 月 14 日下架 6 个模型：一份能照着做的迁移清单",
+      date: "2026-11-15",
+      category: "AI 编程",
+      readTime: "11 分钟",
+      excerpt: "GitHub 在 11 月 13 日宣布，12 月 14 日从所有 Copilot 体验中下架 Claude Fable 5、Claude Haiku 4.5、Gemini 3.8 Flash、Gemini 4 Argon、Grok 4.6 与 Kimi K3，并给出了替代模型。真正需要动的往往不是界面，而是写死模型 ID 的脚本、按模型计费的路由、固定模型的评测基线和企业的模型策略。这篇教程按「清单 → 影响面 → 迁移顺序 → 验证」给出一份可执行方案。",
+      tags: ["GitHub Copilot", "模型下架", "迁移", "企业策略", "评测基线"],
+      featured: true,
+      intro: [
+        "模型迭代的速度已经快过很多团队的配置管理节奏。11 月 13 日 GitHub 公布了一份下架清单：12 月 14 日起，6 个模型会从 Copilot Chat、inline edits、ask/agent 模式与代码补全里一起消失。替代模型已经给出，但「换哪个」只是第一步。",
+        "更麻烦的是隐性依赖：代码里写死的模型名、网关里按模型做的路由、评测集里固定的小模型、按模型名拆分的账单。界面切换是分钟级的事，这些地方不改，12 月 14 日之后会以各种奇怪的报错出现。"
+      ],
+      audience: [
+        "维护 Copilot 集成、SDK 调用或自建网关的开发者",
+        "负责企业模型策略与采购的管理员",
+        "用固定模型跑评测、做成本对比的团队",
+        "需要提前向业务解释「为什么模型变了」的负责人"
+      ],
+      format: [
+        "按「清单 → 影响面 → 分线迁移 → 验证」组织，模型名与日期均来自官方公告",
+        "只给迁移方法与检查点，不预测替代模型的性能强弱"
+      ],
+      roadmap: [
+        "导出所有在用的模型 ID",
+        "搜索代码与配置里的硬编码",
+        "标记受影响的流水线与评测任务",
+        "确认企业策略与年度订阅例外",
+        "按厂商分线切换替代模型",
+        "重跑评测基线并记录差异",
+        "更新文档与账单维度",
+        "在 12 月 14 日前完成验证"
+      ],
+      officialLinks: [
+        { label: "Upcoming deprecation of selected GitHub Copilot models in December", url: "https://github.blog/changelog/2026-11-13-upcoming-deprecation-of-selected-github-copilot-models-in-december/", note: "官方下架清单与替代模型" },
+        { label: "Gemini 4 Hydrogen in GitHub Copilot", url: "https://github.blog/changelog/2026-11-13-gemini-4-hydrogen-in-github-copilot/", note: "Gemini 3.8 Flash 的替代模型" },
+        { label: "GitHub Copilot 模型文档", url: "https://docs.github.com/en/copilot", note: "当前可用模型与计费口径" }
+      ],
+      curatedLinks: [
+        "下架日期：2026 年 12 月 14 日，覆盖 Chat、inline edits、ask/agent 模式与代码补全",
+        "Claude Fable 5 → Claude Fable 5.2；Claude Haiku 4.5 → Claude Haiku 5.5",
+        "Gemini 3.8 Flash → Gemini 4 Hydrogen；Gemini 4 Argon → Gemini 4 Carbon",
+        "Grok 4.6 → Grok 4.7；Kimi K3 的替代模型待公布",
+        "例外：个人年度订阅用户可继续使用 Claude Haiku 4.5"
+      ],
+      downloadIdeas: [
+        "做一张「模型 ID → 使用位置 → 替代模型 → 负责人」的迁移表",
+        "把评测任务里的模型名改成配置项，避免下次再全量改代码"
+      ],
+      extraSections: [
+        {
+          title: "一、下架清单与替代关系",
+          items: [
+            "Claude Fable 5：12 月 14 日下架，替代 Claude Fable 5.2",
+            "Claude Haiku 4.5：同时下架，替代 Claude Haiku 5.5，个人年度订阅用户例外",
+            "Gemini 3.8 Flash：下架，替代 Gemini 4 Hydrogen",
+            "Gemini 4 Argon：下架，替代 Gemini 4 Carbon",
+            "Grok 4.6：下架，替代 Grok 4.7",
+            "Kimi K3：下架，替代模型待公布，需要准备回退方案"
+          ]
+        },
+        {
+          title: "二、为什么这次不能只看界面",
+          items: [
+            "界面里的模型选择器会自动更新，但代码里的模型 ID 不会",
+            "按模型名做计费拆分的报表，下架后会出现空维度或对不上账",
+            "固定模型的评测任务会直接失败，或者悄悄回退到默认模型，导致结果不可比",
+            "企业策略里若显式禁用了替代模型，用户会看不到新模型",
+            "文档、培训材料和客户承诺里提到的模型名也需要同步"
+          ]
+        },
+        {
+          title: "三、影响面盘点：五类位置",
+          items: [
+            "代码：SDK 调用、API 请求体、agent 配置、CLI 参数里的模型字符串",
+            "CI：评测脚本、回归任务、按模型并行的测试矩阵",
+            "网关：AI Gateway、自建代理、路由规则与降级链",
+            "策略：企业 Copilot 设置里的模型开关与默认启用状态",
+            "账务与报表：按模型分组的用量、预算与对外账单"
+          ]
+        },
+        {
+          title: "四、迁移前先冻结评测基线",
+          items: [
+            "在下架前用旧模型跑一遍固定任务集，保存通过率、步骤数、耗时与成本",
+            "替代模型上线后跑同一套任务，比较差异而不是只看单次体感",
+            "记录失败类型：是能力下降、工具调用不兼容，还是提示词需要调整",
+            "把结论写进模型准入表，作为后续选型依据",
+            "不要在迁移窗口内同时改提示词和模型，否则无法判断差异来源"
+          ]
+        },
+        {
+          title: "五、Claude 线怎么迁",
+          items: [
+            "Fable 5 升到 Fable 5.2：注意 5.2 默认要求数据留存，企业需先确认合规",
+            "Haiku 4.5 升到 Haiku 5.5：速度敏感型任务先做延迟对比",
+            "检查是否有按 Fable 5 特调的提示词或工具 schema，换模型后重新验证",
+            "个人年度订阅用户不受 Haiku 4.5 下架影响，但团队版仍需迁移",
+            "把模型策略里的旧模型开关关掉，避免用户继续选中即将消失的条目"
+          ]
+        },
+        {
+          title: "六、Gemini、Grok 与 Kimi 线怎么迁",
+          items: [
+            "Gemini 3.8 Flash → Gemini 4 Hydrogen：轻量任务优先切，注意 Hydrogen 覆盖 Pro 套餐",
+            "Gemini 4 Argon → Gemini 4 Carbon：推理与安全场景可在同一任务上对比",
+            "Grok 4.6 → Grok 4.7：检查工具调用格式与函数名约束是否变化",
+            "Kimi K3 暂无替代：先把依赖它的任务摘出来，临时指向默认模型或人工兜底",
+            "所有替代都要确认所在套餐可用，Pro 与 Business 的模型范围不同"
+          ]
+        },
+        {
+          title: "七、企业策略与年度订阅例外",
+          items: [
+            "默认启用策略下，替代模型会自动开启，除非管理员关掉全局默认",
+            "关掉全局默认的组织，需要为每个替代模型单独打开策略",
+            "显式禁用过替代模型的组织，会在下架后出现「无模型可用」的空窗",
+            "年度订阅的 Haiku 4.5 例外只针对个人订阅者，不覆盖企业席位",
+            "策略变更要留审批记录，方便解释为什么某个人看不到新模型"
+          ]
+        },
+        {
+          title: "八、改代码：把模型名变成配置",
+          items: [
+            "把所有模型 ID 收进一个配置对象或环境变量，禁止散落在业务代码里",
+            "为每次调用保留一个降级链，主模型不可用时自动切换备用模型",
+            "对模型名做启动校验：不在允许清单里就快速失败，而不是运行到一半才报错",
+            "日志里记录实际使用的模型与版本，方便账单核对与问题复现",
+            "在 SDK 升级说明里标注模型迁移，避免下游团队重复踩坑"
+          ]
+        },
+        {
+          title: "九、迁移窗口与验证",
+          items: [
+            "第一周：完成盘点与基线，确认替代模型在当前套餐可用",
+            "第二周：在测试环境切换，跑评测集与关键业务流程",
+            "第三周：灰度到少量用户，观察失败率、延迟与成本",
+            "第四周：全量切换，保留一周回退窗口但不再新增旧模型调用",
+            "12 月 14 日后：清理旧模型配置与文档，避免误导后来者"
+          ]
+        },
+        {
+          title: "十、检查清单",
+          items: [
+            "已导出全部在用的模型 ID 与调用位置",
+            "已完成旧模型的评测基线",
+            "已确认替代模型在套餐内可用",
+            "已更新企业模型策略与默认启用设置",
+            "已把模型名改为配置项并加启动校验",
+            "已准备 Kimi K3 的临时替代方案",
+            "已更新账单维度与对外文档",
+            "已在 12 月 14 日前完成全量验证"
+          ]
+        }
+      ]
+    },
+    {
+      id: "github-ai-scan-rest-api-governance-guide",
+      title: "AI Scan 批量治理：用 REST API 管组织和仓库的两级开关",
+      date: "2026-11-15",
+      category: "安全",
+      readTime: "10 分钟",
+      excerpt: "11 月 13 日，GitHub 给 AI Scan for repositories 加了 REST API：组织与仓库两级都能开关，设置项叫 repository_scan，可以写进 IaC 批量滚动。继承规则、422 报错、AI credits 和适用范围都有明确边界。这篇教程把 API 形态、权限、继承链、滚动策略和验收清单讲清楚，适合要管几十上百个仓库的安全与平台团队。",
+      tags: ["GitHub", "AI Scan", "Code Scanning", "REST API", "安全治理", "IaC"],
+      featured: false,
+      intro: [
+        "安全能力上线的第一道坎不是「有没有」，而是「能不能批量开」。仓库一多，逐个点设置既慢又容易漏，出了问题还很难证明覆盖范围。11 月 13 日 GitHub 给 AI Scan for repositories 补上了 REST API，组织与仓库两级都能程序化管理。",
+        "但批量开关最容易踩的是继承与报错：组织关了仓库开不了，企业策略不允许时请求整体失败，两个设置放在一个请求里还会一起回滚。先把这些规则弄明白，再写脚本。"
+      ],
+      audience: [
+        "管理大量仓库的安全工程师与平台团队",
+        "用 Terraform、脚本或内部平台做安全配置的 DevOps",
+        "需要向审计解释覆盖范围的负责人"
+      ],
+      format: [
+        "按「API → 权限 → 继承 → 批量 → 报错 → 成本 → 清单」组织",
+        "接口路径与字段名直接取自官方说明，不扩展未文档化参数"
+      ],
+      roadmap: [
+        "确认企业已允许 AI Scan",
+        "确认仓库类型与许可",
+        "读取组织当前设置",
+        "小批量试开并验证继承",
+        "写进 IaC 与审批流程",
+        "处理 422 与回滚",
+        "观察 credits 消耗",
+        "按清单验收"
+      ],
+      officialLinks: [
+        { label: "Manage AI Scan for repositories using the REST API", url: "https://github.blog/changelog/2026-11-13-manage-ai-scan-for-repositories-using-the-rest-api/", note: "接口、继承规则与限制" },
+        { label: "GitHub Code Scanning 文档", url: "https://docs.github.com/en/code-security/code-scanning", note: "AI Scan 与 code scanning 基础" }
+      ],
+      curatedLinks: [
+        "新字段：repository_scan，取值 enabled / disabled",
+        "组织端点：GET/PATCH /orgs/{org}/code-scanning/ai-scan",
+        "仓库端点：GET/PATCH /repos/{owner}/{repo}/code-scanning/ai-scan",
+        "与 pr_scan 可在同一请求更新，任一被阻止则整体 422、都不生效",
+        "开启不会自动扫描，每次扫描消耗 Code Security AI credits"
+      ],
+      downloadIdeas: [
+        "写一个只读盘点脚本，先输出组织与仓库的当前开关状态",
+        "把 AI Scan 开关纳入仓库创建模板，新仓库默认继承组织策略"
+      ],
+      extraSections: [
+        {
+          title: "一、这次新增了什么",
+          items: [
+            "AI Scan for repositories 支持用 REST API 开关",
+            "新增设置字段 repository_scan，取值 enabled 或 disabled",
+            "组织级与仓库级各有一组 GET/PATCH 端点",
+            "可与已有的 pr_scan 设置在同一请求中更新",
+            "能力处于公开预览阶段，接口可能继续调整"
+          ]
+        },
+        {
+          title: "二、谁能调用",
+          items: [
+            "组织所有者与安全经理可以管理组织级设置",
+            "仓库管理员可以将单个仓库退出继承",
+            "企业所有者必须先在 enterprise policy 中允许 AI Scan",
+            "适用仓库：组织拥有的公开仓库，以及有 Code Security 或 GHAS 的私有/内部仓库",
+            "GitHub Enterprise Server 不支持该能力"
+          ]
+        },
+        {
+          title: "三、继承规则",
+          items: [
+            "组织关闭时，下属仓库不能自行开启",
+            "组织开启时，仓库默认继承，也可以单独选择退出",
+            "企业策略不允许时，开启请求返回 422",
+            "继承是「组织兜底、仓库微调」，不是两边平级投票",
+            "排障时先看组织与企业策略，再看仓库自身设置"
+          ]
+        },
+        {
+          title: "四、把开关写进 IaC",
+          items: [
+            "先 GET 读取现状，避免 PATCH 覆盖掉别人刚改的设置",
+            "把组织级设为唯一事实来源，仓库级只记录显式例外",
+            "仓库创建模板里默认继承组织设置，减少新仓库漏配",
+            "变更走 PR 与审批，配置也是代码",
+            "定期跑一次漂移检测，发现被手工改回的仓库"
+          ]
+        },
+        {
+          title: "五、422 从哪来",
+          items: [
+            "企业策略不允许 AI Scan",
+            "组织已关闭，仓库却请求开启",
+            "同一请求里 pr_scan 与 repository_scan 有一个被阻止",
+            "权限不足或令牌缺少对应 scope",
+            "处理原则：先修策略与父级设置，不要靠重试绕过"
+          ]
+        },
+        {
+          title: "六、开启不等于扫描",
+          items: [
+            "打开开关只代表允许使用，不会自动启动扫描",
+            "有写权限的用户仍需按需触发扫描",
+            "每次扫描消耗 GitHub Code Security AI credits",
+            "批量开启前先估算扫描频率与 credits 预算",
+            "把「开了多少仓库」和「实际扫了多少次」分开统计"
+          ]
+        },
+        {
+          title: "七、适用面与例外",
+          items: [
+            "公开仓库要求由组织拥有",
+            "私有与内部仓库需要 Code Security 或 GHAS",
+            "GHES 环境完全不在支持范围",
+            "企业策略是总闸，组织与仓库都在其下",
+            "审计时要同时给出企业、组织、仓库三层的证据"
+          ]
+        },
+        {
+          title: "八、滚动发布策略",
+          items: [
+            "第一批选 5 到 10 个低风险仓库，验证接口与继承",
+            "第二批覆盖核心业务仓库，观察扫描耗时与误报",
+            "第三批全量，保留一份例外清单",
+            "每批之间留观察窗口，不要一次性全开",
+            "异常时先关组织级开关止损，再逐仓排查"
+          ]
+        },
+        {
+          title: "九、和 pr_scan 的关系",
+          items: [
+            "pr_scan 管 Pull Request 扫描，repository_scan 管仓库级扫描",
+            "两者可以分开配置，也可以在同一请求里一起改",
+            "任一设置被阻止时，整个请求 422 且两项都不变",
+            "不要假设「改一个成功、另一个失败」的部分成功语义",
+            "脚本里要显式处理 422，并回读确认实际状态"
+          ]
+        },
+        {
+          title: "十、验收清单",
+          items: [
+            "企业策略已允许 AI Scan",
+            "已确认目标仓库类型与许可匹配",
+            "已完成组织与仓库现状盘点",
+            "IaC 中组织级为唯一事实来源",
+            "仓库级例外有清单与负责人",
+            "422 处理与回读校验已实现",
+            "credits 预算与扫描频率已评估",
+            "漂移检测已上线并定期执行"
+          ]
+        }
+      ]
+    },
+    {
+      id: "vercel-build-capacity-sandbox-decision-guide",
+      title: "Vercel 三处提速：64GB 构建磁盘、亚秒级沙箱快照与决策模型",
+      date: "2026-11-15",
+      category: "云端部署",
+      readTime: "11 分钟",
+      excerpt: "11 月上旬 Vercel 连发几条更新：构建磁盘从 32GB 提到 64GB，Sandbox 快照中位创建时间从 4.4 秒降到 0.4 秒以内，AI Gateway 接入 Gemini Decision 1 直接输出布尔、选项与评分。三条更新分别对应构建、运行时与请求决策三个环节。这篇教程讲清各自的实际收益、边界与验收方法，避免把「容量变大」误当成「可以随便堆文件」。",
+      tags: ["Vercel", "构建优化", "Sandbox", "AI Gateway", "决策模型", "可观测性"],
+      featured: false,
+      intro: [
+        "构建失败有很多种，磁盘写满是最容易被误判成内存不足的一种；agent 慢也有很多种，环境恢复往往比模型推理更耗时；路由判断看似很轻，却经常被迫调用大模型生成一段 JSON。Vercel 这三条更新，正好各打中一个。",
+        "三条更新都不需要改配置：磁盘自动扩容、新快照自动用新格式、决策模型按调用计费。真正要做的不是「打开开关」，而是确认自己的项目能否吃到收益，以及边界在哪里。"
+      ],
+      audience: [
+        "在 Vercel 上跑 monorepo、原生依赖或大型静态生成的开发者",
+        "用 Sandbox 跑 agent 任务、关心冷启动的团队",
+        "需要做请求路由、策略判断与工具过滤的 AI 应用开发者"
+      ],
+      format: [
+        "按「构建 → 沙箱 → 决策 → 成本 → 验收」组织，数字均取自官方公告",
+        "只讲已文档化的行为，不推测未公布的配额"
+      ],
+      roadmap: [
+        "确认当前构建失败是否与磁盘有关",
+        "检查构建缓存与产物清理",
+        "确认沙箱是否使用持久化模式",
+        "评估存量快照是否需要重建",
+        "选一个路由场景试用决策模型",
+        "设置阈值与兜底逻辑",
+        "观察日志与预算",
+        "按验收清单核对"
+      ],
+      officialLinks: [
+        { label: "Build disk space increased to 64 GB", url: "https://vercel.com/changelog/build-disk-space-on-vercel-increased-to-64-gb", note: "构建磁盘扩容范围" },
+        { label: "Sandbox snapshot creation up to 10x faster", url: "https://vercel.com/changelog/vercel-sandbox-snapshot-creation-is-now-up-to-10x-faster", note: "快照格式与恢复速度" },
+        { label: "Gemini Decision 1 on AI Gateway", url: "https://vercel.com/changelog/gemini-decision-1-now-available-on-ai-gateway", note: "决策模型接口与模态" },
+        { label: "Speed Insights and Web Analytics custom environments", url: "https://vercel.com/changelog/speed-insights-and-web-analytics-now-support-custom-environments", note: "自定义环境数据归属" }
+      ],
+      curatedLinks: [
+        "构建磁盘：32GB → 64GB，Basic 与 Standard 对齐 Enhanced/Turbo",
+        "快照：中位创建 4.4s → 0.4s 以内，恢复 p50 500ms → 250ms",
+        "决策模型调用名：google/gemini-decision-1",
+        "决策调用计入日志与预算，不生成输出 token",
+        "自定义环境：数据不再归到 Preview，历史数据不重算"
+      ],
+      downloadIdeas: [
+        "记录一次构建的磁盘峰值与产物大小，判断 64GB 是否是瓶颈",
+        "给决策模型写一份阈值表：大于多少概率才自动路由"
+      ],
+      extraSections: [
+        {
+          title: "一、三处提速分别解决什么",
+          items: [
+            "构建磁盘：解决依赖与生成文件把磁盘写满导致的失败",
+            "沙箱快照：解决每次任务开工前环境恢复太慢",
+            "决策模型：解决路由与策略判断必须生成文本再解析的问题",
+            "三者共同点是「不改变业务代码也能吃到收益」",
+            "但都不是无限资源，边界比收益更值得先看"
+          ]
+        },
+        {
+          title: "二、64GB 磁盘的实际收益",
+          items: [
+            "Basic 与 Standard 构建机从 32GB 提升到 64GB",
+            "Enhanced 与 Turbo 原本就是 64GB，现在四类机器持平",
+            "适用于所有套餐与构建机类型，不额外收费",
+            "不需要改配置，新构建自动生效",
+            "对 monorepo、原生依赖、大型静态生成项目收益最明显"
+          ]
+        },
+        {
+          title: "三、构建缓存与磁盘的边界",
+          items: [
+            "磁盘变大不等于可以不做缓存清理",
+            "构建缓存应只保留命中率高的目录，避免把旧产物越堆越多",
+            "大文件不要进仓库，改用对象存储或构建时下载",
+            "磁盘告警仍要监控，别等到再次写满才发现",
+            "构建日志里要能区分「磁盘不足」与「内存不足」"
+          ]
+        },
+        {
+          title: "四、Sandbox 快照为什么快了",
+          items: [
+            "改用 Vercel Hive Snapshot（VHS）格式复用帧",
+            "索引方式更高效，读写可以更多并行",
+            "基础镜像与用户数据可以并行恢复",
+            "中位创建时间从 4.4 秒降到 0.4 秒以内",
+            "恢复 p50 从 500 毫秒降到 250 毫秒"
+          ]
+        },
+        {
+          title: "五、VHS 格式与存量快照",
+          items: [
+            "新快照自动使用新格式，无需配置",
+            "已有快照保持旧格式，不会自动迁移",
+            "想要提速的老项目需要重建一次快照",
+            "持久化沙箱默认在会话结束时自动快照，下次从最新恢复",
+            "快照不是备份，关键数据仍要落持久化存储"
+          ]
+        },
+        {
+          title: "六、决策模型是什么",
+          items: [
+            "Gemini Decision 1 是多模态决策模型，不生成文本",
+            "输出包括布尔概率、选项与评分",
+            "可处理文本、图片、音频、视频与 PDF",
+            "调用名 google/gemini-decision-1",
+            "适合路由、策略判断、工具过滤与结果排序"
+          ]
+        },
+        {
+          title: "七、用决策模型做路由",
+          items: [
+            "把「是否转人工」「是否退款」「该调哪个工具」拆成独立问题",
+            "为每个问题设置阈值，而不是只看概率最高的选项",
+            "低置信度时走兜底：规则、人工或默认模型",
+            "把决策结果与最终人工判断做对比，持续校准",
+            "不要在决策模型里塞超长上下文，输入越长越难稳定"
+          ]
+        },
+        {
+          title: "八、接口与模态限制",
+          items: [
+            "AI SDK 支持 PDF、音频、视频输入，需要 AI SDK 7",
+            "TypeSafe 兼容 API 与 Decisions API 只支持文本与图片",
+            "决策调用会出现在日志里，并与普通请求一起计入预算",
+            "不同接口的返回结构不同，封装时要统一成内部格式",
+            "上线前用真实样本覆盖每种模态，别只测文本"
+          ]
+        },
+        {
+          title: "九、成本与可观测",
+          items: [
+            "决策模型按调用计费，不按输出 token 计费",
+            "把决策调用单独打标签，避免和生成调用混在一个预算项",
+            "记录每次决策的输入摘要、概率与最终动作",
+            "定期抽样复核，防止阈值漂移导致错误路由",
+            "自定义环境的数据归属已拆分，分析时注意历史口径"
+          ]
+        },
+        {
+          title: "十、验收清单",
+          items: [
+            "已确认构建失败是否由磁盘导致",
+            "已清理低命中率缓存与大产物",
+            "已确认沙箱使用持久化模式",
+            "存量快照已评估是否重建",
+            "已选一个路由场景完成决策模型对比",
+            "阈值与兜底逻辑已写入代码",
+            "决策调用已单独标记并纳入预算",
+            "自定义环境报表口径已更新说明"
+          ]
+        }
+      ]
+    },
+    {
       id: "claude-fable-5-2-copilot-retention-policy-guide",
       title: "Claude Fable 5.2 接入 Copilot：能力提升、数据留存与企业管理策略",
       date: "2026-11-12",
@@ -11721,6 +12185,116 @@ git push origin main`,
     "github-agentic-workflows-public-preview-guide"
   ],
   hotspots: [
+    {
+      date: "2026-11-13",
+      tag: "AI 编程",
+      title: "Gemini 4 Hydrogen 进入 Copilot：轻量 Flash 模型主打快速 agent 与工具调用",
+      summary: "Google 最新的 Flash 模型 Gemini 4 Hydrogen 在 GitHub Copilot 正式可用，定位快速、高效的 agentic 编码、工具调用与多步工作流，指令遵循能力比 Gemini 3.8 Flash 更好。可用范围比同周的 Carbon 更宽：Copilot Pro、Pro+、Max、Business、Enterprise 都能选，入口覆盖 VS Code、Visual Studio、Copilot CLI、coding agent、Copilot 应用、github.com、移动端、JetBrains、Xcode、Eclipse，还支持 Copilot SDK；按厂商标价、按量计费，灰度逐步放开。企业侧仍由模型策略控制，默认启用策略下新模型会自动打开，除非管理员关掉全局默认或显式禁用。",
+      why: "为什么值得关注：Pro 用户终于有一个便宜、快、适合多步工具调用的新选择，日常跑 agent 不必每次都上重模型。限制也要看清：Flash 定位是效率优先，复杂重构和长链路推理仍应交给 Carbon 或 Fable 5.2；按量计费叠加多模型后，账单会随调用面扩散，建议给 Pro 用户设默认模型而不是让他们自由切。",
+      sourceLabel: "GitHub Changelog",
+      sourceUrl: "https://github.blog/changelog/2026-11-13-gemini-4-hydrogen-in-github-copilot/",
+      articleIdea: "候选：轻量模型与重模型的日常分工"
+    },
+    {
+      date: "2026-11-13",
+      tag: "AI 编程",
+      title: "Copilot 12 月 14 日下架 6 个模型：Fable 5、Haiku 4.5、Gemini 3.8 Flash 等在列",
+      summary: "GitHub 宣布 2026 年 12 月 14 日在所有 Copilot 体验中下架 6 个模型，包括 Copilot Chat、inline edits、ask 与 agent 模式、代码补全。清单与替代：Claude Fable 5 → Fable 5.2；Claude Haiku 4.5 → Haiku 5.5（个人年度订阅用户不受影响，可继续使用）；Gemini 3.8 Flash → Gemini 4 Hydrogen；Gemini 4 Argon → Gemini 4 Carbon；Grok 4.6 → Grok 4.7；Kimi K3 的替代模型待公布。官方要求在此日期前把工作流与集成切到受支持模型；默认启用策略下替代模型会自动开启，除非管理员关掉了全局默认或显式禁用。下架后不需要手动移除模型。",
+      why: "为什么值得关注：模型下架不是「界面上少一个选项」，写死模型名的脚本、SDK 调用、企业策略和评测基线都会一起失效。最该先查的是三类地方：代码里硬编码的模型 ID、CI 里固定模型的评测任务、按模型名做计费或路由的网关配置。Kimi K3 暂无替代，依赖它的团队要提前准备回退方案。",
+      sourceLabel: "GitHub Changelog",
+      sourceUrl: "https://github.blog/changelog/2026-11-13-upcoming-deprecation-of-selected-github-copilot-models-in-december/",
+      articleIdea: "已扩写：Copilot 模型下架迁移清单"
+    },
+    {
+      date: "2026-11-13",
+      tag: "AI 编程",
+      title: "Copilot 应用支持 GitHub Enterprise Server：GHES 仓库、Issue、PR 都能接入",
+      summary: "GitHub Copilot 应用结束 GHES 支持的 opt-in 预览，转为正式可用：可以把 GitHub Enterprise Server 上的远程仓库、Issue 与 Pull Request 接进应用。使用前需先用 GitHub.com 或 GHE.com 账号登录，再进入 Settings → Accounts → Add account，选择 GitHub Enterprise Server 添加账号。该能力要求 Copilot 应用 1.2.0 及以上版本；GHES 不支持云会话（cloud sessions）。",
+      why: "为什么值得关注：大量企业代码仍在自建 GHES 上，过去只能用 Copilot 的云端能力，数据出不了内网。现在客户端能把 GHES 工作区接进来，内部仓库也能用同一套 agent 体验。坑在「云会话不可用」：涉及云端跑任务的功能在 GHES 场景下不可用，排障时别把它当成故障；另外应用版本低于 1.2.0 时入口不会出现。",
+      sourceLabel: "GitHub Changelog",
+      sourceUrl: "https://github.blog/changelog/2026-11-13-github-enterprise-server-support-in-the-github-copilot-app/",
+      articleIdea: "候选：GHES 团队的 Copilot 客户端接入"
+    },
+    {
+      date: "2026-11-13",
+      tag: "安全",
+      title: "AI Scan 可以用 REST API 批量开关：组织和仓库两级，支持基础设施即代码",
+      summary: "GitHub code scanning 的 AI Scan for repositories 开放 REST API 管理，组织和仓库两级都能开关。现有 AI Scan 启用端点新增 repository_scan 设置，取值为 enabled 或 disabled，对应 GET/PATCH /orgs/{org}/code-scanning/ai-scan 与 /repos/{owner}/{repo}/code-scanning/ai-scan。继承规则与 pr_scan 一致：组织关闭时仓库不能自行开启；组织开启时仓库继承并可单独退出；企业策略不允许时请求返回 422。pr_scan 与 repository_scan 可在同一请求里更新，任一被阻止则整体 422、两者都不变。开启不等于开始扫描，有写权限的用户仍需按需触发，每次扫描消耗 Code Security AI credits。",
+      why: "为什么值得关注：安全能力终于能写进 IaC 和批量脚本，几百个仓库不用手点。注意三个边界：只覆盖组织拥有的公开仓库，以及有 Code Security 或 GHAS 的私有/内部仓库；企业必须先允许 AI Scan，GHES 不支持；组织关闭会压过仓库设置，排障先看继承链而不是仓库本身。",
+      sourceLabel: "GitHub Changelog",
+      sourceUrl: "https://github.blog/changelog/2026-11-13-manage-ai-scan-for-repositories-using-the-rest-api/",
+      articleIdea: "已扩写：AI Scan 批量治理与权限继承"
+    },
+    {
+      date: "2026-11-12",
+      tag: "安全",
+      title: "Secret scanning 新增 Cloudflare Access 服务令牌检测：公开仓库命中会自动通报 Cloudflare",
+      summary: "GitHub secret scanning 新增对 Cloudflare Access service token 的检测，支持的密钥类型为 cloudflare_access_service_token。作为合作伙伴密钥，在公开仓库中发现时会通过 secret scanning 合作计划自动通报给签发方 Cloudflare；作为用户密钥时，在公开或私有仓库命中都会生成 secret scanning 告警。该检测自动生效，不需要额外配置。",
+      why: "为什么值得关注：Cloudflare Access 服务令牌常用于绕过 Access 策略访问内部应用，一旦泄露等于给内网开了一道门，而且这类令牌往往被写进 CI 变量或前端配置里。自动通报只能缩短暴露窗口，不能替你吊销；团队仍要在告警后完成轮换、排查访问日志，并确认令牌没有被写进构建产物。",
+      sourceLabel: "GitHub Changelog",
+      sourceUrl: "https://github.blog/changelog/2026-11-12-secret-scanning-adds-a-detector-for-cloudflare/",
+      articleIdea: "候选：边缘访问令牌的泄露治理"
+    },
+    {
+      date: "2026-11-12",
+      tag: "安全",
+      title: "Public monitoring 告警支持直达链接：每条告警都能收藏和转发",
+      summary: "企业 Public monitoring 视图里的每条告警现在都有独立链接：点击告警编号即可打开详情页，URL 可以收藏，也可以发给有权限的同事。Public monitoring 面向拥有 GitHub Secret Protection 或 GitHub Advanced Security 的 GitHub Enterprise Cloud 客户，不额外收费。",
+      why: "为什么值得关注：告警治理最耗时的环节是「把链接贴到工单里」。直达链接让告警能进 Jira、值班群和复盘文档，讨论时指向同一条记录，不用再描述「那个 11 月 3 号的泄露」。注意链接仍受权限控制，转发给没有 Secret Protection 权限的人打不开，别把「打不开」误判成告警被删。",
+      sourceLabel: "GitHub Changelog",
+      sourceUrl: "https://github.blog/changelog/2026-11-12-public-monitoring-alerts-now-have-direct-links/",
+      articleIdea: "候选：告警工单化与值班流程"
+    },
+    {
+      date: "2026-11-12",
+      tag: "DevOps",
+      title: "Actions 托管运行器 12 月 8 日停止 ARM32：Windows 与 Linux 都不再执行 AArch32 任务",
+      summary: "GitHub Actions 托管运行器将在 2026 年 12 月 8 日前结束对 Windows 与 Linux 上 ARM32 作业执行的支持，同时移除托管运行器上的原生 AArch32 用户态执行能力。官方说明这与 node20 结束支持有关：Node 24 不再支持 ARM32。",
+      why: "为什么值得关注：还在用 32 位 ARM 交叉编译、老式嵌入式构建或 32 位 .NET 工具的流水线，会在这天之后直接跑不起来，而且报错通常出现在 runner 选择阶段，不容易第一时间联想到架构退役。排查方法：搜 workflow 里的 `runs-on` 架构标签、容器镜像的 platform 字段，以及依赖 32 位二进制的构建步骤；能换 64 位就换，换不了就自托管 runner。",
+      sourceLabel: "GitHub Changelog",
+      sourceUrl: "https://github.blog/changelog/2026-11-12-actions-for-arm32-linux-windows-retirement/",
+      articleIdea: "候选：ARM32 退役的流水线排查"
+    },
+    {
+      date: "2026-11-11",
+      tag: "AI 应用",
+      title: "Vercel AI Gateway 接入 Gemini Decision 1：不生成文本，直接返回布尔、选项与评分",
+      summary: "Google 的 Gemini Decision 1 上架 Vercel AI Gateway。它是多模态决策模型，可处理文本、图片、音频、视频与 PDF，输出布尔概率、选项和评分，适合做请求路由、策略判断、agent 工具过滤与结果排序，不需要生成输出 token。调用名为 google/gemini-decision-1，可通过 AI SDK、TypeSafe 兼容 API 或 Decisions API 使用；PDF、音频、视频输入需 AI SDK 7，另外两种接口只支持文本与图片。决策调用会出现在日志里，并与普通模型请求一起计入预算。",
+      why: "为什么值得关注：过去做「要不要转人工」「该调哪个工具」这类判断，要么写规则，要么让大模型生成一段 JSON 再解析，既慢又容易跑偏。决策模型把这一步变成结构化输出，延迟和成本都更可控。边界是输入模态因接口而异，别拿 TypeSafe 接口去喂 PDF；判断结果也要设阈值和兜底，不能把概率当确定性结论。",
+      sourceLabel: "Vercel Changelog",
+      sourceUrl: "https://vercel.com/changelog/gemini-decision-1-now-available-on-ai-gateway",
+      articleIdea: "候选：决策模型替代规则路由"
+    },
+    {
+      date: "2026-11-09",
+      tag: "云端部署",
+      title: "Vercel 构建磁盘从 32GB 提到 64GB：Basic 与 Standard 机器也够用了",
+      summary: "Vercel 把构建磁盘空间从 32GB 提升到 64GB，Basic 与 Standard 机器现在与 Enhanced、Turbo 持平。新增空间用于依赖包和构建过程中生成的文件，降低磁盘写满导致的构建失败。该变更对所有套餐与构建机类型自动生效，不额外收费，也不需要改配置。",
+      why: "为什么值得关注：monorepo、带原生依赖或大型静态生成的项目，经常在「依赖装完磁盘就满了」这一步失败，报错还常被误判成内存问题。容量翻倍后这类失败会明显减少。但别把它当成无限空间：构建产物仍应清理，缓存策略仍要管，尤其是把大文件塞进仓库的项目。",
+      sourceLabel: "Vercel Changelog",
+      sourceUrl: "https://vercel.com/changelog/build-disk-space-on-vercel-increased-to-64-gb",
+      articleIdea: "已扩写：构建容量与缓存治理"
+    },
+    {
+      date: "2026-11-09",
+      tag: "云端部署",
+      title: "Vercel Sandbox 快照提速 10 倍：中位创建时间从 4.4 秒降到 0.4 秒以内",
+      summary: "Vercel Sandbox 的快照创建速度提升至多 10 倍，中位时间从 4.4 秒降到 0.4 秒以内；恢复速度也从 p50 的 500 毫秒降到 250 毫秒。底层改用 Vercel Hive Snapshot（VHS）格式复用帧，索引方式更高效，读写可以更多并行，基础镜像与用户数据也能并行恢复。默认的持久化沙箱会在会话结束时自动快照，下次从最新快照恢复；新快照自动享受新格式，已有快照保持旧格式，无需配置。",
+      why: "为什么值得关注：agent 沙箱的体感瓶颈往往不是模型，而是每次开工前等环境恢复。快照进入亚秒级后，「一任务一沙箱」才真正可用。要注意存量快照不会自动迁移，老项目想提速得重建一次快照；另外快照不是备份，别拿它替代持久化存储。",
+      sourceLabel: "Vercel Changelog",
+      sourceUrl: "https://vercel.com/changelog/vercel-sandbox-snapshot-creation-is-now-up-to-10x-faster",
+      articleIdea: "候选：亚秒级沙箱与 agent 任务隔离"
+    },
+    {
+      date: "2026-11-09",
+      tag: "云端部署",
+      title: "Vercel 分析支持自定义环境：staging、QA、金丝雀流量不再算进 Preview",
+      summary: "Speed Insights 与 Web Analytics 现在完整支持自定义环境。此前部署到自定义环境的数据会被归到 Preview，现在会归属到实际来源环境，staging、QA、金丝雀等环境的性能与流量可以和生产、预览分开看。查看入口包括仪表盘的环境下拉、CLI 的 vc metrics、查询构建器，以及聚合 API（仅 Web Analytics）。该变更只影响数据归属，不改变采集方式。",
+      why: "为什么值得关注：把 QA 的低质量流量混进 Preview，会让预览环境的性能指标长期失真，金丝雀发布的效果也无法单独评估。分开归属后，发布决策终于有干净的数据。注意历史数据不会重新归属，切换前的时间段仍是旧口径，做同比时要标注。",
+      sourceLabel: "Vercel Changelog",
+      sourceUrl: "https://vercel.com/changelog/speed-insights-and-web-analytics-now-support-custom-environments",
+      articleIdea: "候选：多环境可观测性口径"
+    },
     {
       date: "2026-11-11",
       tag: "开发工具",

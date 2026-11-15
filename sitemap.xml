@@ -8,6 +8,9 @@
   <url><loc>https://hello1yjx.github.io/editorial.html</loc><lastmod>2026-06-29</lastmod><priority>0.7</priority></url>
   <url><loc>https://hello1yjx.github.io/contact.html</loc><lastmod>2026-06-29</lastmod><priority>0.5</priority></url>
   <url><loc>https://hello1yjx.github.io/privacy.html</loc><lastmod>2026-06-29</lastmod><priority>0.5</priority></url>
+  <url><loc>https://hello1yjx.github.io/articles/copilot-model-deprecation-december-migration-guide.html</loc><lastmod>2026-11-15</lastmod><priority>0.8</priority></url>
+  <url><loc>https://hello1yjx.github.io/articles/github-ai-scan-rest-api-governance-guide.html</loc><lastmod>2026-11-15</lastmod><priority>0.8</priority></url>
+  <url><loc>https://hello1yjx.github.io/articles/vercel-build-capacity-sandbox-decision-guide.html</loc><lastmod>2026-11-15</lastmod><priority>0.8</priority></url>
   <url><loc>https://hello1yjx.github.io/articles/claude-fable-5-2-copilot-retention-policy-guide.html</loc><lastmod>2026-11-12</lastmod><priority>0.8</priority></url>
   <url><loc>https://hello1yjx.github.io/articles/vercel-toml-migration-multiservice-config-guide.html</loc><lastmod>2026-11-12</lastmod><priority>0.8</priority></url>
   <url><loc>https://hello1yjx.github.io/articles/github-actions-log-secret-scanning-supply-chain-guide.html</loc><lastmod>2026-11-12</lastmod><priority>0.8</priority></url>

@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://cdn.jsdelivr.net">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;800&family=Noto+Serif+SC:wght@700;900&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/styles.css?v=20261112-daily-update">
+  <link rel="stylesheet" href="assets/styles.css?v=20261115-daily-update">
 </head>
 <body>
   <header class="site-header">
@@ -69,6 +69,57 @@
       <div class="content-grid" data-post-list>
         <!-- STATIC_POSTS_START -->
 <article class="article-card reveal">
+      <a class="article-card__media article-card__media--ai" href="articles/copilot-model-deprecation-december-migration-guide.html">
+        <span class="article-card__badge">推荐</span>
+        <span class="article-card__icon"><img class="visual-icon visual-icon--card" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="AI 编程 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <strong>AI 编程</strong>
+      </a>
+      <div class="article-card__body">
+        <div class="meta-row">
+          <span>AI 编程</span>
+          <span>11 分钟</span>
+          <time datetime="2026-11-15">2026年11月15日</time>
+        </div>
+        <h3><a href="articles/copilot-model-deprecation-december-migration-guide.html">Copilot 12 月 14 日下架 6 个模型：一份能照着做的迁移清单</a></h3>
+        <p>GitHub 在 11 月 13 日宣布，12 月 14 日从所有 Copilot 体验中下架 Claude Fable 5、Claude Haiku 4.5、Gemini 3.8 Flash、Gemini 4 Argon、Grok 4.6 与 Kimi K3，并给出了替代模型。真正需要动的往往不是界面，而是写死模型 ID 的脚本、按模型计费的路由、固定模型的评测基线和企业的模型策略。这篇教程按「清单 → 影响面 → 迁移顺序 → 验证」给出一份可执行方案。</p>
+      </div>
+    </article>
+
+    <article class="article-card reveal">
+      <a class="article-card__media article-card__media--github" href="articles/github-ai-scan-rest-api-governance-guide.html">
+        <span class="article-card__badge">安全</span>
+        <span class="article-card__icon"><img class="visual-icon visual-icon--card" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="安全 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <strong>安全</strong>
+      </a>
+      <div class="article-card__body">
+        <div class="meta-row">
+          <span>安全</span>
+          <span>10 分钟</span>
+          <time datetime="2026-11-15">2026年11月15日</time>
+        </div>
+        <h3><a href="articles/github-ai-scan-rest-api-governance-guide.html">AI Scan 批量治理：用 REST API 管组织和仓库的两级开关</a></h3>
+        <p>11 月 13 日，GitHub 给 AI Scan for repositories 加了 REST API：组织与仓库两级都能开关，设置项叫 repository_scan，可以写进 IaC 批量滚动。继承规则、422 报错、AI credits 和适用范围都有明确边界。这篇教程把 API 形态、权限、继承链、滚动策略和验收清单讲清楚，适合要管几十上百个仓库的安全与平台团队。</p>
+      </div>
+    </article>
+
+    <article class="article-card reveal">
+      <a class="article-card__media article-card__media--github" href="articles/vercel-build-capacity-sandbox-decision-guide.html">
+        <span class="article-card__badge">云端部署</span>
+        <span class="article-card__icon"><img class="visual-icon visual-icon--card" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/python/python-original.svg" alt="云端部署 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <strong>云端部署</strong>
+      </a>
+      <div class="article-card__body">
+        <div class="meta-row">
+          <span>云端部署</span>
+          <span>11 分钟</span>
+          <time datetime="2026-11-15">2026年11月15日</time>
+        </div>
+        <h3><a href="articles/vercel-build-capacity-sandbox-decision-guide.html">Vercel 三处提速：64GB 构建磁盘、亚秒级沙箱快照与决策模型</a></h3>
+        <p>11 月上旬 Vercel 连发几条更新：构建磁盘从 32GB 提到 64GB，Sandbox 快照中位创建时间从 4.4 秒降到 0.4 秒以内，AI Gateway 接入 Gemini Decision 1 直接输出布尔、选项与评分。三条更新分别对应构建、运行时与请求决策三个环节。这篇教程讲清各自的实际收益、边界与验收方法，避免把「容量变大」误当成「可以随便堆文件」。</p>
+      </div>
+    </article>
+
+    <article class="article-card reveal">
       <a class="article-card__media article-card__media--ai" href="articles/claude-fable-5-2-copilot-retention-policy-guide.html">
         <span class="article-card__badge">推荐</span>
         <span class="article-card__icon"><img class="visual-icon visual-icon--card" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="AI 编程 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
@@ -1905,6 +1956,6 @@
     </div>
   </footer>
 
-  <script src="assets/app.js?v=20261112-daily-update"></script>
+  <script src="assets/app.js?v=20261115-daily-update"></script>
 </body>
 </html>
