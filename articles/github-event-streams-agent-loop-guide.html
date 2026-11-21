@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>告别轮询：用 Event Streams 与 gh event listen 搭事件驱动的 agent 循环 | 学习资源库</title>
+  <meta name="description" content="11 月 17 日 GitHub 推出 Event Streams 预览，11 月 18 日 GitHub CLI v2.105.0 跟上 gh event listen：订阅一个 PR、保持长连接，评审提交、新提交、合并冲突、检查套件变化都会推过来，不需要公网 webhook。这篇教程讲清事件模型、命令用法、脚本封装、失败与超时处理，以及从轮询迁移的顺序。">
+  <meta name="robots" content="index,follow,max-image-preview:large">
+  <link rel="canonical" href="https://hello1yjx.github.io/articles/github-event-streams-agent-loop-guide.html">
+  <link rel="icon" type="image/png" href="../assets/images/brand-book-line.png">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"告别轮询：用 Event Streams 与 gh event listen 搭事件驱动的 agent 循环","description":"11 月 17 日 GitHub 推出 Event Streams 预览，11 月 18 日 GitHub CLI v2.105.0 跟上 gh event listen：订阅一个 PR、保持长连接，评审提交、新提交、合并冲突、检查套件变化都会推过来，不需要公网 webhook。这篇教程讲清事件模型、命令用法、脚本封装、失败与超时处理，以及从轮询迁移的顺序。","datePublished":"2026-11-21","dateModified":"2026-11-21","author":{"@type":"Person","name":"Avery Lin","url":"https://hello1yjx.github.io/about.html"},"publisher":{"@type":"Organization","name":"学习资源库","url":"https://hello1yjx.github.io/"},"mainEntityOfPage":"https://hello1yjx.github.io/articles/github-event-streams-agent-loop-guide.html","inLanguage":"zh-CN"}</script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6621999105936318" crossorigin="anonymous"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;800&family=Noto+Serif+SC:wght@700;900&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/styles.css?v=20261121-daily-update">
+</head>
+<body>
+  <header class="site-header">
+    <div class="page-shell site-header__inner">
+      <a class="brand" href="../index.html" aria-label="返回首页">
+        <span class="brand-mark" aria-hidden="true"><img src="../assets/images/brand-book-line.png" alt="" width="36" height="33"></span>
+        <span class="brand-copy"><strong>学习资源库</strong><span>分享知识 · 提升自己 · 成就未来</span></span>
+      </a>
+      <button class="menu-button" data-menu-button aria-expanded="false" aria-label="切换导航菜单">☰</button>
+      <nav class="site-nav" data-mobile-nav>
+        <a href="../index.html">首页</a>
+        <a class="is-active" href="../posts.html" aria-current="page">教程</a>
+        <a href="../resources.html">资源下载</a>
+        <a href="../hotspots.html">技术资讯</a>
+        <a href="../projects.html">开源项目</a>
+        <a href="../vulns.html">漏洞分析</a>
+        <a href="../kaogong.html">考公专区</a>
+        <a href="../about.html">关于我们</a>
+      </nav>
+      <form class="header-search" action="../posts.html" method="get">
+        <input type="search" name="q" placeholder="搜索教程、资源、工具或关键词...">
+        <button type="submit" aria-label="搜索">/</button>
+      </form>
+      <a class="header-github" href="https://github.com/hello1yjx/hello1yjx.github.io" target="_blank" rel="noreferrer" aria-label="GitHub">
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="" width="24" height="24">
+      </a>
+      <a class="header-cta" href="../posts.html">开始学习</a>
+    </div>
+  </header>
+
+  <main class="page-shell section article-page">
+    <header class="detail-hero">
+      <span class="pill">研发协作</span>
+      <h1>告别轮询：用 Event Streams 与 gh event listen 搭事件驱动的 agent 循环</h1>
+      <div class="detail-hero__meta">
+        <time datetime="2026-11-21">2026年11月21日</time>
+        <span>11 分钟</span>
+        <span>作者：Avery Lin</span>
+      </div>
+      <p>11 月 17 日 GitHub 推出 Event Streams 预览，11 月 18 日 GitHub CLI v2.105.0 跟上 gh event listen：订阅一个 PR、保持长连接，评审提交、新提交、合并冲突、检查套件变化都会推过来，不需要公网 webhook。这篇教程讲清事件模型、命令用法、脚本封装、失败与超时处理，以及从轮询迁移的顺序。</p>
+    </header>
+    <div class="article-layout">
+      <article class="article-body">
+        <div class="inline-promo">
+          <p class="label">来源与增量价值</p>
+          <h3>本文基于官方资料整理，并补充适用场景、限制条件和实践检查步骤。</h3>
+          <p>首要来源：<a href="https://github.blog/changelog/2026-11-17-github-event-streams-is-now-in-preview/" target="_blank" rel="noreferrer">GitHub Event Streams is now in preview</a>。事实以原始来源为准，本站建议需结合自己的环境验证。</p>
+        </div>
+
+    <p>让 agent 盯着一个 Pull Request，过去只有两条路：要么自建公网 webhook 接收端，要么写一个轮询循环。前者要暴露端点、处理签名与重试，后者要在「烧配额」和「反馈延迟」之间选一个难受的平衡点。</p><p>Event Streams 把这件事变成订阅加长连接：没事件时 agent 休眠，有事件立刻唤醒。配合 gh event listen，一条命令就能把事件按行 JSON 打进脚本。真正需要设计的不是连接，而是消费端：事件粒度、去重、超时和失败重试。</p>
+    <h2>这篇内容适合谁</h2>
+    <ul><li>写 agent 循环、让模型自动跟进 PR 的开发者</li><li>维护 CI 通知、评审提醒等自动化的平台团队</li><li>关心 rate limit 与 token 成本的负责人</li></ul>
+    <h2>实践与验证步骤</h2>
+    <ul><li>申请 Event Streams 访问</li><li>升级 gh 到 v2.105.0 以上</li><li>确认要监听的事件类型</li><li>用 gh event listen 跑通一次</li><li>把输出接进脚本或 agent</li><li>加超时、去重与重连</li><li>按检查套件聚合事件</li><li>下线旧轮询并观察一周</li></ul>
+    <h2>官方资料入口</h2>
+
+    <ul>
+
+            <li>
+              <a href="https://github.blog/changelog/2026-11-17-github-event-streams-is-now-in-preview/" target="_blank" rel="noreferrer">GitHub Event Streams is now in preview</a>
+              <span>：事件模型与可用性</span>
+            </li>
+
+            <li>
+              <a href="https://github.blog/changelog/2026-11-18-wait-for-pull-request-events-with-github-cli/" target="_blank" rel="noreferrer">Wait for pull request events with GitHub CLI</a>
+              <span>：gh event 命令与参数</span>
+            </li>
+
+            <li>
+              <a href="https://cli.github.com/manual/" target="_blank" rel="noreferrer">GitHub CLI 手册</a>
+              <span>：命令细节与版本说明</span>
+            </li>
+
+    </ul>
+
+    <h2>重点判断与使用建议</h2>
+    <ul><li>事件类型：评审提交、新提交推送、合并冲突、PR 合并或关闭、检查套件变化、单个套件状态变化</li><li>gh event listen 默认收到第一个事件即退出，便于嵌入脚本</li><li>--count 等多个事件，--follow 持续监听，--timeout 限时退出</li><li>--jq 或 --template 只取需要的字段</li><li>订阅管理：gh event subscription create / list / view / delete</li></ul>
+
+        <h2>一、轮询的两难与事件流的解法</h2>
+
+        <ul><li>轮询太密：大量请求返回空结果，白烧 rate limit 配额</li><li>轮询太疏：评审意见躺在那里，直到下一次检查才被看到</li><li>自建 webhook：需要公网端点、签名校验、重试与幂等处理</li><li>事件流：订阅后保持连接，有事件才唤醒，本地机器也能用</li><li>官方给出的收益是更快回路、更少无效 token、不用调轮询间隔</li></ul>
+
+
+
+        <h2>二、事件模型：六类触发</h2>
+
+        <ul><li>评审被提交</li><li>有新提交推送到 PR</li><li>出现合并冲突</li><li>PR 被合并或关闭</li><li>PR 的检查套件发生变化</li><li>单个检查套件状态变化，每个套件一个事件</li></ul>
+
+
+
+        <h2>三、先跑通一条命令</h2>
+
+        <ul><li>确认已在 waitlist 通过，拿到 Event Streams 访问权限</li><li>升级 GitHub CLI 到 v2.105.0 或更高</li><li>用 gh event listen 传入 PR 链接与关心的事件</li><li>它会自动创建订阅、打开流，并按行打印 JSON</li><li>默认第一个事件后退出，先用这个行为验证链路</li></ul>
+
+
+
+        <h2>四、把输出接进脚本</h2>
+
+        <ul><li>按行读取 JSON，一行一个事件，不要按整块解析</li><li>用 --jq 或 --template 只取需要的字段，减少下游处理</li><li>把事件类型映射到动作：评审提交才唤醒模型，提交推送只更新缓存</li><li>为每次唤醒设预算上限，避免连续事件把额度打空</li><li>记录事件 ID 与处理结果，便于回溯与去重</li></ul>
+
+
+
+        <h2>五、持续监听与超时</h2>
+
+        <ul><li>需要长期盯一个 PR 时用 --follow</li><li>只想等固定数量事件时用 --count</li><li>任何长期监听都要设 --timeout，防止脚本挂死</li><li>超时退出应视为正常结束，由外层调度决定是否重开</li><li>不要在 agent 内部无限重试，交给外层循环控制节奏</li></ul>
+
+
+
+        <h2>六、订阅生命周期管理</h2>
+
+        <ul><li>gh event subscription create 显式建订阅</li><li>list 查看当前订阅，避免重复订阅同一 PR</li><li>view 核对订阅的事件范围是否符合预期</li><li>delete 在 PR 合并或关闭后清理，减少无用连接</li><li>把清理写进流程末尾，而不是靠人工记得</li></ul>
+
+
+
+        <h2>七、按检查套件聚合</h2>
+
+        <ul><li>检查套件状态是按套件逐个发事件的</li><li>一个 PR 挂十几个检查，就会收到十几条事件</li><li>消费端要按 PR 聚合，等全部套件结束再判断结论</li><li>区分「套件状态变化」与「全部完成」两种语义</li><li>对失败套件单独告警，不要把中间态当成最终失败</li></ul>
+
+
+
+        <h2>八、失败、重连与幂等</h2>
+
+        <ul><li>连接中断要能自动重连，并记录断连时长</li><li>重连后可能重复收到事件，处理逻辑必须幂等</li><li>以事件 ID 或提交 SHA 做去重键</li><li>重连失败超过阈值就降级为低频轮询，保证不丢关键反馈</li><li>把降级事件写进日志，方便事后核对是否漏处理</li></ul>
+
+
+
+        <h2>九、从轮询迁移的顺序</h2>
+
+        <ul><li>先在一个非关键仓库试点，保留原轮询作为兜底</li><li>对比两条链路的事件时延与覆盖率</li><li>确认无漏事件后，把轮询频率降到最低</li><li>观察一周再彻底下线轮询代码</li><li>把 gh event 的调用封装成内部函数，隔离预览期变更</li></ul>
+
+
+
+        <h2>十、检查清单</h2>
+
+        <ul><li>已获得 Event Streams 访问权限</li><li>gh 版本不低于 v2.105.0</li><li>事件到动作的映射已明确</li><li>长期监听设置了超时</li><li>按检查套件做了聚合</li><li>处理逻辑幂等且有去重键</li><li>断连有重连与降级路径</li><li>PR 关闭后订阅会被清理</li></ul>
+
+
+
+
+        <div class="inline-promo">
+          <p class="label">更正与更新</p>
+          <h3>发现版本变化、来源失效或事实错误时，请通过联系页反馈。</h3>
+          <p>本站会核对一手来源后更新内容，不使用无来源转载填充文章。</p>
+          <a class="button button--secondary" href="../editorial.html">查看内容标准</a>
+        </div>
+      </article>
+      <aside class="article-sidebar">
+        <div class="sidebar-card">
+          <p class="label">本页标签</p>
+          <div class="tag-row"><span>GitHub</span><span>Event Streams</span><span>GitHub CLI</span><span>AI agent</span><span>自动化</span><span>研发协作</span></div>
+        </div>
+        <div class="sidebar-card">
+          <p class="label">继续阅读</p>
+          <a href="github-ai-scan-rest-api-governance-guide.html">AI Scan 批量治理：用 REST API 管组织和仓库的两级开关</a><a href="vercel-build-capacity-sandbox-decision-guide.html">Vercel 三处提速：64GB 构建磁盘、亚秒级沙箱快照与决策模型</a><a href="claude-fable-5-2-copilot-retention-policy-guide.html">Claude Fable 5.2 接入 Copilot：能力提升、数据留存与企业管理策略</a><a href="vercel-toml-migration-multiservice-config-guide.html">vercel.toml 迁移实战：多服务项目怎么配、和 vercel.json 怎么选</a>
+        </div>
+        <div class="sidebar-card sidebar-card--accent">
+          <p class="label">作者与方法</p>
+          <h3>了解本站如何选题、核验来源与处理更正。</h3>
+          <a class="button button--dark" href="../about.html">关于作者</a>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="page-shell footer__inner">
+      <div><strong>学习资源库</strong><p>分享知识 · 提升自己 · 成就未来</p></div>
+      <div>
+        <a href="../editorial.html">内容标准</a><br>
+        <a href="../privacy.html">隐私政策</a><br>
+        <a href="../contact.html">联系</a>
+      </div>
+    </div>
+  </footer>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      var button = document.querySelector("[data-menu-button]");
+      var nav = document.querySelector("[data-mobile-nav]");
+      if (!button || !nav) return;
+      button.addEventListener("click", function () {
+        var expanded = button.getAttribute("aria-expanded") === "true";
+        button.setAttribute("aria-expanded", String(!expanded));
+        nav.classList.toggle("site-nav--open", !expanded);
+      });
+    });
+  </script>
+</body>
+</html>

@@ -4,7 +4,7 @@ const vm = require("vm");
 
 const root = path.resolve(__dirname, "..");
 const appPath = path.join(root, "assets", "app.js");
-const version = "20261115-daily-update";
+const version = "20261121-daily-update";
 const siteUrl = "https://hello1yjx.github.io";
 
 function loadSiteRuntime() {
@@ -246,21 +246,25 @@ function buildSitemap(posts) {
     ["", "1.0"],
     ["posts.html", "0.9"],
     ["resources.html", "0.9"],
+    ["kaogong.html", "0.9"],
+    ["vulns.html", "0.9"],
     ["projects.html", "0.7"],
     ["about.html", "0.7"],
     ["editorial.html", "0.7"],
+    ["games.html", "0.6"],
     ["contact.html", "0.5"],
     ["privacy.html", "0.5"]
   ];
 
+  const buildDate = new Date().toISOString().slice(0, 10);
   const core = corePages
-    .map(([page, priority]) => `  <url><loc>${siteUrl}/${page}</loc><lastmod>2026-06-29</lastmod><priority>${priority}</priority></url>`)
+    .map(([page, priority]) => `  <url><loc>${siteUrl}/${page}</loc><lastmod>${buildDate}</lastmod><priority>${priority}</priority></url>`)
     .join("\n");
   const articles = posts
     .map((post) => `  <url><loc>${siteUrl}/articles/${post.id}.html</loc><lastmod>${post.date}</lastmod><priority>0.8</priority></url>`)
     .join("\n");
 
-  return `<?xml version = "20261019-daily-update" encoding="UTF-8"?>
+  return `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${core}
 ${articles}

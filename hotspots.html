@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://cdn.jsdelivr.net">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;800&family=Noto+Serif+SC:wght@700;900&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/styles.css?v=20261115-daily-update">
+  <link rel="stylesheet" href="assets/styles.css?v=20261121-daily-update">
 </head>
 <body>
   <header class="site-header">
@@ -78,6 +78,306 @@
       <div class="hotspot-grid" data-hotspot-list>
         <!-- STATIC_HOTSPOTS_START -->
 <article class="hotspot-card reveal">
+      <div class="hotspot-card__head">
+        <span class="hotspot-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="安全 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <div>
+          <div class="hotspot-card__meta">
+            <span>安全</span>
+            <time datetime="2026-11-20">2026年11月20日</time>
+          </div>
+          <h3>安全公告权限正式可用：自定义仓库角色就能处理漏洞报告，不必再给管理员</h3>
+        </div>
+      </div>
+      <p>GitHub 把安全公告权限从预览转为正式可用。组织所有者现在可以通过自定义仓库角色，让人处理仓库安全公告与私密漏洞报告，不再需要授予仓库管理员或组织级 security manager。Security 分类下新增四项权限：查看安全公告；创建、编辑与管理安全公告（含评论、协作者管理、创建临时私有 fork）；接收私密漏洞报告并关闭或重开公告；发布公告并申请 CVE。后两项都要求先具备前两项之一。角色可以只分配到需要的仓库上。限制也要记清：合并临时私有 fork 的改动仍需仓库管理员或 security manager；拥有这些新权限的人不能删除临时私有 fork；机密评论只对同时具备管理权限与仓库写权限的人开放。</p>
+      <div class="hotspot-card__why">
+        <strong>为什么值得关注</strong>
+        <p>为什么值得关注：过去想让某个业务团队自己处理漏洞报告，只能给管理员，权限一下放大到整个仓库。现在能按仓库、按动作切分，符合最小权限。坑在三个「仍然不行」：合并私有 fork、删除私有 fork、机密评论都还有额外门槛，设计流程时别把这几步排给只有公告权限的人。</p>
+      </div>
+      <p class="hotspot-card__idea">已扩写：安全公告权限最小化</p>
+      <a class="text-link" href="https://github.blog/changelog/2026-11-20-security-advisory-permissions-are-now-generally-available/" target="_blank" rel="noreferrer">查看来源：GitHub Changelog</a>
+    </article>
+
+    <article class="hotspot-card reveal">
+      <div class="hotspot-card__head">
+        <span class="hotspot-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/python/python-original.svg" alt="云端部署 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <div>
+          <div class="hotspot-card__meta">
+            <span>云端部署</span>
+            <time datetime="2026-11-20">2026年11月20日</time>
+          </div>
+          <h3>Vercel Functions 请求体上限提到 20MiB：需要显式开启，中间件将拿不到 body</h3>
+        </div>
+      </div>
+      <p>Vercel Functions 的入站请求体上限从 4.5MB 提升到 20MiB，处于公开测试。开启方式是设置环境变量 VERCEL_SUPPORT_LARGE_REQUEST_BODY=1，按项目、按环境生效，可以先在 preview 验证再上生产。前提是项目的函数使用 4GB 性能内存档位，适用于 Node.js、Python、Bun 运行时与 Routing Middleware。Edge 运行时的函数与中间件仍保持 4.5MB 上限，超限返回 413，要享受新上限需切到 Node.js 运行时（runtime 设为 nodejs，或 Next.js 的 proxy.ts）。项目一旦开启，Routing Middleware 只收到请求头与元数据、不再收到请求体，这是项目级强制行为，目的是避免把 body 同时发给中间件和目标函数而抬高成本与首字节时间。</p>
+      <div class="hotspot-card__why">
+        <strong>为什么值得关注</strong>
+        <p>为什么值得关注：大文件上传、批量导入、长文本提交终于不必都绕道对象存储。但两个代价要提前算：一是必须上 4GB 内存档，成本会变；二是依赖读取 body 做鉴权、签名校验或改写的中间件会直接失效，这类逻辑要迁到函数内部。官方也提醒尽快读取 body、不要长期驻留内存，否则会引发背压。</p>
+      </div>
+      <p class="hotspot-card__idea">已扩写：Vercel 11 月变更清单</p>
+      <a class="text-link" href="https://vercel.com/changelog/vercel-functions-now-support-request-bodies-up-to-20mib" target="_blank" rel="noreferrer">查看来源：Vercel Changelog</a>
+    </article>
+
+    <article class="hotspot-card reveal">
+      <div class="hotspot-card__head">
+        <span class="hotspot-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/python/python-original.svg" alt="安全 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <div>
+          <div class="hotspot-card__meta">
+            <span>安全</span>
+            <time datetime="2026-11-20">2026年11月20日</time>
+          </div>
+          <h3>CISA 再收录四个在野利用漏洞，并按 BOD 26-04 改为风险优先级修复</h3>
+        </div>
+      </div>
+      <p>CISA 于 11 月 20 日向 KEV 目录新增四个漏洞：SAP NetWeaver 数据查询逻辑特殊元素中和不当（CVE-2025-42884）、Cisco Expressway 系列硬编码凭据（CVE-2026-76466）、VMware vCenter 备用路径认证绕过（CVE-2026-123890）、Apache Roller 不可信数据反序列化（CVE-2026-129448）。同份公告说明，联邦机构的漏洞管理要求已改由 BOD 26-04《基于风险确定安全更新优先级》承接：优先快速修复 KEV 中、位于公开暴露资产且利用后可完全控制资产的漏洞，较低风险的可延后；同时明确了「必须检查补丁前是否已被入侵」的基本预期。BOD 26-04 只约束联邦文职行政机构，CISA 建议其他组织同样采用基于风险的漏洞管理。</p>
+      <div class="hotspot-card__why">
+        <strong>为什么值得关注</strong>
+        <p>为什么值得关注：口径变了。过去按 KEV 一律限期修，现在按「公开暴露 + 利用后完全控制」排优先级，并要求做失陷排查。对企业更实用的读法是：先按暴露面和后果分级，再排修复顺序，而不是按 CVE 编号或评分排队；同时把「打补丁前先查是否已被入侵」写进流程，否则补丁只是掩盖了后门。</p>
+      </div>
+      <p class="hotspot-card__idea">候选：KEV 风险优先级与失陷排查</p>
+      <a class="text-link" href="https://www.cisa.gov/news-events/alerts/2026/11/20/cisa-adds-four-known-exploited-vulnerabilities-catalog" target="_blank" rel="noreferrer">查看来源：CISA Alert</a>
+    </article>
+
+    <article class="hotspot-card reveal">
+      <div class="hotspot-card__head">
+        <span class="hotspot-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/docker/docker-original.svg" alt="安全 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <div>
+          <div class="hotspot-card__meta">
+            <span>安全</span>
+            <time datetime="2026-11-19">2026年11月19日</time>
+          </div>
+          <h3>Vercel Priority Projects 公测：机器人信号、来源标签、Page Integrity 与更高防火墙限额</h3>
+        </div>
+      </div>
+      <p>Vercel 面向 Pro 与 Enterprise 团队推出 Priority Projects 公开测试，按单个项目升级，价格为每项目每月 200 美元。新增能力包括：更细的机器人信号（分类、验证状态、名称），可用于防火墙规则、请求头与日志；Traffic Sources 标签，标记 Tor 出口、VPN、开放或匿名代理、住宅代理以及滥用黑名单命中；Page Integrity 通过 CSP 做客户端脚本与连接的发现、审核与拦截，不注入客户端 JS，分 Detect、Review、Block 三阶段，单独计费为每 1000 次受监控页面浏览 2 美元；异常告警覆盖机器人流量与命中规则的请求；Pro 项目可启用 OWASP 核心规则集；限流规则支持按响应状态码或响应头计数；自定义规则与 IP 封禁限额 Pro 从 40 提到 100、Enterprise 从 250 提到 500。</p>
+      <div class="hotspot-card__why">
+        <strong>为什么值得关注</strong>
+        <p>为什么值得关注：这套能力把「客户端脚本供应链」纳入监控，正好对应 Magecart 类风险，而且用 CSP 实现、不加 JS，性能代价小。但要算清账：200 美元是每项目每月，Page Integrity 与 OWASP 检查另行计费。Traffic Sources 标签也可能命中真实用户，官方明确建议先观察匹配流量再开拦截，直接 block 容易误伤。</p>
+      </div>
+      <p class="hotspot-card__idea">已扩写：Vercel 11 月变更清单</p>
+      <a class="text-link" href="https://vercel.com/changelog/priority-projects-now-in-public-beta" target="_blank" rel="noreferrer">查看来源：Vercel Changelog</a>
+    </article>
+
+    <article class="hotspot-card reveal">
+      <div class="hotspot-card__head">
+        <span class="hotspot-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="研发协作 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <div>
+          <div class="hotspot-card__meta">
+            <span>研发协作</span>
+            <time datetime="2026-11-19">2026年11月19日</time>
+          </div>
+          <h3>新版 PR Overview 预览改进：可选检查失败不再显示为阻塞，force-push 可直接对比</h3>
+        </div>
+      </div>
+      <p>GitHub 更新了 11 月 5 日开始公开预览的新版 Pull Request Overview 页面。合并状态方面，失败的可选检查不再让本可合并的 PR 显示为被阻塞，此前缺失的合并要求会明确提示，readiness 摘要会告诉评审者是否需要动作。交互方面，检查与批准改为点击展开而非固定预览，修复了预览重叠与移动端问题，已解决的评审线程会自动折叠，提及 Copilot 的评论在提交前会更清楚说明动作与所选模型。活动记录方面，force-push 现在链接到新旧提交以便对比，提交活动带上时间戳。布局方面，小屏幕保持源分支与目标分支可见，Development 侧栏链接可直接编辑，可在 Overview 内锁定或解锁会话。</p>
+      <div class="hotspot-card__why">
+        <strong>为什么值得关注</strong>
+        <p>为什么值得关注：「可选检查失败导致看起来不能合并」是长期误导来源，团队因此白等或强行绕过分支保护。这次把必须项与可选项分开显示，评审判断会更准。force-push 对比链接对安全评审尤其有用：能直接看到强推前后的差异，而不是只看到一句「force-pushed」。预览期间仍可从同一菜单切回经典页面。</p>
+      </div>
+      <p class="hotspot-card__idea">候选：PR 评审信号与分支保护</p>
+      <a class="text-link" href="https://github.blog/changelog/2026-11-19-improvements-on-the-pull-request-overview-in-public-preview/" target="_blank" rel="noreferrer">查看来源：GitHub Changelog</a>
+    </article>
+
+    <article class="hotspot-card reveal">
+      <div class="hotspot-card__head">
+        <span class="hotspot-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="AI 编程 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <div>
+          <div class="hotspot-card__meta">
+            <span>AI 编程</span>
+            <time datetime="2026-11-18">2026年11月18日</time>
+          </div>
+          <h3>gh event listen 上线：一条命令等 PR 事件，agent 不必再写轮询循环</h3>
+        </div>
+      </div>
+      <p>GitHub CLI 从 v2.105.0 起支持 Event Streams。运行 gh event listen 并传入 PR 链接与关心的事件（例如评审提交），它会创建订阅、打开事件流，并把每个事件按一行 JSON 打印出来。默认收到第一个事件就退出，便于嵌入脚本与 agent 循环；--count 等多个事件，--follow 持续监听，--timeout 限时退出，--jq 或 --template 只取需要的字段。可等待评审提交、PR 状态与 head 变化、合并冲突、检查套件完成。订阅可用 gh event subscription create / list / view / delete 管理。gh pr create、gh pr view、gh run view、gh run watch、gh api 现在会主动建议用 gh event listen 替代轮询。命令处于预览，需要 Event Streams 访问权限。</p>
+      <div class="hotspot-card__why">
+        <strong>为什么值得关注</strong>
+        <p>为什么值得关注：这是把「事件驱动」真正落到本地 agent 的一步，不用公网 webhook，也不用调轮询间隔。对成本敏感的团队意义更大：轮询空转既烧 rate limit 又烧 token。注意默认只等一个事件，写循环时要显式用 --follow 或 --count，并设 --timeout 防止挂死；预览期命令可能变化，脚本里最好留一层封装。</p>
+      </div>
+      <p class="hotspot-card__idea">已扩写：事件驱动的 agent 循环</p>
+      <a class="text-link" href="https://github.blog/changelog/2026-11-18-wait-for-pull-request-events-with-github-cli/" target="_blank" rel="noreferrer">查看来源：GitHub Changelog</a>
+    </article>
+
+    <article class="hotspot-card reveal">
+      <div class="hotspot-card__head">
+        <span class="hotspot-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/javascript/javascript-original.svg" alt="云端部署 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <div>
+          <div class="hotspot-card__meta">
+            <span>云端部署</span>
+            <time datetime="2026-11-18">2026年11月18日</time>
+          </div>
+          <h3>Vercel 秒级静态部署支持更多资源：CSS、图片、字体、PDF 都能一起秒发</h3>
+        </div>
+      </div>
+      <p>Vercel 的 instant deployments 让符合条件的静态站点跳过构建、约一秒完成部署，现在除 HTML 与 Markdown 外还支持更多资源：CSS、JSON、XML、纯文本与 web manifest；SVG、PNG、JPEG、GIF、WebP、AVIF、ICO；WOFF、WOFF2、TTF、OTF、EOT；以及 PDF、MP4、WebM、MP3、WAV、OGG。上限为 100 个文件、合计不超过 25MB，可通过 CLI 或 REST API 部署，平台自动判定是否符合条件、无需配置。超限、包含 JavaScript 或其他不支持的文件、由 Git 触发的部署仍走原来的构建流程；带框架预设、自定义构建设置、根目录 package.json、vercel.json 或 public 目录的项目同样走构建。</p>
+      <div class="hotspot-card__why">
+        <strong>为什么值得关注</strong>
+        <p>为什么值得关注：agent 生成的报告、活动落地页、课件附件这类「纯静态 + 样式图片」产物，过去要么手动配构建，要么等一次完整构建。现在可以秒级发布。边界很清楚：一旦有 JS 就不适用，本站这类带交互脚本的页面仍会正常构建；100 文件与 25MB 也是硬限制，图集类站点要提前压缩。</p>
+      </div>
+      <p class="hotspot-card__idea">已扩写：Vercel 11 月变更清单</p>
+      <a class="text-link" href="https://vercel.com/changelog/single-second-static-deployments-now-support-more-assets" target="_blank" rel="noreferrer">查看来源：Vercel Changelog</a>
+    </article>
+
+    <article class="hotspot-card reveal">
+      <div class="hotspot-card__head">
+        <span class="hotspot-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="研发协作 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <div>
+          <div class="hotspot-card__meta">
+            <span>研发协作</span>
+            <time datetime="2026-11-17">2026年11月17日</time>
+          </div>
+          <h3>GitHub Event Streams 预览：订阅 PR 后保持长连接，笔记本上的 agent 也能收事件</h3>
+        </div>
+      </div>
+      <p>GitHub 推出 Event Streams 预览，把平台变成开发者、agent 与自动化之间的实时协调层。使用方式是订阅某个 Pull Request，然后与 GitHub 保持连接接收事件，触发时机包括：评审提交、新提交推送、出现合并冲突、PR 被合并或关闭、检查套件发生变化、单个检查套件状态变化（每个套件一个事件）。不需要公网 webhook 端点，因此 agent 跑在本地笔记本上也能收到事件。官方给出的收益是：没活时 agent 休眠、有活立刻唤醒，反馈到动作的回路更快，浪费的 token 与 rate limit 更少，也不用自建轮询循环。需在 waitlist 通过后使用，所有套餐都可申请。</p>
+      <div class="hotspot-card__why">
+        <strong>为什么值得关注</strong>
+        <p>为什么值得关注：轮询的两难终于有解——poll 太密烧配额，poll 太疏评审干等。事件流把这两头都去掉，而且不要求暴露公网端点，这对内网与个人开发机是关键。注意它目前是预览且需排队，事件粒度按检查套件拆分，写消费端时要按套件聚合，否则会被大量事件刷屏。</p>
+      </div>
+      <p class="hotspot-card__idea">已扩写：事件驱动的 agent 循环</p>
+      <a class="text-link" href="https://github.blog/changelog/2026-11-17-github-event-streams-is-now-in-preview/" target="_blank" rel="noreferrer">查看来源：GitHub Changelog</a>
+    </article>
+
+    <article class="hotspot-card reveal">
+      <div class="hotspot-card__head">
+        <span class="hotspot-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="安全 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <div>
+          <div class="hotspot-card__meta">
+            <span>安全</span>
+            <time datetime="2026-11-17">2026年11月17日</time>
+          </div>
+          <h3>Copilot 安全评审接入 secret scanning：合并前按需扫密钥，四个入口各自开关</h3>
+        </div>
+      </div>
+      <p>Copilot 的 security review 专家现在可以在 LLM 评审之外，同时运行 GitHub 的 secret scanning 检测器，覆盖 500 多种密钥类型（来自 150 多家合作伙伴的模式库），并用 GitHub 微调模型识别没有固定格式的凭据，例如连接串里的口令。它只检查本次变更，不搜索仓库历史。默认关闭，需要按工具分别开启：Copilot CLI 在交互会话里运行 /settings aiSecretDetection on；Copilot 应用在 Settings 的 Experimental 里打开 AI secret detection；Copilot SDK 创建会话时把 SECURITY_REVIEW_FINE_TUNED_MODEL 特性标志设为 true；Copilot code review 在仓库 Settings 的 Copilot、Code review、Security 下打开 Secret scanning。开启后通过 security-review 专家或 /security-review 触发。能用安全评审或代码评审的套餐即可使用，不需额外套餐，扫描按 Secret Protection AI Credit 计费。</p>
+      <div class="hotspot-card__why">
+        <strong>为什么值得关注</strong>
+        <p>为什么值得关注：密钥治理终于能前移到「写完还没合并」这一刻，而不是等推送后由平台告警。尤其适合 agent 大量改代码的场景。三个边界要记住：默认关闭，四个入口互不共享开关；只看变更、不查历史，历史泄露仍要靠仓库级扫描；扫描消耗 AI credits，把它挂到每次自动评审上要提前估用量。</p>
+      </div>
+      <p class="hotspot-card__idea">已扩写：密钥检测前移</p>
+      <a class="text-link" href="https://github.blog/changelog/2026-11-17-secret-scanning-on-demand-for-developers-and-agents/" target="_blank" rel="noreferrer">查看来源：GitHub Changelog</a>
+    </article>
+
+    <article class="hotspot-card reveal">
+      <div class="hotspot-card__head">
+        <span class="hotspot-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="AI 编程 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <div>
+          <div class="hotspot-card__meta">
+            <span>AI 编程</span>
+            <time datetime="2026-11-17">2026年11月17日</time>
+          </div>
+          <h3>MAI Code 2 与 MAI Code 2 Flash 进入 Copilot：Flash 覆盖免费与学生套餐</h3>
+        </div>
+      </div>
+      <p>微软新一代 MAI 编码模型进入 GitHub Copilot。MAI Code 2 定位通用编码主力，面向深度调试、多文件实现、重构与仓库级推理，强调减少无谓来回；MAI Code 2 Flash 是轻量、低成本版本，适合代码解释、定点修改、常规修复与快速迭代。两者都为 agentic 工作流设计，按量计费。可用范围：MAI Code 2 面向 Copilot Pro、Pro+、Max、Business、Enterprise；MAI Code 2 Flash 额外覆盖 Free 与 Student。两者对符合条件的年度订阅用户开放，可在 VS Code、Visual Studio、Copilot CLI、cloud agent、Copilot 应用、github.com、GitHub Mobile、JetBrains、Xcode、Eclipse 的模型选择器里选。企业与商业版管理员通过模型策略管理，默认启用策略下新模型自动开启，除非关掉全局默认或显式禁用。</p>
+      <div class="hotspot-card__why">
+        <strong>为什么值得关注</strong>
+        <p>为什么值得关注：免费与学生用户终于有一个明确面向编码的新模型可选，日常解释与小修改不必挤占重模型额度。选型上建议按任务分：仓库级重构交给 Code 2，解释与定点修改交给 Flash。要注意年度订阅这一条件，以及企业默认启用策略会让新模型自动出现在用户的选择器里。</p>
+      </div>
+      <p class="hotspot-card__idea">候选：轻重模型分工与额度</p>
+      <a class="text-link" href="https://github.blog/changelog/2026-11-17-mai-code-2-and-mai-code-2-flash-in-github-copilot/" target="_blank" rel="noreferrer">查看来源：GitHub Changelog</a>
+    </article>
+
+    <article class="hotspot-card reveal">
+      <div class="hotspot-card__head">
+        <span class="hotspot-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="AI 编程 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <div>
+          <div class="hotspot-card__meta">
+            <span>AI 编程</span>
+            <time datetime="2026-11-17">2026年11月17日</time>
+          </div>
+          <h3>Copilot Evals 公测：给技能、自定义 agent 与 MCP 工具做可重复回归测试</h3>
+        </div>
+      </div>
+      <p>GitHub Copilot Evals 进入公开预览，用来回答「改了提示词、模型、技能或工具之后，效果到底变好还是变差」。eval 是对 AI 行为的可重复测试：给 agent 一个真实任务，描述什么算好结果，然后同时检查结果与达成过程。可以用自然语言或 /eval 命令为项目里的技能、自定义 agent、MCP 工具创建 eval，运行前需逐次批准，运行后查看哪些检查通过或失败、失败原因，并对比改动前后的运行结果。评估引擎使用可扩展的本地工具 Vally。安装方式：VS Code 装 Copilot Evals 扩展；Copilot CLI 装对应插件；Copilot 应用在 Customize 里添加 github/evals 市场后安装。面向 Copilot Individual、Business、Enterprise 套餐。</p>
+      <div class="hotspot-card__why">
+        <strong>为什么值得关注</strong>
+        <p>为什么值得关注：自定义技能与 MCP 工具越来越多，但大多数人改完只试一次就下结论，AI 输出的随机性会让这种判断失真。Evals 把「一次好答案」变成「可重复的行为检查」，正好补上回归这一环。注意每次运行要人工批准，适合当变更门禁而不是无人值守跑批；引擎在本地，任务与数据边界要自己确认。</p>
+      </div>
+      <p class="hotspot-card__idea">候选：给 agent 定制做回归</p>
+      <a class="text-link" href="https://github.blog/changelog/2026-11-17-github-copilot-evals-is-now-in-public-preview/" target="_blank" rel="noreferrer">查看来源：GitHub Changelog</a>
+    </article>
+
+    <article class="hotspot-card reveal">
+      <div class="hotspot-card__head">
+        <span class="hotspot-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="AI 编程 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <div>
+          <div class="hotspot-card__meta">
+            <span>AI 编程</span>
+            <time datetime="2026-11-17">2026年11月17日</time>
+          </div>
+          <h3>JetBrains 版 Copilot 大更新：云沙箱、远程访问、浏览器操作与本地语音，2025.2 停止支持</h3>
+        </div>
+      </div>
+      <p>GitHub Copilot for JetBrains 在 Ignite 期间发布多项能力：云沙箱（公开预览）把会话放到 GitHub 托管的隔离环境里改代码、跑命令与测试，释放本地资源并支持并行会话；远程访问（公开预览）让 JetBrains 里的会话可在 VS Code、Copilot 应用等其他客户端继续；浏览器操作（公开预览）配合 Chrome 扩展打开网页、读取内容并与链接、按钮、表单交互，需在 GitHub Copilot、Chat 里启用 Browser Use；本地语音听写（公开预览）在启用 Editor Preview 的原生插件包上可用，转写先作为可编辑草稿、确认后才发送；并支持 split mode 远程开发，本地跑 UI、远端跑 Copilot 操作，两端都要装插件。企业托管设置现在默认禁用 Claude 与 Codex，除非管理员策略允许例外。代码评审改用 Copilot agent 评审引擎，Maven 依赖漏洞自动检查恢复。JetBrains IDE 2025.2 支持已结束，需升级到 2025.3 或更高，官方推荐 2026.2 以上。</p>
+      <div class="hotspot-card__why">
+        <strong>为什么值得关注</strong>
+        <p>为什么值得关注：JetBrains 用户过去在 agent 能力上落后于 VS Code，这次基本补齐，云沙箱与远程访问让「一台机器起会话、另一台接着看」成为可能。两个坑：企业策略默认禁用 Claude 与 Codex，升级后模型突然消失多半是策略而非故障；2025.2 已停止支持，不升 IDE 就收不到后续更新。</p>
+      </div>
+      <p class="hotspot-card__idea">候选：JetBrains 侧 agent 能力对齐</p>
+      <a class="text-link" href="https://github.blog/changelog/2026-11-17-github-copilot-in-jetbrains-ignite-releases/" target="_blank" rel="noreferrer">查看来源：GitHub Changelog</a>
+    </article>
+
+    <article class="hotspot-card reveal">
+      <div class="hotspot-card__head">
+        <span class="hotspot-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="DevOps 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <div>
+          <div class="hotspot-card__meta">
+            <span>DevOps</span>
+            <time datetime="2026-11-17">2026年11月17日</time>
+          </div>
+          <h3>Vercel 原生 lint 与 typecheck 部署检查 11 月 30 日移除：要提前迁到 CI</h3>
+        </div>
+      </div>
+      <p>Vercel 宣布弃用原生 lint 与 typecheck Deployment Checks。这类检查此前在 Vercel 上与部署构建并行运行仓库的 lint 与类型检查任务，现在不能再新增，已有检查会继续运行到 2026 年 11 月 30 日被移除。其他 Deployment Checks，以及已经在 GitHub Actions 或 Build Command 里运行的命令不受影响。受影响项在项目 Build and Deployment 设置里显示为 provider 是 Vercel 的 Lint 或 Typecheck 条目，需要在移除前把命令迁走；对会阻塞生产发布的检查，还要确认新流程如何处理失败。也可以把命令放进 Build Command，但会增加构建时间，且出错会导致部署构建失败。官方建议迁到 Vercel CI 或自有 CI。</p>
+      <div class="hotspot-card__why">
+        <strong>为什么值得关注</strong>
+        <p>为什么值得关注：只剩九天窗口，而且失败方式很隐蔽——检查被移除后不会报错，只是悄悄不再拦，质量门禁静默消失。正确做法是先盘点哪些项目依赖它挡生产发布，再决定迁到 Vercel CI、GitHub Actions 还是 Build Command，并显式验证失败时确实会阻断。</p>
+      </div>
+      <p class="hotspot-card__idea">已扩写：Vercel 11 月变更清单</p>
+      <a class="text-link" href="https://vercel.com/changelog/native-lint-and-typecheck-deployment-checks-are-being-deprecated" target="_blank" rel="noreferrer">查看来源：Vercel Changelog</a>
+    </article>
+
+    <article class="hotspot-card reveal">
+      <div class="hotspot-card__head">
+        <span class="hotspot-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/docker/docker-original.svg" alt="云端部署 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <div>
+          <div class="hotspot-card__meta">
+            <span>云端部署</span>
+            <time datetime="2026-11-17">2026年11月17日</time>
+          </div>
+          <h3>Vercel 新建团队不再赠送 Standard 构建位：改为按构建分钟计费</h3>
+        </div>
+      </div>
+      <p>从 11 月 17 日起，新建的 Pro 与 Enterprise 团队不再包含 Standard 构建位，Standard 构建与其他构建机一样纳入按量计费。Pro 的 Standard 构建价格为每构建分钟 0.014 美元，月度用量额度可用于抵扣构建用量；Enterprise 按合同价。对受影响团队，从 Elastic 切回 Standard 后同样计费。构建机可在团队设置或项目设置里选择。</p>
+      <div class="hotspot-card__why">
+        <strong>为什么值得关注</strong>
+        <p>为什么值得关注：这条变更只影响新团队，容易被忽略，但会改变成本模型的默认假设——过去「Standard 免费兜底」的策略不再成立。构建时间长的 monorepo 尤其敏感：一次 20 分钟构建就是 0.28 美元，每天几十次很快累积。建议新团队上线前先估算构建分钟，再决定构建机档位与缓存策略。</p>
+      </div>
+      <p class="hotspot-card__idea">候选：构建成本与缓存策略</p>
+      <a class="text-link" href="https://vercel.com/changelog/standard-build-billing-new-teams" target="_blank" rel="noreferrer">查看来源：Vercel Changelog</a>
+    </article>
+
+    <article class="hotspot-card reveal">
+      <div class="hotspot-card__head">
+        <span class="hotspot-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/docker/docker-original.svg" alt="云端部署 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <div>
+          <div class="hotspot-card__meta">
+            <span>云端部署</span>
+            <time datetime="2026-11-16">2026年11月16日</time>
+          </div>
+          <h3>Vercel 预算管理细化到项目、产品与组织：项目超预算可只暂停自己</h3>
+        </div>
+      </div>
+      <p>Vercel Spend Management 在团队预算之外，新增项目、产品与组织三级预算。项目预算跟踪单个项目花费，并可在达到预算时暂停该项目的生产部署，不影响其他项目；产品预算跟踪某一项产品（如 Fast Data Transfer）在整个团队的花费；组织预算覆盖组织内所有团队，面向 Enterprise Flexible Commitment 套餐。只有团队与项目预算支持自动暂停生产部署。预算达到 50%、75%、100% 时发送通知。可用 CLI 管理：vercel billing budgets list 列出，set 配合 --project、--product、--organization 与 --amount 设置，--pause 开启到点暂停。Spend Management 对 Pro 团队与 Flexible Commitment 的 Enterprise 团队不额外收费。</p>
+      <div class="hotspot-card__why">
+        <strong>为什么值得关注</strong>
+        <p>为什么值得关注：AI 应用的费用常常集中在个别项目或某一项产品上，只有团队级预算时，要么全体一起被暂停，要么完全失控。项目级预算加自动暂停，把爆炸半径限制在一个项目内。注意产品与组织预算只告警不暂停，别误以为设了就会自动止损；组织级还要求特定套餐。</p>
+      </div>
+      <p class="hotspot-card__idea">候选：AI 应用的费用爆炸半径</p>
+      <a class="text-link" href="https://vercel.com/changelog/set-budgets-for-projects-and-products-in-spend-management" target="_blank" rel="noreferrer">查看来源：Vercel Changelog</a>
+    </article>
+
+    <article class="hotspot-card reveal">
       <div class="hotspot-card__head">
         <span class="hotspot-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="AI 编程 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
         <div>
@@ -6255,6 +6555,6 @@
     </div>
   </footer>
 
-  <script src="assets/app.js?v=20261115-daily-update"></script>
+  <script src="assets/app.js?v=20261121-daily-update"></script>
 </body>
 </html>

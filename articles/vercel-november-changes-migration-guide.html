@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Vercel 11 月变更清单：20MiB 请求体、Priority、秒级部署与两处退役 | 学习资源库</title>
+  <meta name="description" content="11 月 16 日到 20 日，Vercel 连发六条变更：三级预算、Standard 构建按量计费、lint/typecheck 检查 11 月 30 日移除、秒级静态部署支持更多资源、Priority Projects 公测、Functions 请求体上限 20MiB。这篇教程按「先止损、再优化、后升级」的顺序给出迁移与验收清单，重点讲清哪些改动有硬期限、哪些会静默改变行为。">
+  <meta name="robots" content="index,follow,max-image-preview:large">
+  <link rel="canonical" href="https://hello1yjx.github.io/articles/vercel-november-changes-migration-guide.html">
+  <link rel="icon" type="image/png" href="../assets/images/brand-book-line.png">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"Vercel 11 月变更清单：20MiB 请求体、Priority、秒级部署与两处退役","description":"11 月 16 日到 20 日，Vercel 连发六条变更：三级预算、Standard 构建按量计费、lint/typecheck 检查 11 月 30 日移除、秒级静态部署支持更多资源、Priority Projects 公测、Functions 请求体上限 20MiB。这篇教程按「先止损、再优化、后升级」的顺序给出迁移与验收清单，重点讲清哪些改动有硬期限、哪些会静默改变行为。","datePublished":"2026-11-21","dateModified":"2026-11-21","author":{"@type":"Person","name":"Avery Lin","url":"https://hello1yjx.github.io/about.html"},"publisher":{"@type":"Organization","name":"学习资源库","url":"https://hello1yjx.github.io/"},"mainEntityOfPage":"https://hello1yjx.github.io/articles/vercel-november-changes-migration-guide.html","inLanguage":"zh-CN"}</script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6621999105936318" crossorigin="anonymous"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;800&family=Noto+Serif+SC:wght@700;900&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/styles.css?v=20261121-daily-update">
+</head>
+<body>
+  <header class="site-header">
+    <div class="page-shell site-header__inner">
+      <a class="brand" href="../index.html" aria-label="返回首页">
+        <span class="brand-mark" aria-hidden="true"><img src="../assets/images/brand-book-line.png" alt="" width="36" height="33"></span>
+        <span class="brand-copy"><strong>学习资源库</strong><span>分享知识 · 提升自己 · 成就未来</span></span>
+      </a>
+      <button class="menu-button" data-menu-button aria-expanded="false" aria-label="切换导航菜单">☰</button>
+      <nav class="site-nav" data-mobile-nav>
+        <a href="../index.html">首页</a>
+        <a class="is-active" href="../posts.html" aria-current="page">教程</a>
+        <a href="../resources.html">资源下载</a>
+        <a href="../hotspots.html">技术资讯</a>
+        <a href="../projects.html">开源项目</a>
+        <a href="../vulns.html">漏洞分析</a>
+        <a href="../kaogong.html">考公专区</a>
+        <a href="../about.html">关于我们</a>
+      </nav>
+      <form class="header-search" action="../posts.html" method="get">
+        <input type="search" name="q" placeholder="搜索教程、资源、工具或关键词...">
+        <button type="submit" aria-label="搜索">/</button>
+      </form>
+      <a class="header-github" href="https://github.com/hello1yjx/hello1yjx.github.io" target="_blank" rel="noreferrer" aria-label="GitHub">
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="" width="24" height="24">
+      </a>
+      <a class="header-cta" href="../posts.html">开始学习</a>
+    </div>
+  </header>
+
+  <main class="page-shell section article-page">
+    <header class="detail-hero">
+      <span class="pill">云端部署</span>
+      <h1>Vercel 11 月变更清单：20MiB 请求体、Priority、秒级部署与两处退役</h1>
+      <div class="detail-hero__meta">
+        <time datetime="2026-11-21">2026年11月21日</time>
+        <span>11 分钟</span>
+        <span>作者：Avery Lin</span>
+      </div>
+      <p>11 月 16 日到 20 日，Vercel 连发六条变更：三级预算、Standard 构建按量计费、lint/typecheck 检查 11 月 30 日移除、秒级静态部署支持更多资源、Priority Projects 公测、Functions 请求体上限 20MiB。这篇教程按「先止损、再优化、后升级」的顺序给出迁移与验收清单，重点讲清哪些改动有硬期限、哪些会静默改变行为。</p>
+    </header>
+    <div class="article-layout">
+      <article class="article-body">
+        <div class="inline-promo">
+          <p class="label">来源与增量价值</p>
+          <h3>本文基于官方资料整理，并补充适用场景、限制条件和实践检查步骤。</h3>
+          <p>首要来源：<a href="https://vercel.com/changelog/native-lint-and-typecheck-deployment-checks-are-being-deprecated" target="_blank" rel="noreferrer">Native lint and typecheck Deployment Checks deprecated</a>。事实以原始来源为准，本站建议需结合自己的环境验证。</p>
+        </div>
+
+    <p>平台变更最怕的不是新增功能，而是「悄悄改了默认行为」：检查被移除后不再拦、构建位不再赠送、中间件突然读不到请求体。这三件事都发生在这批更新里。</p><p>所以处理顺序很重要：先处理有硬期限和会静默失效的项，再评估要花钱的升级项，最后才是能顺手吃到收益的优化项。</p>
+    <h2>这篇内容适合谁</h2>
+    <ul><li>在 Vercel 上部署生产项目的开发者与平台团队</li><li>负责成本与预算的技术负责人</li><li>需要评估 WAF 与客户端脚本防护的安全工程师</li></ul>
+    <h2>实践与验证步骤</h2>
+    <ul><li>盘点 lint/typecheck 检查依赖</li><li>在 11 月 30 日前完成迁移</li><li>确认团队是否受构建计费影响</li><li>设置项目级预算与暂停</li><li>评估 20MiB 请求体的两个代价</li><li>按需评估 Priority 与 Page Integrity</li><li>把纯静态产物改走秒级部署</li><li>按清单逐项验收</li></ul>
+    <h2>官方资料入口</h2>
+
+    <ul>
+
+            <li>
+              <a href="https://vercel.com/changelog/native-lint-and-typecheck-deployment-checks-are-being-deprecated" target="_blank" rel="noreferrer">Native lint and typecheck Deployment Checks deprecated</a>
+              <span>：11 月 30 日移除</span>
+            </li>
+
+            <li>
+              <a href="https://vercel.com/changelog/vercel-functions-now-support-request-bodies-up-to-20mib" target="_blank" rel="noreferrer">Vercel Functions request bodies up to 20MiB</a>
+              <span>：开启条件与中间件影响</span>
+            </li>
+
+            <li>
+              <a href="https://vercel.com/changelog/priority-projects-now-in-public-beta" target="_blank" rel="noreferrer">Priority Projects now in public beta</a>
+              <span>：能力与价格</span>
+            </li>
+
+            <li>
+              <a href="https://vercel.com/changelog/single-second-static-deployments-now-support-more-assets" target="_blank" rel="noreferrer">Single-second static deployments support more assets</a>
+              <span>：支持类型与上限</span>
+            </li>
+
+            <li>
+              <a href="https://vercel.com/changelog/standard-build-billing-new-teams" target="_blank" rel="noreferrer">Standard builds move to usage-based billing</a>
+              <span>：新团队计费口径</span>
+            </li>
+
+            <li>
+              <a href="https://vercel.com/changelog/set-budgets-for-projects-and-products-in-spend-management" target="_blank" rel="noreferrer">Set budgets in Spend Management</a>
+              <span>：三级预算与自动暂停</span>
+            </li>
+
+    </ul>
+
+    <h2>重点判断与使用建议</h2>
+    <ul><li>硬期限：lint 与 typecheck 原生检查 2026 年 11 月 30 日移除</li><li>20MiB 请求体需 VERCEL_SUPPORT_LARGE_REQUEST_BODY=1 且函数用 4GB 内存档</li><li>开启后 Routing Middleware 不再收到请求体；Edge 仍为 4.5MB 并返回 413</li><li>Priority 每项目每月 200 美元；Page Integrity 每 1000 次页面浏览 2 美元</li><li>秒级静态部署上限 100 文件、25MB，含 JavaScript 则走构建</li></ul>
+
+        <h2>一、先处理有硬期限的项</h2>
+
+        <ul><li>原生 lint 与 typecheck 检查 11 月 30 日移除</li><li>已不能再新增，现有检查到期直接消失</li><li>消失时不会报错，质量门禁会静默失效</li><li>在 Build and Deployment 设置里找 provider 为 Vercel 的 Lint 与 Typecheck</li><li>优先处理那些用来阻塞生产发布的检查</li></ul>
+
+
+
+        <h2>二、检查迁移的三个去处</h2>
+
+        <ul><li>Vercel CI：官方推荐路径，与部署解耦</li><li>自有 CI（如 GitHub Actions）：控制力最强，需自己维护</li><li>Build Command：最省事，但增加构建时间且失败即构建失败</li><li>迁移后必须验证失败时确实会阻断发布</li><li>把验证结果写进变更记录，而不是只看配置改了</li></ul>
+
+
+
+        <h2>三、构建计费口径变化</h2>
+
+        <ul><li>11 月 17 日起新建 Pro 与 Enterprise 团队不含 Standard 构建位</li><li>Pro 的 Standard 构建为每构建分钟 0.014 美元</li><li>月度用量额度可抵扣构建用量</li><li>受影响团队从 Elastic 切回 Standard 也计费</li><li>老团队不受影响，但新建团队要重算成本模型</li></ul>
+
+
+
+        <h2>四、用预算限制爆炸半径</h2>
+
+        <ul><li>项目预算可只暂停该项目的生产部署</li><li>产品预算跟踪单项产品在团队内的花费</li><li>组织预算覆盖所有团队，需 Enterprise Flexible Commitment</li><li>只有团队与项目预算支持自动暂停</li><li>50%、75%、100% 三档通知，别只依赖 100% 那一档</li></ul>
+
+
+
+        <h2>五、20MiB 请求体的两个代价</h2>
+
+        <ul><li>必须显式设置 VERCEL_SUPPORT_LARGE_REQUEST_BODY=1</li><li>函数需使用 4GB 性能内存档，成本随之变化</li><li>按项目按环境生效，可先在 preview 验证</li><li>Node.js、Python、Bun 与 Routing Middleware 适用</li><li>Edge 运行时仍是 4.5MB，超限返回 413</li></ul>
+
+
+
+        <h2>六、中间件读不到 body 怎么办</h2>
+
+        <ul><li>开启后中间件只收到请求头与元数据</li><li>依赖 body 做签名校验、鉴权或改写的逻辑会失效</li><li>把这类逻辑迁进目标函数内部</li><li>官方这样做是为避免 body 双发抬高成本与首字节时间</li><li>迁移前先列出所有读 body 的中间件分支</li></ul>
+
+
+
+        <h2>七、Priority 值不值得开</h2>
+
+        <ul><li>每项目每月 200 美元，按项目升级</li><li>机器人分类、验证状态与名称可用于规则、请求头与日志</li><li>Traffic Sources 标记 Tor、VPN、匿名与住宅代理等来源</li><li>自定义规则与 IP 封禁限额提升，Pro 40 到 100、Enterprise 250 到 500</li><li>限流可按响应状态码或响应头计数，适合统计失败登录</li></ul>
+
+
+
+        <h2>八、Page Integrity 的正确用法</h2>
+
+        <ul><li>用 CSP 做发现与拦截，不注入客户端 JavaScript</li><li>分 Detect、Review、Block 三阶段，先观察再拦截</li><li>审核时记录业务理由，形成资源清单</li><li>单独计费：每 1000 次受监控页面浏览 2 美元</li><li>Traffic Sources 可能命中真实用户，先观察匹配流量再开拦截</li></ul>
+
+
+
+        <h2>九、秒级部署适合哪些产物</h2>
+
+        <ul><li>纯静态报告、落地页、课件附件等无 JavaScript 产物</li><li>支持 CSS、JSON、XML、文本、manifest</li><li>支持常见图片、字体与 PDF、音视频</li><li>上限 100 文件、合计 25MB</li><li>含 JS、由 Git 触发或有框架预设与配置文件的项目仍走构建</li></ul>
+
+
+
+        <h2>十、验收清单</h2>
+
+        <ul><li>lint 与 typecheck 已在 11 月 30 日前迁走</li><li>已验证新流程失败时会阻断发布</li><li>已确认团队是否受构建计费影响</li><li>关键项目已设预算并演练暂停</li><li>读 body 的中间件逻辑已迁移</li><li>大请求体路径已在 preview 验证</li><li>Priority 与 Page Integrity 的费用已评估</li><li>纯静态产物已改走秒级部署</li></ul>
+
+
+
+
+        <div class="inline-promo">
+          <p class="label">更正与更新</p>
+          <h3>发现版本变化、来源失效或事实错误时，请通过联系页反馈。</h3>
+          <p>本站会核对一手来源后更新内容，不使用无来源转载填充文章。</p>
+          <a class="button button--secondary" href="../editorial.html">查看内容标准</a>
+        </div>
+      </article>
+      <aside class="article-sidebar">
+        <div class="sidebar-card">
+          <p class="label">本页标签</p>
+          <div class="tag-row"><span>Vercel</span><span>迁移</span><span>构建计费</span><span>防火墙</span><span>预算</span><span>函数限制</span></div>
+        </div>
+        <div class="sidebar-card">
+          <p class="label">继续阅读</p>
+          <a href="github-ai-scan-rest-api-governance-guide.html">AI Scan 批量治理：用 REST API 管组织和仓库的两级开关</a><a href="vercel-build-capacity-sandbox-decision-guide.html">Vercel 三处提速：64GB 构建磁盘、亚秒级沙箱快照与决策模型</a><a href="claude-fable-5-2-copilot-retention-policy-guide.html">Claude Fable 5.2 接入 Copilot：能力提升、数据留存与企业管理策略</a><a href="vercel-toml-migration-multiservice-config-guide.html">vercel.toml 迁移实战：多服务项目怎么配、和 vercel.json 怎么选</a>
+        </div>
+        <div class="sidebar-card sidebar-card--accent">
+          <p class="label">作者与方法</p>
+          <h3>了解本站如何选题、核验来源与处理更正。</h3>
+          <a class="button button--dark" href="../about.html">关于作者</a>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="page-shell footer__inner">
+      <div><strong>学习资源库</strong><p>分享知识 · 提升自己 · 成就未来</p></div>
+      <div>
+        <a href="../editorial.html">内容标准</a><br>
+        <a href="../privacy.html">隐私政策</a><br>
+        <a href="../contact.html">联系</a>
+      </div>
+    </div>
+  </footer>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      var button = document.querySelector("[data-menu-button]");
+      var nav = document.querySelector("[data-mobile-nav]");
+      if (!button || !nav) return;
+      button.addEventListener("click", function () {
+        var expanded = button.getAttribute("aria-expanded") === "true";
+        button.setAttribute("aria-expanded", String(!expanded));
+        nav.classList.toggle("site-nav--open", !expanded);
+      });
+    });
+  </script>
+</body>
+</html>

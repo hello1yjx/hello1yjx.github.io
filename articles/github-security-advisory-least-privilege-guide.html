@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>安全公告权限最小化：用自定义仓库角色替代管理员授权 | 学习资源库</title>
+  <meta name="description" content="11 月 20 日 GitHub 把安全公告权限转为正式可用：查看、创建编辑管理、接收私密报告、发布并申请 CVE 四项权限可以放进自定义仓库角色，只分配到需要的仓库。这篇教程讲清权限依赖关系、三个仍然受限的动作、角色设计方法，以及漏洞响应流程怎么按新权限重排。">
+  <meta name="robots" content="index,follow,max-image-preview:large">
+  <link rel="canonical" href="https://hello1yjx.github.io/articles/github-security-advisory-least-privilege-guide.html">
+  <link rel="icon" type="image/png" href="../assets/images/brand-book-line.png">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"安全公告权限最小化：用自定义仓库角色替代管理员授权","description":"11 月 20 日 GitHub 把安全公告权限转为正式可用：查看、创建编辑管理、接收私密报告、发布并申请 CVE 四项权限可以放进自定义仓库角色，只分配到需要的仓库。这篇教程讲清权限依赖关系、三个仍然受限的动作、角色设计方法，以及漏洞响应流程怎么按新权限重排。","datePublished":"2026-11-21","dateModified":"2026-11-21","author":{"@type":"Person","name":"Avery Lin","url":"https://hello1yjx.github.io/about.html"},"publisher":{"@type":"Organization","name":"学习资源库","url":"https://hello1yjx.github.io/"},"mainEntityOfPage":"https://hello1yjx.github.io/articles/github-security-advisory-least-privilege-guide.html","inLanguage":"zh-CN"}</script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6621999105936318" crossorigin="anonymous"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;800&family=Noto+Serif+SC:wght@700;900&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/styles.css?v=20261121-daily-update">
+</head>
+<body>
+  <header class="site-header">
+    <div class="page-shell site-header__inner">
+      <a class="brand" href="../index.html" aria-label="返回首页">
+        <span class="brand-mark" aria-hidden="true"><img src="../assets/images/brand-book-line.png" alt="" width="36" height="33"></span>
+        <span class="brand-copy"><strong>学习资源库</strong><span>分享知识 · 提升自己 · 成就未来</span></span>
+      </a>
+      <button class="menu-button" data-menu-button aria-expanded="false" aria-label="切换导航菜单">☰</button>
+      <nav class="site-nav" data-mobile-nav>
+        <a href="../index.html">首页</a>
+        <a class="is-active" href="../posts.html" aria-current="page">教程</a>
+        <a href="../resources.html">资源下载</a>
+        <a href="../hotspots.html">技术资讯</a>
+        <a href="../projects.html">开源项目</a>
+        <a href="../vulns.html">漏洞分析</a>
+        <a href="../kaogong.html">考公专区</a>
+        <a href="../about.html">关于我们</a>
+      </nav>
+      <form class="header-search" action="../posts.html" method="get">
+        <input type="search" name="q" placeholder="搜索教程、资源、工具或关键词...">
+        <button type="submit" aria-label="搜索">/</button>
+      </form>
+      <a class="header-github" href="https://github.com/hello1yjx/hello1yjx.github.io" target="_blank" rel="noreferrer" aria-label="GitHub">
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="" width="24" height="24">
+      </a>
+      <a class="header-cta" href="../posts.html">开始学习</a>
+    </div>
+  </header>
+
+  <main class="page-shell section article-page">
+    <header class="detail-hero">
+      <span class="pill">安全</span>
+      <h1>安全公告权限最小化：用自定义仓库角色替代管理员授权</h1>
+      <div class="detail-hero__meta">
+        <time datetime="2026-11-21">2026年11月21日</time>
+        <span>10 分钟</span>
+        <span>作者：Avery Lin</span>
+      </div>
+      <p>11 月 20 日 GitHub 把安全公告权限转为正式可用：查看、创建编辑管理、接收私密报告、发布并申请 CVE 四项权限可以放进自定义仓库角色，只分配到需要的仓库。这篇教程讲清权限依赖关系、三个仍然受限的动作、角色设计方法，以及漏洞响应流程怎么按新权限重排。</p>
+    </header>
+    <div class="article-layout">
+      <article class="article-body">
+        <div class="inline-promo">
+          <p class="label">来源与增量价值</p>
+          <h3>本文基于官方资料整理，并补充适用场景、限制条件和实践检查步骤。</h3>
+          <p>首要来源：<a href="https://github.blog/changelog/2026-11-20-security-advisory-permissions-are-now-generally-available/" target="_blank" rel="noreferrer">Security advisory permissions are now generally available</a>。事实以原始来源为准，本站建议需结合自己的环境验证。</p>
+        </div>
+
+    <p>漏洞响应里有个长期尴尬：想让业务团队自己处理私密漏洞报告，就得给仓库管理员；想让他们发布安全公告，就得给组织级 security manager。权限一给就是一大片，和最小权限原则直接冲突。</p><p>11 月 20 日之后这个矛盾可以解开了：四项公告权限能装进自定义仓库角色，按仓库分配。但合并私有 fork、删除私有 fork、机密评论这三件事仍有额外门槛，流程设计必须把它们考虑进去。</p>
+    <h2>这篇内容适合谁</h2>
+    <ul><li>负责漏洞响应流程的安全工程师</li><li>管理组织角色与权限的 GitHub 管理员</li><li>需要自管漏洞报告的业务团队负责人</li></ul>
+    <h2>实践与验证步骤</h2>
+    <ul><li>盘点现有管理员授权</li><li>确认套餐支持自定义角色</li><li>设计两类角色</li><li>按仓库分配而非全组织</li><li>重排漏洞响应流程</li><li>明确受限动作的负责人</li><li>做一次演练</li><li>回收多余管理员权限</li></ul>
+    <h2>官方资料入口</h2>
+
+    <ul>
+
+            <li>
+              <a href="https://github.blog/changelog/2026-11-20-security-advisory-permissions-are-now-generally-available/" target="_blank" rel="noreferrer">Security advisory permissions are now generally available</a>
+              <span>：四项权限与限制</span>
+            </li>
+
+            <li>
+              <a href="https://docs.github.com/en/code-security/security-advisories" target="_blank" rel="noreferrer">GitHub 安全公告文档</a>
+              <span>：公告与私密报告流程</span>
+            </li>
+
+    </ul>
+
+    <h2>重点判断与使用建议</h2>
+    <ul><li>四项权限：查看；创建编辑管理；接收私密报告并关闭重开；发布并申请 CVE</li><li>后两项依赖前两项之一</li><li>合并临时私有 fork 仍需仓库管理员或 security manager</li><li>新权限不能删除临时私有 fork</li><li>机密评论要求管理权限加仓库写权限</li></ul>
+
+        <h2>一、四项权限分别能做什么</h2>
+
+        <ul><li>查看安全公告：看草稿公告、状态与评论</li><li>创建、编辑与管理：在查看基础上创建编辑公告、评论、管理协作者、创建临时私有 fork</li><li>接收私密漏洞报告并关闭或重开公告</li><li>发布安全公告并申请 CVE</li><li>权限同时作用于仓库安全公告与私密漏洞报告</li></ul>
+
+
+
+        <h2>二、依赖关系不能跳级</h2>
+
+        <ul><li>接收私密报告要求先有查看或管理权限</li><li>发布并申请 CVE 同样要求先有查看或管理权限</li><li>只给发布权限是无效配置</li><li>设计角色时按「基础 + 附加」两层来搭</li><li>变更后用一个测试账号验证实际可见范围</li></ul>
+
+
+
+        <h2>三、三个仍然受限的动作</h2>
+
+        <ul><li>合并临时私有 fork 的改动仍需仓库管理员或 security manager</li><li>拥有新权限的人不能删除临时私有 fork</li><li>机密评论只对同时有管理权限与仓库写权限的人开放</li><li>这三步要显式排给具备条件的人</li><li>否则流程会在最后一公里卡住</li></ul>
+
+
+
+        <h2>四、建议的两类角色</h2>
+
+        <ul><li>响应角色：查看 + 接收私密报告，给一线值班与安全接口人</li><li>处置角色：创建编辑管理 + 发布并申请 CVE，给固定的公告负责人</li><li>两类都只分配到该团队维护的仓库</li><li>合并与清理由仓库管理员承担，写进流程说明</li><li>避免造出一个「什么都能干」的万能角色</li></ul>
+
+
+
+        <h2>五、按仓库分配而不是按组织</h2>
+
+        <ul><li>自定义仓库角色的价值在于范围可控</li><li>把角色绑定到团队，再限定仓库清单</li><li>新仓库创建时按模板继承对应角色</li><li>定期核对角色覆盖范围是否随仓库变动漂移</li><li>不要用组织级 security manager 图省事</li></ul>
+
+
+
+        <h2>六、重排漏洞响应流程</h2>
+
+        <ul><li>接收：响应角色确认报告有效性与影响范围</li><li>立项：处置角色创建草稿公告与临时私有 fork</li><li>修复：开发在私有 fork 内提交修复</li><li>合并：由仓库管理员或 security manager 合并</li><li>发布：处置角色发布公告并申请 CVE，随后清理 fork</li></ul>
+
+
+
+        <h2>七、机密信息怎么放</h2>
+
+        <ul><li>机密评论需要管理权限加写权限，人少才安全</li><li>利用细节不要写进普通评论</li><li>报告原文与证据按最小可见范围保存</li><li>对外公告与内部细节分两份文档</li><li>发布前做一次「可见范围」复核</li></ul>
+
+
+
+        <h2>八、迁移与权限回收</h2>
+
+        <ul><li>先列出当前靠管理员权限处理公告的人</li><li>为他们创建对应自定义角色并验证可用</li><li>确认流程跑通后再回收多余管理员权限</li><li>保留一个具备合并权限的兜底负责人</li><li>回收动作留审批记录，便于解释与回滚</li></ul>
+
+
+
+        <h2>九、审计与演练</h2>
+
+        <ul><li>记录谁在什么时间接收、编辑、发布了公告</li><li>定期核对角色成员与仓库清单</li><li>每季度做一次端到端演练，含合并与清理</li><li>演练要覆盖「负责人不在」的替补路径</li><li>把演练结论写进流程文档而不是口头传达</li></ul>
+
+
+
+        <h2>十、检查清单</h2>
+
+        <ul><li>套餐支持自定义仓库角色</li><li>已设计响应与处置两类角色</li><li>权限依赖关系配置正确</li><li>角色只分配到必要仓库</li><li>合并与删除私有 fork 有明确负责人</li><li>机密评论范围已收紧</li><li>多余管理员权限已回收</li><li>已完成一次端到端演练</li></ul>
+
+
+
+
+        <div class="inline-promo">
+          <p class="label">更正与更新</p>
+          <h3>发现版本变化、来源失效或事实错误时，请通过联系页反馈。</h3>
+          <p>本站会核对一手来源后更新内容，不使用无来源转载填充文章。</p>
+          <a class="button button--secondary" href="../editorial.html">查看内容标准</a>
+        </div>
+      </article>
+      <aside class="article-sidebar">
+        <div class="sidebar-card">
+          <p class="label">本页标签</p>
+          <div class="tag-row"><span>GitHub</span><span>安全公告</span><span>最小权限</span><span>自定义角色</span><span>漏洞响应</span><span>企业治理</span></div>
+        </div>
+        <div class="sidebar-card">
+          <p class="label">继续阅读</p>
+          <a href="github-ai-scan-rest-api-governance-guide.html">AI Scan 批量治理：用 REST API 管组织和仓库的两级开关</a><a href="vercel-build-capacity-sandbox-decision-guide.html">Vercel 三处提速：64GB 构建磁盘、亚秒级沙箱快照与决策模型</a><a href="claude-fable-5-2-copilot-retention-policy-guide.html">Claude Fable 5.2 接入 Copilot：能力提升、数据留存与企业管理策略</a><a href="vercel-toml-migration-multiservice-config-guide.html">vercel.toml 迁移实战：多服务项目怎么配、和 vercel.json 怎么选</a>
+        </div>
+        <div class="sidebar-card sidebar-card--accent">
+          <p class="label">作者与方法</p>
+          <h3>了解本站如何选题、核验来源与处理更正。</h3>
+          <a class="button button--dark" href="../about.html">关于作者</a>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="page-shell footer__inner">
+      <div><strong>学习资源库</strong><p>分享知识 · 提升自己 · 成就未来</p></div>
+      <div>
+        <a href="../editorial.html">内容标准</a><br>
+        <a href="../privacy.html">隐私政策</a><br>
+        <a href="../contact.html">联系</a>
+      </div>
+    </div>
+  </footer>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      var button = document.querySelector("[data-menu-button]");
+      var nav = document.querySelector("[data-mobile-nav]");
+      if (!button || !nav) return;
+      button.addEventListener("click", function () {
+        var expanded = button.getAttribute("aria-expanded") === "true";
+        button.setAttribute("aria-expanded", String(!expanded));
+        nav.classList.toggle("site-nav--open", !expanded);
+      });
+    });
+  </script>
+</body>
+</html>

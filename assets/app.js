@@ -29,6 +29,624 @@ const siteData = {
   },
   posts: [
     {
+      id: "github-event-streams-agent-loop-guide",
+      title: "告别轮询：用 Event Streams 与 gh event listen 搭事件驱动的 agent 循环",
+      date: "2026-11-21",
+      category: "研发协作",
+      readTime: "11 分钟",
+      excerpt: "11 月 17 日 GitHub 推出 Event Streams 预览，11 月 18 日 GitHub CLI v2.105.0 跟上 gh event listen：订阅一个 PR、保持长连接，评审提交、新提交、合并冲突、检查套件变化都会推过来，不需要公网 webhook。这篇教程讲清事件模型、命令用法、脚本封装、失败与超时处理，以及从轮询迁移的顺序。",
+      tags: ["GitHub", "Event Streams", "GitHub CLI", "AI agent", "自动化", "研发协作"],
+      featured: true,
+      intro: [
+        "让 agent 盯着一个 Pull Request，过去只有两条路：要么自建公网 webhook 接收端，要么写一个轮询循环。前者要暴露端点、处理签名与重试，后者要在「烧配额」和「反馈延迟」之间选一个难受的平衡点。",
+        "Event Streams 把这件事变成订阅加长连接：没事件时 agent 休眠，有事件立刻唤醒。配合 gh event listen，一条命令就能把事件按行 JSON 打进脚本。真正需要设计的不是连接，而是消费端：事件粒度、去重、超时和失败重试。"
+      ],
+      audience: [
+        "写 agent 循环、让模型自动跟进 PR 的开发者",
+        "维护 CI 通知、评审提醒等自动化的平台团队",
+        "关心 rate limit 与 token 成本的负责人"
+      ],
+      format: [
+        "按「模型 → 命令 → 脚本 → 边界 → 迁移」组织，命令与事件类型均取自官方说明",
+        "只讲已文档化的行为，预览期可能变化的部分会明确标注"
+      ],
+      roadmap: [
+        "申请 Event Streams 访问",
+        "升级 gh 到 v2.105.0 以上",
+        "确认要监听的事件类型",
+        "用 gh event listen 跑通一次",
+        "把输出接进脚本或 agent",
+        "加超时、去重与重连",
+        "按检查套件聚合事件",
+        "下线旧轮询并观察一周"
+      ],
+      officialLinks: [
+        { label: "GitHub Event Streams is now in preview", url: "https://github.blog/changelog/2026-11-17-github-event-streams-is-now-in-preview/", note: "事件模型与可用性" },
+        { label: "Wait for pull request events with GitHub CLI", url: "https://github.blog/changelog/2026-11-18-wait-for-pull-request-events-with-github-cli/", note: "gh event 命令与参数" },
+        { label: "GitHub CLI 手册", url: "https://cli.github.com/manual/", note: "命令细节与版本说明" }
+      ],
+      curatedLinks: [
+        "事件类型：评审提交、新提交推送、合并冲突、PR 合并或关闭、检查套件变化、单个套件状态变化",
+        "gh event listen 默认收到第一个事件即退出，便于嵌入脚本",
+        "--count 等多个事件，--follow 持续监听，--timeout 限时退出",
+        "--jq 或 --template 只取需要的字段",
+        "订阅管理：gh event subscription create / list / view / delete"
+      ],
+      downloadIdeas: [
+        "写一个监听封装脚本：统一超时、重连与日志格式，避免每个 agent 各写一套",
+        "做一张事件到动作的映射表，明确哪类事件才值得唤醒模型"
+      ],
+      extraSections: [
+        {
+          title: "一、轮询的两难与事件流的解法",
+          items: [
+            "轮询太密：大量请求返回空结果，白烧 rate limit 配额",
+            "轮询太疏：评审意见躺在那里，直到下一次检查才被看到",
+            "自建 webhook：需要公网端点、签名校验、重试与幂等处理",
+            "事件流：订阅后保持连接，有事件才唤醒，本地机器也能用",
+            "官方给出的收益是更快回路、更少无效 token、不用调轮询间隔"
+          ]
+        },
+        {
+          title: "二、事件模型：六类触发",
+          items: [
+            "评审被提交",
+            "有新提交推送到 PR",
+            "出现合并冲突",
+            "PR 被合并或关闭",
+            "PR 的检查套件发生变化",
+            "单个检查套件状态变化，每个套件一个事件"
+          ]
+        },
+        {
+          title: "三、先跑通一条命令",
+          items: [
+            "确认已在 waitlist 通过，拿到 Event Streams 访问权限",
+            "升级 GitHub CLI 到 v2.105.0 或更高",
+            "用 gh event listen 传入 PR 链接与关心的事件",
+            "它会自动创建订阅、打开流，并按行打印 JSON",
+            "默认第一个事件后退出，先用这个行为验证链路"
+          ]
+        },
+        {
+          title: "四、把输出接进脚本",
+          items: [
+            "按行读取 JSON，一行一个事件，不要按整块解析",
+            "用 --jq 或 --template 只取需要的字段，减少下游处理",
+            "把事件类型映射到动作：评审提交才唤醒模型，提交推送只更新缓存",
+            "为每次唤醒设预算上限，避免连续事件把额度打空",
+            "记录事件 ID 与处理结果，便于回溯与去重"
+          ]
+        },
+        {
+          title: "五、持续监听与超时",
+          items: [
+            "需要长期盯一个 PR 时用 --follow",
+            "只想等固定数量事件时用 --count",
+            "任何长期监听都要设 --timeout，防止脚本挂死",
+            "超时退出应视为正常结束，由外层调度决定是否重开",
+            "不要在 agent 内部无限重试，交给外层循环控制节奏"
+          ]
+        },
+        {
+          title: "六、订阅生命周期管理",
+          items: [
+            "gh event subscription create 显式建订阅",
+            "list 查看当前订阅，避免重复订阅同一 PR",
+            "view 核对订阅的事件范围是否符合预期",
+            "delete 在 PR 合并或关闭后清理，减少无用连接",
+            "把清理写进流程末尾，而不是靠人工记得"
+          ]
+        },
+        {
+          title: "七、按检查套件聚合",
+          items: [
+            "检查套件状态是按套件逐个发事件的",
+            "一个 PR 挂十几个检查，就会收到十几条事件",
+            "消费端要按 PR 聚合，等全部套件结束再判断结论",
+            "区分「套件状态变化」与「全部完成」两种语义",
+            "对失败套件单独告警，不要把中间态当成最终失败"
+          ]
+        },
+        {
+          title: "八、失败、重连与幂等",
+          items: [
+            "连接中断要能自动重连，并记录断连时长",
+            "重连后可能重复收到事件，处理逻辑必须幂等",
+            "以事件 ID 或提交 SHA 做去重键",
+            "重连失败超过阈值就降级为低频轮询，保证不丢关键反馈",
+            "把降级事件写进日志，方便事后核对是否漏处理"
+          ]
+        },
+        {
+          title: "九、从轮询迁移的顺序",
+          items: [
+            "先在一个非关键仓库试点，保留原轮询作为兜底",
+            "对比两条链路的事件时延与覆盖率",
+            "确认无漏事件后，把轮询频率降到最低",
+            "观察一周再彻底下线轮询代码",
+            "把 gh event 的调用封装成内部函数，隔离预览期变更"
+          ]
+        },
+        {
+          title: "十、检查清单",
+          items: [
+            "已获得 Event Streams 访问权限",
+            "gh 版本不低于 v2.105.0",
+            "事件到动作的映射已明确",
+            "长期监听设置了超时",
+            "按检查套件做了聚合",
+            "处理逻辑幂等且有去重键",
+            "断连有重连与降级路径",
+            "PR 关闭后订阅会被清理"
+          ]
+        }
+      ]
+    },
+    {
+      id: "copilot-secret-scanning-shift-left-guide",
+      title: "把密钥检测前移：Copilot 安全评审接入 secret scanning 的四端落地",
+      date: "2026-11-21",
+      category: "安全",
+      readTime: "10 分钟",
+      excerpt: "11 月 17 日起，Copilot 的 security-review 可以在 LLM 评审之外运行 GitHub secret scanning：500 多种密钥模式加一个微调模型，只检查本次变更。默认关闭，CLI、应用、SDK、代码评审四个入口各自开关。这篇教程讲清怎么开、怎么触发、检出后怎么处置，以及它与仓库级扫描的分工。",
+      tags: ["GitHub Copilot", "Secret Scanning", "密钥治理", "代码评审", "安全左移", "AI credits"],
+      featured: false,
+      intro: [
+        "密钥泄露最贵的地方不是检测，而是发现得太晚：代码已经合并、镜像已经构建、令牌已经被人用过。平台级 secret scanning 很强，但它工作在推送之后。",
+        "这次更新把检测搬到「写完还没合并」的时刻，而且对 agent 生成的代码同样有效。需要理解的是它的能力边界：只看变更、默认关闭、按 AI credits 计费，而且四个入口的开关互不相通。"
+      ],
+      audience: [
+        "用 Copilot CLI 或应用做日常开发的工程师",
+        "用 Copilot SDK 搭自有 agent 的团队",
+        "负责仓库密钥治理与评审门禁的安全工程师"
+      ],
+      format: [
+        "按「能力 → 开关 → 触发 → 处置 → 分工 → 成本」组织，开关路径取自官方表格",
+        "不夸大检出率，明确它不覆盖仓库历史"
+      ],
+      roadmap: [
+        "确认套餐可用安全评审",
+        "按使用的工具逐个开启",
+        "跑一次 security-review",
+        "核对检出与误报",
+        "定义命中后的处置流程",
+        "把评审挂进 PR 门禁",
+        "估算 AI credits 用量",
+        "与仓库级扫描做分工"
+      ],
+      officialLinks: [
+        { label: "Secret scanning on demand for developers and agents", url: "https://github.blog/changelog/2026-11-17-secret-scanning-on-demand-for-developers-and-agents/", note: "能力、开关与计费" },
+        { label: "GitHub Secret Scanning 文档", url: "https://docs.github.com/en/code-security/secret-scanning", note: "支持的模式与告警处置" }
+      ],
+      curatedLinks: [
+        "检测能力：500 多种密钥类型，来自 150 多家合作伙伴的模式库",
+        "另有 GitHub 微调模型，识别连接串口令等无固定格式的凭据",
+        "只检查本次变更，不搜索仓库历史",
+        "默认关闭；CLI、应用、SDK、代码评审四个入口分别开启",
+        "扫描按 Secret Protection AI Credit 计费，不需要额外套餐"
+      ],
+      downloadIdeas: [
+        "写一份密钥命中处置单：吊销、轮换、查使用痕迹、清理历史，四步都要有人签",
+        "把四个入口的开关状态做成一张表，避免以为开了一处就全生效"
+      ],
+      extraSections: [
+        {
+          title: "一、它到底新增了什么",
+          items: [
+            "security-review 原本靠 LLM 判断是否有暴露的凭据",
+            "开启后同时运行 GitHub 的 secret scanning 检测器",
+            "模式库覆盖 500 多种密钥类型",
+            "微调模型补充识别没有固定格式的凭据",
+            "两者并行，不是替换关系"
+          ]
+        },
+        {
+          title: "二、四个入口的开关",
+          items: [
+            "Copilot CLI：交互会话里运行 /settings aiSecretDetection on",
+            "Copilot 应用：Settings 的 Experimental 里打开 AI secret detection",
+            "Copilot SDK：创建会话时把 SECURITY_REVIEW_FINE_TUNED_MODEL 设为 true",
+            "Copilot code review：仓库 Settings、Copilot、Code review、Security 下打开 Secret scanning",
+            "四处互不共享，用哪个就在哪个开"
+          ]
+        },
+        {
+          title: "三、怎么触发一次检测",
+          items: [
+            "在 CLI 或应用里让 agent 调用 security-review 专家",
+            "也可以自己运行 /security-review 检查当前变更",
+            "SDK 场景由会话 agent 委派，或调用启动 agent 的接口指定 security-review",
+            "PR 场景请求 Copilot 评审，或配置自动评审",
+            "代码评审只针对新增行，能捞到开发期没检查过的改动"
+          ]
+        },
+        {
+          title: "四、只看变更意味着什么",
+          items: [
+            "它不搜索仓库历史，历史里的旧密钥不会被发现",
+            "已经推送过的泄露仍要靠仓库级 secret scanning 与 push protection",
+            "把它当「增量门禁」，不是「全库体检」",
+            "历史清理需要单独排期，包括提交历史与构建产物",
+            "两层都开，才是完整的密钥治理"
+          ]
+        },
+        {
+          title: "五、命中后的处置顺序",
+          items: [
+            "先判断凭据是否仍然有效",
+            "立即吊销并轮换，不要先讨论是不是误报",
+            "排查使用痕迹：访问日志、异常调用、来源 IP",
+            "确认是否进入构建产物、镜像或前端包",
+            "最后再判断误报并记录理由"
+          ]
+        },
+        {
+          title: "六、把它挂进评审门禁",
+          items: [
+            "对高风险仓库开启自动评审，让每次 PR 都过一次",
+            "明确命中密钥时是否阻断合并，并写进分支保护说明",
+            "为误报设申诉路径，避免开发者直接关掉开关",
+            "把处置结果回写 PR，形成可审计记录",
+            "定期抽查被标记为误报的条目"
+          ]
+        },
+        {
+          title: "七、agent 场景的特别价值",
+          items: [
+            "agent 批量改代码时最容易顺手写入示例密钥",
+            "SDK 集成让 agent 在返回结果前自查一遍",
+            "不必自己维护一套密钥正则",
+            "把安全评审作为 agent 完成任务的必经步骤",
+            "对 agent 生成内容保持同样标准，不因为「是模型写的」而放宽"
+          ]
+        },
+        {
+          title: "八、成本与用量估算",
+          items: [
+            "扫描消耗 AI credits，计入 Secret Protection AI Credit",
+            "自动评审意味着每个 PR 都产生消耗",
+            "先按月度 PR 数估算，再决定是否全量开启",
+            "对低风险仓库可只在关键路径开启",
+            "把用量纳入预算告警，避免月底才发现超支"
+          ]
+        },
+        {
+          title: "九、与仓库级扫描的分工",
+          items: [
+            "开发期：security-review 检查变更，尽早拦截",
+            "推送期：push protection 阻止已知密钥进入仓库",
+            "存量期：仓库级扫描覆盖历史与全量文件",
+            "合作方通报：公开仓库命中会通知签发方，但不替你吊销",
+            "四层职责写清，避免互相假设对方已经覆盖"
+          ]
+        },
+        {
+          title: "十、检查清单",
+          items: [
+            "已按实际使用的工具逐个开启开关",
+            "已跑通一次 security-review 并核对结果",
+            "命中处置流程有明确负责人",
+            "已确认历史泄露另有覆盖手段",
+            "评审门禁与分支保护策略一致",
+            "误报申诉路径可用",
+            "AI credits 用量已估算并纳入预算",
+            "四层密钥治理职责已写进文档"
+          ]
+        }
+      ]
+    },
+    {
+      id: "github-security-advisory-least-privilege-guide",
+      title: "安全公告权限最小化：用自定义仓库角色替代管理员授权",
+      date: "2026-11-21",
+      category: "安全",
+      readTime: "10 分钟",
+      excerpt: "11 月 20 日 GitHub 把安全公告权限转为正式可用：查看、创建编辑管理、接收私密报告、发布并申请 CVE 四项权限可以放进自定义仓库角色，只分配到需要的仓库。这篇教程讲清权限依赖关系、三个仍然受限的动作、角色设计方法，以及漏洞响应流程怎么按新权限重排。",
+      tags: ["GitHub", "安全公告", "最小权限", "自定义角色", "漏洞响应", "企业治理"],
+      featured: false,
+      intro: [
+        "漏洞响应里有个长期尴尬：想让业务团队自己处理私密漏洞报告，就得给仓库管理员；想让他们发布安全公告，就得给组织级 security manager。权限一给就是一大片，和最小权限原则直接冲突。",
+        "11 月 20 日之后这个矛盾可以解开了：四项公告权限能装进自定义仓库角色，按仓库分配。但合并私有 fork、删除私有 fork、机密评论这三件事仍有额外门槛，流程设计必须把它们考虑进去。"
+      ],
+      audience: [
+        "负责漏洞响应流程的安全工程师",
+        "管理组织角色与权限的 GitHub 管理员",
+        "需要自管漏洞报告的业务团队负责人"
+      ],
+      format: [
+        "按「权限 → 依赖 → 限制 → 角色设计 → 流程 → 审计」组织",
+        "权限名称与限制条件严格取自官方说明"
+      ],
+      roadmap: [
+        "盘点现有管理员授权",
+        "确认套餐支持自定义角色",
+        "设计两类角色",
+        "按仓库分配而非全组织",
+        "重排漏洞响应流程",
+        "明确受限动作的负责人",
+        "做一次演练",
+        "回收多余管理员权限"
+      ],
+      officialLinks: [
+        { label: "Security advisory permissions are now generally available", url: "https://github.blog/changelog/2026-11-20-security-advisory-permissions-are-now-generally-available/", note: "四项权限与限制" },
+        { label: "GitHub 安全公告文档", url: "https://docs.github.com/en/code-security/security-advisories", note: "公告与私密报告流程" }
+      ],
+      curatedLinks: [
+        "四项权限：查看；创建编辑管理；接收私密报告并关闭重开；发布并申请 CVE",
+        "后两项依赖前两项之一",
+        "合并临时私有 fork 仍需仓库管理员或 security manager",
+        "新权限不能删除临时私有 fork",
+        "机密评论要求管理权限加仓库写权限"
+      ],
+      downloadIdeas: [
+        "做一张权限矩阵：角色、权限、可分配仓库、受限动作、负责人",
+        "写一份漏洞响应演练脚本，覆盖从接收报告到发布公告的全链路"
+      ],
+      extraSections: [
+        {
+          title: "一、四项权限分别能做什么",
+          items: [
+            "查看安全公告：看草稿公告、状态与评论",
+            "创建、编辑与管理：在查看基础上创建编辑公告、评论、管理协作者、创建临时私有 fork",
+            "接收私密漏洞报告并关闭或重开公告",
+            "发布安全公告并申请 CVE",
+            "权限同时作用于仓库安全公告与私密漏洞报告"
+          ]
+        },
+        {
+          title: "二、依赖关系不能跳级",
+          items: [
+            "接收私密报告要求先有查看或管理权限",
+            "发布并申请 CVE 同样要求先有查看或管理权限",
+            "只给发布权限是无效配置",
+            "设计角色时按「基础 + 附加」两层来搭",
+            "变更后用一个测试账号验证实际可见范围"
+          ]
+        },
+        {
+          title: "三、三个仍然受限的动作",
+          items: [
+            "合并临时私有 fork 的改动仍需仓库管理员或 security manager",
+            "拥有新权限的人不能删除临时私有 fork",
+            "机密评论只对同时有管理权限与仓库写权限的人开放",
+            "这三步要显式排给具备条件的人",
+            "否则流程会在最后一公里卡住"
+          ]
+        },
+        {
+          title: "四、建议的两类角色",
+          items: [
+            "响应角色：查看 + 接收私密报告，给一线值班与安全接口人",
+            "处置角色：创建编辑管理 + 发布并申请 CVE，给固定的公告负责人",
+            "两类都只分配到该团队维护的仓库",
+            "合并与清理由仓库管理员承担，写进流程说明",
+            "避免造出一个「什么都能干」的万能角色"
+          ]
+        },
+        {
+          title: "五、按仓库分配而不是按组织",
+          items: [
+            "自定义仓库角色的价值在于范围可控",
+            "把角色绑定到团队，再限定仓库清单",
+            "新仓库创建时按模板继承对应角色",
+            "定期核对角色覆盖范围是否随仓库变动漂移",
+            "不要用组织级 security manager 图省事"
+          ]
+        },
+        {
+          title: "六、重排漏洞响应流程",
+          items: [
+            "接收：响应角色确认报告有效性与影响范围",
+            "立项：处置角色创建草稿公告与临时私有 fork",
+            "修复：开发在私有 fork 内提交修复",
+            "合并：由仓库管理员或 security manager 合并",
+            "发布：处置角色发布公告并申请 CVE，随后清理 fork"
+          ]
+        },
+        {
+          title: "七、机密信息怎么放",
+          items: [
+            "机密评论需要管理权限加写权限，人少才安全",
+            "利用细节不要写进普通评论",
+            "报告原文与证据按最小可见范围保存",
+            "对外公告与内部细节分两份文档",
+            "发布前做一次「可见范围」复核"
+          ]
+        },
+        {
+          title: "八、迁移与权限回收",
+          items: [
+            "先列出当前靠管理员权限处理公告的人",
+            "为他们创建对应自定义角色并验证可用",
+            "确认流程跑通后再回收多余管理员权限",
+            "保留一个具备合并权限的兜底负责人",
+            "回收动作留审批记录，便于解释与回滚"
+          ]
+        },
+        {
+          title: "九、审计与演练",
+          items: [
+            "记录谁在什么时间接收、编辑、发布了公告",
+            "定期核对角色成员与仓库清单",
+            "每季度做一次端到端演练，含合并与清理",
+            "演练要覆盖「负责人不在」的替补路径",
+            "把演练结论写进流程文档而不是口头传达"
+          ]
+        },
+        {
+          title: "十、检查清单",
+          items: [
+            "套餐支持自定义仓库角色",
+            "已设计响应与处置两类角色",
+            "权限依赖关系配置正确",
+            "角色只分配到必要仓库",
+            "合并与删除私有 fork 有明确负责人",
+            "机密评论范围已收紧",
+            "多余管理员权限已回收",
+            "已完成一次端到端演练"
+          ]
+        }
+      ]
+    },
+    {
+      id: "vercel-november-changes-migration-guide",
+      title: "Vercel 11 月变更清单：20MiB 请求体、Priority、秒级部署与两处退役",
+      date: "2026-11-21",
+      category: "云端部署",
+      readTime: "11 分钟",
+      excerpt: "11 月 16 日到 20 日，Vercel 连发六条变更：三级预算、Standard 构建按量计费、lint/typecheck 检查 11 月 30 日移除、秒级静态部署支持更多资源、Priority Projects 公测、Functions 请求体上限 20MiB。这篇教程按「先止损、再优化、后升级」的顺序给出迁移与验收清单，重点讲清哪些改动有硬期限、哪些会静默改变行为。",
+      tags: ["Vercel", "迁移", "构建计费", "防火墙", "预算", "函数限制"],
+      featured: false,
+      intro: [
+        "平台变更最怕的不是新增功能，而是「悄悄改了默认行为」：检查被移除后不再拦、构建位不再赠送、中间件突然读不到请求体。这三件事都发生在这批更新里。",
+        "所以处理顺序很重要：先处理有硬期限和会静默失效的项，再评估要花钱的升级项，最后才是能顺手吃到收益的优化项。"
+      ],
+      audience: [
+        "在 Vercel 上部署生产项目的开发者与平台团队",
+        "负责成本与预算的技术负责人",
+        "需要评估 WAF 与客户端脚本防护的安全工程师"
+      ],
+      format: [
+        "按「期限项 → 行为变更项 → 付费升级项 → 优化项 → 验收」组织",
+        "价格、限额与日期均取自官方公告，不做推测"
+      ],
+      roadmap: [
+        "盘点 lint/typecheck 检查依赖",
+        "在 11 月 30 日前完成迁移",
+        "确认团队是否受构建计费影响",
+        "设置项目级预算与暂停",
+        "评估 20MiB 请求体的两个代价",
+        "按需评估 Priority 与 Page Integrity",
+        "把纯静态产物改走秒级部署",
+        "按清单逐项验收"
+      ],
+      officialLinks: [
+        { label: "Native lint and typecheck Deployment Checks deprecated", url: "https://vercel.com/changelog/native-lint-and-typecheck-deployment-checks-are-being-deprecated", note: "11 月 30 日移除" },
+        { label: "Vercel Functions request bodies up to 20MiB", url: "https://vercel.com/changelog/vercel-functions-now-support-request-bodies-up-to-20mib", note: "开启条件与中间件影响" },
+        { label: "Priority Projects now in public beta", url: "https://vercel.com/changelog/priority-projects-now-in-public-beta", note: "能力与价格" },
+        { label: "Single-second static deployments support more assets", url: "https://vercel.com/changelog/single-second-static-deployments-now-support-more-assets", note: "支持类型与上限" },
+        { label: "Standard builds move to usage-based billing", url: "https://vercel.com/changelog/standard-build-billing-new-teams", note: "新团队计费口径" },
+        { label: "Set budgets in Spend Management", url: "https://vercel.com/changelog/set-budgets-for-projects-and-products-in-spend-management", note: "三级预算与自动暂停" }
+      ],
+      curatedLinks: [
+        "硬期限：lint 与 typecheck 原生检查 2026 年 11 月 30 日移除",
+        "20MiB 请求体需 VERCEL_SUPPORT_LARGE_REQUEST_BODY=1 且函数用 4GB 内存档",
+        "开启后 Routing Middleware 不再收到请求体；Edge 仍为 4.5MB 并返回 413",
+        "Priority 每项目每月 200 美元；Page Integrity 每 1000 次页面浏览 2 美元",
+        "秒级静态部署上限 100 文件、25MB，含 JavaScript 则走构建"
+      ],
+      downloadIdeas: [
+        "做一张变更影响表：项目、受影响变更、期限、负责人、验收方式",
+        "给关键项目设预算并演练一次自动暂停与恢复"
+      ],
+      extraSections: [
+        {
+          title: "一、先处理有硬期限的项",
+          items: [
+            "原生 lint 与 typecheck 检查 11 月 30 日移除",
+            "已不能再新增，现有检查到期直接消失",
+            "消失时不会报错，质量门禁会静默失效",
+            "在 Build and Deployment 设置里找 provider 为 Vercel 的 Lint 与 Typecheck",
+            "优先处理那些用来阻塞生产发布的检查"
+          ]
+        },
+        {
+          title: "二、检查迁移的三个去处",
+          items: [
+            "Vercel CI：官方推荐路径，与部署解耦",
+            "自有 CI（如 GitHub Actions）：控制力最强，需自己维护",
+            "Build Command：最省事，但增加构建时间且失败即构建失败",
+            "迁移后必须验证失败时确实会阻断发布",
+            "把验证结果写进变更记录，而不是只看配置改了"
+          ]
+        },
+        {
+          title: "三、构建计费口径变化",
+          items: [
+            "11 月 17 日起新建 Pro 与 Enterprise 团队不含 Standard 构建位",
+            "Pro 的 Standard 构建为每构建分钟 0.014 美元",
+            "月度用量额度可抵扣构建用量",
+            "受影响团队从 Elastic 切回 Standard 也计费",
+            "老团队不受影响，但新建团队要重算成本模型"
+          ]
+        },
+        {
+          title: "四、用预算限制爆炸半径",
+          items: [
+            "项目预算可只暂停该项目的生产部署",
+            "产品预算跟踪单项产品在团队内的花费",
+            "组织预算覆盖所有团队，需 Enterprise Flexible Commitment",
+            "只有团队与项目预算支持自动暂停",
+            "50%、75%、100% 三档通知，别只依赖 100% 那一档"
+          ]
+        },
+        {
+          title: "五、20MiB 请求体的两个代价",
+          items: [
+            "必须显式设置 VERCEL_SUPPORT_LARGE_REQUEST_BODY=1",
+            "函数需使用 4GB 性能内存档，成本随之变化",
+            "按项目按环境生效，可先在 preview 验证",
+            "Node.js、Python、Bun 与 Routing Middleware 适用",
+            "Edge 运行时仍是 4.5MB，超限返回 413"
+          ]
+        },
+        {
+          title: "六、中间件读不到 body 怎么办",
+          items: [
+            "开启后中间件只收到请求头与元数据",
+            "依赖 body 做签名校验、鉴权或改写的逻辑会失效",
+            "把这类逻辑迁进目标函数内部",
+            "官方这样做是为避免 body 双发抬高成本与首字节时间",
+            "迁移前先列出所有读 body 的中间件分支"
+          ]
+        },
+        {
+          title: "七、Priority 值不值得开",
+          items: [
+            "每项目每月 200 美元，按项目升级",
+            "机器人分类、验证状态与名称可用于规则、请求头与日志",
+            "Traffic Sources 标记 Tor、VPN、匿名与住宅代理等来源",
+            "自定义规则与 IP 封禁限额提升，Pro 40 到 100、Enterprise 250 到 500",
+            "限流可按响应状态码或响应头计数，适合统计失败登录"
+          ]
+        },
+        {
+          title: "八、Page Integrity 的正确用法",
+          items: [
+            "用 CSP 做发现与拦截，不注入客户端 JavaScript",
+            "分 Detect、Review、Block 三阶段，先观察再拦截",
+            "审核时记录业务理由，形成资源清单",
+            "单独计费：每 1000 次受监控页面浏览 2 美元",
+            "Traffic Sources 可能命中真实用户，先观察匹配流量再开拦截"
+          ]
+        },
+        {
+          title: "九、秒级部署适合哪些产物",
+          items: [
+            "纯静态报告、落地页、课件附件等无 JavaScript 产物",
+            "支持 CSS、JSON、XML、文本、manifest",
+            "支持常见图片、字体与 PDF、音视频",
+            "上限 100 文件、合计 25MB",
+            "含 JS、由 Git 触发或有框架预设与配置文件的项目仍走构建"
+          ]
+        },
+        {
+          title: "十、验收清单",
+          items: [
+            "lint 与 typecheck 已在 11 月 30 日前迁走",
+            "已验证新流程失败时会阻断发布",
+            "已确认团队是否受构建计费影响",
+            "关键项目已设预算并演练暂停",
+            "读 body 的中间件逻辑已迁移",
+            "大请求体路径已在 preview 验证",
+            "Priority 与 Page Integrity 的费用已评估",
+            "纯静态产物已改走秒级部署"
+          ]
+        }
+      ]
+    },
+    {
       id: "copilot-model-deprecation-december-migration-guide",
       title: "Copilot 12 月 14 日下架 6 个模型：一份能照着做的迁移清单",
       date: "2026-11-15",
@@ -12185,6 +12803,156 @@ git push origin main`,
     "github-agentic-workflows-public-preview-guide"
   ],
   hotspots: [
+    {
+      date: "2026-11-20",
+      tag: "安全",
+      title: "安全公告权限正式可用：自定义仓库角色就能处理漏洞报告，不必再给管理员",
+      summary: "GitHub 把安全公告权限从预览转为正式可用。组织所有者现在可以通过自定义仓库角色，让人处理仓库安全公告与私密漏洞报告，不再需要授予仓库管理员或组织级 security manager。Security 分类下新增四项权限：查看安全公告；创建、编辑与管理安全公告（含评论、协作者管理、创建临时私有 fork）；接收私密漏洞报告并关闭或重开公告；发布公告并申请 CVE。后两项都要求先具备前两项之一。角色可以只分配到需要的仓库上。限制也要记清：合并临时私有 fork 的改动仍需仓库管理员或 security manager；拥有这些新权限的人不能删除临时私有 fork；机密评论只对同时具备管理权限与仓库写权限的人开放。",
+      why: "为什么值得关注：过去想让某个业务团队自己处理漏洞报告，只能给管理员，权限一下放大到整个仓库。现在能按仓库、按动作切分，符合最小权限。坑在三个「仍然不行」：合并私有 fork、删除私有 fork、机密评论都还有额外门槛，设计流程时别把这几步排给只有公告权限的人。",
+      sourceLabel: "GitHub Changelog",
+      sourceUrl: "https://github.blog/changelog/2026-11-20-security-advisory-permissions-are-now-generally-available/",
+      articleIdea: "已扩写：安全公告权限最小化"
+    },
+    {
+      date: "2026-11-20",
+      tag: "云端部署",
+      title: "Vercel Functions 请求体上限提到 20MiB：需要显式开启，中间件将拿不到 body",
+      summary: "Vercel Functions 的入站请求体上限从 4.5MB 提升到 20MiB，处于公开测试。开启方式是设置环境变量 VERCEL_SUPPORT_LARGE_REQUEST_BODY=1，按项目、按环境生效，可以先在 preview 验证再上生产。前提是项目的函数使用 4GB 性能内存档位，适用于 Node.js、Python、Bun 运行时与 Routing Middleware。Edge 运行时的函数与中间件仍保持 4.5MB 上限，超限返回 413，要享受新上限需切到 Node.js 运行时（runtime 设为 nodejs，或 Next.js 的 proxy.ts）。项目一旦开启，Routing Middleware 只收到请求头与元数据、不再收到请求体，这是项目级强制行为，目的是避免把 body 同时发给中间件和目标函数而抬高成本与首字节时间。",
+      why: "为什么值得关注：大文件上传、批量导入、长文本提交终于不必都绕道对象存储。但两个代价要提前算：一是必须上 4GB 内存档，成本会变；二是依赖读取 body 做鉴权、签名校验或改写的中间件会直接失效，这类逻辑要迁到函数内部。官方也提醒尽快读取 body、不要长期驻留内存，否则会引发背压。",
+      sourceLabel: "Vercel Changelog",
+      sourceUrl: "https://vercel.com/changelog/vercel-functions-now-support-request-bodies-up-to-20mib",
+      articleIdea: "已扩写：Vercel 11 月变更清单"
+    },
+    {
+      date: "2026-11-20",
+      tag: "安全",
+      title: "CISA 再收录四个在野利用漏洞，并按 BOD 26-04 改为风险优先级修复",
+      summary: "CISA 于 11 月 20 日向 KEV 目录新增四个漏洞：SAP NetWeaver 数据查询逻辑特殊元素中和不当（CVE-2025-42884）、Cisco Expressway 系列硬编码凭据（CVE-2026-76466）、VMware vCenter 备用路径认证绕过（CVE-2026-123890）、Apache Roller 不可信数据反序列化（CVE-2026-129448）。同份公告说明，联邦机构的漏洞管理要求已改由 BOD 26-04《基于风险确定安全更新优先级》承接：优先快速修复 KEV 中、位于公开暴露资产且利用后可完全控制资产的漏洞，较低风险的可延后；同时明确了「必须检查补丁前是否已被入侵」的基本预期。BOD 26-04 只约束联邦文职行政机构，CISA 建议其他组织同样采用基于风险的漏洞管理。",
+      why: "为什么值得关注：口径变了。过去按 KEV 一律限期修，现在按「公开暴露 + 利用后完全控制」排优先级，并要求做失陷排查。对企业更实用的读法是：先按暴露面和后果分级，再排修复顺序，而不是按 CVE 编号或评分排队；同时把「打补丁前先查是否已被入侵」写进流程，否则补丁只是掩盖了后门。",
+      sourceLabel: "CISA Alert",
+      sourceUrl: "https://www.cisa.gov/news-events/alerts/2026/11/20/cisa-adds-four-known-exploited-vulnerabilities-catalog",
+      articleIdea: "候选：KEV 风险优先级与失陷排查"
+    },
+    {
+      date: "2026-11-19",
+      tag: "安全",
+      title: "Vercel Priority Projects 公测：机器人信号、来源标签、Page Integrity 与更高防火墙限额",
+      summary: "Vercel 面向 Pro 与 Enterprise 团队推出 Priority Projects 公开测试，按单个项目升级，价格为每项目每月 200 美元。新增能力包括：更细的机器人信号（分类、验证状态、名称），可用于防火墙规则、请求头与日志；Traffic Sources 标签，标记 Tor 出口、VPN、开放或匿名代理、住宅代理以及滥用黑名单命中；Page Integrity 通过 CSP 做客户端脚本与连接的发现、审核与拦截，不注入客户端 JS，分 Detect、Review、Block 三阶段，单独计费为每 1000 次受监控页面浏览 2 美元；异常告警覆盖机器人流量与命中规则的请求；Pro 项目可启用 OWASP 核心规则集；限流规则支持按响应状态码或响应头计数；自定义规则与 IP 封禁限额 Pro 从 40 提到 100、Enterprise 从 250 提到 500。",
+      why: "为什么值得关注：这套能力把「客户端脚本供应链」纳入监控，正好对应 Magecart 类风险，而且用 CSP 实现、不加 JS，性能代价小。但要算清账：200 美元是每项目每月，Page Integrity 与 OWASP 检查另行计费。Traffic Sources 标签也可能命中真实用户，官方明确建议先观察匹配流量再开拦截，直接 block 容易误伤。",
+      sourceLabel: "Vercel Changelog",
+      sourceUrl: "https://vercel.com/changelog/priority-projects-now-in-public-beta",
+      articleIdea: "已扩写：Vercel 11 月变更清单"
+    },
+    {
+      date: "2026-11-19",
+      tag: "研发协作",
+      title: "新版 PR Overview 预览改进：可选检查失败不再显示为阻塞，force-push 可直接对比",
+      summary: "GitHub 更新了 11 月 5 日开始公开预览的新版 Pull Request Overview 页面。合并状态方面，失败的可选检查不再让本可合并的 PR 显示为被阻塞，此前缺失的合并要求会明确提示，readiness 摘要会告诉评审者是否需要动作。交互方面，检查与批准改为点击展开而非固定预览，修复了预览重叠与移动端问题，已解决的评审线程会自动折叠，提及 Copilot 的评论在提交前会更清楚说明动作与所选模型。活动记录方面，force-push 现在链接到新旧提交以便对比，提交活动带上时间戳。布局方面，小屏幕保持源分支与目标分支可见，Development 侧栏链接可直接编辑，可在 Overview 内锁定或解锁会话。",
+      why: "为什么值得关注：「可选检查失败导致看起来不能合并」是长期误导来源，团队因此白等或强行绕过分支保护。这次把必须项与可选项分开显示，评审判断会更准。force-push 对比链接对安全评审尤其有用：能直接看到强推前后的差异，而不是只看到一句「force-pushed」。预览期间仍可从同一菜单切回经典页面。",
+      sourceLabel: "GitHub Changelog",
+      sourceUrl: "https://github.blog/changelog/2026-11-19-improvements-on-the-pull-request-overview-in-public-preview/",
+      articleIdea: "候选：PR 评审信号与分支保护"
+    },
+    {
+      date: "2026-11-18",
+      tag: "AI 编程",
+      title: "gh event listen 上线：一条命令等 PR 事件，agent 不必再写轮询循环",
+      summary: "GitHub CLI 从 v2.105.0 起支持 Event Streams。运行 gh event listen 并传入 PR 链接与关心的事件（例如评审提交），它会创建订阅、打开事件流，并把每个事件按一行 JSON 打印出来。默认收到第一个事件就退出，便于嵌入脚本与 agent 循环；--count 等多个事件，--follow 持续监听，--timeout 限时退出，--jq 或 --template 只取需要的字段。可等待评审提交、PR 状态与 head 变化、合并冲突、检查套件完成。订阅可用 gh event subscription create / list / view / delete 管理。gh pr create、gh pr view、gh run view、gh run watch、gh api 现在会主动建议用 gh event listen 替代轮询。命令处于预览，需要 Event Streams 访问权限。",
+      why: "为什么值得关注：这是把「事件驱动」真正落到本地 agent 的一步，不用公网 webhook，也不用调轮询间隔。对成本敏感的团队意义更大：轮询空转既烧 rate limit 又烧 token。注意默认只等一个事件，写循环时要显式用 --follow 或 --count，并设 --timeout 防止挂死；预览期命令可能变化，脚本里最好留一层封装。",
+      sourceLabel: "GitHub Changelog",
+      sourceUrl: "https://github.blog/changelog/2026-11-18-wait-for-pull-request-events-with-github-cli/",
+      articleIdea: "已扩写：事件驱动的 agent 循环"
+    },
+    {
+      date: "2026-11-18",
+      tag: "云端部署",
+      title: "Vercel 秒级静态部署支持更多资源：CSS、图片、字体、PDF 都能一起秒发",
+      summary: "Vercel 的 instant deployments 让符合条件的静态站点跳过构建、约一秒完成部署，现在除 HTML 与 Markdown 外还支持更多资源：CSS、JSON、XML、纯文本与 web manifest；SVG、PNG、JPEG、GIF、WebP、AVIF、ICO；WOFF、WOFF2、TTF、OTF、EOT；以及 PDF、MP4、WebM、MP3、WAV、OGG。上限为 100 个文件、合计不超过 25MB，可通过 CLI 或 REST API 部署，平台自动判定是否符合条件、无需配置。超限、包含 JavaScript 或其他不支持的文件、由 Git 触发的部署仍走原来的构建流程；带框架预设、自定义构建设置、根目录 package.json、vercel.json 或 public 目录的项目同样走构建。",
+      why: "为什么值得关注：agent 生成的报告、活动落地页、课件附件这类「纯静态 + 样式图片」产物，过去要么手动配构建，要么等一次完整构建。现在可以秒级发布。边界很清楚：一旦有 JS 就不适用，本站这类带交互脚本的页面仍会正常构建；100 文件与 25MB 也是硬限制，图集类站点要提前压缩。",
+      sourceLabel: "Vercel Changelog",
+      sourceUrl: "https://vercel.com/changelog/single-second-static-deployments-now-support-more-assets",
+      articleIdea: "已扩写：Vercel 11 月变更清单"
+    },
+    {
+      date: "2026-11-17",
+      tag: "研发协作",
+      title: "GitHub Event Streams 预览：订阅 PR 后保持长连接，笔记本上的 agent 也能收事件",
+      summary: "GitHub 推出 Event Streams 预览，把平台变成开发者、agent 与自动化之间的实时协调层。使用方式是订阅某个 Pull Request，然后与 GitHub 保持连接接收事件，触发时机包括：评审提交、新提交推送、出现合并冲突、PR 被合并或关闭、检查套件发生变化、单个检查套件状态变化（每个套件一个事件）。不需要公网 webhook 端点，因此 agent 跑在本地笔记本上也能收到事件。官方给出的收益是：没活时 agent 休眠、有活立刻唤醒，反馈到动作的回路更快，浪费的 token 与 rate limit 更少，也不用自建轮询循环。需在 waitlist 通过后使用，所有套餐都可申请。",
+      why: "为什么值得关注：轮询的两难终于有解——poll 太密烧配额，poll 太疏评审干等。事件流把这两头都去掉，而且不要求暴露公网端点，这对内网与个人开发机是关键。注意它目前是预览且需排队，事件粒度按检查套件拆分，写消费端时要按套件聚合，否则会被大量事件刷屏。",
+      sourceLabel: "GitHub Changelog",
+      sourceUrl: "https://github.blog/changelog/2026-11-17-github-event-streams-is-now-in-preview/",
+      articleIdea: "已扩写：事件驱动的 agent 循环"
+    },
+    {
+      date: "2026-11-17",
+      tag: "安全",
+      title: "Copilot 安全评审接入 secret scanning：合并前按需扫密钥，四个入口各自开关",
+      summary: "Copilot 的 security review 专家现在可以在 LLM 评审之外，同时运行 GitHub 的 secret scanning 检测器，覆盖 500 多种密钥类型（来自 150 多家合作伙伴的模式库），并用 GitHub 微调模型识别没有固定格式的凭据，例如连接串里的口令。它只检查本次变更，不搜索仓库历史。默认关闭，需要按工具分别开启：Copilot CLI 在交互会话里运行 /settings aiSecretDetection on；Copilot 应用在 Settings 的 Experimental 里打开 AI secret detection；Copilot SDK 创建会话时把 SECURITY_REVIEW_FINE_TUNED_MODEL 特性标志设为 true；Copilot code review 在仓库 Settings 的 Copilot、Code review、Security 下打开 Secret scanning。开启后通过 security-review 专家或 /security-review 触发。能用安全评审或代码评审的套餐即可使用，不需额外套餐，扫描按 Secret Protection AI Credit 计费。",
+      why: "为什么值得关注：密钥治理终于能前移到「写完还没合并」这一刻，而不是等推送后由平台告警。尤其适合 agent 大量改代码的场景。三个边界要记住：默认关闭，四个入口互不共享开关；只看变更、不查历史，历史泄露仍要靠仓库级扫描；扫描消耗 AI credits，把它挂到每次自动评审上要提前估用量。",
+      sourceLabel: "GitHub Changelog",
+      sourceUrl: "https://github.blog/changelog/2026-11-17-secret-scanning-on-demand-for-developers-and-agents/",
+      articleIdea: "已扩写：密钥检测前移"
+    },
+    {
+      date: "2026-11-17",
+      tag: "AI 编程",
+      title: "MAI Code 2 与 MAI Code 2 Flash 进入 Copilot：Flash 覆盖免费与学生套餐",
+      summary: "微软新一代 MAI 编码模型进入 GitHub Copilot。MAI Code 2 定位通用编码主力，面向深度调试、多文件实现、重构与仓库级推理，强调减少无谓来回；MAI Code 2 Flash 是轻量、低成本版本，适合代码解释、定点修改、常规修复与快速迭代。两者都为 agentic 工作流设计，按量计费。可用范围：MAI Code 2 面向 Copilot Pro、Pro+、Max、Business、Enterprise；MAI Code 2 Flash 额外覆盖 Free 与 Student。两者对符合条件的年度订阅用户开放，可在 VS Code、Visual Studio、Copilot CLI、cloud agent、Copilot 应用、github.com、GitHub Mobile、JetBrains、Xcode、Eclipse 的模型选择器里选。企业与商业版管理员通过模型策略管理，默认启用策略下新模型自动开启，除非关掉全局默认或显式禁用。",
+      why: "为什么值得关注：免费与学生用户终于有一个明确面向编码的新模型可选，日常解释与小修改不必挤占重模型额度。选型上建议按任务分：仓库级重构交给 Code 2，解释与定点修改交给 Flash。要注意年度订阅这一条件，以及企业默认启用策略会让新模型自动出现在用户的选择器里。",
+      sourceLabel: "GitHub Changelog",
+      sourceUrl: "https://github.blog/changelog/2026-11-17-mai-code-2-and-mai-code-2-flash-in-github-copilot/",
+      articleIdea: "候选：轻重模型分工与额度"
+    },
+    {
+      date: "2026-11-17",
+      tag: "AI 编程",
+      title: "Copilot Evals 公测：给技能、自定义 agent 与 MCP 工具做可重复回归测试",
+      summary: "GitHub Copilot Evals 进入公开预览，用来回答「改了提示词、模型、技能或工具之后，效果到底变好还是变差」。eval 是对 AI 行为的可重复测试：给 agent 一个真实任务，描述什么算好结果，然后同时检查结果与达成过程。可以用自然语言或 /eval 命令为项目里的技能、自定义 agent、MCP 工具创建 eval，运行前需逐次批准，运行后查看哪些检查通过或失败、失败原因，并对比改动前后的运行结果。评估引擎使用可扩展的本地工具 Vally。安装方式：VS Code 装 Copilot Evals 扩展；Copilot CLI 装对应插件；Copilot 应用在 Customize 里添加 github/evals 市场后安装。面向 Copilot Individual、Business、Enterprise 套餐。",
+      why: "为什么值得关注：自定义技能与 MCP 工具越来越多，但大多数人改完只试一次就下结论，AI 输出的随机性会让这种判断失真。Evals 把「一次好答案」变成「可重复的行为检查」，正好补上回归这一环。注意每次运行要人工批准，适合当变更门禁而不是无人值守跑批；引擎在本地，任务与数据边界要自己确认。",
+      sourceLabel: "GitHub Changelog",
+      sourceUrl: "https://github.blog/changelog/2026-11-17-github-copilot-evals-is-now-in-public-preview/",
+      articleIdea: "候选：给 agent 定制做回归"
+    },
+    {
+      date: "2026-11-17",
+      tag: "AI 编程",
+      title: "JetBrains 版 Copilot 大更新：云沙箱、远程访问、浏览器操作与本地语音，2025.2 停止支持",
+      summary: "GitHub Copilot for JetBrains 在 Ignite 期间发布多项能力：云沙箱（公开预览）把会话放到 GitHub 托管的隔离环境里改代码、跑命令与测试，释放本地资源并支持并行会话；远程访问（公开预览）让 JetBrains 里的会话可在 VS Code、Copilot 应用等其他客户端继续；浏览器操作（公开预览）配合 Chrome 扩展打开网页、读取内容并与链接、按钮、表单交互，需在 GitHub Copilot、Chat 里启用 Browser Use；本地语音听写（公开预览）在启用 Editor Preview 的原生插件包上可用，转写先作为可编辑草稿、确认后才发送；并支持 split mode 远程开发，本地跑 UI、远端跑 Copilot 操作，两端都要装插件。企业托管设置现在默认禁用 Claude 与 Codex，除非管理员策略允许例外。代码评审改用 Copilot agent 评审引擎，Maven 依赖漏洞自动检查恢复。JetBrains IDE 2025.2 支持已结束，需升级到 2025.3 或更高，官方推荐 2026.2 以上。",
+      why: "为什么值得关注：JetBrains 用户过去在 agent 能力上落后于 VS Code，这次基本补齐，云沙箱与远程访问让「一台机器起会话、另一台接着看」成为可能。两个坑：企业策略默认禁用 Claude 与 Codex，升级后模型突然消失多半是策略而非故障；2025.2 已停止支持，不升 IDE 就收不到后续更新。",
+      sourceLabel: "GitHub Changelog",
+      sourceUrl: "https://github.blog/changelog/2026-11-17-github-copilot-in-jetbrains-ignite-releases/",
+      articleIdea: "候选：JetBrains 侧 agent 能力对齐"
+    },
+    {
+      date: "2026-11-17",
+      tag: "DevOps",
+      title: "Vercel 原生 lint 与 typecheck 部署检查 11 月 30 日移除：要提前迁到 CI",
+      summary: "Vercel 宣布弃用原生 lint 与 typecheck Deployment Checks。这类检查此前在 Vercel 上与部署构建并行运行仓库的 lint 与类型检查任务，现在不能再新增，已有检查会继续运行到 2026 年 11 月 30 日被移除。其他 Deployment Checks，以及已经在 GitHub Actions 或 Build Command 里运行的命令不受影响。受影响项在项目 Build and Deployment 设置里显示为 provider 是 Vercel 的 Lint 或 Typecheck 条目，需要在移除前把命令迁走；对会阻塞生产发布的检查，还要确认新流程如何处理失败。也可以把命令放进 Build Command，但会增加构建时间，且出错会导致部署构建失败。官方建议迁到 Vercel CI 或自有 CI。",
+      why: "为什么值得关注：只剩九天窗口，而且失败方式很隐蔽——检查被移除后不会报错，只是悄悄不再拦，质量门禁静默消失。正确做法是先盘点哪些项目依赖它挡生产发布，再决定迁到 Vercel CI、GitHub Actions 还是 Build Command，并显式验证失败时确实会阻断。",
+      sourceLabel: "Vercel Changelog",
+      sourceUrl: "https://vercel.com/changelog/native-lint-and-typecheck-deployment-checks-are-being-deprecated",
+      articleIdea: "已扩写：Vercel 11 月变更清单"
+    },
+    {
+      date: "2026-11-17",
+      tag: "云端部署",
+      title: "Vercel 新建团队不再赠送 Standard 构建位：改为按构建分钟计费",
+      summary: "从 11 月 17 日起，新建的 Pro 与 Enterprise 团队不再包含 Standard 构建位，Standard 构建与其他构建机一样纳入按量计费。Pro 的 Standard 构建价格为每构建分钟 0.014 美元，月度用量额度可用于抵扣构建用量；Enterprise 按合同价。对受影响团队，从 Elastic 切回 Standard 后同样计费。构建机可在团队设置或项目设置里选择。",
+      why: "为什么值得关注：这条变更只影响新团队，容易被忽略，但会改变成本模型的默认假设——过去「Standard 免费兜底」的策略不再成立。构建时间长的 monorepo 尤其敏感：一次 20 分钟构建就是 0.28 美元，每天几十次很快累积。建议新团队上线前先估算构建分钟，再决定构建机档位与缓存策略。",
+      sourceLabel: "Vercel Changelog",
+      sourceUrl: "https://vercel.com/changelog/standard-build-billing-new-teams",
+      articleIdea: "候选：构建成本与缓存策略"
+    },
+    {
+      date: "2026-11-16",
+      tag: "云端部署",
+      title: "Vercel 预算管理细化到项目、产品与组织：项目超预算可只暂停自己",
+      summary: "Vercel Spend Management 在团队预算之外，新增项目、产品与组织三级预算。项目预算跟踪单个项目花费，并可在达到预算时暂停该项目的生产部署，不影响其他项目；产品预算跟踪某一项产品（如 Fast Data Transfer）在整个团队的花费；组织预算覆盖组织内所有团队，面向 Enterprise Flexible Commitment 套餐。只有团队与项目预算支持自动暂停生产部署。预算达到 50%、75%、100% 时发送通知。可用 CLI 管理：vercel billing budgets list 列出，set 配合 --project、--product、--organization 与 --amount 设置，--pause 开启到点暂停。Spend Management 对 Pro 团队与 Flexible Commitment 的 Enterprise 团队不额外收费。",
+      why: "为什么值得关注：AI 应用的费用常常集中在个别项目或某一项产品上，只有团队级预算时，要么全体一起被暂停，要么完全失控。项目级预算加自动暂停，把爆炸半径限制在一个项目内。注意产品与组织预算只告警不暂停，别误以为设了就会自动止损；组织级还要求特定套餐。",
+      sourceLabel: "Vercel Changelog",
+      sourceUrl: "https://vercel.com/changelog/set-budgets-for-projects-and-products-in-spend-management",
+      articleIdea: "候选：AI 应用的费用爆炸半径"
+    },
     {
       date: "2026-11-13",
       tag: "AI 编程",

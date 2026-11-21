@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://cdn.jsdelivr.net">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;800&family=Noto+Serif+SC:wght@700;900&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/styles.css?v=20261115-daily-update">
+  <link rel="stylesheet" href="assets/styles.css?v=20261121-daily-update">
 </head>
 <body>
   <header class="site-header">
@@ -69,6 +69,74 @@
       <div class="content-grid" data-post-list>
         <!-- STATIC_POSTS_START -->
 <article class="article-card reveal">
+      <a class="article-card__media article-card__media--github" href="articles/github-event-streams-agent-loop-guide.html">
+        <span class="article-card__badge">推荐</span>
+        <span class="article-card__icon"><img class="visual-icon visual-icon--card" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="研发协作 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <strong>研发协作</strong>
+      </a>
+      <div class="article-card__body">
+        <div class="meta-row">
+          <span>研发协作</span>
+          <span>11 分钟</span>
+          <time datetime="2026-11-21">2026年11月21日</time>
+        </div>
+        <h3><a href="articles/github-event-streams-agent-loop-guide.html">告别轮询：用 Event Streams 与 gh event listen 搭事件驱动的 agent 循环</a></h3>
+        <p>11 月 17 日 GitHub 推出 Event Streams 预览，11 月 18 日 GitHub CLI v2.105.0 跟上 gh event listen：订阅一个 PR、保持长连接，评审提交、新提交、合并冲突、检查套件变化都会推过来，不需要公网 webhook。这篇教程讲清事件模型、命令用法、脚本封装、失败与超时处理，以及从轮询迁移的顺序。</p>
+      </div>
+    </article>
+
+    <article class="article-card reveal">
+      <a class="article-card__media article-card__media--github" href="articles/copilot-secret-scanning-shift-left-guide.html">
+        <span class="article-card__badge">安全</span>
+        <span class="article-card__icon"><img class="visual-icon visual-icon--card" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="安全 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <strong>安全</strong>
+      </a>
+      <div class="article-card__body">
+        <div class="meta-row">
+          <span>安全</span>
+          <span>10 分钟</span>
+          <time datetime="2026-11-21">2026年11月21日</time>
+        </div>
+        <h3><a href="articles/copilot-secret-scanning-shift-left-guide.html">把密钥检测前移：Copilot 安全评审接入 secret scanning 的四端落地</a></h3>
+        <p>11 月 17 日起，Copilot 的 security-review 可以在 LLM 评审之外运行 GitHub secret scanning：500 多种密钥模式加一个微调模型，只检查本次变更。默认关闭，CLI、应用、SDK、代码评审四个入口各自开关。这篇教程讲清怎么开、怎么触发、检出后怎么处置，以及它与仓库级扫描的分工。</p>
+      </div>
+    </article>
+
+    <article class="article-card reveal">
+      <a class="article-card__media article-card__media--github" href="articles/github-security-advisory-least-privilege-guide.html">
+        <span class="article-card__badge">安全</span>
+        <span class="article-card__icon"><img class="visual-icon visual-icon--card" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="安全 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <strong>安全</strong>
+      </a>
+      <div class="article-card__body">
+        <div class="meta-row">
+          <span>安全</span>
+          <span>10 分钟</span>
+          <time datetime="2026-11-21">2026年11月21日</time>
+        </div>
+        <h3><a href="articles/github-security-advisory-least-privilege-guide.html">安全公告权限最小化：用自定义仓库角色替代管理员授权</a></h3>
+        <p>11 月 20 日 GitHub 把安全公告权限转为正式可用：查看、创建编辑管理、接收私密报告、发布并申请 CVE 四项权限可以放进自定义仓库角色，只分配到需要的仓库。这篇教程讲清权限依赖关系、三个仍然受限的动作、角色设计方法，以及漏洞响应流程怎么按新权限重排。</p>
+      </div>
+    </article>
+
+    <article class="article-card reveal">
+      <a class="article-card__media article-card__media--github" href="articles/vercel-november-changes-migration-guide.html">
+        <span class="article-card__badge">云端部署</span>
+        <span class="article-card__icon"><img class="visual-icon visual-icon--card" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/docker/docker-original.svg" alt="云端部署 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <strong>云端部署</strong>
+      </a>
+      <div class="article-card__body">
+        <div class="meta-row">
+          <span>云端部署</span>
+          <span>11 分钟</span>
+          <time datetime="2026-11-21">2026年11月21日</time>
+        </div>
+        <h3><a href="articles/vercel-november-changes-migration-guide.html">Vercel 11 月变更清单：20MiB 请求体、Priority、秒级部署与两处退役</a></h3>
+        <p>11 月 16 日到 20 日，Vercel 连发六条变更：三级预算、Standard 构建按量计费、lint/typecheck 检查 11 月 30 日移除、秒级静态部署支持更多资源、Priority Projects 公测、Functions 请求体上限 20MiB。这篇教程按「先止损、再优化、后升级」的顺序给出迁移与验收清单，重点讲清哪些改动有硬期限、哪些会静默改变行为。</p>
+      </div>
+    </article>
+
+    <article class="article-card reveal">
       <a class="article-card__media article-card__media--ai" href="articles/copilot-model-deprecation-december-migration-guide.html">
         <span class="article-card__badge">推荐</span>
         <span class="article-card__icon"><img class="visual-icon visual-icon--card" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="AI 编程 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
@@ -1956,6 +2024,6 @@
     </div>
   </footer>
 
-  <script src="assets/app.js?v=20261115-daily-update"></script>
+  <script src="assets/app.js?v=20261121-daily-update"></script>
 </body>
 </html>

@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>网安英语打字防线 · 学习资源库小游戏</title>
+<meta name="description" content="网络安全英语词汇打字游戏：英文单词从上方落下，输入正确即可拦截，守住防线。三档难度、连击加成、波次加速，结束后回顾本局词汇与中文释义，记录本地最佳分。">
+<meta name="robots" content="noindex,follow">
+<link rel="icon" type="image/png" href="../assets/images/brand-book-line.png">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700&family=Space+Grotesk:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#070c0f; --panel:#0d151a; --line:#1b2b33;
+    --cyan:#22d3ee; --cyan-dim:#0e5f70; --green:#34d399;
+    --amber:#fbbf24; --red:#f87171; --text:#cbe9f2; --muted:#5d7d8a;
+  }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body {
+    background:radial-gradient(circle at 50% 0%,#0d1c23 0%,var(--bg) 62%);
+    color:var(--text); font-family:'Space Grotesk','Noto Sans SC',monospace;
+    min-height:100vh; display:flex; flex-direction:column; align-items:center;
+    padding:20px 14px 40px;
+  }
+  .topbar { width:100%; max-width:640px; display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
+  .topbar a { color:var(--muted); text-decoration:none; font-size:.85rem; }
+  .topbar a:hover { color:var(--cyan); }
+  .topbar .title { color:var(--cyan); font-weight:700; letter-spacing:1px; }
+  .panel {
+    width:100%; max-width:640px; background:var(--panel);
+    border:1px solid var(--line); border-radius:14px; padding:18px;
+    box-shadow:0 0 40px rgba(34,211,238,.06);
+  }
+  .hud { display:flex; flex-wrap:wrap; gap:10px 18px; justify-content:space-between; font-size:.8rem; color:var(--muted); margin-bottom:12px; }
+  .hud strong { color:var(--cyan); font-size:1rem; margin-left:4px; }
+  .hud .lives strong { color:var(--red); letter-spacing:2px; }
+  .hud .combo strong { color:var(--amber); }
+  .arena {
+    position:relative; height:min(56vh,400px); min-height:280px;
+    background:
+      linear-gradient(rgba(34,211,238,.05) 1px,transparent 1px) 0 0/100% 28px,
+      linear-gradient(90deg,rgba(34,211,238,.05) 1px,transparent 1px) 0 0/28px 100%,
+      #081115;
+    border:1px solid var(--line); border-radius:12px; overflow:hidden;
+  }
+  .defense {
+    position:absolute; left:0; right:0; bottom:0; height:26px;
+    display:flex; align-items:center; justify-content:center;
+    background:linear-gradient(180deg,rgba(34,211,238,.08),rgba(34,211,238,.22));
+    border-top:2px solid var(--cyan-dim);
+    font-size:.66rem; letter-spacing:3px; color:var(--cyan); opacity:.85;
+  }
+  .defense.hit { background:linear-gradient(180deg,rgba(248,113,113,.15),rgba(248,113,113,.4)); border-top-color:var(--red); color:#fecaca; }
+  .word {
+    position:absolute; top:0; left:0; will-change:transform;
+    background:#0b1a20; border:1px solid var(--line); border-radius:9px;
+    padding:6px 10px; text-align:center; line-height:1.25; white-space:nowrap;
+  }
+  .word .en { font-size:.95rem; font-weight:700; color:var(--text); letter-spacing:.5px; }
+  .word .en i { font-style:normal; color:var(--muted); }
+  .word .en i.hit { color:var(--green); }
+  .word .cn { display:block; font-size:.66rem; color:var(--muted); margin-top:2px; }
+  .word.locked { border-color:var(--cyan); background:#0e2430; box-shadow:0 0 0 1px rgba(34,211,238,.35); }
+  .word.locked .cn { color:var(--cyan); }
+  .word.pop { border-color:var(--green); background:rgba(52,211,153,.16); }
+  .word.miss { border-color:var(--red); background:rgba(248,113,113,.16); }
+  .overlay {
+    position:absolute; inset:0; background:rgba(7,12,15,.94);
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:10px; padding:18px; text-align:center; overflow-y:auto;
+  }
+  .overlay[hidden] { display:none; }
+  .overlay .kicker { color:var(--cyan); font-size:.72rem; letter-spacing:3px; font-weight:700; }
+  .overlay h1 { font-size:1.3rem; color:var(--text); }
+  .overlay h2 { font-size:1.15rem; color:var(--text); }
+  .overlay p { font-size:.82rem; color:var(--muted); line-height:1.7; max-width:440px; }
+  .overlay .big { font-size:2.4rem; color:var(--amber); font-weight:700; }
+  .overlay .big small { font-size:.85rem; color:var(--muted); font-weight:400; margin-left:4px; }
+  .diff-row { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; }
+  .diff {
+    background:#0b1a20; border:1px solid var(--line); color:var(--muted);
+    border-radius:999px; padding:7px 16px; font-family:inherit; font-size:.8rem; cursor:pointer;
+  }
+  .diff:hover { border-color:var(--cyan-dim); color:var(--text); }
+  .diff.on { border-color:var(--cyan); color:var(--cyan); background:#0e2430; }
+  .stats-row { display:flex; flex-wrap:wrap; gap:8px 16px; justify-content:center; font-size:.78rem; color:var(--muted); }
+  .stats-row strong { color:var(--cyan); }
+  .vocab { width:100%; max-width:460px; max-height:150px; overflow-y:auto; display:flex; flex-direction:column; gap:6px; text-align:left; }
+  .vocab div { background:#0b1a20; border:1px solid var(--line); border-radius:8px; padding:7px 10px; font-size:.78rem; }
+  .vocab b { color:var(--green); font-weight:700; margin-right:8px; }
+  .vocab span { color:var(--muted); }
+  .type-row { display:flex; gap:10px; margin-top:14px; }
+  #typeInput {
+    flex:1; min-width:0; background:#081115; border:1px solid var(--line); border-radius:10px;
+    padding:12px 14px; color:var(--green); font-family:inherit; font-size:1rem; letter-spacing:1px;
+  }
+  #typeInput:focus { outline:none; border-color:var(--cyan); box-shadow:0 0 0 2px rgba(34,211,238,.15); }
+  #typeInput.bad { border-color:var(--red); color:var(--red); }
+  #typeInput::placeholder { color:#3d5a66; letter-spacing:0; }
+  .btn {
+    background:transparent; color:var(--cyan); border:1px solid var(--cyan);
+    border-radius:9px; padding:10px 20px; font-family:inherit; font-size:.88rem;
+    font-weight:700; cursor:pointer; letter-spacing:1px; white-space:nowrap;
+  }
+  .btn:hover { background:var(--cyan); color:#04161c; }
+  .btn--ghost { border-color:var(--line); color:var(--muted); }
+  .btn--ghost:hover { background:transparent; color:var(--cyan); border-color:var(--cyan); }
+  .actions { display:flex; flex-wrap:wrap; gap:10px; justify-content:center; }
+  .hint { font-size:.74rem; color:var(--muted); margin-top:10px; line-height:1.6; }
+  .note { font-size:.7rem; color:#41606c; margin-top:8px; line-height:1.6; }
+  .sr-only { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
+  @media (max-width:520px) {
+    .arena { height:min(48vh,340px); }
+    .word .en { font-size:.86rem; }
+    .hud { font-size:.74rem; gap:6px 12px; }
+    .btn { padding:10px 14px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .word, .defense, #typeInput { transition:none !important; animation:none !important; }
+  }
+</style>
+</head>
+<body>
+  <div class="topbar">
+    <a href="../games.html">← 游戏中心</a>
+    <span class="title">TYPE.DEFENSE</span>
+    <a href="../index.html">回首页</a>
+  </div>
+
+  <div class="panel">
+    <div class="hud">
+      <span>分数<strong id="score">0</strong></span>
+      <span class="combo">连击<strong id="combo">0</strong></span>
+      <span>波次<strong id="wave">1</strong></span>
+      <span>词数<strong id="cleared">0</strong></span>
+      <span class="lives">防线<strong id="lives">●●●</strong></span>
+    </div>
+
+    <div class="arena" id="arena">
+      <div class="defense" id="defense"><span>DEFENSE LINE</span></div>
+      <div class="overlay" id="overlay"></div>
+    </div>
+
+    <div class="type-row">
+      <label class="sr-only" for="typeInput">输入下落的英文单词</label>
+      <input id="typeInput" type="text" placeholder="在这里输入下落的英文单词…" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" inputmode="latin" disabled>
+      <button class="btn btn--ghost" id="pauseBtn" type="button" disabled>暂停</button>
+    </div>
+    <p class="hint">输入完整单词即可拦截，无需回车；空格清空当前输入，Esc 取消锁定；输错会打断连击统计但不扣防线。</p>
+    <p class="note">词汇取自网络安全常用英文术语，用于学习与自测；本游戏不包含任何真实攻击操作。</p>
+    <p class="sr-only" id="live" aria-live="polite"></p>
+  </div>
+
+<script>
+(function(){
+  var WORDS = [
+    { w:'hash', g:'哈希', t:1 }, { w:'salt', g:'盐值', t:1 }, { w:'token', g:'令牌', t:1 },
+    { w:'patch', g:'补丁', t:1 }, { w:'audit', g:'审计', t:1 }, { w:'cipher', g:'密码算法', t:1 },
+    { w:'backup', g:'备份', t:1 }, { w:'malware', g:'恶意软件', t:1 }, { w:'risk', g:'风险', t:1 },
+    { w:'logs', g:'日志', t:1 }, { w:'port', g:'端口', t:1 }, { w:'vault', g:'密钥库', t:1 },
+    { w:'proxy', g:'代理', t:1 }, { w:'spoof', g:'伪造', t:1 }, { w:'alert', g:'告警', t:1 },
+    { w:'scan', g:'扫描', t:1 }, { w:'admin', g:'管理员', t:1 }, { w:'shell', g:'命令行', t:1 },
+    { w:'virus', g:'病毒', t:1 }, { w:'worm', g:'蠕虫', t:1 }, { w:'spam', g:'垃圾邮件', t:1 },
+    { w:'trust', g:'信任', t:1 }, { w:'nonce', g:'一次性随机数', t:1 }, { w:'cert', g:'证书', t:1 },
+    { w:'phish', g:'钓鱼', t:1 }, { w:'key', g:'密钥', t:1 }, { w:'root', g:'超级用户', t:1 },
+    { w:'firewall', g:'防火墙', t:1 }, { w:'exploit', g:'利用代码', t:2 }, { w:'payload', g:'载荷', t:2 },
+    { w:'sandbox', g:'沙箱', t:2 }, { w:'encrypt', g:'加密', t:2 }, { w:'decrypt', g:'解密', t:2 },
+    { w:'session', g:'会话', t:2 }, { w:'cookie', g:'会话凭据', t:2 }, { w:'header', g:'请求头', t:2 },
+    { w:'inject', g:'注入', t:2 }, { w:'bypass', g:'绕过', t:2 }, { w:'kernel', g:'内核', t:2 },
+    { w:'socket', g:'套接字', t:2 }, { w:'tunnel', g:'隧道', t:2 }, { w:'gateway', g:'网关', t:2 },
+    { w:'botnet', g:'僵尸网络', t:2 }, { w:'triage', g:'分级处置', t:2 }, { w:'hotfix', g:'热修复', t:2 },
+    { w:'rollback', g:'回滚', t:2 }, { w:'lockfile', g:'依赖锁文件', t:2 }, { w:'registry', g:'制品仓库', t:2 },
+    { w:'phishing', g:'钓鱼攻击', t:2 }, { w:'backdoor', g:'后门', t:2 }, { w:'rootkit', g:'内核级后门', t:2 },
+    { w:'keylogger', g:'键盘记录器', t:2 }, { w:'honeypot', g:'蜜罐', t:2 }, { w:'isolation', g:'隔离', t:2 },
+    { w:'telemetry', g:'遥测数据', t:2 }, { w:'allowlist', g:'允许清单', t:2 }, { w:'denylist', g:'拒绝清单', t:2 },
+    { w:'checksum', g:'校验和', t:2 }, { w:'signature', g:'签名', t:2 }, { w:'immutable', g:'不可变', t:2 },
+    { w:'quarantine', g:'隔离区', t:2 }, { w:'throttling', g:'限流', t:2 }, { w:'hardening', g:'安全加固', t:2 },
+    { w:'revocation', g:'吊销', t:2 }, { w:'containment', g:'遏制', t:2 }, { w:'ransomware', g:'勒索软件', t:2 },
+    { w:'vulnerability', g:'漏洞', t:3 }, { w:'authentication', g:'身份认证', t:3 },
+    { w:'authorization', g:'授权校验', t:3 }, { w:'cryptography', g:'密码学', t:3 },
+    { w:'obfuscation', g:'混淆', t:3 }, { w:'persistence', g:'持久化', t:3 },
+    { w:'escalation', g:'权限提升', t:3 }, { w:'enumeration', g:'枚举', t:3 },
+    { w:'exfiltration', g:'数据外带', t:3 }, { w:'deserialization', g:'反序列化', t:3 },
+    { w:'attestation', g:'可信证明', t:3 }, { w:'provenance', g:'来源证明', t:3 },
+    { w:'remediation', g:'修复处置', t:3 }, { w:'segmentation', g:'网络分段', t:3 },
+    { w:'observability', g:'可观测性', t:3 }, { w:'impersonation', g:'身份冒充', t:3 },
+    { w:'reconnaissance', g:'侦察', t:3 }, { w:'mitigation', g:'缓解措施', t:3 },
+    { w:'credential', g:'凭据', t:3 }, { w:'forensics', g:'取证分析', t:3 }
+  ];
+
+  var DIFF = {
+    easy:   { label:'基础', speed:26, spawn:2200, max:5, tiers:[1] },
+    normal: { label:'进阶', speed:38, spawn:1750, max:6, tiers:[1,2] },
+    hard:   { label:'实战', speed:50, spawn:1350, max:7, tiers:[2,3] }
+  };
+  var BEST_KEY = 'typeDefenseBest';
+  var LINE_H = 26;
+
+  var arena = document.getElementById('arena');
+  var defense = document.getElementById('defense');
+  var overlay = document.getElementById('overlay');
+  var input = document.getElementById('typeInput');
+  var pauseBtn = document.getElementById('pauseBtn');
+  var live = document.getElementById('live');
+  var scoreEl = document.getElementById('score');
+  var comboEl = document.getElementById('combo');
+  var waveEl = document.getElementById('wave');
+  var clearedEl = document.getElementById('cleared');
+  var livesEl = document.getElementById('lives');
+  var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  var diffKey = 'normal';
+  var running = false, paused = false;
+  var words = [], target = null, lastValid = '';
+  var score = 0, combo = 0, bestCombo = 0, lives = 3, wave = 1, cleared = 0;
+  var keys = 0, goodKeys = 0, clearedChars = 0, elapsed = 0, spawnAcc = 0;
+  var learned = [], rafId = 0, lastTs = 0;
+
+  function readBest(){
+    try { return Number(localStorage.getItem(BEST_KEY)) || 0; } catch (e) { return 0; }
+  }
+  function writeBest(v){
+    try { localStorage.setItem(BEST_KEY, String(v)); } catch (e) {}
+  }
+  function say(text){ live.textContent = text; }
+
+  function multiplier(){
+    return Math.min(3, 1 + Math.floor(combo / 5) * 0.5);
+  }
+  function updateHud(){
+    scoreEl.textContent = String(score);
+    comboEl.textContent = String(combo);
+    waveEl.textContent = String(wave);
+    clearedEl.textContent = String(cleared);
+    livesEl.textContent = lives > 0 ? new Array(lives + 1).join('●') : '—';
+  }
+
+  function pool(){
+    var tiers = DIFF[diffKey].tiers;
+    return WORDS.filter(function(item){ return tiers.indexOf(item.t) >= 0; });
+  }
+
+  function spawn(){
+    var candidates = pool().filter(function(item){
+      return !words.some(function(w){ return w.w === item.w; });
+    });
+    if (!candidates.length) return;
+    var item = candidates[Math.floor(Math.random() * candidates.length)];
+
+    var el = document.createElement('div');
+    el.className = 'word';
+    el.setAttribute('aria-hidden', 'true');
+    var en = document.createElement('span');
+    en.className = 'en';
+    var letters = [];
+    for (var i = 0; i < item.w.length; i++) {
+      var s = document.createElement('i');
+      s.textContent = item.w.charAt(i);
+      en.appendChild(s);
+      letters.push(s);
+    }
+    var cn = document.createElement('span');
+    cn.className = 'cn';
+    cn.textContent = item.g;
+    el.appendChild(en);
+    el.appendChild(cn);
+    arena.appendChild(el);
+
+    var width = el.offsetWidth;
+    var maxX = Math.max(4, arena.clientWidth - width - 4);
+    var x = 4, tries = 0, best = -1;
+    while (tries < 6) {
+      var candidateX = 4 + Math.random() * (maxX - 4);
+      var gap = words.reduce(function(min, w){
+        if (w.y > 70) return min;
+        return Math.min(min, Math.abs(w.x - candidateX));
+      }, 9999);
+      if (gap > best) { best = gap; x = candidateX; }
+      if (gap > width + 12) break;
+      tries++;
+    }
+
+    var word = { w:item.w, g:item.g, el:el, letters:letters, x:x, y:4, h:el.offsetHeight, width:width };
+    el.style.transform = 'translate(' + x + 'px,' + word.y + 'px)';
+    words.push(word);
+  }
+
+  function paint(word, typed){
+    for (var i = 0; i < word.letters.length; i++) {
+      if (i < typed) word.letters[i].classList.add('hit');
+      else word.letters[i].classList.remove('hit');
+    }
+  }
+
+  function removeWord(word, cls){
+    var idx = words.indexOf(word);
+    if (idx >= 0) words.splice(idx, 1);
+    if (target === word) { target = null; }
+    if (cls && !reduceMotion) {
+      word.el.classList.add(cls);
+      setTimeout(function(){ if (word.el.parentNode) word.el.parentNode.removeChild(word.el); }, 160);
+    } else if (word.el.parentNode) {
+      word.el.parentNode.removeChild(word.el);
+    }
+  }
+
+  function clearWord(word){
+    score += Math.round(word.w.length * 10 * multiplier());
+    combo += 1;
+    if (combo > bestCombo) bestCombo = combo;
+    cleared += 1;
+    clearedChars += word.w.length;
+    learned.push({ w:word.w, g:word.g });
+    if (cleared % 10 === 0) {
+      wave += 1;
+      say('第 ' + wave + ' 波，速度提升');
+    }
+    removeWord(word, 'pop');
+    updateHud();
+  }
+
+  function breach(word){
+    lives -= 1;
+    combo = 0;
+    removeWord(word, 'miss');
+    defense.classList.add('hit');
+    setTimeout(function(){ defense.classList.remove('hit'); }, 260);
+    say('防线被突破，剩余 ' + Math.max(0, lives) + ' 层');
+    updateHud();
+    if (lives <= 0) gameOver();
+  }
+
+  function loop(ts){
+    rafId = requestAnimationFrame(loop);
+    if (!running) return;
+    var dt = Math.min((ts - lastTs) / 1000, 0.05);
+    lastTs = ts;
+    if (paused) return;
+
+    elapsed += dt;
+    var cfg = DIFF[diffKey];
+    var interval = Math.max(700, cfg.spawn - (wave - 1) * 90);
+    spawnAcc += dt * 1000;
+    if (spawnAcc >= interval && words.length < cfg.max) {
+      spawnAcc = 0;
+      spawn();
+    }
+
+    var speed = cfg.speed + (wave - 1) * 4;
+    var limit = arena.clientHeight - LINE_H;
+    for (var i = words.length - 1; i >= 0; i--) {
+      var word = words[i];
+      word.y += speed * dt;
+      word.el.style.transform = 'translate(' + word.x + 'px,' + word.y + 'px)';
+      if (word.y + word.h >= limit) breach(word);
+    }
+  }
+
+  function releaseTarget(){
+    if (target) {
+      target.el.classList.remove('locked');
+      paint(target, 0);
+      target = null;
+    }
+  }
+
+  function resetInput(){
+    lastValid = '';
+    input.value = '';
+    input.classList.remove('bad');
+    releaseTarget();
+  }
+
+  function onInput(){
+    if (!running || paused) { input.value = lastValid; return; }
+    var raw = input.value.toLowerCase().replace(/[^a-z]/g, '');
+    if (raw.length > lastValid.length) {
+      var added = raw.length - lastValid.length;
+      keys += added;
+      var matches = raw.length > 0 && words.some(function(w){ return w.w.indexOf(raw) === 0; });
+      if (matches) goodKeys += added;
+    }
+    if (raw === '') { resetInput(); return; }
+
+    var next = null;
+    if (target && words.indexOf(target) >= 0 && target.w.indexOf(raw) === 0) {
+      next = target;
+    } else {
+      var cands = words.filter(function(w){ return w.w.indexOf(raw) === 0; });
+      cands.sort(function(a, b){ return b.y - a.y; });
+      next = cands[0] || null;
+    }
+
+    if (!next) {
+      input.value = lastValid;
+      input.classList.add('bad');
+      combo = 0;
+      updateHud();
+      setTimeout(function(){ input.classList.remove('bad'); }, 200);
+      return;
+    }
+
+    input.classList.remove('bad');
+    if (target && target !== next) {
+      target.el.classList.remove('locked');
+      paint(target, 0);
+    }
+    target = next;
+    target.el.classList.add('locked');
+    paint(target, raw.length);
+    lastValid = raw;
+    input.value = raw;
+
+    if (raw === target.w) {
+      var done = target;
+      resetInput();
+      clearWord(done);
+    }
+  }
+
+  function showStart(){
+    running = false;
+    paused = false;
+    input.disabled = true;
+    pauseBtn.disabled = true;
+    var best = readBest();
+    overlay.hidden = false;
+    overlay.innerHTML =
+      '<p class="kicker">TYPE.DEFENSE</p>' +
+      '<h1>网安英语打字防线</h1>' +
+      '<p>安全术语会从上方落下，输入完整英文单词即可拦截。漏掉一个扣一层防线，三层用完本局结束。每拦截 10 个词进入下一波，速度更快。</p>' +
+      '<div class="diff-row" id="diffRow"></div>' +
+      '<p>连击每满 5 个提升倍率，最高 3 倍；输错只打断连击，不扣防线。</p>' +
+      '<div class="actions"><button class="btn" id="startBtn" type="button">开始防守</button></div>' +
+      '<p>历史最佳：<strong style="color:var(--amber)">' + (best > 0 ? best + ' 分' : '暂无记录') + '</strong></p>';
+
+    var row = document.getElementById('diffRow');
+    Object.keys(DIFF).forEach(function(key){
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'diff' + (key === diffKey ? ' on' : '');
+      b.textContent = DIFF[key].label;
+      b.onclick = function(){
+        diffKey = key;
+        Array.prototype.forEach.call(row.children, function(child){ child.classList.remove('on'); });
+        b.classList.add('on');
+      };
+      row.appendChild(b);
+    });
+    document.getElementById('startBtn').onclick = start;
+  }
+
+  function start(){
+    words.slice().forEach(function(w){ removeWord(w); });
+    words = [];
+    target = null;
+    score = 0; combo = 0; bestCombo = 0; lives = 3; wave = 1; cleared = 0;
+    keys = 0; goodKeys = 0; clearedChars = 0; elapsed = 0; spawnAcc = 0;
+    learned = [];
+    updateHud();
+    overlay.hidden = true;
+    overlay.innerHTML = '';
+    input.disabled = false;
+    pauseBtn.disabled = false;
+    pauseBtn.textContent = '暂停';
+    resetInput();
+    running = true;
+    paused = false;
+    input.focus();
+    spawn();
+    lastTs = performance.now();
+    if (!rafId) rafId = requestAnimationFrame(loop);
+    say('开始防守，难度 ' + DIFF[diffKey].label);
+  }
+
+  function setPaused(next){
+    if (!running) return;
+    paused = next;
+    pauseBtn.textContent = paused ? '继续' : '暂停';
+    if (paused) {
+      overlay.hidden = false;
+      overlay.innerHTML =
+        '<p class="kicker">PAUSED</p>' +
+        '<h2>已暂停</h2>' +
+        '<p>当前 ' + score + ' 分 · 第 ' + wave + ' 波 · 剩余防线 ' + lives + ' 层</p>' +
+        '<div class="actions">' +
+          '<button class="btn" id="resumeBtn" type="button">继续</button>' +
+          '<button class="btn btn--ghost" id="quitBtn" type="button">结束本局</button>' +
+        '</div>';
+      document.getElementById('resumeBtn').onclick = function(){ setPaused(false); };
+      document.getElementById('quitBtn').onclick = gameOver;
+      input.blur();
+    } else {
+      overlay.hidden = true;
+      overlay.innerHTML = '';
+      lastTs = performance.now();
+      input.focus();
+    }
+  }
+
+  function gameOver(){
+    running = false;
+    paused = false;
+    input.disabled = true;
+    pauseBtn.disabled = true;
+    releaseTarget();
+    var best = readBest();
+    var isRecord = score > best;
+    if (isRecord) { best = score; writeBest(best); }
+    var minutes = Math.max(elapsed / 60, 1 / 60);
+    var wpm = Math.round((clearedChars / 5) / minutes);
+    var acc = keys > 0 ? Math.round(goodKeys / keys * 100) : 100;
+
+    var vocabHtml = '';
+    if (learned.length) {
+      var seen = {};
+      var rows = learned.filter(function(item){
+        if (seen[item.w]) return false;
+        seen[item.w] = true;
+        return true;
+      }).map(function(item){
+        return '<div><b>' + item.w + '</b><span>' + item.g + '</span></div>';
+      }).join('');
+      vocabHtml = '<p>本局拦截词汇（可当生词表复习）</p><div class="vocab">' + rows + '</div>';
+    } else {
+      vocabHtml = '<p>本局还没有拦截到词汇，下一局试着先盯最靠近防线的那个词。</p>';
+    }
+
+    overlay.hidden = false;
+    overlay.innerHTML =
+      '<p class="kicker">DEFENSE DOWN</p>' +
+      '<div class="big">' + score + '<small>分</small></div>' +
+      '<div class="stats-row">' +
+        '<span>拦截 <strong>' + cleared + '</strong> 词</span>' +
+        '<span>最高连击 <strong>' + bestCombo + '</strong></span>' +
+        '<span>波次 <strong>' + wave + '</strong></span>' +
+        '<span>速度 <strong>' + wpm + '</strong> WPM</span>' +
+        '<span>准确率 <strong>' + acc + '%</strong></span>' +
+      '</div>' +
+      '<p>历史最佳：<strong style="color:var(--amber)">' + best + ' 分</strong>' + (isRecord ? ' · 本次刷新纪录' : '') + '</p>' +
+      vocabHtml +
+      '<div class="actions">' +
+        '<button class="btn" id="againBtn" type="button">再来一局</button>' +
+        '<button class="btn btn--ghost" id="backBtn" type="button">换个难度</button>' +
+        '<a class="btn btn--ghost" href="../games.html">游戏中心</a>' +
+      '</div>';
+    document.getElementById('againBtn').onclick = start;
+    document.getElementById('backBtn').onclick = showStart;
+    say('本局结束，得分 ' + score);
+  }
+
+  input.addEventListener('input', onInput);
+  input.addEventListener('keydown', function(e){
+    if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); resetInput(); }
+    if (e.key === 'Escape') { e.preventDefault(); resetInput(); }
+  });
+  pauseBtn.onclick = function(){ setPaused(!paused); };
+
+  document.addEventListener('keydown', function(e){
+    if (!running) {
+      if (e.key === 'Enter') {
+        var btn = document.getElementById('startBtn') || document.getElementById('againBtn');
+        if (btn) { e.preventDefault(); btn.click(); }
+      }
+      return;
+    }
+    if (paused) return;
+    if (document.activeElement !== input && /^[a-zA-Z]$/.test(e.key)) input.focus();
+  });
+
+  document.addEventListener('visibilitychange', function(){
+    if (document.hidden && running && !paused) setPaused(true);
+  });
+
+  window.addEventListener('resize', function(){
+    words.forEach(function(w){
+      var maxX = Math.max(4, arena.clientWidth - w.width - 4);
+      if (w.x > maxX) {
+        w.x = maxX;
+        w.el.style.transform = 'translate(' + w.x + 'px,' + w.y + 'px)';
+      }
+    });
+  });
+
+  updateHud();
+  showStart();
+})();
+</script>
+</body>
+</html>

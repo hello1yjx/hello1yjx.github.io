@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>漏洞分析 | 学习资源库</title>
-  <meta name="description" content="近期高危漏洞技术分析：UnrealIRCd 服务器命令注入（CVE-2026-114713）、Check Point Gaia OS 本地提权（CVE-2026-123039）、GPUStack 未认证管理员访问（CVE-2026-102895）、FreeSWITCH SIP 命令注入（CVE-2026-116779）、IBM Aspera Faspex 授权绕过（CVE-2026-123218）、OpenSSH *SSHole（CVE-2026-123158）、Zyxel GS1900 零日（CVE-2026-107441）、WordPress 核心更新器竞态（CVE-2026-119977），以及 PHP2Shell、GitLab、Citrix、Ivanti 等案例，按漏洞类型、成因、利用场景和修复方案整理，仅供授权环境学习。">
+  <meta name="description" content="近期高危漏洞技术分析：BerriAI LiteLLM 推理密钥提权与 LLMjacking（CVE-2026-40217）、Apache Axis 不安全反射与 Confluence 失陷（CVE-2026-90436）、Synology DSM 勒索利用（CVE-2024-10441）、REDCap 代码注入（CVE-2026-90817）、UnrealIRCd 服务器命令注入（CVE-2026-114713）、Check Point Gaia OS 本地提权（CVE-2026-123039）、GPUStack 未认证管理员访问（CVE-2026-102895）、FreeSWITCH SIP 命令注入（CVE-2026-116779）、IBM Aspera Faspex 授权绕过（CVE-2026-123218）、OpenSSH *SSHole（CVE-2026-123158）、Zyxel GS1900 零日（CVE-2026-107441）、WordPress 核心更新器竞态（CVE-2026-119977），以及 PHP2Shell、GitLab、Citrix、Ivanti 等案例，按漏洞类型、成因、利用场景和修复方案整理，仅供授权环境学习。">
   <meta name="robots" content="index,follow,max-image-preview:large">
   <link rel="canonical" href="https://hello1yjx.github.io/vulns.html">
   <link rel="icon" type="image/png" href="assets/images/brand-book-line.png">
@@ -12,7 +12,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://cdn.jsdelivr.net">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;800&family=Noto+Serif+SC:wght@700;900&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/styles.css?v=20261115-daily-update">
+  <link rel="stylesheet" href="assets/styles.css?v=20261121-daily-update">
   <style>
     .vuln-banner { background: linear-gradient(135deg,#11151c,#1f2937); color:#fff; border-radius:18px; padding:26px 28px; display:flex; flex-wrap:wrap; gap:18px; align-items:center; justify-content:space-between; border:1px solid #374151; }
     .vuln-banner h3 { color:#fff; margin:6px 0; font-size:1.35rem; }
@@ -92,17 +92,17 @@
     <section class="section">
       <div class="vuln-banner reveal">
         <div>
-          <p class="eyebrow" style="color:#fca5a5;">CISA KEV · 11 月 13 日再收录</p>
-          <h3>Check Point 网关被 PHP2Shell 打穿后提权到 root，UnrealIRCd 同日进入 KEV</h3>
-          <p>CISA 于 11 月 13 日把 UnrealIRCd 命令注入（CVE-2026-114713，8.6）与 Check Point Gaia OS 本地提权（CVE-2026-123039，7.8）列入 KEV，联邦机构须在 11 月 16 日前修复并做取证 triage。Check Point 的案例是一条完整攻击链：先用 PHP2Shell 从 Mobile Access 门户取得初始访问，再借 DynamicCLI 的本地 socket 提权到 root，随后植入 webshell、TSGA 后门，部分场景还在 ESXi 上投放破坏性 wiper。</p>
+          <p class="eyebrow" style="color:#fca5a5;">CISA KEV · 11 月 19—20 日两批共八个</p>
+          <h3>LiteLLM 推理密钥被提权成管理员，Confluence、Synology NAS、REDCap 同期在野利用</h3>
+          <p>CISA 于 11 月 19 日把 Apache Axis（CVE-2026-90436，9.8）、REDCap（CVE-2026-90817，9.8）、BerriAI LiteLLM（CVE-2026-40217，8.8）与 Synology DSM（CVE-2024-10441，9.8）列入 KEV：Axis 因 Confluence 的 XML-RPC/SOAP 接口被利用，攻击者三分钟内就开始翻数据库找凭据；LiteLLM 被用于把只读推理密钥提升为管理员凭据，实施 LLMjacking；DSM 命中 C3RB3R 勒索。11 月 20 日再增 SAP NetWeaver、Cisco Expressway、VMware vCenter、Apache Roller 四个，并按 BOD 26-04 改为「公开暴露且可完全控制」优先修复。</p>
         </div>
         <a class="button" href="https://www.cisa.gov/known-exploited-vulnerabilities-catalog" target="_blank" rel="noreferrer">查看 CISA KEV</a>
       </div>
       <div class="vuln-stat-grid">
-        <div class="vuln-stat"><strong>19</strong><span>本期分析 CVE 数量</span></div>
+        <div class="vuln-stat"><strong>23</strong><span>本期分析 CVE 数量</span></div>
         <div class="vuln-stat"><strong>10.0</strong><span>GitLab 正则编译器满分</span></div>
-        <div class="vuln-stat"><strong>9.8</strong><span>GPUStack / FreeSWITCH / Faspex</span></div>
-        <div class="vuln-stat"><strong>8.6</strong><span>UnrealIRCd 命令注入</span></div>
+        <div class="vuln-stat"><strong>9.8</strong><span>Axis / REDCap / Synology DSM</span></div>
+        <div class="vuln-stat"><strong>8.8</strong><span>LiteLLM 推理密钥提权</span></div>
       </div>
     </section>
 
@@ -775,8 +775,136 @@ fatal_error_backtraces = 0</div>
     <section class="section">
       <div class="section-heading reveal">
         <div>
+          <p class="eyebrow">CISA KEV · 2026-11-19</p>
+          <h2>九、AI 网关、协作平台与存储设备（LiteLLM / Axis / Synology / REDCap）</h2>
+        </div>
+        <p>来源：CISA KEV 公告、The Hacker News、Security Affairs、Google Threat Intelligence Group、Rapid7、Safe Security 与厂商公告，2026-11-19 至 11-20。</p>
+      </div>
+
+      <div class="vuln-card reveal">
+        <div class="vuln-card__head">
+          <span class="vuln-card__id">CVE-2026-40217</span>
+          <span><span class="vuln-badge vuln-badge--high">高危 · CVSS 8.8</span> <span class="vuln-badge vuln-badge--kev">在野利用 · 已入 KEV</span></span>
+        </div>
+        <div class="vuln-block">
+          <h4><span class="vuln-num">1</span>漏洞判断 / 类型</h4>
+          <p>未受保护的备用通道（unprotected alternate channel），可导致远程代码执行，CVSS 8.8。影响 BerriAI LiteLLM —— 大量团队用它做统一 LLM 网关。CISA 11 月 19 日列入 KEV，联邦机构修复期限为 <strong>12 月 2 日</strong>。</p>
+        </div>
+        <div class="vuln-block">
+          <h4><span class="vuln-num">2</span>漏洞成因</h4>
+          <p>网关的护栏自定义代码测试通道（<code>/guardrails/test_custom_code</code>）没有与其他接口同等地做访问控制与执行隔离，提交的代码可在服务端被改写并执行。问题本质是「主通道有鉴权、调试用的备用通道没有」，这类旁路在 AI 网关里很常见：为了调试方便留的接口，最后成了权限缺口。</p>
+        </div>
+        <div class="vuln-block">
+          <h4><span class="vuln-num">3</span>利用方法 / 场景</h4>
+          <ul>
+            <li>Google Threat Intelligence Group 报告：攻击者把<strong>只有推理权限的密钥</strong>提升为完整管理员凭据。</li>
+            <li>随后建立持久化，实施 LLMjacking —— 盗用他人 AI 基础设施调用大模型。</li>
+            <li>目标覆盖金融、零售、运输与科技行业，地域横跨北美、南美与亚太。</li>
+            <li>对受害方而言，最早可见的异常往往是<strong>账单与调用量突增</strong>，而不是安全告警。</li>
+          </ul>
+        </div>
+        <div class="vuln-block">
+          <h4><span class="vuln-num">4</span>修复方案</h4>
+          <p>按厂商公告升级到修复版本；在升级前关闭或严格限制护栏自定义代码测试通道，管理接口只对内网或跳板机开放，不要与推理接口共用同一入口与同一套凭据。</p>
+          <p>按「可能已失陷」排查：清点全部 API key 与其权限，吊销并轮换可疑密钥；核对是否新增了管理员凭据、模型路由或护栏配置；比对调用量与费用曲线，定位异常时段；检查网关主机的持久化项。长期做法是把推理密钥与管理密钥彻底分离，并给出站与费用双重告警。</p>
+        </div>
+      </div>
+
+      <div class="vuln-card reveal">
+        <div class="vuln-card__head">
+          <span class="vuln-card__id">CVE-2026-90436</span>
+          <span><span class="vuln-badge vuln-badge--crit">严重 · CVSS 9.8</span> <span class="vuln-badge vuln-badge--kev">在野利用 · 已入 KEV</span></span>
+        </div>
+        <div class="vuln-block">
+          <h4><span class="vuln-num">1</span>漏洞判断 / 类型</h4>
+          <p>不安全反射（unsafe reflection），未认证远程代码执行，CVSS 9.8。影响 <strong>Apache Axis 1.x</strong>。该分支已停止维护（EOL），<strong>官方不再提供补丁</strong>。CISA 11 月 19 日列入 KEV，修复期限 11 月 21 日。</p>
+        </div>
+        <div class="vuln-block">
+          <h4><span class="vuln-num">2</span>漏洞成因</h4>
+          <p>Axis 在处理 SOAP/XML-RPC 请求时允许按请求内容反射实例化类型，缺少白名单约束，攻击者因此能让服务端加载并执行非预期的类。真正的风险放大器是<strong>依赖传递</strong>：Atlassian Confluence Data Center 把 Axis 用在 XML-RPC 与 SOAP 接口上，只要开启了 Remote API，就继承了这个漏洞。</p>
+        </div>
+        <div class="vuln-block">
+          <h4><span class="vuln-num">3</span>利用方法 / 场景</h4>
+          <ul>
+            <li>Rapid7 在 11 月 13 日于客户环境观测到针对 Confluence Data Center 的实际利用，前提是启用了 Remote API（XML-RPC 与 SOAP）。</li>
+            <li>攻击者执行系统命令，并从临时隧道域名拉取脚本，随即开始枚举环境。</li>
+            <li>首次执行后<strong>约三分钟</strong>，就用 Confluence 自身的数据库凭据登录 MySQL，查询页面正文、应用链接与附件名，寻找凭据、令牌、VPN 配置与私钥。</li>
+            <li>脚本进一步解析附件目录里的 Office 文档，并用 Luhn 校验筛选银行卡号；还查询内部 Crowd 接口获取用户与组信息。</li>
+            <li>约 12 小时后，攻击者以集成服务账号、通过<strong>旧版身份验证</strong>登录 Microsoft 365。</li>
+            <li>另有报告称该漏洞与 N-able N-central 的 4EverAble2Shell 组合使用，投放挖矿程序。</li>
+          </ul>
+        </div>
+        <div class="vuln-block">
+          <h4><span class="vuln-num">4</span>修复方案</h4>
+          <p>Confluence 侧优先<strong>关闭 Remote API（XML-RPC 与 SOAP）</strong>：该选项自 Confluence 3.0 起新装默认关闭，并在 10.0 中彻底移除，升级即可根除这条路径。仍需用 Axis 1.x 的自建系统，应迁移到 Axis2/Java 等仍在维护的 SOAP 引擎，或使用应用了 2026 年 7 月 12 日修复提交的构建。</p>
+          <p>按已失陷处置：轮换 Confluence 数据库账号、应用凭据与集成服务账号；排查附件目录的异常访问与批量下载；在 Microsoft 365 侧关闭旧版身份验证并核查异常登录；检查挖矿进程与临时隧道外连。经验教训是<strong>附件目录等于凭据库</strong>，不要把密钥、VPN 配置与私钥当普通文档上传。</p>
+        </div>
+      </div>
+
+      <div class="vuln-card reveal">
+        <div class="vuln-card__head">
+          <span class="vuln-card__id">CVE-2024-10441</span>
+          <span><span class="vuln-badge vuln-badge--crit">严重 · CVSS 9.8</span> <span class="vuln-badge vuln-badge--kev">在野利用 · 勒索软件</span></span>
+        </div>
+        <div class="vuln-block">
+          <h4><span class="vuln-num">1</span>漏洞判断 / 类型</h4>
+          <p>输出编码或转义不当（improper encoding or escaping of output），可导致远程代码执行，CVSS 9.8。影响 Synology DiskStation Manager（DSM）。Synology 已确认该漏洞被用于针对 NAS 设备的勒索攻击，CISA 11 月 19 日列入 KEV，修复期限 11 月 21 日。</p>
+        </div>
+        <div class="vuln-block">
+          <h4><span class="vuln-num">2</span>漏洞成因</h4>
+          <p>DSM 在构造输出时未正确编码或转义，使外部可控内容进入可执行上下文，最终形成远程代码执行。NAS 的特殊性在于它<strong>既是数据集中地，又常常是备份目的地</strong>，一旦被拿到执行权限，攻击者不需要横向移动就能直接对备份下手。</p>
+        </div>
+        <div class="vuln-block">
+          <h4><span class="vuln-num">3</span>利用方法 / 场景</h4>
+          <ul>
+            <li>攻击者针对暴露在公网的 NAS 管理面发起攻击，取得执行权限后投放 <strong>C3RB3R 勒索软件</strong>。</li>
+            <li>受害数据集中在存储设备本身，恢复难度远高于单机中招。</li>
+            <li>若 NAS 同时承担备份角色，且备份与生产共用同一套凭据，备份会被一并加密或删除。</li>
+            <li>家庭与小微企业用户常把 DSM 直接映射到公网，且管理员未开启二次验证，是最典型的受害画像。</li>
+          </ul>
+        </div>
+        <div class="vuln-block">
+          <h4><span class="vuln-num">4</span>修复方案</h4>
+          <p>按 Synology 安全公告升级 DSM 到修复版本；不要把管理界面直接暴露公网，改用 VPN 或受控中继访问，管理员账号强制开启二次验证，关闭不需要的服务与端口转发。</p>
+          <p>备份必须与 NAS 本身隔离：保留离线或不可变副本、使用独立凭据、定期做<strong>恢复演练</strong>而不只是确认备份任务成功。若已中招，先断网隔离、保留快照与日志，再清点异常账号、计划任务与加密文件范围，不要用同一台设备上的备份直接覆盖恢复。</p>
+        </div>
+      </div>
+
+      <div class="vuln-card reveal">
+        <div class="vuln-card__head">
+          <span class="vuln-card__id">CVE-2026-90817</span>
+          <span><span class="vuln-badge vuln-badge--crit">严重 · CVSS 9.8</span> <span class="vuln-badge vuln-badge--kev">在野利用 · 已入 KEV</span></span>
+        </div>
+        <div class="vuln-block">
+          <h4><span class="vuln-num">1</span>漏洞判断 / 类型</h4>
+          <p>代码注入，未认证攻击者可在服务器上执行任意代码，CVSS 9.8。影响 Vanderbilt University 的 REDCap（Research Electronic Data Capture），大量高校与医院用它做科研数据采集。CISA 11 月 19 日列入 KEV，修复期限 11 月 21 日。</p>
+        </div>
+        <div class="vuln-block">
+          <h4><span class="vuln-num">2</span>漏洞成因</h4>
+          <p>按 CISA 描述，攻击者可通过构造的 HTTP 请求，从<strong>公开问卷上下文</strong>访问到本不该暴露的控制器路由，并在数据导入处理环节提供构造的文件路径或流参数，从而触发代码注入。触发前提是知道一个有效的公开问卷 hash —— 但公开问卷链接本身就是要发出去的，<strong>hash 不能被当成鉴权凭据</strong>。</p>
+        </div>
+        <div class="vuln-block">
+          <h4><span class="vuln-num">3</span>利用方法 / 场景</h4>
+          <ul>
+            <li>Safe Security 观测到攻击者先投放临时 webshell，再用内存加载器拉取伪装成图片文件的 XMRig 挖矿程序。</li>
+            <li>挖矿进程伪装成 <code>syslog-ng</code>，混在正常系统服务里。</li>
+            <li>持久化手段是<strong>计划任务加新增 SSH 公钥</strong>，重装应用而不检查这两处会反复中招。</li>
+            <li>科研平台常存有受试者个人信息与医疗数据，失陷影响不止于算力被盗。</li>
+          </ul>
+        </div>
+        <div class="vuln-block">
+          <h4><span class="vuln-num">4</span>修复方案</h4>
+          <p>升级 REDCap 到修复版本；收紧公开问卷的暴露范围，对数据导入等敏感功能加独立鉴权，不要让公开上下文触达管理路由；管理面与问卷面尽量分离部署。</p>
+          <p>排查失陷：核对 cron 与 systemd 定时项、比对所有用户的 <code>authorized_keys</code>、检查伪装成系统服务的异常进程与外连矿池流量；确认受试者数据是否被访问或导出，并按机构要求上报。最后轮换服务器与数据库凭据，并把「新增 SSH 公钥」纳入日常告警。</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-heading reveal">
+        <div>
           <p class="eyebrow">Learning & Compliance</p>
-          <h2>九、学习路径与合规提醒</h2>
+          <h2>十、学习路径与合规提醒</h2>
         </div>
       </div>
       <div class="vuln-card reveal">
