@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://cdn.jsdelivr.net">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;800&family=Noto+Serif+SC:wght@700;900&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/styles.css?v=20261121-daily-update">
+  <link rel="stylesheet" href="assets/styles.css?v=20261124-daily-update">
 </head>
 <body>
   <header class="site-header">
@@ -73,8 +73,8 @@
     <section class="page-shell home-exam-banner reveal">
       <div class="home-exam-banner__text">
         <span class="home-exam-banner__tag">考公备考 · 关键节点</span>
-        <h3>国考笔试倒计时 8 天，准考证 11/23 0:00 开放；广东省考缴费已结束，12/2 起打印准考证</h3>
-        <p>国考报名确认与缴费 11/6 已截止；广东省考计划招录 10293 名，报名已止，<strong>缴费确认 11/14 9:00–11/16 16:00 已结束</strong>，准考证 12/2 9:00 起下载，笔试 12/6。两条时间线与冲刺清单已整理好。</p>
+        <h3>国考笔试倒计时 5 天，准考证已开放打印；广东省考缴费已结束，12/2 起打印准考证</h3>
+        <p>国考报名确认与缴费 11/6 已截止；广东省考计划招录 10293 名，报名已止，<strong>缴费确认 11/14 9:00–11/16 16:00 已结束</strong>，准考证 12/2 9:00 起下载（8 天后），笔试 12/6（12 天后）。两条时间线与冲刺清单已整理好。</p>
       </div>
       <div class="home-exam-banner__actions">
         <a class="button button--white" href="kaogong.html">进入考公专区</a>
@@ -96,9 +96,29 @@
         <div class="hotspot-grid hotspot-grid--preview" data-hotspots-preview>
           <!-- STATIC_HOME_HOTSPOTS_START -->
 <article class="hotspot-card hotspot-showreel-card" data-showreel-card data-showreel-state="active" aria-current="true">
-      <a class="hotspot-showreel-card__media hotspot-showreel-card__media--cyan" href="https://github.blog/changelog/2026-11-20-security-advisory-permissions-are-now-generally-available/" target="_blank" rel="noreferrer" aria-label="查看来源：GitHub Changelog">
-        <span class="hotspot-showreel-card__tag">安全</span>
-        <span class="hotspot-showreel-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="安全 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+      <a class="hotspot-showreel-card__media hotspot-showreel-card__media--cyan" href="https://github.blog/changelog/2026-11-23-code-coverage-uploads-now-flag-invalid-report-formats/" target="_blank" rel="noreferrer" aria-label="查看来源：GitHub Changelog">
+        <span class="hotspot-showreel-card__tag">安全工程</span>
+        <span class="hotspot-showreel-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="安全工程 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <span class="hotspot-showreel-card__grid" aria-hidden="true"></span>
+      </a>
+      <div class="hotspot-showreel-card__body">
+        <div class="hotspot-card__meta">
+          <span>GitHub Changelog</span>
+          <time datetime="2026-11-23">2026年11月23日</time>
+        </div>
+        <h3>代码覆盖率上传开始校验报告格式：不是 Cobertura XML 直接失败并报明确错误</h3>
+        <p>GitHub Code Quality 的 upload-code-coverage action 现在会检查覆盖率报告是否为 Cobertura XML 格式；格式不被支持时上传步骤直接失败，Actions 日志给出明确提示，要求换成 Cobertura XML 或在上传前转换。过去这类上传看似成功，但 PR 上不会显示覆盖率。对合法 Cobertura 报告也放宽了容错：轻微结构问题不再整体拒收，缺少可用行号或命中次数的个别行会被跳过，而不是丢弃整份报告。该能力需要仓库开启 GitHub Code Quality，目前面向 GitHub Enterprise Cloud 与 GitHub Team（含数据驻留），GHES 暂不可用。</p>
+        <div class="hotspot-showreel-card__foot">
+          <span>来源已核验</span>
+          <a class="text-link" href="https://github.blog/changelog/2026-11-23-code-coverage-uploads-now-flag-invalid-report-formats/" target="_blank" rel="noreferrer">查看来源</a>
+        </div>
+      </div>
+    </article>
+
+    <article class="hotspot-card hotspot-showreel-card" data-showreel-card data-showreel-state="next" aria-current="false">
+      <a class="hotspot-showreel-card__media hotspot-showreel-card__media--teal" href="https://github.blog/changelog/2026-11-20-github-enterprise-server-3-23-release-candidate/" target="_blank" rel="noreferrer" aria-label="查看来源：GitHub Changelog">
+        <span class="hotspot-showreel-card__tag">企业平台</span>
+        <span class="hotspot-showreel-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="企业平台 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
         <span class="hotspot-showreel-card__grid" aria-hidden="true"></span>
       </a>
       <div class="hotspot-showreel-card__body">
@@ -106,51 +126,31 @@
           <span>GitHub Changelog</span>
           <time datetime="2026-11-20">2026年11月20日</time>
         </div>
-        <h3>安全公告权限正式可用：自定义仓库角色就能处理漏洞报告，不必再给管理员</h3>
-        <p>GitHub 把安全公告权限从预览转为正式可用。组织所有者现在可以通过自定义仓库角色，让人处理仓库安全公告与私密漏洞报告，不再需要授予仓库管理员或组织级 security manager。Security 分类下新增四项权限：查看安全公告；创建、编辑与管理安全公告（含评论、协作者管理、创建临时私有 fork）；接收私密漏洞报告并关闭或重开公告；发布公告并申请 CVE。后两项都要求先具备前两项之一。角色可以只分配到需要的仓库上。限制也要记清：合并临时私有 fork 的改动仍需仓库管理员或 security manager；拥有这些新权限的人不能删除临时私有 fork；机密评论只对同时具备管理权限与仓库写权限的人开放。</p>
+        <h3>GHES 3.23 候选版发布：项目视图 OR 过滤、内网 AI 密钥检测、恶意包数据库扩生态</h3>
+        <p>GitHub Enterprise Server 3.23 发布候选版。要点包括：GitHub Projects 视图可组合逻辑 OR、显式 AND 与括号分组过滤；Secret Protection 在 GHES 上用本地 CPU 微调模型做 AI 密钥检测，不依赖 GPU、托管 LLM 或外联，可用于气隙环境（预览）；安全公告数据库在 npm 之外补充 PyPI、Maven、RubyGems、NuGet、Go、Rust、Composer 的已知恶意包，并自动摄取 OpenSSF malicious-packages 仓库；Dependabot 版本更新默认等包在注册中心满三天再开 PR；OAuth 应用可启用八小时过期访问令牌加刷新令牌（预览，新应用默认开启）；集群可把 Redis 主节点从混用节点迁到专用节点。</p>
         <div class="hotspot-showreel-card__foot">
           <span>来源已核验</span>
-          <a class="text-link" href="https://github.blog/changelog/2026-11-20-security-advisory-permissions-are-now-generally-available/" target="_blank" rel="noreferrer">查看来源</a>
-        </div>
-      </div>
-    </article>
-
-    <article class="hotspot-card hotspot-showreel-card" data-showreel-card data-showreel-state="next" aria-current="false">
-      <a class="hotspot-showreel-card__media hotspot-showreel-card__media--teal" href="https://vercel.com/changelog/vercel-functions-now-support-request-bodies-up-to-20mib" target="_blank" rel="noreferrer" aria-label="查看来源：Vercel Changelog">
-        <span class="hotspot-showreel-card__tag">云端部署</span>
-        <span class="hotspot-showreel-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/python/python-original.svg" alt="云端部署 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
-        <span class="hotspot-showreel-card__grid" aria-hidden="true"></span>
-      </a>
-      <div class="hotspot-showreel-card__body">
-        <div class="hotspot-card__meta">
-          <span>Vercel Changelog</span>
-          <time datetime="2026-11-20">2026年11月20日</time>
-        </div>
-        <h3>Vercel Functions 请求体上限提到 20MiB：需要显式开启，中间件将拿不到 body</h3>
-        <p>Vercel Functions 的入站请求体上限从 4.5MB 提升到 20MiB，处于公开测试。开启方式是设置环境变量 VERCEL_SUPPORT_LARGE_REQUEST_BODY=1，按项目、按环境生效，可以先在 preview 验证再上生产。前提是项目的函数使用 4GB 性能内存档位，适用于 Node.js、Python、Bun 运行时与 Routing Middleware。Edge 运行时的函数与中间件仍保持 4.5MB 上限，超限返回 413，要享受新上限需切到 Node.js 运行时（runtime 设为 nodejs，或 Next.js 的 proxy.ts）。项目一旦开启，Routing Middleware 只收到请求头与元数据、不再收到请求体，这是项目级强制行为，目的是避免把 body 同时发给中间件和目标函数而抬高成本与首字节时间。</p>
-        <div class="hotspot-showreel-card__foot">
-          <span>来源已核验</span>
-          <a class="text-link" href="https://vercel.com/changelog/vercel-functions-now-support-request-bodies-up-to-20mib" target="_blank" rel="noreferrer">查看来源</a>
+          <a class="text-link" href="https://github.blog/changelog/2026-11-20-github-enterprise-server-3-23-release-candidate/" target="_blank" rel="noreferrer">查看来源</a>
         </div>
       </div>
     </article>
 
     <article class="hotspot-card hotspot-showreel-card" data-showreel-card data-showreel-state="previous" aria-current="false">
-      <a class="hotspot-showreel-card__media hotspot-showreel-card__media--amber" href="https://www.cisa.gov/news-events/alerts/2026/11/20/cisa-adds-four-known-exploited-vulnerabilities-catalog" target="_blank" rel="noreferrer" aria-label="查看来源：CISA Alert">
-        <span class="hotspot-showreel-card__tag">安全</span>
-        <span class="hotspot-showreel-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/python/python-original.svg" alt="安全 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+      <a class="hotspot-showreel-card__media hotspot-showreel-card__media--amber" href="https://github.blog/changelog/2026-11-19-red-hat-enterprise-linux-runner-images-now-generally-available/" target="_blank" rel="noreferrer" aria-label="查看来源：GitHub Changelog">
+        <span class="hotspot-showreel-card__tag">CI/CD</span>
+        <span class="hotspot-showreel-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="CI/CD 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
         <span class="hotspot-showreel-card__grid" aria-hidden="true"></span>
       </a>
       <div class="hotspot-showreel-card__body">
         <div class="hotspot-card__meta">
-          <span>CISA Alert</span>
-          <time datetime="2026-11-20">2026年11月20日</time>
+          <span>GitHub Changelog</span>
+          <time datetime="2026-11-19">2026年11月19日</time>
         </div>
-        <h3>CISA 再收录四个在野利用漏洞，并按 BOD 26-04 改为风险优先级修复</h3>
-        <p>CISA 于 11 月 20 日向 KEV 目录新增四个漏洞：SAP NetWeaver 数据查询逻辑特殊元素中和不当（CVE-2025-42884）、Cisco Expressway 系列硬编码凭据（CVE-2026-76466）、VMware vCenter 备用路径认证绕过（CVE-2026-123890）、Apache Roller 不可信数据反序列化（CVE-2026-129448）。同份公告说明，联邦机构的漏洞管理要求已改由 BOD 26-04《基于风险确定安全更新优先级》承接：优先快速修复 KEV 中、位于公开暴露资产且利用后可完全控制资产的漏洞，较低风险的可延后；同时明确了「必须检查补丁前是否已被入侵」的基本预期。BOD 26-04 只约束联邦文职行政机构，CISA 建议其他组织同样采用基于风险的漏洞管理。</p>
+        <h3>RHEL 9/10 托管大型运行镜像正式可用，可与生产部署系统保持一致</h3>
+        <p>GitHub 托管大型运行器的 Red Hat Enterprise Linux 9 与 10 镜像结束公开预览、转为正式可用，可在生产工作流中使用。该镜像 2026 年 6 月以预览形式与 Red Hat 合作推出，适合用与部署目标相同的操作系统跑构建与测试，也可作为加入自有工具、依赖和配置的自定义镜像基底。创建 Linux x64 大型运行器时，在 partner images 下选择对应 RHEL 镜像即可；预览期已使用 RHEL 镜像的运行器和工作流无需改动。RHEL 镜像面向 GitHub Team 与 GitHub Enterprise Cloud 套餐的大型运行器。</p>
         <div class="hotspot-showreel-card__foot">
           <span>来源已核验</span>
-          <a class="text-link" href="https://www.cisa.gov/news-events/alerts/2026/11/20/cisa-adds-four-known-exploited-vulnerabilities-catalog" target="_blank" rel="noreferrer">查看来源</a>
+          <a class="text-link" href="https://github.blog/changelog/2026-11-19-red-hat-enterprise-linux-runner-images-now-generally-available/" target="_blank" rel="noreferrer">查看来源</a>
         </div>
       </div>
     </article>
@@ -224,14 +224,14 @@
 <div class="home-practice-card reveal">
       <div class="home-practice-card__intro">
         <p class="label">今天 10 分钟能学什么</p>
-        <h3>把「安全公告权限正式可用：自定义仓库角色就能处理漏洞报告，不必再给管理员」变成一个可验证动作</h3>
+        <h3>把「代码覆盖率上传开始校验报告格式：不是 Cobertura XML 直接失败并报明确错误」变成一个可验证动作</h3>
         <p>不追热点名词，先学会核对来源、判断影响范围，再在自己的工具或项目里完成一个低风险检查。</p>
       </div>
       <ol class="home-practice-steps">
         <li>打开一手来源，只记录发布日期、影响对象和需要核对的配置。</li><li>用 AI 工具来源核验表检查权限、数据边界、费用或模型依赖。</li><li>在自己的项目里做一次只读验证，例如查看默认模型、配置项或日志。</li><li>写下结论：继续使用、暂缓使用，或需要回滚到原方案。</li>
       </ol>
       <div class="home-practice-card__actions">
-        <a class="button button--primary" href="https://github.blog/changelog/2026-11-20-security-advisory-permissions-are-now-generally-available/" target="_blank" rel="noreferrer">查看今日来源</a>
+        <a class="button button--primary" href="https://github.blog/changelog/2026-11-23-code-coverage-uploads-now-flag-invalid-report-formats/" target="_blank" rel="noreferrer">查看今日来源</a>
         <a class="button button--secondary" href="downloads/ai-tool-source-verification-kit.zip" download>下载核验表</a>
       </div>
     </div>
@@ -333,6 +333,38 @@
           <div class="latest-list" data-home-latest>
             <!-- STATIC_HOME_LATEST_START -->
 <article class="latest-item reveal">
+      <a class="latest-thumb latest-thumb--github" href="articles/github-security-advisory-least-privilege-guide.html">
+        <img class="visual-icon visual-icon--thumb" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="安全 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';">
+        <span>安全</span>
+      </a>
+      <div>
+        <h3><a href="articles/github-security-advisory-least-privilege-guide.html">安全公告权限最小化：用自定义仓库角色替代管理员授权</a></h3>
+        <p>11 月 20 日 GitHub 把安全公告权限转为正式可用：查看、创建编辑管理、接收私密报告、发布并申请 CVE 四项权限可以放进自定义仓库角色，只分配到需要的仓库。这篇教程讲清权限依赖关系、三个仍然受限的动作、角色设计方法，以及漏洞响应流程怎么按新权限重排。</p>
+        <div class="meta-row">
+          <span>安全</span>
+          <span>10 分钟</span>
+          <time datetime="2026-11-21">2026年11月21日</time>
+        </div>
+      </div>
+    </article>
+
+    <article class="latest-item reveal">
+      <a class="latest-thumb latest-thumb--github" href="articles/vercel-november-changes-migration-guide.html">
+        <img class="visual-icon visual-icon--thumb" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/docker/docker-original.svg" alt="云端部署 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';">
+        <span>云端部署</span>
+      </a>
+      <div>
+        <h3><a href="articles/vercel-november-changes-migration-guide.html">Vercel 11 月变更清单：20MiB 请求体、Priority、秒级部署与两处退役</a></h3>
+        <p>11 月 16 日到 20 日，Vercel 连发六条变更：三级预算、Standard 构建按量计费、lint/typecheck 检查 11 月 30 日移除、秒级静态部署支持更多资源、Priority Projects 公测、Functions 请求体上限 20MiB。这篇教程按「先止损、再优化、后升级」的顺序给出迁移与验收清单，重点讲清哪些改动有硬期限、哪些会静默改变行为。</p>
+        <div class="meta-row">
+          <span>云端部署</span>
+          <span>11 分钟</span>
+          <time datetime="2026-11-21">2026年11月21日</time>
+        </div>
+      </div>
+    </article>
+
+    <article class="latest-item reveal">
       <a class="latest-thumb latest-thumb--ai" href="articles/copilot-model-deprecation-december-migration-guide.html">
         <img class="visual-icon visual-icon--thumb" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="AI 编程 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';">
         <span>AI 编程</span>
@@ -363,38 +395,6 @@
         </div>
       </div>
     </article>
-
-    <article class="latest-item reveal">
-      <a class="latest-thumb latest-thumb--github" href="articles/vercel-build-capacity-sandbox-decision-guide.html">
-        <img class="visual-icon visual-icon--thumb" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/python/python-original.svg" alt="云端部署 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';">
-        <span>云端部署</span>
-      </a>
-      <div>
-        <h3><a href="articles/vercel-build-capacity-sandbox-decision-guide.html">Vercel 三处提速：64GB 构建磁盘、亚秒级沙箱快照与决策模型</a></h3>
-        <p>11 月上旬 Vercel 连发几条更新：构建磁盘从 32GB 提到 64GB，Sandbox 快照中位创建时间从 4.4 秒降到 0.4 秒以内，AI Gateway 接入 Gemini Decision 1 直接输出布尔、选项与评分。三条更新分别对应构建、运行时与请求决策三个环节。这篇教程讲清各自的实际收益、边界与验收方法，避免把「容量变大」误当成「可以随便堆文件」。</p>
-        <div class="meta-row">
-          <span>云端部署</span>
-          <span>11 分钟</span>
-          <time datetime="2026-11-15">2026年11月15日</time>
-        </div>
-      </div>
-    </article>
-
-    <article class="latest-item reveal">
-      <a class="latest-thumb latest-thumb--ai" href="articles/claude-fable-5-2-copilot-retention-policy-guide.html">
-        <img class="visual-icon visual-icon--thumb" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="AI 编程 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';">
-        <span>AI 编程</span>
-      </a>
-      <div>
-        <h3><a href="articles/claude-fable-5-2-copilot-retention-policy-guide.html">Claude Fable 5.2 接入 Copilot：能力提升、数据留存与企业管理策略</a></h3>
-        <p>Claude Fable 5.2 在 11 月 9 日进入 GitHub Copilot，早期测试里比 Fable 5.1 解决更多任务、用的步骤和工具调用更少。但这次更新真正的门槛不在模型强弱，而在数据留存：Fable 5.2 默认要求 Anthropic 保留提示与输出用于安全分类器，企业管理员必须手动打开策略，策略默认关闭；零留存访问只对符合条件的企业开放到年底。这篇教程把能力、可用范围、留存规则、ZDR 豁免窗口、启用流程、成本观测和常见坑一次讲清，给出一份可执行的决策清单。</p>
-        <div class="meta-row">
-          <span>AI 编程</span>
-          <span>12 分钟</span>
-          <time datetime="2026-11-12">2026年11月12日</time>
-        </div>
-      </div>
-    </article>
 <!-- STATIC_HOME_LATEST_END -->
           </div>
         </section>
@@ -421,7 +421,7 @@
       <a class="quick-card quick-card--exam" href="kaogong.html">
         <span>考公</span>
         <strong>考公专区</strong>
-        <p>国考倒计时 8 天 · 省考准考证 12/2 起</p>
+        <p>国考倒计时 5 天 · 省考准考证 12/2 起</p>
       </a>
       <a class="quick-card" href="posts.html">
         <span>路线</span>
@@ -496,6 +496,6 @@
     </div>
   </footer>
 
-  <script src="assets/app.js?v=20261121-daily-update"></script>
+  <script src="assets/app.js?v=20261124-daily-update"></script>
 </body>
 </html>

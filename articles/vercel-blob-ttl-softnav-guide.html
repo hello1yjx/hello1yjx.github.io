@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Vercel 存储与观测更新：Blob TTL 自动删除、软导航 CWV 与 Board 协作 | 学习资源库</title>
+  <meta name="description" content="11 月中旬 Vercel 连续放出三项面向生产使用的更新：Blob 支持 TTL 自动删除，Speed Insights 默认测量软导航，Vercel Board 面向所有套餐开放给人与 agent 协作。这篇按临时文件生命周期、SPA 性能观测、多 agent 协作线程三条线梳理，给出每项更新的适用场景、配置要点和容易踩的边界。">
+  <meta name="robots" content="index,follow,max-image-preview:large">
+  <link rel="canonical" href="https://hello1yjx.github.io/articles/vercel-blob-ttl-softnav-guide.html">
+  <link rel="icon" type="image/png" href="../assets/images/brand-book-line.png">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"Vercel 存储与观测更新：Blob TTL 自动删除、软导航 CWV 与 Board 协作","description":"11 月中旬 Vercel 连续放出三项面向生产使用的更新：Blob 支持 TTL 自动删除，Speed Insights 默认测量软导航，Vercel Board 面向所有套餐开放给人与 agent 协作。这篇按临时文件生命周期、SPA 性能观测、多 agent 协作线程三条线梳理，给出每项更新的适用场景、配置要点和容易踩的边界。","datePublished":"2026-11-24","dateModified":"2026-11-24","author":{"@type":"Person","name":"Avery Lin","url":"https://hello1yjx.github.io/about.html"},"publisher":{"@type":"Organization","name":"学习资源库","url":"https://hello1yjx.github.io/"},"mainEntityOfPage":"https://hello1yjx.github.io/articles/vercel-blob-ttl-softnav-guide.html","inLanguage":"zh-CN"}</script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6621999105936318" crossorigin="anonymous"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;800&family=Noto+Serif+SC:wght@700;900&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/styles.css?v=20261124-daily-update">
+</head>
+<body>
+  <header class="site-header">
+    <div class="page-shell site-header__inner">
+      <a class="brand" href="../index.html" aria-label="返回首页">
+        <span class="brand-mark" aria-hidden="true"><img src="../assets/images/brand-book-line.png" alt="" width="36" height="33"></span>
+        <span class="brand-copy"><strong>学习资源库</strong><span>分享知识 · 提升自己 · 成就未来</span></span>
+      </a>
+      <button class="menu-button" data-menu-button aria-expanded="false" aria-label="切换导航菜单">☰</button>
+      <nav class="site-nav" data-mobile-nav>
+        <a href="../index.html">首页</a>
+        <a class="is-active" href="../posts.html" aria-current="page">教程</a>
+        <a href="../resources.html">资源下载</a>
+        <a href="../hotspots.html">技术资讯</a>
+        <a href="../projects.html">开源项目</a>
+        <a href="../vulns.html">漏洞分析</a>
+        <a href="../kaogong.html">考公专区</a>
+        <a href="../about.html">关于我们</a>
+      </nav>
+      <form class="header-search" action="../posts.html" method="get">
+        <input type="search" name="q" placeholder="搜索教程、资源、工具或关键词...">
+        <button type="submit" aria-label="搜索">/</button>
+      </form>
+      <a class="header-github" href="https://github.com/hello1yjx/hello1yjx.github.io" target="_blank" rel="noreferrer" aria-label="GitHub">
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="" width="24" height="24">
+      </a>
+      <a class="header-cta" href="../posts.html">开始学习</a>
+    </div>
+  </header>
+
+  <main class="page-shell section article-page">
+    <header class="detail-hero">
+      <span class="pill">云端部署</span>
+      <h1>Vercel 存储与观测更新：Blob TTL 自动删除、软导航 CWV 与 Board 协作</h1>
+      <div class="detail-hero__meta">
+        <time datetime="2026-11-24">2026年11月24日</time>
+        <span>9 分钟</span>
+        <span>作者：Avery Lin</span>
+      </div>
+      <p>11 月中旬 Vercel 连续放出三项面向生产使用的更新：Blob 支持 TTL 自动删除，Speed Insights 默认测量软导航，Vercel Board 面向所有套餐开放给人与 agent 协作。这篇按临时文件生命周期、SPA 性能观测、多 agent 协作线程三条线梳理，给出每项更新的适用场景、配置要点和容易踩的边界。</p>
+    </header>
+    <div class="article-layout">
+      <article class="article-body">
+        <div class="inline-promo">
+          <p class="label">来源与增量价值</p>
+          <h3>本文基于官方资料整理，并补充适用场景、限制条件和实践检查步骤。</h3>
+          <p>首要来源：<a href="https://vercel.com/changelog/vercel-blob-now-supports-ttls-for-automatic-deletion" target="_blank" rel="noreferrer">Vercel Blob now supports TTLs for automatic deletion</a>。事实以原始来源为准，本站建议需结合自己的环境验证。</p>
+        </div>
+
+    <p>临时文件长期堆积抬高存储成本，SPA 路由切换的卡顿在首屏指标里看不到，多 agent 协作时上下文散落各处——这三个问题分别对应本轮三项 Vercel 更新。</p><p>这篇按「存储 → 观测 → 协作」组织，参数与计费口径取自官方说明，实验性特性单独标注，接入前先小范围试用。</p>
+    <h2>这篇内容适合谁</h2>
+    <ul><li>用 Vercel Blob 存临时文件、导出物的开发者</li><li>关注 SPA 路由切换性能的前端团队</li><li>搭建多 agent 工作流、需要集中上下文的团队</li></ul>
+    <h2>实践与验证步骤</h2>
+    <ul><li>按数据类型划分 Blob 生命周期</li><li>写入时设置 ttlDays 并核对 expiresAt</li><li>用 setTtl 改期或清除存量 Blob</li><li>在 Speed Insights 仪表盘按导航类型拆分数据</li><li>对比硬导航与软导航的 INP/LCP</li><li>评估 Board 频道权限与外部同步范围</li><li>安装 Board skill 或通过 SDK 接入 agent</li><li>小范围试用后再推广</li></ul>
+    <h2>官方资料入口</h2>
+
+    <ul>
+
+            <li>
+              <a href="https://vercel.com/changelog/vercel-blob-now-supports-ttls-for-automatic-deletion" target="_blank" rel="noreferrer">Vercel Blob now supports TTLs for automatic deletion</a>
+              <span>：TTL 参数、setTtl 与计费</span>
+            </li>
+
+            <li>
+              <a href="https://vercel.com/changelog/speed-insights-now-measures-soft-navigations" target="_blank" rel="noreferrer">Speed Insights now measures soft navigations</a>
+              <span>：软导航指标与过滤器</span>
+            </li>
+
+            <li>
+              <a href="https://vercel.com/changelog/vercel-board-is-now-available" target="_blank" rel="noreferrer">Vercel Board is now available</a>
+              <span>：协作留言板与接入方式</span>
+            </li>
+
+    </ul>
+
+    <h2>重点判断与使用建议</h2>
+    <ul><li>Blob TTL：ttlDays 1 到 730 天，从上传日起算；覆盖 put/copy/putImage/分片/预签名 URL；响应带 expiresAt</li><li>存量 Blob 用 setTtl 改期或清除，单次 1 个或最多 1000 个，免重传；CLI 65.16.0+ 支持 --ttl-days 与 set-ttl --clear-ttl</li><li>计费：每 60 天周期 1 个 Advanced Operation，7 天计 1 次、730 天计 13 次；清 TTL 与删除免费</li><li>软导航采集 LCP/FCP/INP/CLS 计入 Real Experience Score，不采 TTFB；默认开启，适配 Next.js/SvelteKit/Nuxt 与 Chromium 系浏览器</li><li>Board：任务讨论与结果在同一线程，可控制频道访问与动作，经 Vercel Connect 与 Slack、GitHub 双向同步；CLI 或 JS SDK 接入</li></ul>
+
+        <h2>一、临时文件为什么需要自动删除</h2>
+
+        <ul><li>会话记录、导出文件、临时上传本来就有有效期</li><li>靠人工或定时脚本清理，容易漏掉过期文件</li><li>过期数据长期留存会抬高存储成本，也增加暴露面</li><li>在写入时声明生命周期，比事后批量回收更稳</li><li>TTL 自动删除是存储侧的默认兜底，不替代业务侧的文件归档</li></ul>
+
+
+
+        <h2>二、Blob TTL 的适用范围与参数</h2>
+
+        <ul><li>写入时传 ttlDays，范围 1 到 730 天，从上传日期起算</li><li>适用于 put、copy、putImage、分片上传与预签名上传 URL</li><li>每次写入结果与 head() 响应都带 expiresAt，标明预计删除时间</li><li>短 TTL 适合会话记录与临时上传，长期素材不要设短期限</li><li>续期要走 setTtl，重新上传覆盖不会自动延长旧文件期限</li></ul>
+
+
+
+        <h2>三、存量文件怎么改期或清除</h2>
+
+        <ul><li>已存在的 Blob 可用 setTtl 改期或清除 TTL</li><li>单次操作一个 URL，最多批量 1000 个</li><li>改期或清除不需要重新上传文件内容</li><li>传入 null 即清除 TTL，文件转为长期保留</li><li>CLI 65.16.0 起在 blob 相关命令支持 --ttl-days，并用 set-ttl 管理存量</li></ul>
+
+
+
+        <h2>四、TTL 计费口径与跟踪位置</h2>
+
+        <ul><li>设置 TTL 每开启 60 天周期计一次 Advanced Operation，叠加在写入之上</li><li>7 天 TTL 计 1 次，730 天上限计 13 次</li><li>清除 TTL 与实际删除本身免费</li><li>可在 Observability 的 Blob 区块跟踪用量</li><li>批量设置长 TTL 前先估算附加计费，避免一次性拉高成本</li></ul>
+
+
+
+        <h2>五、软导航为什么容易被漏掉</h2>
+
+        <ul><li>SPA 大部分时间在客户端路由切换里，没有整页刷新</li><li>传统首屏指标只记录整页加载，漏掉路由切换路径上的卡顿</li><li>用户从一个页面跳到另一个页面时的等待与交互阻塞，才是真实体验</li><li>Speed Insights 现在默认测量软导航，追踪应用内流转性能</li><li>软导航不需要新文档请求，因此不采集 TTFB</li></ul>
+
+
+
+        <h2>六、软导航采集哪些指标、不采什么</h2>
+
+        <ul><li>软导航采集 LCP、FCP、INP、CLS 并计入 Real Experience Score</li><li>TTFB 不采集，因为没有新文档请求</li><li>追踪对所有使用 Speed Insights 的项目默认开启，无需配置</li><li>适配 Next.js、SvelteKit、Nuxt 等现代框架</li><li>运行环境为 Chromium 内核浏览器，其他内核数据口径可能不同</li></ul>
+
+
+
+        <h2>七、怎么用导航类型过滤器排查</h2>
+
+        <ul><li>仪表盘新增 Navigation Type 过滤器，可查看全部、硬导航或软导航</li><li>排查时先按 Hard/Soft 拆分对比两组数据</li><li>软导航 INP 偏高，问题多在路由切换时的数据请求与渲染阻塞</li><li>硬导航指标差，通常回到首屏资源体积与加载链路</li><li>拆分后再下钻具体路由，避免把两类问题混在一起定位</li></ul>
+
+
+
+        <h2>八、Board 解决多 agent 的什么问题</h2>
+
+        <ul><li>多 agent 协作时任务讨论、上下文和结果容易散落各处</li><li>Vercel Board 是面向 agent 的共享安全协作留言板</li><li>每个任务的讨论与结果放在同一线程</li><li>消息与回复通过 Vercel Connect 与 Slack、GitHub 等工具双向同步</li><li>团队可使用自己的 agent、执行框架和运行环境</li></ul>
+
+
+
+        <h2>九、Board 的权限边界与接入方式</h2>
+
+        <ul><li>可以控制 agent 和用户能访问哪些频道、能执行什么动作</li><li>外部同步范围要按角色限制，避免上下文误发到其他工具</li><li>agent 通过 Vercel CLI 或 JavaScript SDK 接入</li><li>起步可安装 Board skill（npx skills add vercel/board）</li><li>也可把引导提示词贴给编码 agent，自动完成 CLI 安装、登录与频道浏览</li></ul>
+
+
+
+        <h2>十、落地建议与试用顺序</h2>
+
+        <ul><li>先按数据类型分层 TTL，再批量改造写入逻辑</li><li>存量文件用 setTtl 统一期限，不批量重新上传</li><li>性能排查先拆分硬导航与软导航，再定位阻塞环节</li><li>Board 先在小范围试用，核对频道权限与同步范围</li><li>三项更新都先跑通一条最小链路，再推广到全项目</li></ul>
+
+
+
+
+        <div class="inline-promo">
+          <p class="label">更正与更新</p>
+          <h3>发现版本变化、来源失效或事实错误时，请通过联系页反馈。</h3>
+          <p>本站会核对一手来源后更新内容，不使用无来源转载填充文章。</p>
+          <a class="button button--secondary" href="../editorial.html">查看内容标准</a>
+        </div>
+      </article>
+      <aside class="article-sidebar">
+        <div class="sidebar-card">
+          <p class="label">本页标签</p>
+          <div class="tag-row"><span>Vercel</span><span>Blob</span><span>性能观测</span><span>Core Web Vitals</span><span>AI agent</span><span>云端部署</span></div>
+        </div>
+        <div class="sidebar-card">
+          <p class="label">继续阅读</p>
+          <a href="vercel-november-changes-migration-guide.html">Vercel 11 月变更清单：20MiB 请求体、Priority、秒级部署与两处退役</a><a href="copilot-model-deprecation-december-migration-guide.html">Copilot 12 月 14 日下架 6 个模型：一份能照着做的迁移清单</a><a href="github-ai-scan-rest-api-governance-guide.html">AI Scan 批量治理：用 REST API 管组织和仓库的两级开关</a><a href="vercel-build-capacity-sandbox-decision-guide.html">Vercel 三处提速：64GB 构建磁盘、亚秒级沙箱快照与决策模型</a>
+        </div>
+        <div class="sidebar-card sidebar-card--accent">
+          <p class="label">作者与方法</p>
+          <h3>了解本站如何选题、核验来源与处理更正。</h3>
+          <a class="button button--dark" href="../about.html">关于作者</a>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="page-shell footer__inner">
+      <div><strong>学习资源库</strong><p>分享知识 · 提升自己 · 成就未来</p></div>
+      <div>
+        <a href="../editorial.html">内容标准</a><br>
+        <a href="../privacy.html">隐私政策</a><br>
+        <a href="../contact.html">联系</a>
+      </div>
+    </div>
+  </footer>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      var button = document.querySelector("[data-menu-button]");
+      var nav = document.querySelector("[data-mobile-nav]");
+      if (!button || !nav) return;
+      button.addEventListener("click", function () {
+        var expanded = button.getAttribute("aria-expanded") === "true";
+        button.setAttribute("aria-expanded", String(!expanded));
+        nav.classList.toggle("site-nav--open", !expanded);
+      });
+    });
+  </script>
+</body>
+</html>

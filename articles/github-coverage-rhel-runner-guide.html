@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CI 落地新变化：覆盖率格式校验、RHEL 运行镜像与 GHES 3.23 候选版要点 | 学习资源库</title>
+  <meta name="description" content="11 月下旬 GitHub 在 Actions 与企业平台侧集中放了几项落地性更新：覆盖率上传开始校验 Cobertura 格式，RHEL 9/10 大型运行镜像转正，GHES 3.23 候选版带出项目过滤、内网密钥检测与恶意包数据库扩展。这篇把三项更新放在同一条 CI 落地线上梳理：先看覆盖率报告为什么传上去却不显示，再看运行镜像怎么和生产系统对齐，最后给自托管团队一份候选版升级验证清单。">
+  <meta name="robots" content="index,follow,max-image-preview:large">
+  <link rel="canonical" href="https://hello1yjx.github.io/articles/github-coverage-rhel-runner-guide.html">
+  <link rel="icon" type="image/png" href="../assets/images/brand-book-line.png">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"CI 落地新变化：覆盖率格式校验、RHEL 运行镜像与 GHES 3.23 候选版要点","description":"11 月下旬 GitHub 在 Actions 与企业平台侧集中放了几项落地性更新：覆盖率上传开始校验 Cobertura 格式，RHEL 9/10 大型运行镜像转正，GHES 3.23 候选版带出项目过滤、内网密钥检测与恶意包数据库扩展。这篇把三项更新放在同一条 CI 落地线上梳理：先看覆盖率报告为什么传上去却不显示，再看运行镜像怎么和生产系统对齐，最后给自托管团队一份候选版升级验证清单。","datePublished":"2026-11-24","dateModified":"2026-11-24","author":{"@type":"Person","name":"Avery Lin","url":"https://hello1yjx.github.io/about.html"},"publisher":{"@type":"Organization","name":"学习资源库","url":"https://hello1yjx.github.io/"},"mainEntityOfPage":"https://hello1yjx.github.io/articles/github-coverage-rhel-runner-guide.html","inLanguage":"zh-CN"}</script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6621999105936318" crossorigin="anonymous"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;800&family=Noto+Serif+SC:wght@700;900&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/styles.css?v=20261124-daily-update">
+</head>
+<body>
+  <header class="site-header">
+    <div class="page-shell site-header__inner">
+      <a class="brand" href="../index.html" aria-label="返回首页">
+        <span class="brand-mark" aria-hidden="true"><img src="../assets/images/brand-book-line.png" alt="" width="36" height="33"></span>
+        <span class="brand-copy"><strong>学习资源库</strong><span>分享知识 · 提升自己 · 成就未来</span></span>
+      </a>
+      <button class="menu-button" data-menu-button aria-expanded="false" aria-label="切换导航菜单">☰</button>
+      <nav class="site-nav" data-mobile-nav>
+        <a href="../index.html">首页</a>
+        <a class="is-active" href="../posts.html" aria-current="page">教程</a>
+        <a href="../resources.html">资源下载</a>
+        <a href="../hotspots.html">技术资讯</a>
+        <a href="../projects.html">开源项目</a>
+        <a href="../vulns.html">漏洞分析</a>
+        <a href="../kaogong.html">考公专区</a>
+        <a href="../about.html">关于我们</a>
+      </nav>
+      <form class="header-search" action="../posts.html" method="get">
+        <input type="search" name="q" placeholder="搜索教程、资源、工具或关键词...">
+        <button type="submit" aria-label="搜索">/</button>
+      </form>
+      <a class="header-github" href="https://github.com/hello1yjx/hello1yjx.github.io" target="_blank" rel="noreferrer" aria-label="GitHub">
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="" width="24" height="24">
+      </a>
+      <a class="header-cta" href="../posts.html">开始学习</a>
+    </div>
+  </header>
+
+  <main class="page-shell section article-page">
+    <header class="detail-hero">
+      <span class="pill">CI/CD</span>
+      <h1>CI 落地新变化：覆盖率格式校验、RHEL 运行镜像与 GHES 3.23 候选版要点</h1>
+      <div class="detail-hero__meta">
+        <time datetime="2026-11-24">2026年11月24日</time>
+        <span>10 分钟</span>
+        <span>作者：Avery Lin</span>
+      </div>
+      <p>11 月下旬 GitHub 在 Actions 与企业平台侧集中放了几项落地性更新：覆盖率上传开始校验 Cobertura 格式，RHEL 9/10 大型运行镜像转正，GHES 3.23 候选版带出项目过滤、内网密钥检测与恶意包数据库扩展。这篇把三项更新放在同一条 CI 落地线上梳理：先看覆盖率报告为什么传上去却不显示，再看运行镜像怎么和生产系统对齐，最后给自托管团队一份候选版升级验证清单。</p>
+    </header>
+    <div class="article-layout">
+      <article class="article-body">
+        <div class="inline-promo">
+          <p class="label">来源与增量价值</p>
+          <h3>本文基于官方资料整理，并补充适用场景、限制条件和实践检查步骤。</h3>
+          <p>首要来源：<a href="https://github.blog/changelog/2026-11-23-code-coverage-uploads-now-flag-invalid-report-formats/" target="_blank" rel="noreferrer">Code coverage uploads now flag invalid report formats</a>。事实以原始来源为准，本站建议需结合自己的环境验证。</p>
+        </div>
+
+    <p>覆盖率一直不显示、运行镜像和生产系统不一致、自托管版本升级前心里没底，是三类很常见的 CI 痛点。11 月下旬的几项更新分别对应这三个方向：格式校验把问题提前暴露，同系镜像缩小环境偏差，候选版提供升级前的验证窗口。</p><p>这篇按「覆盖率 → 运行镜像 → GHES 候选版」组织，预览期特性会单独标注，不把候选版行为当作 GA 承诺。</p>
+    <h2>这篇内容适合谁</h2>
+    <ul><li>维护 GitHub Actions 工作流、排查覆盖率不显示的开发者</li><li>选择托管运行镜像或自建自定义镜像基底的平台团队</li><li>准备评估 GHES 3.23 升级的自托管管理员</li></ul>
+    <h2>实践与验证步骤</h2>
+    <ul><li>确认测试框架导出 Cobertura XML</li><li>检查 upload-code-coverage 动作日志</li><li>核对 GitHub Code Quality 已在仓库开启</li><li>评估 CI 与生产系统的 OS 一致性</li><li>新建大型运行器并选择 RHEL 9/10 镜像</li><li>在测试实例部署 GHES 3.23 RC</li><li>验证内网密钥检测与恶意包数据库覆盖</li><li>评估令牌过期策略对客户端的影响</li></ul>
+    <h2>官方资料入口</h2>
+
+    <ul>
+
+            <li>
+              <a href="https://github.blog/changelog/2026-11-23-code-coverage-uploads-now-flag-invalid-report-formats/" target="_blank" rel="noreferrer">Code coverage uploads now flag invalid report formats</a>
+              <span>：覆盖率格式校验与容错口径</span>
+            </li>
+
+            <li>
+              <a href="https://github.blog/changelog/2026-11-19-red-hat-enterprise-linux-runner-images-now-generally-available/" target="_blank" rel="noreferrer">RHEL runner images now generally available</a>
+              <span>：RHEL 9/10 大型运行镜像</span>
+            </li>
+
+            <li>
+              <a href="https://github.blog/changelog/2026-11-20-github-enterprise-server-3-23-release-candidate/" target="_blank" rel="noreferrer">GitHub Enterprise Server 3.23 Release Candidate</a>
+              <span>：候选版特性与预览项</span>
+            </li>
+
+    </ul>
+
+    <h2>重点判断与使用建议</h2>
+    <ul><li>覆盖率：格式不支持时上传步骤直接失败，日志给出明确错误；合法 Cobertura 轻微结构问题放宽容错，缺行号或命中数的单行跳过</li><li>覆盖率能力需开启 GitHub Code Quality，GHEC/Team（含数据驻留）可用，GHES 暂不可用</li><li>RHEL 9/10 大型运行镜像 GA，可与部署目标同 OS，也可作自定义镜像基底；预览用户无需操作</li><li>GHES 3.23 RC：Projects 支持 OR/AND/括号分组；AI 密钥检测本地 CPU 运行，无需 GPU、托管 LLM 或外联（预览）</li><li>恶意包数据库覆盖 PyPI/Maven/RubyGems/NuGet/Go/Rust/Composer；Dependabot 版本更新默认等包上架满三天；OAuth 应用可启用 8 小时过期令牌加刷新令牌（预览）</li></ul>
+
+        <h2>一、覆盖率为什么传上去却不显示</h2>
+
+        <ul><li>测试框架没导出覆盖率文件，工作流里就没有可上传的报告</li><li>导出格式不是 Cobertura XML，上传后 PR 上不会展示覆盖率</li><li>文件路径或工作目录不对，动作找不到报告</li><li>过去这类问题容易被当成「动作跑成功了」，排查要翻到 PR 展示层</li><li>新规则把格式问题前置到上传环节，失败原因直接写进 Actions 日志</li></ul>
+
+
+
+        <h2>二、新校验规则：格式错误直接失败</h2>
+
+        <ul><li>upload-code-coverage action 会检查报告是否为 Cobertura XML</li><li>格式不被支持时上传步骤直接失败，而不是静默跳过</li><li>日志给出明确提示，要求换成 Cobertura XML 或在上传前转换</li><li>若工作流突然报覆盖率格式错误，优先检查测试框架的覆盖率导出设置</li><li>需要仓库开启 GitHub Code Quality 后，这套校验与展示链路才可用</li></ul>
+
+
+
+        <h2>三、合法报告的容错放宽</h2>
+
+        <ul><li>轻微结构问题不再导致整份报告被拒收</li><li>缺少可用行号或命中次数的个别行会被跳过</li><li>跳过的是问题行，不是整份丢弃，覆盖率统计仍能保留主体</li><li>对老项目或模板生成的覆盖率报告更友好</li><li>但行级缺失仍会影响覆盖率精度，建议在框架侧先补齐导出字段</li></ul>
+
+
+
+        <h2>四、覆盖率排错顺序</h2>
+
+        <ul><li>先确认测试框架实际产出了覆盖率文件</li><li>再确认文件格式是 Cobertura XML，必要时加格式转换步骤</li><li>查看上传动作日志，判断是格式错误还是路径找不到</li><li>最后回到 PR 页面核对覆盖率是否展示</li><li>排查时把四步结果记下来，避免在同一层反复重试</li></ul>
+
+
+
+        <h2>五、RHEL 运行镜像转正解决什么问题</h2>
+
+        <ul><li>CI 与生产系统 OS 不一致，是构建通过、上线翻车的常见来源</li><li>RHEL 9 与 10 大型运行镜像结束预览、转为正式可用，可用于生产工作流</li><li>可以用与部署目标相同的操作系统跑构建与测试</li><li>也可以作为加入自有工具、依赖和配置的自定义镜像基底</li><li>镜像面向 GitHub Team 与 GitHub Enterprise Cloud 套餐的大型运行器</li></ul>
+
+
+
+        <h2>六、怎么选择 RHEL 镜像或自定义基底</h2>
+
+        <ul><li>新建 Linux x64 大型运行器时，在 partner images 下选择对应 RHEL 镜像</li><li>预览期已使用 RHEL 镜像的运行器和工作流无需改动</li><li>需要锁定工具版本时，在 RHEL 基底上构建自定义镜像</li><li>自定义镜像把运行环境版本掌握在团队自己手里</li><li>镜像选型先对齐生产部署系统的大版本，再考虑工具链差异</li></ul>
+
+
+
+        <h2>七、GHES 3.23 候选版的项目与密钥能力</h2>
+
+        <ul><li>Projects 视图可组合逻辑 OR、显式 AND 与括号分组过滤</li><li>Secret Protection 的 AI 密钥检测可在 GHES 内网或气隙环境运行</li><li>检测模型是自包含的微调模型，跑在设备 CPU 上</li><li>不依赖 GPU、托管 LLM 或外联服务（预览）</li><li>候选版建议先在测试实例部署，再评估生产升级</li></ul>
+
+
+
+        <h2>八、恶意包数据库与依赖更新节奏</h2>
+
+        <ul><li>安全公告数据库在 npm 之外补充 PyPI、Maven、RubyGems、NuGet、Go、Rust、Composer</li><li>自动摄取 OpenSSF malicious-packages 仓库的已知恶意包</li><li>Dependabot 版本更新默认等包在注册中心满三天再开 PR</li><li>三天缓冲可以过滤刚上架的异常包，也会推迟正常更新</li><li>关键依赖仍应配合人工复核与锁文件校验</li></ul>
+
+
+
+        <h2>九、令牌过期与集群组件调整</h2>
+
+        <ul><li>OAuth 应用支持八小时过期访问令牌加刷新令牌（预览）</li><li>存量应用可选启用，新建应用默认开启，scope 带 offline_access</li><li>强制过期前必须确认所有客户端支持刷新令牌，否则会打断登录</li><li>集群可把 Redis 主节点从混用节点迁到专用节点</li><li>组件迁移前先核对容量与连接配置，避免影响会话与缓存</li></ul>
+
+
+
+        <h2>十、落地建议与验证顺序</h2>
+
+        <ul><li>先修覆盖率链路：格式、路径、展示逐项打通</li><li>再评估运行镜像：对齐生产 OS，必要时沉淀自定义基底</li><li>GHES 候选版先跑测试实例，列出预览特性与兼容性风险</li><li>令牌策略变更前先确认客户端刷新能力</li><li>每项更新留一份验证记录，升级时按清单对照</li></ul>
+
+
+
+
+        <div class="inline-promo">
+          <p class="label">更正与更新</p>
+          <h3>发现版本变化、来源失效或事实错误时，请通过联系页反馈。</h3>
+          <p>本站会核对一手来源后更新内容，不使用无来源转载填充文章。</p>
+          <a class="button button--secondary" href="../editorial.html">查看内容标准</a>
+        </div>
+      </article>
+      <aside class="article-sidebar">
+        <div class="sidebar-card">
+          <p class="label">本页标签</p>
+          <div class="tag-row"><span>GitHub Actions</span><span>代码覆盖率</span><span>RHEL</span><span>GHES</span><span>CI/CD</span><span>企业平台</span></div>
+        </div>
+        <div class="sidebar-card">
+          <p class="label">继续阅读</p>
+          <a href="vercel-november-changes-migration-guide.html">Vercel 11 月变更清单：20MiB 请求体、Priority、秒级部署与两处退役</a><a href="copilot-model-deprecation-december-migration-guide.html">Copilot 12 月 14 日下架 6 个模型：一份能照着做的迁移清单</a><a href="github-ai-scan-rest-api-governance-guide.html">AI Scan 批量治理：用 REST API 管组织和仓库的两级开关</a><a href="vercel-build-capacity-sandbox-decision-guide.html">Vercel 三处提速：64GB 构建磁盘、亚秒级沙箱快照与决策模型</a>
+        </div>
+        <div class="sidebar-card sidebar-card--accent">
+          <p class="label">作者与方法</p>
+          <h3>了解本站如何选题、核验来源与处理更正。</h3>
+          <a class="button button--dark" href="../about.html">关于作者</a>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="page-shell footer__inner">
+      <div><strong>学习资源库</strong><p>分享知识 · 提升自己 · 成就未来</p></div>
+      <div>
+        <a href="../editorial.html">内容标准</a><br>
+        <a href="../privacy.html">隐私政策</a><br>
+        <a href="../contact.html">联系</a>
+      </div>
+    </div>
+  </footer>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      var button = document.querySelector("[data-menu-button]");
+      var nav = document.querySelector("[data-mobile-nav]");
+      if (!button || !nav) return;
+      button.addEventListener("click", function () {
+        var expanded = button.getAttribute("aria-expanded") === "true";
+        button.setAttribute("aria-expanded", String(!expanded));
+        nav.classList.toggle("site-nav--open", !expanded);
+      });
+    });
+  </script>
+</body>
+</html>

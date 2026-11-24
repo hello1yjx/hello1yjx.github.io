@@ -12,7 +12,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://cdn.jsdelivr.net">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;800&family=Noto+Serif+SC:wght@700;900&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/styles.css?v=20261121-daily-update">
+  <link rel="stylesheet" href="assets/styles.css?v=20261124-daily-update">
   <style>
     .gm-hero { background: linear-gradient(135deg,#11151c,#1f2937); color:#fff; border-radius:18px; padding:26px 28px; border:1px solid #374151; }
     .gm-hero h1 { color:#fff; font-size:1.6rem; margin:8px 0; }
@@ -34,6 +34,7 @@
     .gm-card__thumb--quiz { background:radial-gradient(circle at 70% 30%,#1a1420,#0b0910); color:#fbbf24; }
     .gm-card__thumb--monster { background:radial-gradient(circle at 35% 25%,#21101a,#0d0709); color:#f43f5e; }
   .gm-card__thumb--type { background:radial-gradient(circle at 65% 25%,#0d1a20,#070c0f); color:#22d3ee; }
+    .gm-card__thumb img { width:100%; height:100%; object-fit:cover; display:block; }
     .gm-card__thumb .grid-lines { position:absolute; inset:0; opacity:.15;
       background-image:linear-gradient(#34d399 1px,transparent 1px),linear-gradient(90deg,#34d399 1px,transparent 1px);
       background-size:22px 22px; }
@@ -88,8 +89,7 @@
       <div class="gm-grid">
         <a class="gm-card reveal" href="games/monster-defense.html">
           <div class="gm-card__thumb gm-card__thumb--monster">
-            <span class="grid-lines" style="background-image:linear-gradient(#f43f5e 1px,transparent 1px),linear-gradient(90deg,#f43f5e 1px,transparent 1px);"></span>
-            <span>🏰⚔️👹</span>
+            <img src="assets/images/games/monster-defense.jpg" alt="怪兽防御战缩略图">
           </div>
           <div class="gm-card__body">
             <span class="gm-card__tag" style="color:#be123c;">Tower Defense · 塔防</span>
@@ -101,8 +101,7 @@
 
         <a class="gm-card reveal" href="games/snake.html">
           <div class="gm-card__thumb gm-card__thumb--snake">
-            <span class="grid-lines"></span>
-            <span>▰▰▰</span>
+            <img src="assets/images/games/snake.jpg" alt="终端贪吃蛇缩略图">
           </div>
           <div class="gm-card__body">
             <span class="gm-card__tag">Arcade · 街机</span>
@@ -114,8 +113,7 @@
 
         <a class="gm-card reveal" href="games/security-quiz.html">
           <div class="gm-card__thumb gm-card__thumb--quiz">
-            <span class="grid-lines" style="background-image:linear-gradient(#fbbf24 1px,transparent 1px),linear-gradient(90deg,#fbbf24 1px,transparent 1px);"></span>
-            <span>?</span>
+            <img src="assets/images/games/security-quiz.jpg" alt="网络安全知识闯关缩略图">
           </div>
           <div class="gm-card__body">
             <span class="gm-card__tag">Quiz · 知识闯关</span>
@@ -127,8 +125,7 @@
 
         <a class="gm-card reveal" href="games/typing-defense.html">
           <div class="gm-card__thumb gm-card__thumb--type">
-            <span class="grid-lines" style="background-image:linear-gradient(#22d3ee 1px,transparent 1px),linear-gradient(90deg,#22d3ee 1px,transparent 1px);"></span>
-            <span>Aa↓</span>
+            <img src="assets/images/games/typing-defense.jpg" alt="网安英语打字防线缩略图">
           </div>
           <div class="gm-card__body">
             <span class="gm-card__tag" style="color:#0e7490;">Typing · 词汇打字</span>

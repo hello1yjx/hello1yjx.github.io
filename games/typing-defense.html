@@ -51,7 +51,7 @@
   }
   .defense.hit { background:linear-gradient(180deg,rgba(248,113,113,.15),rgba(248,113,113,.4)); border-top-color:var(--red); color:#fecaca; }
   .word {
-    position:absolute; top:0; left:0; will-change:transform;
+    position:absolute; top:0; left:0; will-change:transform; z-index:1;
     background:#0b1a20; border:1px solid var(--line); border-radius:9px;
     padding:6px 10px; text-align:center; line-height:1.25; white-space:nowrap;
   }
@@ -64,7 +64,7 @@
   .word.pop { border-color:var(--green); background:rgba(52,211,153,.16); }
   .word.miss { border-color:var(--red); background:rgba(248,113,113,.16); }
   .overlay {
-    position:absolute; inset:0; background:rgba(7,12,15,.94);
+    position:absolute; inset:0; z-index:10; background:#070c0f;
     display:flex; flex-direction:column; align-items:center; justify-content:center;
     gap:10px; padding:18px; text-align:center; overflow-y:auto;
   }
@@ -303,6 +303,14 @@
     }
   }
 
+  function clearAllWords(){
+    words.slice().forEach(function(word){
+      if (word.el.parentNode) word.el.parentNode.removeChild(word.el);
+    });
+    words = [];
+    target = null;
+  }
+
   function clearWord(word){
     score += Math.round(word.w.length * 10 * multiplier());
     combo += 1;
@@ -420,6 +428,10 @@
   function showStart(){
     running = false;
     paused = false;
+    clearAllWords();
+    lastValid = '';
+    input.value = '';
+    input.classList.remove('bad');
     input.disabled = true;
     pauseBtn.disabled = true;
     var best = readBest();
@@ -450,9 +462,7 @@
   }
 
   function start(){
-    words.slice().forEach(function(w){ removeWord(w); });
-    words = [];
-    target = null;
+    clearAllWords();
     score = 0; combo = 0; bestCombo = 0; lives = 3; wave = 1; cleared = 0;
     keys = 0; goodKeys = 0; clearedChars = 0; elapsed = 0; spawnAcc = 0;
     learned = [];
@@ -500,9 +510,14 @@
   function gameOver(){
     running = false;
     paused = false;
+    if (rafId) { cancelAnimationFrame(rafId); rafId = 0; }
+    releaseTarget();
+    clearAllWords();
+    lastValid = '';
+    input.value = '';
+    input.classList.remove('bad');
     input.disabled = true;
     pauseBtn.disabled = true;
-    releaseTarget();
     var best = readBest();
     var isRecord = score > best;
     if (isRecord) { best = score; writeBest(best); }

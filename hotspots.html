@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://cdn.jsdelivr.net">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;800&family=Noto+Serif+SC:wght@700;900&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/styles.css?v=20261121-daily-update">
+  <link rel="stylesheet" href="assets/styles.css?v=20261124-daily-update">
 </head>
 <body>
   <header class="site-header">
@@ -78,6 +78,206 @@
       <div class="hotspot-grid" data-hotspot-list>
         <!-- STATIC_HOTSPOTS_START -->
 <article class="hotspot-card reveal">
+      <div class="hotspot-card__head">
+        <span class="hotspot-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="安全工程 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <div>
+          <div class="hotspot-card__meta">
+            <span>安全工程</span>
+            <time datetime="2026-11-23">2026年11月23日</time>
+          </div>
+          <h3>代码覆盖率上传开始校验报告格式：不是 Cobertura XML 直接失败并报明确错误</h3>
+        </div>
+      </div>
+      <p>GitHub Code Quality 的 upload-code-coverage action 现在会检查覆盖率报告是否为 Cobertura XML 格式；格式不被支持时上传步骤直接失败，Actions 日志给出明确提示，要求换成 Cobertura XML 或在上传前转换。过去这类上传看似成功，但 PR 上不会显示覆盖率。对合法 Cobertura 报告也放宽了容错：轻微结构问题不再整体拒收，缺少可用行号或命中次数的个别行会被跳过，而不是丢弃整份报告。该能力需要仓库开启 GitHub Code Quality，目前面向 GitHub Enterprise Cloud 与 GitHub Team（含数据驻留），GHES 暂不可用。</p>
+      <div class="hotspot-card__why">
+        <strong>为什么值得关注</strong>
+        <p>为什么值得关注：覆盖率一直显示不出来，过去很难定位是采集没跑、路径不对还是格式不对；现在格式问题在上传环节就暴露。排查顺序变成：先确认测试框架输出 Cobertura XML，再看上传动作是否成功，最后核对 PR 展示。若 CI 突然报这个错，优先检查测试框架的覆盖率导出格式与转换步骤。</p>
+      </div>
+      <p class="hotspot-card__idea">待扩写：覆盖率报告格式排错清单</p>
+      <a class="text-link" href="https://github.blog/changelog/2026-11-23-code-coverage-uploads-now-flag-invalid-report-formats/" target="_blank" rel="noreferrer">查看来源：GitHub Changelog</a>
+    </article>
+
+    <article class="hotspot-card reveal">
+      <div class="hotspot-card__head">
+        <span class="hotspot-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="企业平台 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <div>
+          <div class="hotspot-card__meta">
+            <span>企业平台</span>
+            <time datetime="2026-11-20">2026年11月20日</time>
+          </div>
+          <h3>GHES 3.23 候选版发布：项目视图 OR 过滤、内网 AI 密钥检测、恶意包数据库扩生态</h3>
+        </div>
+      </div>
+      <p>GitHub Enterprise Server 3.23 发布候选版。要点包括：GitHub Projects 视图可组合逻辑 OR、显式 AND 与括号分组过滤；Secret Protection 在 GHES 上用本地 CPU 微调模型做 AI 密钥检测，不依赖 GPU、托管 LLM 或外联，可用于气隙环境（预览）；安全公告数据库在 npm 之外补充 PyPI、Maven、RubyGems、NuGet、Go、Rust、Composer 的已知恶意包，并自动摄取 OpenSSF malicious-packages 仓库；Dependabot 版本更新默认等包在注册中心满三天再开 PR；OAuth 应用可启用八小时过期访问令牌加刷新令牌（预览，新应用默认开启）；集群可把 Redis 主节点从混用节点迁到专用节点。</p>
+      <div class="hotspot-card__why">
+        <strong>为什么值得关注</strong>
+        <p>为什么值得关注：候选版是 GA 前的验证窗口，自托管团队可以先在测试实例跑升级，重点看气隙密钥检测、恶意包覆盖和令牌过期策略对现有流程的影响。注意预览特性可能变化；强制令牌过期前必须确认所有客户端支持刷新令牌，否则会打断登录。</p>
+      </div>
+      <p class="hotspot-card__idea">待扩写：GHES 3.23 升级验证清单</p>
+      <a class="text-link" href="https://github.blog/changelog/2026-11-20-github-enterprise-server-3-23-release-candidate/" target="_blank" rel="noreferrer">查看来源：GitHub Changelog</a>
+    </article>
+
+    <article class="hotspot-card reveal">
+      <div class="hotspot-card__head">
+        <span class="hotspot-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="CI/CD 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <div>
+          <div class="hotspot-card__meta">
+            <span>CI/CD</span>
+            <time datetime="2026-11-19">2026年11月19日</time>
+          </div>
+          <h3>RHEL 9/10 托管大型运行镜像正式可用，可与生产部署系统保持一致</h3>
+        </div>
+      </div>
+      <p>GitHub 托管大型运行器的 Red Hat Enterprise Linux 9 与 10 镜像结束公开预览、转为正式可用，可在生产工作流中使用。该镜像 2026 年 6 月以预览形式与 Red Hat 合作推出，适合用与部署目标相同的操作系统跑构建与测试，也可作为加入自有工具、依赖和配置的自定义镜像基底。创建 Linux x64 大型运行器时，在 partner images 下选择对应 RHEL 镜像即可；预览期已使用 RHEL 镜像的运行器和工作流无需改动。RHEL 镜像面向 GitHub Team 与 GitHub Enterprise Cloud 套餐的大型运行器。</p>
+      <div class="hotspot-card__why">
+        <strong>为什么值得关注</strong>
+        <p>为什么值得关注：CI 与生产系统不一致是「构建通过、上线翻车」的常见来源；用同系 RHEL 镜像能缩小这类偏差。自定义镜像路线则把运行环境版本锁定在团队自己可控的镜像里，减少官方镜像升级带来的突发变化。</p>
+      </div>
+      <p class="hotspot-card__idea">待扩写：运行镜像选型与自定义镜像基底</p>
+      <a class="text-link" href="https://github.blog/changelog/2026-11-19-red-hat-enterprise-linux-runner-images-now-generally-available/" target="_blank" rel="noreferrer">查看来源：GitHub Changelog</a>
+    </article>
+
+    <article class="hotspot-card reveal">
+      <div class="hotspot-card__head">
+        <span class="hotspot-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="企业治理 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <div>
+          <div class="hotspot-card__meta">
+            <span>企业治理</span>
+            <time datetime="2026-11-19">2026年11月19日</time>
+          </div>
+          <h3>审计日志流式推送到 S3 的 OIDC 认证扩展到 GHE.com，不再存长期 AWS 凭据</h3>
+        </div>
+      </div>
+      <p>使用 OpenID Connect 向 Amazon S3 流式传输企业审计日志的能力，从 github.com 扩展到带数据驻留的 GitHub Enterprise Cloud（GHE.com）。OIDC 方式让 GitHub 向 AWS 换取短期凭据完成上传，不需要在 GitHub 侧存放长期有效的 AWS 访问密钥。审计日志集中到 S3 后，可对接团队现有的 SIEM、日志留存与合规分析流程。</p>
+      <div class="hotspot-card__why">
+        <strong>为什么值得关注</strong>
+        <p>为什么值得关注：长期云密钥放在代码仓库或平台配置里，本身就是高价值目标；用 OIDC 短期凭据可以把这一类静态密钥移除。配置时要注意角色信任策略、会话时长与日志桶权限边界，确保审计日志只被授权的系统读取。</p>
+      </div>
+      <p class="hotspot-card__idea">待扩写：审计日志 OIDC 推送配置</p>
+      <a class="text-link" href="https://github.blog/changelog/2026-11-19-s3-audit-log-streaming-with-openid-connect-expands-to-ghe-com/" target="_blank" rel="noreferrer">查看来源：GitHub Changelog</a>
+    </article>
+
+    <article class="hotspot-card reveal">
+      <div class="hotspot-card__head">
+        <span class="hotspot-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="Copilot 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <div>
+          <div class="hotspot-card__meta">
+            <span>Copilot</span>
+            <time datetime="2026-11-18">2026年11月18日</time>
+          </div>
+          <h3>再接入八个服务连接器：Supabase、Box、Buildkite、Calendly、ClickUp、Mixpanel、Webflow、Wix</h3>
+        </div>
+      </div>
+      <p>Copilot 新增八个经 GitHub 验证的 MCP 连接器（公开预览），加上此前的 Slack、Figma、Sentry 等已有超过 25 个可连接服务。新增清单：Box 搜索管理内容并调用 Box AI；Buildkite 查看流水线与构建；Calendly 管理日程；ClickUp 跟踪任务项目；Mixpanel 查看产品分析；Supabase 操作项目与数据库；Webflow 与 Wix 管理站点和业务工具。典型用法是在同一会话里让 Copilot 先查 Buildkite 构建失败原因、再改对应代码，或先核对 Supabase 表结构再写迁移。连接一次即可在各 Copilot 入口使用；入口包括 Copilot 应用 Customize、CLI 的 /mcp Connectors 标签页、VS Code Agents 的 Customizations，以及 github.com 定制页。Business/Enterprise 需管理员开启 Editor preview features 策略；若企业 MCP 允许清单按连接器逐个列出，还要把新连接器加进清单。</p>
+      <div class="hotspot-card__why">
+        <strong>为什么值得关注</strong>
+        <p>为什么值得关注：连接器把 agent 的上下文从代码库扩展到业务系统，方便排障和跨工具操作；但这也意味着授权范围要按最小必要核对。上线前先确认哪些成员能连、连到哪些空间，以及第三方服务侧是否还需要单独开启 MCP 访问。</p>
+      </div>
+      <p class="hotspot-card__idea">待扩写：Copilot 连接器接入与策略配置</p>
+      <a class="text-link" href="https://github.blog/changelog/2026-11-18-connect-supabase-box-calendly-and-more-to-copilot/" target="_blank" rel="noreferrer">查看来源：GitHub Changelog</a>
+    </article>
+
+    <article class="hotspot-card reveal">
+      <div class="hotspot-card__head">
+        <span class="hotspot-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="安全 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <div>
+          <div class="hotspot-card__meta">
+            <span>安全</span>
+            <time datetime="2026-11-18">2026年11月18日</time>
+          </div>
+          <h3>GitHub Team 组织自动运行安全风险评估，暴露凭据与代码漏洞集中可见</h3>
+        </div>
+      </div>
+      <p>安全风险评估现在对 GitHub Team 套餐的组织自动运行。组织管理员与安全经理可以查看免费评估结果，识别暴露的凭据与代码漏洞，理解当前组织风险并排定下一步动作。评估覆盖代码安全风险与密钥安全风险两类，结果可作为团队分仓库、分语言排优先级的起点。</p>
+      <div class="hotspot-card__why">
+        <strong>为什么值得关注</strong>
+        <p>为什么值得关注：自动评估适合作为季度或上线前的基线扫描，但报告本身不等于修复闭环。建议把发现按暴露面和可利用程度排序，先处理可公开访问仓库里的暴露凭据，再跟进代码漏洞；评估结论要和实际修复记录对应起来。</p>
+      </div>
+      <p class="hotspot-card__idea">待扩写：组织风险评估结果怎么排优先级</p>
+      <a class="text-link" href="https://github.blog/changelog/2026-11-18-security-risk-assessments-run-automatically-on-github-team/" target="_blank" rel="noreferrer">查看来源：GitHub Changelog</a>
+    </article>
+
+    <article class="hotspot-card reveal">
+      <div class="hotspot-card__head">
+        <span class="hotspot-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="云端部署 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <div>
+          <div class="hotspot-card__meta">
+            <span>云端部署</span>
+            <time datetime="2026-11-18">2026年11月18日</time>
+          </div>
+          <h3>Vercel Board 面向所有套餐开放：给人与 agent 提供共享协作留言板</h3>
+        </div>
+      </div>
+      <p>Vercel Board 是实验性留言板，面向所有套餐，为 agent 提供一个共享、安全的协作场所来协调任务、集中保存上下文。特性包括：每个任务的讨论与结果放在同一线程；可以控制 agent 和用户能访问哪些频道、能做什么；消息与回复通过 Vercel Connect 与 Slack、GitHub 等工具双向同步。团队可以使用自己的 agent、执行框架和运行环境，agent 通过 Vercel CLI 或 JavaScript SDK 接入；起步可安装 Board skill（npx skills add vercel/board），或把引导提示词贴给编码 agent 自动完成 CLI 安装、登录、身份确认与频道浏览。</p>
+      <div class="hotspot-card__why">
+        <strong>为什么值得关注</strong>
+        <p>为什么值得关注：多 agent 协作时上下文散落各处是常见问题，Board 相当于团队的任务线程层。实验阶段要注意权限边界：频道访问、消息写入和外部同步都应按角色限制；接入前先在小范围试用，观察 agent 读写是否符合预期。</p>
+      </div>
+      <p class="hotspot-card__idea">待扩写：多 agent 协作线程方案对比</p>
+      <a class="text-link" href="https://vercel.com/changelog/vercel-board-is-now-available" target="_blank" rel="noreferrer">查看来源：Vercel Changelog</a>
+    </article>
+
+    <article class="hotspot-card reveal">
+      <div class="hotspot-card__head">
+        <span class="hotspot-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/docker/docker-original.svg" alt="云端部署 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <div>
+          <div class="hotspot-card__meta">
+            <span>云端部署</span>
+            <time datetime="2026-11-17">2026年11月17日</time>
+          </div>
+          <h3>Vercel Blob 支持 TTL 自动删除：1 到 730 天，可事后改期或清除</h3>
+        </div>
+      </div>
+      <p>Vercel Blob 现在支持写入时指定 ttlDays，上传后按天数自动删除，范围 1 到 730 天，TTL 从上传日期起算。适合会话记录、导出文件、临时上传这类本来就要手动清理的 Blob。ttlDays 适用于 put、copy、putImage、分片上传和预签名上传 URL；每次写入结果与 head() 响应都会带 expiresAt，标明预计删除时间。已存在的 Blob 可用 setTtl 改期或清除 TTL，一次一个 URL，最多批量 1000 个，无需重新上传；CLI 65.16.0 起在 blob put、put-image、copy、presign 支持 --ttl-days，并用 vercel blob set-ttl 管理现有 Blob。计费上，设置 TTL 每开启 60 天计一次 Advanced Operation，叠加在写入之上；7 天 TTL 计 1 次，730 天上限计 13 次；清除 TTL 与实际删除免费，可在 Observability 的 Blob 区块跟踪。</p>
+      <div class="hotspot-card__why">
+        <strong>为什么值得关注</strong>
+        <p>为什么值得关注：临时文件长期堆积会抬高存储成本，也增加过期数据暴露面。用 TTL 替代手动清理脚本更稳，但要先按数据类型分层：会话记录短 TTL，长期导出走私有存储。注意 TTL 是按上传日计算，续期要用 setTtl，别指望重新上传覆盖。</p>
+      </div>
+      <p class="hotspot-card__idea">待扩写：临时文件生命周期与 TTL 分层</p>
+      <a class="text-link" href="https://vercel.com/changelog/vercel-blob-now-supports-ttls-for-automatic-deletion" target="_blank" rel="noreferrer">查看来源：Vercel Changelog</a>
+    </article>
+
+    <article class="hotspot-card reveal">
+      <div class="hotspot-card__head">
+        <span class="hotspot-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/docker/docker-original.svg" alt="性能优化 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <div>
+          <div class="hotspot-card__meta">
+            <span>性能优化</span>
+            <time datetime="2026-11-17">2026年11月17日</time>
+          </div>
+          <h3>Speed Insights 默认测量软导航：SPA 客户端路由切换也计入 Core Web Vitals</h3>
+        </div>
+      </div>
+      <p>Speed Insights 现在默认测量软导航（soft navigation）：不发生整页刷新、只更新页面内容的客户端路由切换。这样可以追踪用户在应用内流转的性能，而不只是首屏整页加载。软导航采集 LCP、FCP、INP、CLS 并计入 Real Experience Score；TTFB 不采集，因为没有新文档请求。追踪对所有使用 Speed Insights 的项目默认开启，无需配置，适配 Next.js、SvelteKit、Nuxt 等现代框架，运行在 Chromium 内核浏览器。仪表盘新增 Navigation Type 过滤器，可查看全部、硬导航或软导航数据。</p>
+      <div class="hotspot-card__why">
+        <strong>为什么值得关注</strong>
+        <p>为什么值得关注：SPA 用户大部分时间在路由切换里，只看首屏 CWV 会漏掉交互路径上的卡顿。排查时先用 Hard/Soft 拆分对比：如果软导航 INP 偏高，问题往往在路由切换时的数据请求与渲染阻塞，而不是首屏资源体积。</p>
+      </div>
+      <p class="hotspot-card__idea">待扩写：SPA 软导航性能排查</p>
+      <a class="text-link" href="https://vercel.com/changelog/speed-insights-now-measures-soft-navigations" target="_blank" rel="noreferrer">查看来源：Vercel Changelog</a>
+    </article>
+
+    <article class="hotspot-card reveal">
+      <div class="hotspot-card__head">
+        <span class="hotspot-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="供应链安全 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <div>
+          <div class="hotspot-card__meta">
+            <span>供应链安全</span>
+            <time datetime="2026-11-16">2026年11月16日</time>
+          </div>
+          <h3>Dependabot 告警解除申请有效期从一周延长到一年</h3>
+        </div>
+      </div>
+      <p>使用 Dependabot 委托式告警解除（delegated alert dismissal）时，解除申请现在保留一年，而不是一周。评审人有更长时间响应，避免申请过期后重新提交。该变更已在 github.com 上线，并将随 GitHub Enterprise Server 3.24 发布。</p>
+      <div class="hotspot-card__why">
+        <strong>为什么值得关注</strong>
+        <p>为什么值得关注：一周有效期在评审人休假、排期靠后时很容易过期，重新提交流程成本不低；一年窗口更贴合实际评审节奏。但窗口变长不等于可以搁置，建议给解除申请补上理由与复核记录，避免未处置告警长期挂起。</p>
+      </div>
+      <p class="hotspot-card__idea">待扩写：依赖告警评审流程设计</p>
+      <a class="text-link" href="https://github.blog/changelog/2026-11-16-dependabot-alert-dismissal-requests-now-last-one-year/" target="_blank" rel="noreferrer">查看来源：GitHub Changelog</a>
+    </article>
+
+    <article class="hotspot-card reveal">
       <div class="hotspot-card__head">
         <span class="hotspot-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="安全 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
         <div>
@@ -6555,6 +6755,6 @@
     </div>
   </footer>
 
-  <script src="assets/app.js?v=20261121-daily-update"></script>
+  <script src="assets/app.js?v=20261124-daily-update"></script>
 </body>
 </html>

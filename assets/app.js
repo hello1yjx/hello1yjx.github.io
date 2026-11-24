@@ -29,6 +29,308 @@ const siteData = {
   },
   posts: [
     {
+      id: "github-coverage-rhel-runner-guide",
+      title: "CI 落地新变化：覆盖率格式校验、RHEL 运行镜像与 GHES 3.23 候选版要点",
+      date: "2026-11-24",
+      category: "CI/CD",
+      readTime: "10 分钟",
+      excerpt: "11 月下旬 GitHub 在 Actions 与企业平台侧集中放了几项落地性更新：覆盖率上传开始校验 Cobertura 格式，RHEL 9/10 大型运行镜像转正，GHES 3.23 候选版带出项目过滤、内网密钥检测与恶意包数据库扩展。这篇把三项更新放在同一条 CI 落地线上梳理：先看覆盖率报告为什么传上去却不显示，再看运行镜像怎么和生产系统对齐，最后给自托管团队一份候选版升级验证清单。",
+      tags: ["GitHub Actions", "代码覆盖率", "RHEL", "GHES", "CI/CD", "企业平台"],
+      featured: true,
+      intro: [
+        "覆盖率一直不显示、运行镜像和生产系统不一致、自托管版本升级前心里没底，是三类很常见的 CI 痛点。11 月下旬的几项更新分别对应这三个方向：格式校验把问题提前暴露，同系镜像缩小环境偏差，候选版提供升级前的验证窗口。",
+        "这篇按「覆盖率 → 运行镜像 → GHES 候选版」组织，预览期特性会单独标注，不把候选版行为当作 GA 承诺。"
+      ],
+      audience: [
+        "维护 GitHub Actions 工作流、排查覆盖率不显示的开发者",
+        "选择托管运行镜像或自建自定义镜像基底的平台团队",
+        "准备评估 GHES 3.23 升级的自托管管理员"
+      ],
+      format: [
+        "按「覆盖率 → 运行镜像 → GHES 候选版」组织，功能与限制均取自官方说明",
+        "预览期特性单独标注，不把候选版行为当作 GA 承诺"
+      ],
+      roadmap: [
+        "确认测试框架导出 Cobertura XML",
+        "检查 upload-code-coverage 动作日志",
+        "核对 GitHub Code Quality 已在仓库开启",
+        "评估 CI 与生产系统的 OS 一致性",
+        "新建大型运行器并选择 RHEL 9/10 镜像",
+        "在测试实例部署 GHES 3.23 RC",
+        "验证内网密钥检测与恶意包数据库覆盖",
+        "评估令牌过期策略对客户端的影响"
+      ],
+      officialLinks: [
+        { label: "Code coverage uploads now flag invalid report formats", url: "https://github.blog/changelog/2026-11-23-code-coverage-uploads-now-flag-invalid-report-formats/", note: "覆盖率格式校验与容错口径" },
+        { label: "RHEL runner images now generally available", url: "https://github.blog/changelog/2026-11-19-red-hat-enterprise-linux-runner-images-now-generally-available/", note: "RHEL 9/10 大型运行镜像" },
+        { label: "GitHub Enterprise Server 3.23 Release Candidate", url: "https://github.blog/changelog/2026-11-20-github-enterprise-server-3-23-release-candidate/", note: "候选版特性与预览项" }
+      ],
+      curatedLinks: [
+        "覆盖率：格式不支持时上传步骤直接失败，日志给出明确错误；合法 Cobertura 轻微结构问题放宽容错，缺行号或命中数的单行跳过",
+        "覆盖率能力需开启 GitHub Code Quality，GHEC/Team（含数据驻留）可用，GHES 暂不可用",
+        "RHEL 9/10 大型运行镜像 GA，可与部署目标同 OS，也可作自定义镜像基底；预览用户无需操作",
+        "GHES 3.23 RC：Projects 支持 OR/AND/括号分组；AI 密钥检测本地 CPU 运行，无需 GPU、托管 LLM 或外联（预览）",
+        "恶意包数据库覆盖 PyPI/Maven/RubyGems/NuGet/Go/Rust/Composer；Dependabot 版本更新默认等包上架满三天；OAuth 应用可启用 8 小时过期令牌加刷新令牌（预览）"
+      ],
+      downloadIdeas: [
+        "做一份 CI 排错对照表：覆盖率不显示时按采集、格式、上传、展示四步定位",
+        "整理 GHES 升级验证清单：新特性、预览开关、客户端兼容性逐项打勾"
+      ],
+      extraSections: [
+        {
+          title: "一、覆盖率为什么传上去却不显示",
+          items: [
+            "测试框架没导出覆盖率文件，工作流里就没有可上传的报告",
+            "导出格式不是 Cobertura XML，上传后 PR 上不会展示覆盖率",
+            "文件路径或工作目录不对，动作找不到报告",
+            "过去这类问题容易被当成「动作跑成功了」，排查要翻到 PR 展示层",
+            "新规则把格式问题前置到上传环节，失败原因直接写进 Actions 日志"
+          ]
+        },
+        {
+          title: "二、新校验规则：格式错误直接失败",
+          items: [
+            "upload-code-coverage action 会检查报告是否为 Cobertura XML",
+            "格式不被支持时上传步骤直接失败，而不是静默跳过",
+            "日志给出明确提示，要求换成 Cobertura XML 或在上传前转换",
+            "若工作流突然报覆盖率格式错误，优先检查测试框架的覆盖率导出设置",
+            "需要仓库开启 GitHub Code Quality 后，这套校验与展示链路才可用"
+          ]
+        },
+        {
+          title: "三、合法报告的容错放宽",
+          items: [
+            "轻微结构问题不再导致整份报告被拒收",
+            "缺少可用行号或命中次数的个别行会被跳过",
+            "跳过的是问题行，不是整份丢弃，覆盖率统计仍能保留主体",
+            "对老项目或模板生成的覆盖率报告更友好",
+            "但行级缺失仍会影响覆盖率精度，建议在框架侧先补齐导出字段"
+          ]
+        },
+        {
+          title: "四、覆盖率排错顺序",
+          items: [
+            "先确认测试框架实际产出了覆盖率文件",
+            "再确认文件格式是 Cobertura XML，必要时加格式转换步骤",
+            "查看上传动作日志，判断是格式错误还是路径找不到",
+            "最后回到 PR 页面核对覆盖率是否展示",
+            "排查时把四步结果记下来，避免在同一层反复重试"
+          ]
+        },
+        {
+          title: "五、RHEL 运行镜像转正解决什么问题",
+          items: [
+            "CI 与生产系统 OS 不一致，是构建通过、上线翻车的常见来源",
+            "RHEL 9 与 10 大型运行镜像结束预览、转为正式可用，可用于生产工作流",
+            "可以用与部署目标相同的操作系统跑构建与测试",
+            "也可以作为加入自有工具、依赖和配置的自定义镜像基底",
+            "镜像面向 GitHub Team 与 GitHub Enterprise Cloud 套餐的大型运行器"
+          ]
+        },
+        {
+          title: "六、怎么选择 RHEL 镜像或自定义基底",
+          items: [
+            "新建 Linux x64 大型运行器时，在 partner images 下选择对应 RHEL 镜像",
+            "预览期已使用 RHEL 镜像的运行器和工作流无需改动",
+            "需要锁定工具版本时，在 RHEL 基底上构建自定义镜像",
+            "自定义镜像把运行环境版本掌握在团队自己手里",
+            "镜像选型先对齐生产部署系统的大版本，再考虑工具链差异"
+          ]
+        },
+        {
+          title: "七、GHES 3.23 候选版的项目与密钥能力",
+          items: [
+            "Projects 视图可组合逻辑 OR、显式 AND 与括号分组过滤",
+            "Secret Protection 的 AI 密钥检测可在 GHES 内网或气隙环境运行",
+            "检测模型是自包含的微调模型，跑在设备 CPU 上",
+            "不依赖 GPU、托管 LLM 或外联服务（预览）",
+            "候选版建议先在测试实例部署，再评估生产升级"
+          ]
+        },
+        {
+          title: "八、恶意包数据库与依赖更新节奏",
+          items: [
+            "安全公告数据库在 npm 之外补充 PyPI、Maven、RubyGems、NuGet、Go、Rust、Composer",
+            "自动摄取 OpenSSF malicious-packages 仓库的已知恶意包",
+            "Dependabot 版本更新默认等包在注册中心满三天再开 PR",
+            "三天缓冲可以过滤刚上架的异常包，也会推迟正常更新",
+            "关键依赖仍应配合人工复核与锁文件校验"
+          ]
+        },
+        {
+          title: "九、令牌过期与集群组件调整",
+          items: [
+            "OAuth 应用支持八小时过期访问令牌加刷新令牌（预览）",
+            "存量应用可选启用，新建应用默认开启，scope 带 offline_access",
+            "强制过期前必须确认所有客户端支持刷新令牌，否则会打断登录",
+            "集群可把 Redis 主节点从混用节点迁到专用节点",
+            "组件迁移前先核对容量与连接配置，避免影响会话与缓存"
+          ]
+        },
+        {
+          title: "十、落地建议与验证顺序",
+          items: [
+            "先修覆盖率链路：格式、路径、展示逐项打通",
+            "再评估运行镜像：对齐生产 OS，必要时沉淀自定义基底",
+            "GHES 候选版先跑测试实例，列出预览特性与兼容性风险",
+            "令牌策略变更前先确认客户端刷新能力",
+            "每项更新留一份验证记录，升级时按清单对照"
+          ]
+        }
+      ]
+    },
+    {
+      id: "vercel-blob-ttl-softnav-guide",
+      title: "Vercel 存储与观测更新：Blob TTL 自动删除、软导航 CWV 与 Board 协作",
+      date: "2026-11-24",
+      category: "云端部署",
+      readTime: "9 分钟",
+      excerpt: "11 月中旬 Vercel 连续放出三项面向生产使用的更新：Blob 支持 TTL 自动删除，Speed Insights 默认测量软导航，Vercel Board 面向所有套餐开放给人与 agent 协作。这篇按临时文件生命周期、SPA 性能观测、多 agent 协作线程三条线梳理，给出每项更新的适用场景、配置要点和容易踩的边界。",
+      tags: ["Vercel", "Blob", "性能观测", "Core Web Vitals", "AI agent", "云端部署"],
+      featured: false,
+      intro: [
+        "临时文件长期堆积抬高存储成本，SPA 路由切换的卡顿在首屏指标里看不到，多 agent 协作时上下文散落各处——这三个问题分别对应本轮三项 Vercel 更新。",
+        "这篇按「存储 → 观测 → 协作」组织，参数与计费口径取自官方说明，实验性特性单独标注，接入前先小范围试用。"
+      ],
+      audience: [
+        "用 Vercel Blob 存临时文件、导出物的开发者",
+        "关注 SPA 路由切换性能的前端团队",
+        "搭建多 agent 工作流、需要集中上下文的团队"
+      ],
+      format: [
+        "按「存储 → 观测 → 协作」组织，参数与计费口径取自官方说明",
+        "实验性特性单独标注，接入前先小范围试用"
+      ],
+      roadmap: [
+        "按数据类型划分 Blob 生命周期",
+        "写入时设置 ttlDays 并核对 expiresAt",
+        "用 setTtl 改期或清除存量 Blob",
+        "在 Speed Insights 仪表盘按导航类型拆分数据",
+        "对比硬导航与软导航的 INP/LCP",
+        "评估 Board 频道权限与外部同步范围",
+        "安装 Board skill 或通过 SDK 接入 agent",
+        "小范围试用后再推广"
+      ],
+      officialLinks: [
+        { label: "Vercel Blob now supports TTLs for automatic deletion", url: "https://vercel.com/changelog/vercel-blob-now-supports-ttls-for-automatic-deletion", note: "TTL 参数、setTtl 与计费" },
+        { label: "Speed Insights now measures soft navigations", url: "https://vercel.com/changelog/speed-insights-now-measures-soft-navigations", note: "软导航指标与过滤器" },
+        { label: "Vercel Board is now available", url: "https://vercel.com/changelog/vercel-board-is-now-available", note: "协作留言板与接入方式" }
+      ],
+      curatedLinks: [
+        "Blob TTL：ttlDays 1 到 730 天，从上传日起算；覆盖 put/copy/putImage/分片/预签名 URL；响应带 expiresAt",
+        "存量 Blob 用 setTtl 改期或清除，单次 1 个或最多 1000 个，免重传；CLI 65.16.0+ 支持 --ttl-days 与 set-ttl --clear-ttl",
+        "计费：每 60 天周期 1 个 Advanced Operation，7 天计 1 次、730 天计 13 次；清 TTL 与删除免费",
+        "软导航采集 LCP/FCP/INP/CLS 计入 Real Experience Score，不采 TTFB；默认开启，适配 Next.js/SvelteKit/Nuxt 与 Chromium 系浏览器",
+        "Board：任务讨论与结果在同一线程，可控制频道访问与动作，经 Vercel Connect 与 Slack、GitHub 双向同步；CLI 或 JS SDK 接入"
+      ],
+      downloadIdeas: [
+        "做一张数据类型到 TTL 的分层表：会话记录、导出文件、长期素材分别设多久",
+        "整理软导航性能排查流程：先按 Hard/Soft 拆分，再定位请求与渲染阻塞"
+      ],
+      extraSections: [
+        {
+          title: "一、临时文件为什么需要自动删除",
+          items: [
+            "会话记录、导出文件、临时上传本来就有有效期",
+            "靠人工或定时脚本清理，容易漏掉过期文件",
+            "过期数据长期留存会抬高存储成本，也增加暴露面",
+            "在写入时声明生命周期，比事后批量回收更稳",
+            "TTL 自动删除是存储侧的默认兜底，不替代业务侧的文件归档"
+          ]
+        },
+        {
+          title: "二、Blob TTL 的适用范围与参数",
+          items: [
+            "写入时传 ttlDays，范围 1 到 730 天，从上传日期起算",
+            "适用于 put、copy、putImage、分片上传与预签名上传 URL",
+            "每次写入结果与 head() 响应都带 expiresAt，标明预计删除时间",
+            "短 TTL 适合会话记录与临时上传，长期素材不要设短期限",
+            "续期要走 setTtl，重新上传覆盖不会自动延长旧文件期限"
+          ]
+        },
+        {
+          title: "三、存量文件怎么改期或清除",
+          items: [
+            "已存在的 Blob 可用 setTtl 改期或清除 TTL",
+            "单次操作一个 URL，最多批量 1000 个",
+            "改期或清除不需要重新上传文件内容",
+            "传入 null 即清除 TTL，文件转为长期保留",
+            "CLI 65.16.0 起在 blob 相关命令支持 --ttl-days，并用 set-ttl 管理存量"
+          ]
+        },
+        {
+          title: "四、TTL 计费口径与跟踪位置",
+          items: [
+            "设置 TTL 每开启 60 天周期计一次 Advanced Operation，叠加在写入之上",
+            "7 天 TTL 计 1 次，730 天上限计 13 次",
+            "清除 TTL 与实际删除本身免费",
+            "可在 Observability 的 Blob 区块跟踪用量",
+            "批量设置长 TTL 前先估算附加计费，避免一次性拉高成本"
+          ]
+        },
+        {
+          title: "五、软导航为什么容易被漏掉",
+          items: [
+            "SPA 大部分时间在客户端路由切换里，没有整页刷新",
+            "传统首屏指标只记录整页加载，漏掉路由切换路径上的卡顿",
+            "用户从一个页面跳到另一个页面时的等待与交互阻塞，才是真实体验",
+            "Speed Insights 现在默认测量软导航，追踪应用内流转性能",
+            "软导航不需要新文档请求，因此不采集 TTFB"
+          ]
+        },
+        {
+          title: "六、软导航采集哪些指标、不采什么",
+          items: [
+            "软导航采集 LCP、FCP、INP、CLS 并计入 Real Experience Score",
+            "TTFB 不采集，因为没有新文档请求",
+            "追踪对所有使用 Speed Insights 的项目默认开启，无需配置",
+            "适配 Next.js、SvelteKit、Nuxt 等现代框架",
+            "运行环境为 Chromium 内核浏览器，其他内核数据口径可能不同"
+          ]
+        },
+        {
+          title: "七、怎么用导航类型过滤器排查",
+          items: [
+            "仪表盘新增 Navigation Type 过滤器，可查看全部、硬导航或软导航",
+            "排查时先按 Hard/Soft 拆分对比两组数据",
+            "软导航 INP 偏高，问题多在路由切换时的数据请求与渲染阻塞",
+            "硬导航指标差，通常回到首屏资源体积与加载链路",
+            "拆分后再下钻具体路由，避免把两类问题混在一起定位"
+          ]
+        },
+        {
+          title: "八、Board 解决多 agent 的什么问题",
+          items: [
+            "多 agent 协作时任务讨论、上下文和结果容易散落各处",
+            "Vercel Board 是面向 agent 的共享安全协作留言板",
+            "每个任务的讨论与结果放在同一线程",
+            "消息与回复通过 Vercel Connect 与 Slack、GitHub 等工具双向同步",
+            "团队可使用自己的 agent、执行框架和运行环境"
+          ]
+        },
+        {
+          title: "九、Board 的权限边界与接入方式",
+          items: [
+            "可以控制 agent 和用户能访问哪些频道、能执行什么动作",
+            "外部同步范围要按角色限制，避免上下文误发到其他工具",
+            "agent 通过 Vercel CLI 或 JavaScript SDK 接入",
+            "起步可安装 Board skill（npx skills add vercel/board）",
+            "也可把引导提示词贴给编码 agent，自动完成 CLI 安装、登录与频道浏览"
+          ]
+        },
+        {
+          title: "十、落地建议与试用顺序",
+          items: [
+            "先按数据类型分层 TTL，再批量改造写入逻辑",
+            "存量文件用 setTtl 统一期限，不批量重新上传",
+            "性能排查先拆分硬导航与软导航，再定位阻塞环节",
+            "Board 先在小范围试用，核对频道权限与同步范围",
+            "三项更新都先跑通一条最小链路，再推广到全项目"
+          ]
+        }
+      ]
+    },
+    {
       id: "github-event-streams-agent-loop-guide",
       title: "告别轮询：用 Event Streams 与 gh event listen 搭事件驱动的 agent 循环",
       date: "2026-11-21",
@@ -12803,6 +13105,106 @@ git push origin main`,
     "github-agentic-workflows-public-preview-guide"
   ],
   hotspots: [
+    {
+      date: "2026-11-23",
+      tag: "安全工程",
+      title: "代码覆盖率上传开始校验报告格式：不是 Cobertura XML 直接失败并报明确错误",
+      summary: "GitHub Code Quality 的 upload-code-coverage action 现在会检查覆盖率报告是否为 Cobertura XML 格式；格式不被支持时上传步骤直接失败，Actions 日志给出明确提示，要求换成 Cobertura XML 或在上传前转换。过去这类上传看似成功，但 PR 上不会显示覆盖率。对合法 Cobertura 报告也放宽了容错：轻微结构问题不再整体拒收，缺少可用行号或命中次数的个别行会被跳过，而不是丢弃整份报告。该能力需要仓库开启 GitHub Code Quality，目前面向 GitHub Enterprise Cloud 与 GitHub Team（含数据驻留），GHES 暂不可用。",
+      why: "为什么值得关注：覆盖率一直显示不出来，过去很难定位是采集没跑、路径不对还是格式不对；现在格式问题在上传环节就暴露。排查顺序变成：先确认测试框架输出 Cobertura XML，再看上传动作是否成功，最后核对 PR 展示。若 CI 突然报这个错，优先检查测试框架的覆盖率导出格式与转换步骤。",
+      sourceLabel: "GitHub Changelog",
+      sourceUrl: "https://github.blog/changelog/2026-11-23-code-coverage-uploads-now-flag-invalid-report-formats/",
+      articleIdea: "待扩写：覆盖率报告格式排错清单"
+    },
+    {
+      date: "2026-11-20",
+      tag: "企业平台",
+      title: "GHES 3.23 候选版发布：项目视图 OR 过滤、内网 AI 密钥检测、恶意包数据库扩生态",
+      summary: "GitHub Enterprise Server 3.23 发布候选版。要点包括：GitHub Projects 视图可组合逻辑 OR、显式 AND 与括号分组过滤；Secret Protection 在 GHES 上用本地 CPU 微调模型做 AI 密钥检测，不依赖 GPU、托管 LLM 或外联，可用于气隙环境（预览）；安全公告数据库在 npm 之外补充 PyPI、Maven、RubyGems、NuGet、Go、Rust、Composer 的已知恶意包，并自动摄取 OpenSSF malicious-packages 仓库；Dependabot 版本更新默认等包在注册中心满三天再开 PR；OAuth 应用可启用八小时过期访问令牌加刷新令牌（预览，新应用默认开启）；集群可把 Redis 主节点从混用节点迁到专用节点。",
+      why: "为什么值得关注：候选版是 GA 前的验证窗口，自托管团队可以先在测试实例跑升级，重点看气隙密钥检测、恶意包覆盖和令牌过期策略对现有流程的影响。注意预览特性可能变化；强制令牌过期前必须确认所有客户端支持刷新令牌，否则会打断登录。",
+      sourceLabel: "GitHub Changelog",
+      sourceUrl: "https://github.blog/changelog/2026-11-20-github-enterprise-server-3-23-release-candidate/",
+      articleIdea: "待扩写：GHES 3.23 升级验证清单"
+    },
+    {
+      date: "2026-11-19",
+      tag: "CI/CD",
+      title: "RHEL 9/10 托管大型运行镜像正式可用，可与生产部署系统保持一致",
+      summary: "GitHub 托管大型运行器的 Red Hat Enterprise Linux 9 与 10 镜像结束公开预览、转为正式可用，可在生产工作流中使用。该镜像 2026 年 6 月以预览形式与 Red Hat 合作推出，适合用与部署目标相同的操作系统跑构建与测试，也可作为加入自有工具、依赖和配置的自定义镜像基底。创建 Linux x64 大型运行器时，在 partner images 下选择对应 RHEL 镜像即可；预览期已使用 RHEL 镜像的运行器和工作流无需改动。RHEL 镜像面向 GitHub Team 与 GitHub Enterprise Cloud 套餐的大型运行器。",
+      why: "为什么值得关注：CI 与生产系统不一致是「构建通过、上线翻车」的常见来源；用同系 RHEL 镜像能缩小这类偏差。自定义镜像路线则把运行环境版本锁定在团队自己可控的镜像里，减少官方镜像升级带来的突发变化。",
+      sourceLabel: "GitHub Changelog",
+      sourceUrl: "https://github.blog/changelog/2026-11-19-red-hat-enterprise-linux-runner-images-now-generally-available/",
+      articleIdea: "待扩写：运行镜像选型与自定义镜像基底"
+    },
+    {
+      date: "2026-11-19",
+      tag: "企业治理",
+      title: "审计日志流式推送到 S3 的 OIDC 认证扩展到 GHE.com，不再存长期 AWS 凭据",
+      summary: "使用 OpenID Connect 向 Amazon S3 流式传输企业审计日志的能力，从 github.com 扩展到带数据驻留的 GitHub Enterprise Cloud（GHE.com）。OIDC 方式让 GitHub 向 AWS 换取短期凭据完成上传，不需要在 GitHub 侧存放长期有效的 AWS 访问密钥。审计日志集中到 S3 后，可对接团队现有的 SIEM、日志留存与合规分析流程。",
+      why: "为什么值得关注：长期云密钥放在代码仓库或平台配置里，本身就是高价值目标；用 OIDC 短期凭据可以把这一类静态密钥移除。配置时要注意角色信任策略、会话时长与日志桶权限边界，确保审计日志只被授权的系统读取。",
+      sourceLabel: "GitHub Changelog",
+      sourceUrl: "https://github.blog/changelog/2026-11-19-s3-audit-log-streaming-with-openid-connect-expands-to-ghe-com/",
+      articleIdea: "待扩写：审计日志 OIDC 推送配置"
+    },
+    {
+      date: "2026-11-18",
+      tag: "Copilot",
+      title: "再接入八个服务连接器：Supabase、Box、Buildkite、Calendly、ClickUp、Mixpanel、Webflow、Wix",
+      summary: "Copilot 新增八个经 GitHub 验证的 MCP 连接器（公开预览），加上此前的 Slack、Figma、Sentry 等已有超过 25 个可连接服务。新增清单：Box 搜索管理内容并调用 Box AI；Buildkite 查看流水线与构建；Calendly 管理日程；ClickUp 跟踪任务项目；Mixpanel 查看产品分析；Supabase 操作项目与数据库；Webflow 与 Wix 管理站点和业务工具。典型用法是在同一会话里让 Copilot 先查 Buildkite 构建失败原因、再改对应代码，或先核对 Supabase 表结构再写迁移。连接一次即可在各 Copilot 入口使用；入口包括 Copilot 应用 Customize、CLI 的 /mcp Connectors 标签页、VS Code Agents 的 Customizations，以及 github.com 定制页。Business/Enterprise 需管理员开启 Editor preview features 策略；若企业 MCP 允许清单按连接器逐个列出，还要把新连接器加进清单。",
+      why: "为什么值得关注：连接器把 agent 的上下文从代码库扩展到业务系统，方便排障和跨工具操作；但这也意味着授权范围要按最小必要核对。上线前先确认哪些成员能连、连到哪些空间，以及第三方服务侧是否还需要单独开启 MCP 访问。",
+      sourceLabel: "GitHub Changelog",
+      sourceUrl: "https://github.blog/changelog/2026-11-18-connect-supabase-box-calendly-and-more-to-copilot/",
+      articleIdea: "待扩写：Copilot 连接器接入与策略配置"
+    },
+    {
+      date: "2026-11-18",
+      tag: "安全",
+      title: "GitHub Team 组织自动运行安全风险评估，暴露凭据与代码漏洞集中可见",
+      summary: "安全风险评估现在对 GitHub Team 套餐的组织自动运行。组织管理员与安全经理可以查看免费评估结果，识别暴露的凭据与代码漏洞，理解当前组织风险并排定下一步动作。评估覆盖代码安全风险与密钥安全风险两类，结果可作为团队分仓库、分语言排优先级的起点。",
+      why: "为什么值得关注：自动评估适合作为季度或上线前的基线扫描，但报告本身不等于修复闭环。建议把发现按暴露面和可利用程度排序，先处理可公开访问仓库里的暴露凭据，再跟进代码漏洞；评估结论要和实际修复记录对应起来。",
+      sourceLabel: "GitHub Changelog",
+      sourceUrl: "https://github.blog/changelog/2026-11-18-security-risk-assessments-run-automatically-on-github-team/",
+      articleIdea: "待扩写：组织风险评估结果怎么排优先级"
+    },
+    {
+      date: "2026-11-18",
+      tag: "云端部署",
+      title: "Vercel Board 面向所有套餐开放：给人与 agent 提供共享协作留言板",
+      summary: "Vercel Board 是实验性留言板，面向所有套餐，为 agent 提供一个共享、安全的协作场所来协调任务、集中保存上下文。特性包括：每个任务的讨论与结果放在同一线程；可以控制 agent 和用户能访问哪些频道、能做什么；消息与回复通过 Vercel Connect 与 Slack、GitHub 等工具双向同步。团队可以使用自己的 agent、执行框架和运行环境，agent 通过 Vercel CLI 或 JavaScript SDK 接入；起步可安装 Board skill（npx skills add vercel/board），或把引导提示词贴给编码 agent 自动完成 CLI 安装、登录、身份确认与频道浏览。",
+      why: "为什么值得关注：多 agent 协作时上下文散落各处是常见问题，Board 相当于团队的任务线程层。实验阶段要注意权限边界：频道访问、消息写入和外部同步都应按角色限制；接入前先在小范围试用，观察 agent 读写是否符合预期。",
+      sourceLabel: "Vercel Changelog",
+      sourceUrl: "https://vercel.com/changelog/vercel-board-is-now-available",
+      articleIdea: "待扩写：多 agent 协作线程方案对比"
+    },
+    {
+      date: "2026-11-17",
+      tag: "云端部署",
+      title: "Vercel Blob 支持 TTL 自动删除：1 到 730 天，可事后改期或清除",
+      summary: "Vercel Blob 现在支持写入时指定 ttlDays，上传后按天数自动删除，范围 1 到 730 天，TTL 从上传日期起算。适合会话记录、导出文件、临时上传这类本来就要手动清理的 Blob。ttlDays 适用于 put、copy、putImage、分片上传和预签名上传 URL；每次写入结果与 head() 响应都会带 expiresAt，标明预计删除时间。已存在的 Blob 可用 setTtl 改期或清除 TTL，一次一个 URL，最多批量 1000 个，无需重新上传；CLI 65.16.0 起在 blob put、put-image、copy、presign 支持 --ttl-days，并用 vercel blob set-ttl 管理现有 Blob。计费上，设置 TTL 每开启 60 天计一次 Advanced Operation，叠加在写入之上；7 天 TTL 计 1 次，730 天上限计 13 次；清除 TTL 与实际删除免费，可在 Observability 的 Blob 区块跟踪。",
+      why: "为什么值得关注：临时文件长期堆积会抬高存储成本，也增加过期数据暴露面。用 TTL 替代手动清理脚本更稳，但要先按数据类型分层：会话记录短 TTL，长期导出走私有存储。注意 TTL 是按上传日计算，续期要用 setTtl，别指望重新上传覆盖。",
+      sourceLabel: "Vercel Changelog",
+      sourceUrl: "https://vercel.com/changelog/vercel-blob-now-supports-ttls-for-automatic-deletion",
+      articleIdea: "待扩写：临时文件生命周期与 TTL 分层"
+    },
+    {
+      date: "2026-11-17",
+      tag: "性能优化",
+      title: "Speed Insights 默认测量软导航：SPA 客户端路由切换也计入 Core Web Vitals",
+      summary: "Speed Insights 现在默认测量软导航（soft navigation）：不发生整页刷新、只更新页面内容的客户端路由切换。这样可以追踪用户在应用内流转的性能，而不只是首屏整页加载。软导航采集 LCP、FCP、INP、CLS 并计入 Real Experience Score；TTFB 不采集，因为没有新文档请求。追踪对所有使用 Speed Insights 的项目默认开启，无需配置，适配 Next.js、SvelteKit、Nuxt 等现代框架，运行在 Chromium 内核浏览器。仪表盘新增 Navigation Type 过滤器，可查看全部、硬导航或软导航数据。",
+      why: "为什么值得关注：SPA 用户大部分时间在路由切换里，只看首屏 CWV 会漏掉交互路径上的卡顿。排查时先用 Hard/Soft 拆分对比：如果软导航 INP 偏高，问题往往在路由切换时的数据请求与渲染阻塞，而不是首屏资源体积。",
+      sourceLabel: "Vercel Changelog",
+      sourceUrl: "https://vercel.com/changelog/speed-insights-now-measures-soft-navigations",
+      articleIdea: "待扩写：SPA 软导航性能排查"
+    },
+    {
+      date: "2026-11-16",
+      tag: "供应链安全",
+      title: "Dependabot 告警解除申请有效期从一周延长到一年",
+      summary: "使用 Dependabot 委托式告警解除（delegated alert dismissal）时，解除申请现在保留一年，而不是一周。评审人有更长时间响应，避免申请过期后重新提交。该变更已在 github.com 上线，并将随 GitHub Enterprise Server 3.24 发布。",
+      why: "为什么值得关注：一周有效期在评审人休假、排期靠后时很容易过期，重新提交流程成本不低；一年窗口更贴合实际评审节奏。但窗口变长不等于可以搁置，建议给解除申请补上理由与复核记录，避免未处置告警长期挂起。",
+      sourceLabel: "GitHub Changelog",
+      sourceUrl: "https://github.blog/changelog/2026-11-16-dependabot-alert-dismissal-requests-now-last-one-year/",
+      articleIdea: "待扩写：依赖告警评审流程设计"
+    },
     {
       date: "2026-11-20",
       tag: "安全",
