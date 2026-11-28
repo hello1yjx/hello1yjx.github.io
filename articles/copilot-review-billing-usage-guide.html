@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Copilot 代码评审与用量治理：12 月三处变更的应对顺序 | 学习资源库</title>
+  <meta name="description" content="12 月 GitHub 有三处会影响账单与报表的变更：Copilot 代码评审计费默认从成员转到组织（12 月 30 日）、用量报表新增 user_id 列（12 月 1 日）、通知原因改为固定优先级（12 月 1 日起分批迁移）。这篇按「先保账单、再保报表、最后保告警」的顺序，给出可执行的检查项与改造方法。">
+  <meta name="robots" content="index,follow,max-image-preview:large">
+  <link rel="canonical" href="https://hello1yjx.github.io/articles/copilot-review-billing-usage-guide.html">
+  <link rel="icon" type="image/png" href="../assets/images/brand-book-line.png">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"Copilot 代码评审与用量治理：12 月三处变更的应对顺序","description":"12 月 GitHub 有三处会影响账单与报表的变更：Copilot 代码评审计费默认从成员转到组织（12 月 30 日）、用量报表新增 user_id 列（12 月 1 日）、通知原因改为固定优先级（12 月 1 日起分批迁移）。这篇按「先保账单、再保报表、最后保告警」的顺序，给出可执行的检查项与改造方法。","datePublished":"2026-11-28","dateModified":"2026-11-28","author":{"@type":"Person","name":"Avery Lin","url":"https://hello1yjx.github.io/about.html"},"publisher":{"@type":"Organization","name":"学习资源库","url":"https://hello1yjx.github.io/"},"mainEntityOfPage":"https://hello1yjx.github.io/articles/copilot-review-billing-usage-guide.html","inLanguage":"zh-CN"}</script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6621999105936318" crossorigin="anonymous"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;800&family=Noto+Serif+SC:wght@700;900&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/styles.css?v=20261128-daily-update">
+</head>
+<body>
+  <header class="site-header">
+    <div class="page-shell site-header__inner">
+      <a class="brand" href="../index.html" aria-label="返回首页">
+        <span class="brand-mark" aria-hidden="true"><img src="../assets/images/brand-book-line.png" alt="" width="36" height="33"></span>
+        <span class="brand-copy"><strong>学习资源库</strong><span>分享知识 · 提升自己 · 成就未来</span></span>
+      </a>
+      <button class="menu-button" data-menu-button aria-expanded="false" aria-label="切换导航菜单">☰</button>
+      <nav class="site-nav" data-mobile-nav>
+        <a href="../index.html">首页</a>
+        <a class="is-active" href="../posts.html" aria-current="page">教程</a>
+        <a href="../resources.html">资源下载</a>
+        <a href="../hotspots.html">技术资讯</a>
+        <a href="../projects.html">开源项目</a>
+        <a href="../vulns.html">漏洞分析</a>
+        <a href="../kaogong.html">考公专区</a>
+        <a href="../about.html">关于我们</a>
+      </nav>
+      <form class="header-search" action="../posts.html" method="get">
+        <input type="search" name="q" placeholder="搜索教程、资源、工具或关键词...">
+        <button type="submit" aria-label="搜索">/</button>
+      </form>
+      <a class="header-github" href="https://github.com/hello1yjx/hello1yjx.github.io" target="_blank" rel="noreferrer" aria-label="GitHub">
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="" width="24" height="24">
+      </a>
+      <a class="header-cta" href="../posts.html">开始学习</a>
+    </div>
+  </header>
+
+  <main class="page-shell section article-page">
+    <header class="detail-hero">
+      <span class="pill">AI 编程</span>
+      <h1>Copilot 代码评审与用量治理：12 月三处变更的应对顺序</h1>
+      <div class="detail-hero__meta">
+        <time datetime="2026-11-28">2026年11月28日</time>
+        <span>9 分钟</span>
+        <span>作者：Avery Lin</span>
+      </div>
+      <p>12 月 GitHub 有三处会影响账单与报表的变更：Copilot 代码评审计费默认从成员转到组织（12 月 30 日）、用量报表新增 user_id 列（12 月 1 日）、通知原因改为固定优先级（12 月 1 日起分批迁移）。这篇按「先保账单、再保报表、最后保告警」的顺序，给出可执行的检查项与改造方法。</p>
+    </header>
+    <div class="article-layout">
+      <article class="article-body">
+        <div class="inline-promo">
+          <p class="label">来源与增量价值</p>
+          <h3>本文基于官方资料整理，并补充适用场景、限制条件和实践检查步骤。</h3>
+          <p>首要来源：<a href="https://github.blog/changelog/2026-11-25-copilot-code-review-billing-will-default-to-the-organization/" target="_blank" rel="noreferrer">Copilot code review billing will default to the organization</a>。事实以原始来源为准，本站建议需结合自己的环境验证。</p>
+        </div>
+
+    <p>功能更新可以慢慢跟，账单和报表的变更不行：一个是钱算错了，一个是数据读错了，往往过很久才被发现。12 月这三处变更都属于后者。</p><p>这篇把它们排成一个顺序：先处理计费归属，再改报表解析，最后迁移通知过滤规则。每步都有可验证的检查点。</p>
+    <h2>这篇内容适合谁</h2>
+    <ul><li>管理 Copilot Business 或 Enterprise 的组织管理员</li><li>做成本分摊、用量对账的财务与平台团队</li><li>维护通知过滤器与自动化脚本的研发效能团队</li></ul>
+    <h2>实践与验证步骤</h2>
+    <ul><li>确认组织是否已设置代码评审计费方式</li><li>决定 Member 还是 Organization</li><li>核对 AI Credits 付费用量与预算上限</li><li>检查报表脚本是否按列位置解析</li><li>改为按表头名称取值并校验列数</li><li>梳理通知原因相关的过滤器</li><li>迁移到按事件与仓库组合匹配</li><li>在 12 月变更生效后复核一次</li></ul>
+    <h2>官方资料入口</h2>
+
+    <ul>
+
+            <li>
+              <a href="https://github.blog/changelog/2026-11-25-copilot-code-review-billing-will-default-to-the-organization/" target="_blank" rel="noreferrer">Copilot code review billing will default to the organization</a>
+              <span>：计费默认与生效日期</span>
+            </li>
+
+            <li>
+              <a href="https://github.blog/changelog/2026-11-23-usage-reports-will-include-a-user-id-column-starting-december-1/" target="_blank" rel="noreferrer">Usage reports will include a user ID column starting December 1</a>
+              <span>：报表列变更与影响范围</span>
+            </li>
+
+            <li>
+              <a href="https://github.blog/changelog/2026-11-24-more-predictable-notifications-on-github-com/" target="_blank" rel="noreferrer">More predictable notifications on GitHub.com</a>
+              <span>：通知原因优先级与迁移</span>
+            </li>
+
+    </ul>
+
+    <h2>重点判断与使用建议</h2>
+    <ul><li>计费：未设置时，12 月 30 日起持有 Copilot 许可证成员的评审计到仓库所属组织</li><li>已选 Member 或 Organization 的保持原设置；未设置许可证成员的独立设置不变</li><li>未启用 AI Credits 付费用量、账单锁定或无计费客户的账号会自动设为 Member</li><li>报表：12 月 1 日起 username 右侧新增 user_id，之后所有列右移一位</li><li>通知：12 月 1 日起约一周分批迁移，原因优先级为提及、团队提及、指派、请求评审、评论、手动、作者、状态变更、订阅</li></ul>
+
+        <h2>一、三处变更分别在改什么</h2>
+
+        <ul><li>计费：代码评审的默认付费方从成员转为组织</li><li>报表：用量报表多一列 user_id，列位置整体右移</li><li>通知：订阅逻辑与原因优先级重写，影响过滤规则</li><li>三者生效时间集中在 12 月，容易撞在一起</li><li>共同点：都不是功能坏了，而是口径变了</li></ul>
+
+
+
+        <h2>二、计费默认翻转的具体规则</h2>
+
+        <ul><li>适用 Copilot Business 与 Copilot Enterprise</li><li>未设置时，12 月 30 日起评审计到拥有仓库的组织</li><li>已选 Member 或 Organization 的设置继续有效</li><li>没有 Copilot 许可证成员的独立设置不受影响</li><li>企业统一管理时由企业所有者选择</li></ul>
+
+
+
+        <h2>三、自动回落到 Member 的三种情况</h2>
+
+        <ul><li>账号未启用 AI Credits 付费用量</li><li>账号存在账单锁定</li><li>账号没有可计费客户</li><li>这三种情况会被设为 Member，而不是组织</li><li>排查时要先确认自己属于哪一类，别按直觉判断</li></ul>
+
+
+
+        <h2>四、怎么决定 Member 还是 Organization</h2>
+
+        <ul><li>希望成本分散到成员额度：显式选 Member</li><li>希望集中管控、统一预算：选 Organization</li><li>选 Organization 前必须启用 AI Credits 付费用量</li><li>评估组织支出增幅，设置预算上限与告警</li><li>决定后写进 IT 与财务的共同记录，避免口径反复</li></ul>
+
+
+
+        <h2>五、报表列变更会怎么伤到脚本</h2>
+
+        <ul><li>12 月 1 日起 username 右侧插入 user_id</li><li>之后所有列右移一位</li><li>按列号读取的脚本会把用户名读成 ID</li><li>错位不会报错，只会静默产出错误数据</li><li>涉及详细用量、AI 用量与高级请求用量三类报表</li></ul>
+
+
+
+        <h2>六、报表解析的改造方法</h2>
+
+        <ul><li>改为按表头名称取值，不依赖列序号</li><li>解析后校验列数与关键字段是否为空</li><li>对账前先跑一次小样本比对</li><li>把列结构版本写进脚本注释，便于后续排查</li><li>汇总报表不受影响，不要误改</li></ul>
+
+
+
+        <h2>七、user_id 列能解决什么老问题</h2>
+
+        <ul><li>识别已删除账号的用量，此前这类行 username 为空</li><li>用户改名后仍能追踪同一人的用量</li><li>把报表行与审计日志事件对齐</li><li>不同已删除账号分行显示，不再合并</li><li>逐行四舍五入会让自算总计有细微差异，属预期</li></ul>
+
+
+
+        <h2>八、通知迁移影响哪些人</h2>
+
+        <ul><li>手动取消订阅后，评论与评审不再自动重订阅</li><li>只有提及、指派、请求评审会重新订阅</li><li>团队提及按当前成员关系计算，退团队后不再收到</li><li>Subscriptions 页面只列手动订阅，其余到收件箱管理</li><li>用 reason 做过滤的规则需要重写</li></ul>
+
+
+
+        <h2>九、通知过滤器的迁移做法</h2>
+
+        <ul><li>先导出当前过滤器与邮件规则清单</li><li>找出依赖 reason 字段的条目</li><li>改为按事件类型与仓库组合匹配</li><li>邮件头现在带全部适用原因，匹配逻辑要放宽</li><li>迁移后观察一周，确认没有漏报与重复</li></ul>
+
+
+
+        <h2>十、执行顺序与复核清单</h2>
+
+        <ul><li>第一步：12 月 30 日前定好计费归属并核对预算</li><li>第二步：12 月 1 日前改完报表解析并跑通样本</li><li>第三步：12 月 1 日前迁移通知过滤规则</li><li>第四步：变更生效后一周复核账单、报表与告警</li><li>第五步：把三处变更写进团队变更日志，标注负责人</li></ul>
+
+
+
+
+        <div class="inline-promo">
+          <p class="label">更正与更新</p>
+          <h3>发现版本变化、来源失效或事实错误时，请通过联系页反馈。</h3>
+          <p>本站会核对一手来源后更新内容，不使用无来源转载填充文章。</p>
+          <a class="button button--secondary" href="../editorial.html">查看内容标准</a>
+        </div>
+      </article>
+      <aside class="article-sidebar">
+        <div class="sidebar-card">
+          <p class="label">本页标签</p>
+          <div class="tag-row"><span>GitHub Copilot</span><span>成本治理</span><span>用量报表</span><span>通知</span><span>企业治理</span><span>AI 编程</span></div>
+        </div>
+        <div class="sidebar-card">
+          <p class="label">继续阅读</p>
+          <a href="github-event-streams-agent-loop-guide.html">告别轮询：用 Event Streams 与 gh event listen 搭事件驱动的 agent 循环</a><a href="copilot-secret-scanning-shift-left-guide.html">把密钥检测前移：Copilot 安全评审接入 secret scanning 的四端落地</a><a href="github-security-advisory-least-privilege-guide.html">安全公告权限最小化：用自定义仓库角色替代管理员授权</a><a href="vercel-november-changes-migration-guide.html">Vercel 11 月变更清单：20MiB 请求体、Priority、秒级部署与两处退役</a>
+        </div>
+        <div class="sidebar-card sidebar-card--accent">
+          <p class="label">作者与方法</p>
+          <h3>了解本站如何选题、核验来源与处理更正。</h3>
+          <a class="button button--dark" href="../about.html">关于作者</a>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="page-shell footer__inner">
+      <div><strong>学习资源库</strong><p>分享知识 · 提升自己 · 成就未来</p></div>
+      <div>
+        <a href="../editorial.html">内容标准</a><br>
+        <a href="../privacy.html">隐私政策</a><br>
+        <a href="../contact.html">联系</a>
+      </div>
+    </div>
+  </footer>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      var button = document.querySelector("[data-menu-button]");
+      var nav = document.querySelector("[data-mobile-nav]");
+      if (!button || !nav) return;
+      button.addEventListener("click", function () {
+        var expanded = button.getAttribute("aria-expanded") === "true";
+        button.setAttribute("aria-expanded", String(!expanded));
+        nav.classList.toggle("site-nav--open", !expanded);
+      });
+    });
+  </script>
+</body>
+</html>

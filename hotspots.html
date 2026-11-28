@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://cdn.jsdelivr.net">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;800&family=Noto+Serif+SC:wght@700;900&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/styles.css?v=20261124-daily-update">
+  <link rel="stylesheet" href="assets/styles.css?v=20261128-daily-update">
 </head>
 <body>
   <header class="site-header">
@@ -78,6 +78,246 @@
       <div class="hotspot-grid" data-hotspot-list>
         <!-- STATIC_HOTSPOTS_START -->
 <article class="hotspot-card reveal">
+      <div class="hotspot-card__head">
+        <span class="hotspot-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="Copilot 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <div>
+          <div class="hotspot-card__meta">
+            <span>Copilot</span>
+            <time datetime="2026-11-25">2026年11月25日</time>
+          </div>
+          <h3>Copilot 代码评审计费默认改到组织：12 月 30 日起未设置的组织统一承担</h3>
+        </div>
+      </div>
+      <p>如果组织或企业没有为持有 Copilot 许可证的成员选择代码评审计费方式，从 2026 年 12 月 30 日起，这些评审将计到拥有仓库的组织账上，而不是消耗成员个人的 Copilot 额度。适用对象为 Copilot Business 与 Copilot Enterprise。已经选择 Member 或 Organization 的保持原设置；未设置 Copilot 许可证成员的独立设置不受影响。未启用 AI Credits 付费用量、存在账单锁定或没有可计费客户的账号，会被自动设为 Member。企业统一管理该设置时，由企业所有者做选择。组织计费需要启用 AI Credits 付费用量，可能提高组织支出。</p>
+      <div class="hotspot-card__why">
+        <strong>为什么值得关注</strong>
+        <p>为什么值得关注：这是一次默认值翻转，影响预算归属而不是功能。团队要在 12 月 30 日前明确谁付钱：希望继续用成员额度就显式选 Member，希望集中管控成本就选 Organization 并核对付费用量与预算上限。别等到账单出来才发现评审走了组织账。</p>
+      </div>
+      <p class="hotspot-card__idea">待扩写：Copilot 计费归属与预算治理</p>
+      <a class="text-link" href="https://github.blog/changelog/2026-11-25-copilot-code-review-billing-will-default-to-the-organization/" target="_blank" rel="noreferrer">查看来源：GitHub Changelog</a>
+    </article>
+
+    <article class="hotspot-card reveal">
+      <div class="hotspot-card__head">
+        <span class="hotspot-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="协作工具 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <div>
+          <div class="hotspot-card__meta">
+            <span>协作工具</span>
+            <time datetime="2026-11-24">2026年11月24日</time>
+          </div>
+          <h3>GitHub 通知行为改为更可预测：12 月 1 日起分批迁移，常规操作不再自动重订阅</h3>
+        </div>
+      </div>
+      <p>从 2026 年 12 月 1 日起，GitHub.com 用约一周时间分批迁移通知逻辑，目标是让订阅更可预测、修正异常行为并支撑更大规模的活动量。迁移期间不同用户可能看到不同表现，不需要手动操作，GHES 不受影响。主要变化：手动取消订阅后，评论、提交评审、改变线程状态、合并队列活动等常规动作不再把你重新订阅，只有被提及、被指派、被请求评审才会重新订阅；团队提及通知按当前成员关系计算，退出团队或移除提及后不再收到后续通知；Subscriptions 页面只列手动订阅的线程，其余通知要到收件箱管理；收件箱与邮件页脚显示的原因改为固定优先级，依次为提及、团队提及、指派、请求评审、评论、手动、作者、状态变更、订阅，Issue 场景下指派优先级最高；邮件头会带上全部适用原因。</p>
+      <div class="hotspot-card__why">
+        <strong>为什么值得关注</strong>
+        <p>为什么值得关注：如果你用通知原因做过滤或自动化，这次改动的字段含义会变，规则可能失效或漏报。12 月前先检查收件箱过滤器、邮件规则与自建脚本里对 reason 的依赖，把按原因匹配改成按事件与仓库组合匹配更稳。</p>
+      </div>
+      <p class="hotspot-card__idea">待扩写：通知过滤规则迁移</p>
+      <a class="text-link" href="https://github.blog/changelog/2026-11-24-more-predictable-notifications-on-github-com/" target="_blank" rel="noreferrer">查看来源：GitHub Changelog</a>
+    </article>
+
+    <article class="hotspot-card reveal">
+      <div class="hotspot-card__head">
+        <span class="hotspot-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="项目管理 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <div>
+          <div class="hotspot-card__meta">
+            <span>项目管理</span>
+            <time datetime="2026-11-23">2026年11月23日</time>
+          </div>
+          <h3>Issue 状态与仓库看板进入公开预览：七种状态可自动流转</h3>
+        </div>
+      </div>
+      <p>GitHub 为 Issue 增加七种状态：Backlog、Todo、In progress、In review、Done、Not planned、Duplicate，可在创建时选择或在 Issue 头部修改，仓库 Issue 列表、Issue 仪表盘与仓库看板都会显示对应图标，并支持用 status: 过滤。状态会自动流转：把草稿 PR 关联到 Issue 会移到 In progress；草稿 PR 标记为 Ready for review 会移到 In review；关联已打开的 PR 会移到 In review；给 Issue 指派用户会移到 Todo；指派 agent 会移到 In progress；如果 GitHub Project 里有同名状态值，两边任一改动会同步。GraphQL、REST API 与 MCP server 都支持读写状态与创建时指定初始状态，状态变更也可作为 Copilot 自动化的触发条件。仓库保存视图新增看板布局，可按状态分组、拖拽改状态，并配置列、泳道、可见字段与排序。Issue 字段也不再强制绑定 Issue 类型。</p>
+      <div class="hotspot-card__why">
+        <strong>为什么值得关注</strong>
+        <p>为什么值得关注：状态把「开着还是关着」变成可度量的流转，适合让 agent 与人共享同一套上下文。落地时先统一团队的状态语义，再开自动化，否则「指派就进 Todo」这类规则会把人工分诊的节奏打乱。看板适合日常推进，复杂规划仍交给 Projects。</p>
+      </div>
+      <p class="hotspot-card__idea">待扩写：Issue 状态流转与 agent 协作</p>
+      <a class="text-link" href="https://github.blog/changelog/2026-11-23-issue-statuses-and-repository-boards-are-in-public-preview/" target="_blank" rel="noreferrer">查看来源：GitHub Changelog</a>
+    </article>
+
+    <article class="hotspot-card reveal">
+      <div class="hotspot-card__head">
+        <span class="hotspot-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="安全 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <div>
+          <div class="hotspot-card__meta">
+            <span>安全</span>
+            <time datetime="2026-11-23">2026年11月23日</time>
+          </div>
+          <h3>Secret scanning 降低 Slack 密钥误报：只认标准 incoming webhook 格式</h3>
+        </div>
+      </div>
+      <p>GitHub Secret scanning 调整了 Slack 检测器，减少误报。针对 slack_incoming_webhook_url 类型，新规则会排除不符合 Slack incoming webhook URL 格式的地址，只对真正符合格式的 URL 报警。此次只涉及误报收敛，不改变已支持的其他密钥类型。</p>
+      <div class="hotspot-card__why">
+        <strong>为什么值得关注</strong>
+        <p>为什么值得关注：密钥扫描的噪音会直接消耗安全团队精力，误报多了就会习惯性忽略。误报下降后，建议重新审视该类型的告警处理流程：确认告警是否仍然到达正确的人，并把历史误报关闭记录归档，避免旧单继续占用队列。</p>
+      </div>
+      <p class="hotspot-card__idea">待扩写：密钥告警降噪与处置流程</p>
+      <a class="text-link" href="https://github.blog/changelog/2026-11-23-secret-scanning-reduces-false-positives-for-slack/" target="_blank" rel="noreferrer">查看来源：GitHub Changelog</a>
+    </article>
+
+    <article class="hotspot-card reveal">
+      <div class="hotspot-card__head">
+        <span class="hotspot-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="企业治理 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <div>
+          <div class="hotspot-card__meta">
+            <span>企业治理</span>
+            <time datetime="2026-11-23">2026年11月23日</time>
+          </div>
+          <h3>用量报表 12 月 1 日起增加 user_id 列：按列位置解析的脚本要改</h3>
+        </div>
+      </div>
+      <p>从 2026 年 12 月 1 日起，包含 username 列的 GitHub 用量报表会在其右侧新增 user_id 列，之后所有列右移一位。涉及详细用量报表、AI 用量报表与高级请求用量报表，包括通过 REST API 导出的文件；汇总报表不变。适用范围为所有 GitHub Enterprise Cloud 账号类型与 GitHub Team 独立组织。user_id 记录产生用量的账号 ID，包含 bot 账号，未绑定账号的用量为空。有了这一列，可以识别已删除账号的用量（此前 username 为空）、在用户改名后继续追踪同一人的用量、把报表行与审计日志事件对齐。不同已删除账号的用量会分行显示，不再合并成一行空 username；因为逐行四舍五入，自行汇总的总计可能在最后几位小数上有细微差异。</p>
+      <div class="hotspot-card__why">
+        <strong>为什么值得关注</strong>
+        <p>为什么值得关注：按列号读取的脚本会在 12 月 1 日直接错位，把用户名读成 ID 之类的错配很难第一时间发现。改法是按表头名称取值，并在解析后校验列数与关键字段。对账、成本分摊和审计联查都依赖这一列，建议提前在测试报表上跑一遍。</p>
+      </div>
+      <p class="hotspot-card__idea">待扩写：用量报表解析改造</p>
+      <a class="text-link" href="https://github.blog/changelog/2026-11-23-usage-reports-will-include-a-user-id-column-starting-december-1/" target="_blank" rel="noreferrer">查看来源：GitHub Changelog</a>
+    </article>
+
+    <article class="hotspot-card reveal">
+      <div class="hotspot-card__head">
+        <span class="hotspot-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/python/python-original.svg" alt="漏洞预警 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <div>
+          <div class="hotspot-card__meta">
+            <span>漏洞预警</span>
+            <time datetime="2026-11-25">2026年11月25日</time>
+          </div>
+          <h3>Mitel MiCollab 会议组件五个漏洞同批进入 KEV，主漏洞 CVSS 10.0</h3>
+        </div>
+      </div>
+      <p>CISA 于 11 月 25 日把 Mitel MiCollab AWV 会议组件的五个漏洞列入 KEV，修复期限 11 月 28 日。CVE-2026-133323 为未授权盲命令注入，CVSS 10.0（CWE-78），影响 MiCollab 10.3（10.3.0.18）及更早；CVE-2026-133303 为 XML 注入导致命令执行，CVSS 9.8；另有任意文件上传（5.9）、弱认证与认证绕过（5.3）。五个漏洞出自同一份公告 MISA-2026-0012，攻击者可在无凭据情况下执行任意系统命令。</p>
+      <div class="hotspot-card__why">
+        <strong>为什么值得关注</strong>
+        <p>为什么值得关注：统一通信设备通常同时连通互联网与内网目录，一旦失守影响面很大。优先做两件事：盘点公网暴露的 AWV 入口并下线非必要入口；按公告一次性升级到修复版本，不要只补 10.0 那一个。11 月 28 日是 CISA 给出的期限。</p>
+      </div>
+      <p class="hotspot-card__idea">已扩写为漏洞页第一张卡</p>
+      <a class="text-link" href="https://www.cisa.gov/known-exploited-vulnerabilities-catalog" target="_blank" rel="noreferrer">查看来源：CISA KEV / Mitel</a>
+    </article>
+
+    <article class="hotspot-card reveal">
+      <div class="hotspot-card__head">
+        <span class="hotspot-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/python/python-original.svg" alt="漏洞预警 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <div>
+          <div class="hotspot-card__meta">
+            <span>漏洞预警</span>
+            <time datetime="2026-11-25">2026年11月25日</time>
+          </div>
+          <h3>Danfoss 制冷控制器三个漏洞进入 KEV：命令执行、路径穿越与认证不当</h3>
+        </div>
+      </div>
+      <p>CISA 同日把 Danfoss AK-SM 800A 系列制冷控制器的三个漏洞列入 KEV。CVE-2023-25915 为输入校验不当导致的认证后远程命令执行，NVD 评分 8.8，影响 3.3 之前固件；CVE-2023-25914 为路径穿越，可通过 XML 接口读取服务器文件；CVE-2025-41450 为认证不当，可生成暴露内部 IP、用户名与门店名的报告，影响 3.3 至 4.1.x。这类设备广泛用于商超冷链与冷库监控。</p>
+      <div class="hotspot-card__why">
+        <strong>为什么值得关注</strong>
+        <p>为什么值得关注：工控与冷链设备的补丁节奏通常落后 IT 设备，且常由集成商代管。先把资产找出来（谁在公网、谁用默认口令），再谈升级；无法升级的先隔离网络、限制来源地址。温度与化霜阈值被篡改的后果是货物损失，不只是数据泄露。</p>
+      </div>
+      <p class="hotspot-card__idea">已扩写为漏洞页第二张卡</p>
+      <a class="text-link" href="https://www.cisa.gov/known-exploited-vulnerabilities-catalog" target="_blank" rel="noreferrer">查看来源：CISA KEV / Danfoss</a>
+    </article>
+
+    <article class="hotspot-card reveal">
+      <div class="hotspot-card__head">
+        <span class="hotspot-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="云端部署 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <div>
+          <div class="hotspot-card__meta">
+            <span>云端部署</span>
+            <time datetime="2026-11-24">2026年11月24日</time>
+          </div>
+          <h3>Vercel Sandbox 全部运行时改用托管镜像：统一 64GB 存储，镜像每晚发布</h3>
+        </div>
+      </div>
+      <p>Vercel Sandbox 的所有运行时现在都使用 Vercel Managed Images（VMI）。node22 等旧运行时会改用 vercel/sandbox 开源仓库中的镜像，经 Vercel Container Registry 分发，新建沙箱带 64GB 存储，并与基于 VCR 的沙箱共用同一套基础设施。通用镜像每晚发布，latest 等滚动标签会带上操作系统、依赖与编码 agent 的更新；需要可复现环境时固定镜像 digest。使用 JavaScript Sandbox SDK v3 及以上创建的沙箱默认采用 vercel/sandbox/universal:latest，镜像内含 Node.js、Python、Claude Code 与 Pi 等编码 agent 及常用工具，可直接从 vcr.vercel.com 拉取。</p>
+      <div class="hotspot-card__why">
+        <strong>为什么值得关注</strong>
+        <p>为什么值得关注：运行时统一后，旧项目的行为可能变化，尤其是依赖滚动标签的沙箱。需要稳定复现的流水线应改为固定 digest；依赖 latest 的沙箱要准备接受每晚变化，并在关键任务前跑一次冒烟。存储统一到 64GB 也意味着清理策略要跟着调整。</p>
+      </div>
+      <p class="hotspot-card__idea">待扩写：Sandbox 镜像固定与复现</p>
+      <a class="text-link" href="https://vercel.com/changelog/all-sandbox-runtimes-now-use-vercel-managed-images" target="_blank" rel="noreferrer">查看来源：Vercel Changelog</a>
+    </article>
+
+    <article class="hotspot-card reveal">
+      <div class="hotspot-card__head">
+        <span class="hotspot-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/docker/docker-original.svg" alt="云端部署 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <div>
+          <div class="hotspot-card__meta">
+            <span>云端部署</span>
+            <time datetime="2026-11-23">2026年11月23日</time>
+          </div>
+          <h3>Vercel 新增部署检查：代码里声明了但项目里没建的功能开关会阻断上线</h3>
+        </div>
+      </div>
+      <p>Vercel Flags 增加 Flag Definitions Present 部署检查：部署就绪时，如果代码里声明了某个功能开关、但项目里没有创建对应定义，检查会失败并在结果中列出缺失项，团队可以逐个补建后重新部署。没有定义时，应用会静默回退到开关的默认值，可能把本该关闭的功能打开。该检查读取 Flags SDK 的发现端点；在 Vercel 上使用 flags@4.5.0 及以上版本时不需要 FLAGS_SECRET，更早版本仍需该密钥。所有套餐都可以在项目的 Build and Deployment 设置中开启该检查并标记为必需。</p>
+      <div class="hotspot-card__why">
+        <strong>为什么值得关注</strong>
+        <p>为什么值得关注：开关缺失是典型的「本地没事、线上打开」事故，且不会报错。把检查设为必需相当于在部署环节加一道门。迁移时注意版本门槛：低于 4.5.0 还要配 FLAGS_SECRET，否则检查读不到定义。</p>
+      </div>
+      <p class="hotspot-card__idea">待扩写：功能开关上线守门</p>
+      <a class="text-link" href="https://vercel.com/changelog/catch-missing-feature-flags-before-they-reach-production" target="_blank" rel="noreferrer">查看来源：Vercel Changelog</a>
+    </article>
+
+    <article class="hotspot-card reveal">
+      <div class="hotspot-card__head">
+        <span class="hotspot-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/python/python-original.svg" alt="AI 基础设施 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <div>
+          <div class="hotspot-card__meta">
+            <span>AI 基础设施</span>
+            <time datetime="2026-11-23">2026年11月23日</time>
+          </div>
+          <h3>AI Gateway 支持按供应商总部所在国家筛选：白名单或黑名单两种写法</h3>
+        </div>
+      </div>
+      <p>Vercel AI Gateway 新增 provider headquarters 能力：请求只会发往总部位于指定国家的供应商，用于满足关于 AI 供应商所在地的合规与采购要求。可以配置为允许国家白名单，或屏蔽国家黑名单；网关会跳过被屏蔽国家的供应商，把请求路由到其余可选供应商，只要模型在某个允许地点有可用供应商就仍可访问。该设置可与区域托管、区域推理组合，分别控制请求在哪接收、模型在哪运行、由谁运行。Pro 与 Enterprise 可在 AI Gateway 设置里对整个团队生效，新增模型与供应商会自动套用，未记录总部国家的供应商不会收到请求；所有套餐都可在单次请求的 provider options 里传国家代码，黑名单写法是在每个代码前加 !，例如 ['!US']，团队已设列表时单次请求只能收窄不能放宽。若允许国家内没有可用供应商，网关会尝试回退模型；回退也不可用时请求直接失败，不会改路由到其他国家。</p>
+      <div class="hotspot-card__why">
+        <strong>为什么值得关注</strong>
+        <p>为什么值得关注：这是一条合规开关，不是性能开关。配置前先确认业务对「供应商总部」而非「数据中心位置」的要求，两者不是一回事；再评估允许列表收窄后可用的模型与回退链，避免关键模型突然不可用。金融、医疗与政企项目尤其要留存配置依据。</p>
+      </div>
+      <p class="hotspot-card__idea">待扩写：AI 供应商地域合规配置</p>
+      <a class="text-link" href="https://vercel.com/changelog/choose-ai-gateway-providers-by-headquarters-country" target="_blank" rel="noreferrer">查看来源：Vercel Changelog</a>
+    </article>
+
+    <article class="hotspot-card reveal">
+      <div class="hotspot-card__head">
+        <span class="hotspot-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/python/python-original.svg" alt="AI 基础设施 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <div>
+          <div class="hotspot-card__meta">
+            <span>AI 基础设施</span>
+            <time datetime="2026-11-23">2026年11月23日</time>
+          </div>
+          <h3>AI Gateway 开始跑零数据保留金丝雀审计，持续验证供应商承诺</h3>
+        </div>
+      </div>
+      <p>Vercel 开始对 AI Gateway 执行 Zero Data Retention（ZDR）金丝雀审计，用持续验证的方式确认供应商确实遵守零数据保留承诺，而不是只在接入时做一次声明核对。审计结果用于判断哪些供应商可在对数据留存敏感的场景中使用。这项能力与网关既有的区域托管、区域推理、供应商总部筛选一起，构成数据流向的控制组合。</p>
+      <div class="hotspot-card__why">
+        <strong>为什么值得关注</strong>
+        <p>为什么值得关注：ZDR 是合同承诺，能否持续成立要靠验证。做合规选型时，把金丝雀审计结果当作动态证据，而不是一次性结论；供应商行为变化时应触发复评。涉及个人数据或受监管数据的业务，建议把审计结论写进供应商台账。</p>
+      </div>
+      <p class="hotspot-card__idea">待扩写：AI 供应商数据留存验证</p>
+      <a class="text-link" href="https://vercel.com/changelog/ai-gateway-now-runs-canary-zdr-audits" target="_blank" rel="noreferrer">查看来源：Vercel Changelog</a>
+    </article>
+
+    <article class="hotspot-card reveal">
+      <div class="hotspot-card__head">
+        <span class="hotspot-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/python/python-original.svg" alt="AI 基础设施 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
+        <div>
+          <div class="hotspot-card__meta">
+            <span>AI 基础设施</span>
+            <time datetime="2026-11-23">2026年11月23日</time>
+          </div>
+          <h3>AI Gateway 支持抽取类模型：从文本、图片、PDF 拉取带置信度的结构化字段</h3>
+        </div>
+      </div>
+      <p>AI Gateway 新增对抽取模型的支持：可以从文本、图片与 PDF 中抽取带类型的字段，并返回置信度分数，首发模型为 ScaleDown Extract-1。调用方式与其他网关模型一致，使用同一个 API key，享受自动回退、用量统计与链路追踪，不需要单独申请供应商账号。适合发票、表单、合同条款这类需要结构化落库的场景。</p>
+      <div class="hotspot-card__why">
+        <strong>为什么值得关注</strong>
+        <p>为什么值得关注：抽取任务的关键不是「能不能读出来」，而是「读错了知不知道」。置信度分数要进入下游校验逻辑：低置信字段走人工复核，而不是直接写库。PDF 与扫描件建议先用清晰版本，模糊图片会显著拉低置信度。</p>
+      </div>
+      <p class="hotspot-card__idea">待扩写：文档抽取流水线设计</p>
+      <a class="text-link" href="https://vercel.com/changelog/ai-gateway-now-supports-extraction-models" target="_blank" rel="noreferrer">查看来源：Vercel Changelog</a>
+    </article>
+
+    <article class="hotspot-card reveal">
       <div class="hotspot-card__head">
         <span class="hotspot-card__icon"><img class="visual-icon" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="安全工程 图标" width="48" height="48" loading="lazy" onerror="this.onerror=null;this.src='assets/images/brand-book-line.png';"></span>
         <div>
@@ -6755,6 +6995,6 @@
     </div>
   </footer>
 
-  <script src="assets/app.js?v=20261124-daily-update"></script>
+  <script src="assets/app.js?v=20261128-daily-update"></script>
 </body>
 </html>

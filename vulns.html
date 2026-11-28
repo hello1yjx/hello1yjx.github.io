@@ -12,7 +12,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://cdn.jsdelivr.net">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;800&family=Noto+Serif+SC:wght@700;900&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/styles.css?v=20261124-daily-update">
+  <link rel="stylesheet" href="assets/styles.css?v=20261128-daily-update">
   <style>
     .vuln-banner { background: linear-gradient(135deg,#11151c,#1f2937); color:#fff; border-radius:18px; padding:26px 28px; display:flex; flex-wrap:wrap; gap:18px; align-items:center; justify-content:space-between; border:1px solid #374151; }
     .vuln-banner h3 { color:#fff; margin:6px 0; font-size:1.35rem; }
@@ -92,17 +92,124 @@
     <section class="section">
       <div class="vuln-banner reveal">
         <div>
-          <p class="eyebrow" style="color:#fca5a5;">CISA KEV · 11 月 19—20 日两批共八个</p>
-          <h3>LiteLLM 推理密钥被提权成管理员，Confluence、Synology NAS、REDCap 同期在野利用</h3>
-          <p>CISA 于 11 月 19 日把 Apache Axis（CVE-2026-90436，9.8）、REDCap（CVE-2026-90817，9.8）、BerriAI LiteLLM（CVE-2026-40217，8.8）与 Synology DSM（CVE-2024-10441，9.8）列入 KEV：Axis 因 Confluence 的 XML-RPC/SOAP 接口被利用，攻击者三分钟内就开始翻数据库找凭据；LiteLLM 被用于把只读推理密钥提升为管理员凭据，实施 LLMjacking；DSM 命中 C3RB3R 勒索。11 月 20 日再增 SAP NetWeaver、Cisco Expressway、VMware vCenter、Apache Roller 四个，并按 BOD 26-04 改为「公开暴露且可完全控制」优先修复。</p>
+          <p class="eyebrow" style="color:#fca5a5;">CISA KEV · 11 月 25 日新批次</p>
+          <h3>Mitel MiCollab 会议组件五个漏洞同批在野利用，Danfoss 制冷控制器三个漏洞一并进入 KEV</h3>
+          <p>CISA 于 11 月 25 日新增一批：Mitel MiCollab 的 AWV 会议组件有五个漏洞被同时利用，其中 CVE-2026-133323 为 CVSS 10.0 的未授权命令注入，CVE-2026-133303 为 9.8 的 XML 注入，均可在无凭据情况下执行任意命令，修复期限 11 月 28 日。同批还收录 Danfoss AK-SM 800A 制冷控制器的三个漏洞：认证后命令执行（8.8）、路径穿越与认证不当，影响 3.3 之前及 3.3 至 4.1.x 的固件，工控设备首次在本期成为重点。</p>
         </div>
         <a class="button" href="https://www.cisa.gov/known-exploited-vulnerabilities-catalog" target="_blank" rel="noreferrer">查看 CISA KEV</a>
       </div>
       <div class="vuln-stat-grid">
-        <div class="vuln-stat"><strong>23</strong><span>本期分析 CVE 数量</span></div>
-        <div class="vuln-stat"><strong>10.0</strong><span>GitLab 正则编译器满分</span></div>
-        <div class="vuln-stat"><strong>9.8</strong><span>Axis / REDCap / Synology DSM</span></div>
-        <div class="vuln-stat"><strong>8.8</strong><span>LiteLLM 推理密钥提权</span></div>
+        <div class="vuln-stat"><strong>25</strong><span>本期分析 CVE 数量</span></div>
+        <div class="vuln-stat"><strong>10.0</strong><span>MiCollab 未授权命令注入</span></div>
+        <div class="vuln-stat"><strong>9.8</strong><span>MiCollab XML 注入 / Axis / REDCap</span></div>
+        <div class="vuln-stat"><strong>8.8</strong><span>Danfoss 命令执行 / LiteLLM</span></div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-heading reveal">
+        <div>
+          <p class="eyebrow">Mitel MiCollab · 未授权 RCE</p>
+          <h2>一、Mitel MiCollab AWV 组件五个漏洞同批进入 KEV（CVE-2026-133323 等）</h2>
+        </div>
+        <p>来源：Mitel 安全公告 MISA-2026-0012、CISA KEV、NVD，2026-11-25 收录。</p>
+      </div>
+
+      <div class="vuln-card reveal">
+        <div class="vuln-card__head">
+          <span class="vuln-card__id">CVE-2026-133323</span>
+          <span><span class="vuln-badge vuln-badge--crit">严重 · CVSS 10.0</span> <span class="vuln-badge vuln-badge--kev">KEV 在野利用</span></span>
+        </div>
+        <div class="vuln-block">
+          <h4><span class="vuln-num">1</span>漏洞判断 / 类型</h4>
+          <p>未授权远程命令执行（盲命令注入，CWE-78）。漏洞位于 MiCollab 的 Audio, Web and Video Conferencing（AWV）会议组件，攻击者不需要任何账号，也不需要用户点击，通过网络请求即可在设备上执行任意系统命令。NVD 给出的 CVSS 3.1 评分为 <strong>10.0</strong>，向量为 AV:N/AC:L/PR:N/UI:N/S:C/C:N/I:H/A:H。</p>
+          <p>同一份公告 MISA-2026-0012 还修复了另外四个 AWV 问题，并在 11 月 25 日与主漏洞一起被 CISA 列入 KEV：</p>
+          <ul>
+            <li><strong>CVE-2026-133303</strong>（CVSS 9.8）：XML 注入，可用预先放置的恶意内容触发命令执行</li>
+            <li><strong>CVE-2026-133275</strong>（CVSS 5.9）：文件类型校验不足，可上传任意文件</li>
+            <li><strong>CVE-2026-133311</strong>：弱认证，凭系统生成的随机标识符即可访问敏感信息</li>
+            <li><strong>CVE-2026-133324</strong>（CVSS 5.3）：失败时未安全关闭，可绕过认证控制</li>
+          </ul>
+        </div>
+        <div class="vuln-block">
+          <h4><span class="vuln-num">2</span>漏洞成因</h4>
+          <p>AWV 组件对传入参数的系统命令拼接缺少充分的中和与转义，攻击者可以把命令片段注入到由系统执行的处理流程中。由于注入点在认证之前就可达，攻击链不需要有效凭据。</p>
+          <p>同类问题集中在同一个组件上，说明 AWV 的输入校验层没有统一收敛；文件上传、XML 解析、认证失败处理各自为政，任一处失守都会扩大攻击面。</p>
+        </div>
+        <div class="vuln-block">
+          <h4><span class="vuln-num">3</span>利用方法 / 场景</h4>
+          <ul>
+            <li>受影响版本为 MiCollab 10.3（10.3.0.18）及更早，AWV 通常是面向外部提供会议接入的服务。</li>
+            <li>攻击者从互联网直接访问暴露的 AWV 接口，以 Web 服务账户权限执行命令，进而读取配置、横向移动到内网。</li>
+            <li>文件上传与 XML 注入两个入口可作为主漏洞的替代路径，即使主注入点被临时封堵，其他通道仍可能打通。</li>
+            <li>统一通信设备往往与目录服务、邮件、内网办公网互联，一旦失守，影响不止一台设备。</li>
+            <li>本条仅用于防御与排查，禁止对未授权设备进行任何测试。</li>
+          </ul>
+        </div>
+        <div class="vuln-block">
+          <h4><span class="vuln-num">4</span>修复方案</h4>
+          <ul>
+            <li>按 Mitel 公告 MISA-2026-0012 升级到厂商指定修复版本，五个 CVE 需一并处理，不要只补主漏洞。</li>
+            <li>升级前先盘点互联网暴露面：关闭不必要的 AWV 公网入口，限制来源地址，能走内网或 VPN 的不要直接暴露。</li>
+            <li>检查设备日志中异常的 AWV 请求、异常文件上传与 XML 内容，确认是否已被利用。</li>
+            <li>若暂时无法升级，按厂商建议下线 AWV 功能或隔离设备，不要仅依赖 WAF 规则。</li>
+            <li>CISA 给出的修复期限为 2026-11-28，属于「公开暴露且可完全控制」优先级别。</li>
+          </ul>
+          <p class="vuln-note">合规提醒：以上内容仅用于授权环境、靶场或自有设备的防御排查，未授权测试与攻击属于违法行为。</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-heading reveal">
+        <div>
+          <p class="eyebrow">Danfoss AK-SM 800A · 工控</p>
+          <h2>二、Danfoss 制冷控制器三个漏洞进入 KEV：命令执行、路径穿越与认证不当</h2>
+        </div>
+        <p>来源：Danfoss 安全公告 DSA-2023-08-01、CISA KEV、NVD，2026-11-25 收录。</p>
+      </div>
+
+      <div class="vuln-card reveal">
+        <div class="vuln-card__head">
+          <span class="vuln-card__id">CVE-2023-25915 / CVE-2023-25914 / CVE-2025-41450</span>
+          <span><span class="vuln-badge vuln-badge--high">高危 · CVSS 8.8</span> <span class="vuln-badge vuln-badge--kev">KEV 在野利用</span></span>
+        </div>
+        <div class="vuln-block">
+          <h4><span class="vuln-num">1</span>漏洞判断 / 类型</h4>
+          <p>Danfoss AK-SM 800A 系列是商用制冷系统的站点控制器，用于监控冷库、商超冷链设备。本次 KEV 批次涉及三个问题：</p>
+          <ul>
+            <li><strong>CVE-2023-25915</strong>（CVSS 8.8，CWE-20）：输入校验不当，认证后的远程攻击者可在目标系统执行任意命令</li>
+            <li><strong>CVE-2023-25914</strong>（CWE-22）：路径穿越，可通过 XML 接口读取服务器底层文件</li>
+            <li><strong>CVE-2025-41450</strong>（CWE-305）：认证不当，攻击者可生成暴露内部 IP、用户名与门店名称的 Web 报告</li>
+          </ul>
+          <p>影响范围：CVE-2023-25915 与 CVE-2023-25914 影响 3.3 之前的版本；CVE-2025-41450 影响 3.3 至 4.1.x。</p>
+        </div>
+        <div class="vuln-block">
+          <h4><span class="vuln-num">2</span>漏洞成因</h4>
+          <p>控制器固件在 XML 接口与 Web 报告功能上缺少统一的输入校验与权限检查：字符串参数直接进入系统调用，路径参数未做规范化，报告生成接口未校验请求者身份。</p>
+          <p>这类设备通常由集成商部署、由门店人员日常使用，固件长期不升级，默认口令与弱口令并存，使单点漏洞更容易被批量利用。</p>
+        </div>
+        <div class="vuln-block">
+          <h4><span class="vuln-num">3</span>利用方法 / 场景</h4>
+          <ul>
+            <li>设备常直接暴露在公网或仅由弱口令保护的远程维护通道，攻击者可先尝试默认或弱口令进入，再借命令执行落点。</li>
+            <li>路径穿越可读取配置文件与凭据，为后续横向移动提供条件。</li>
+            <li>认证不当生成的报告会泄露内网结构，常被用于踩点而非直接破坏。</li>
+            <li>工控场景的真正风险在可用性：篡改温度、化霜、报警阈值可能造成货物损失或设备损坏。</li>
+            <li>本条仅用于防御与排查，禁止对未授权设备进行任何测试。</li>
+          </ul>
+        </div>
+        <div class="vuln-block">
+          <h4><span class="vuln-num">4</span>修复方案</h4>
+          <ul>
+            <li>按 Danfoss 公告升级到修复版本，3.3 之前的设备至少升到 3.3，处于 3.3 至 4.1.x 的设备升级到 4.1.x 之后的修复版本。</li>
+            <li>禁止控制器直接暴露公网，远程维护走 VPN 或专线，并限制可访问的来源地址。</li>
+            <li>修改默认口令，启用强口令与访问审计；检查是否存在异常登录与未知报告文件。</li>
+            <li>把这类设备纳入资产清单与补丁台账，与 IT 设备分开管理，避免长期漏管。</li>
+            <li>CISA 给出的修复期限为 2026-11-28，其中 CVE-2026-133311 类的中低分项延至 12 月 9 日。</li>
+          </ul>
+          <p class="vuln-note">合规提醒：以上内容仅用于授权环境、靶场或自有设备的防御排查，未授权测试与攻击属于违法行为。</p>
+        </div>
       </div>
     </section>
 
@@ -110,7 +217,7 @@
       <div class="section-heading reveal">
         <div>
           <p class="eyebrow">PHP2Shell · RCE</p>
-          <h2>一、PHP 运行时两个未授权远程代码执行漏洞（CVE-2026-109618 / CVE-2026-109619）</h2>
+          <h2>三、PHP 运行时两个未授权远程代码执行漏洞（CVE-2026-109618 / CVE-2026-109619）</h2>
         </div>
         <p>来源：PHP 官方安全公告、The Hacker News、BleepingComputer，2026-10-21。</p>
       </div>
@@ -199,7 +306,7 @@ fatal_error_backtraces = 0</div>
       <div class="section-heading reveal">
         <div>
           <p class="eyebrow">Network Appliance</p>
-          <h2>二、网络设备与安全产品漏洞（Citrix NetScaler / Fortinet FortiMail / Cisco NX-OS / Aruba AOS）</h2>
+          <h2>四、网络设备与安全产品漏洞（Citrix NetScaler / Fortinet FortiMail / Cisco NX-OS / Aruba AOS）</h2>
         </div>
         <p>来源：Citrix 官方公告、FortiGuard PSIRT、NVD、CISA KEV。</p>
       </div>
@@ -331,7 +438,7 @@ fatal_error_backtraces = 0</div>
       <div class="section-heading reveal">
         <div>
           <p class="eyebrow">DevOps Platform & Security Gateway</p>
-          <h2>三、协作平台与安全网关漏洞（GitLab / Sophos UTM）</h2>
+          <h2>五、协作平台与安全网关漏洞（GitLab / Sophos UTM）</h2>
         </div>
         <p>来源：GitLab 官方公告、HackerOne、Sophos 安全公告、Ruby 官方、NVD。</p>
       </div>
@@ -404,7 +511,7 @@ fatal_error_backtraces = 0</div>
       <div class="section-heading reveal">
         <div>
           <p class="eyebrow">Remote Access & Collaboration</p>
-          <h2>四、远程协作与访问工具漏洞（Collabora CODE Server / AnyDesk）</h2>
+          <h2>六、远程协作与访问工具漏洞（Collabora CODE Server / AnyDesk）</h2>
         </div>
         <p>来源：NVD、MITRE、Nextcloud 官方帮助、AnyDesk 官方更新日志。</p>
       </div>
@@ -468,7 +575,7 @@ fatal_error_backtraces = 0</div>
       <div class="section-heading reveal">
         <div>
           <p class="eyebrow">Web App & Remote Gateway</p>
-          <h2>五、Web 应用与远程网关漏洞（WordPress / Ivanti Connect Secure）</h2>
+          <h2>七、Web 应用与远程网关漏洞（WordPress / Ivanti Connect Secure）</h2>
         </div>
         <p>来源：CISA KEV、WordPress 7.1.4 发布说明、Picus、BleepingComputer、Ivanti 公告、Volexity、Shadowserver。</p>
       </div>
@@ -535,7 +642,7 @@ fatal_error_backtraces = 0</div>
       <div class="section-heading reveal">
         <div>
           <p class="eyebrow">System Service & Network Device</p>
-          <h2>六、系统服务与网络设备漏洞（OpenSSH / Zyxel GS1900）</h2>
+          <h2>八、系统服务与网络设备漏洞（OpenSSH / Zyxel GS1900）</h2>
         </div>
         <p>来源：NVD、腾讯云安全通告、Cloudflare Radar Zero Wire、Help Net Security、Binarly、GreyNoise、Zyxel 安全公告，2026-11-05 至 11-06。</p>
       </div>
@@ -605,7 +712,7 @@ fatal_error_backtraces = 0</div>
       <div class="section-heading reveal">
         <div>
           <p class="eyebrow">CISA KEV · 2026-11-09</p>
-          <h2>七、AI 基础设施与通信平台漏洞（GPUStack / FreeSWITCH / IBM Aspera Faspex）</h2>
+          <h2>九、AI 基础设施与通信平台漏洞（GPUStack / FreeSWITCH / IBM Aspera Faspex）</h2>
         </div>
         <p>来源：CISA KEV 公告、厂商安全公告、The Hacker News、eSecurity Planet，2026-11-09 至 11-10。</p>
       </div>
@@ -705,7 +812,7 @@ fatal_error_backtraces = 0</div>
       <div class="section-heading reveal">
         <div>
           <p class="eyebrow">CISA KEV · 2026-11-13</p>
-          <h2>八、通信服务与安全网关漏洞（UnrealIRCd / Check Point）</h2>
+          <h2>十、通信服务与安全网关漏洞（UnrealIRCd / Check Point）</h2>
         </div>
         <p>来源：CISA KEV 公告、Security Affairs、NVD、UnrealIRCd 与 Check Point 官方公告，2026-11-13 至 11-14。</p>
       </div>
@@ -776,7 +883,7 @@ fatal_error_backtraces = 0</div>
       <div class="section-heading reveal">
         <div>
           <p class="eyebrow">CISA KEV · 2026-11-19</p>
-          <h2>九、AI 网关、协作平台与存储设备（LiteLLM / Axis / Synology / REDCap）</h2>
+          <h2>十一、AI 网关、协作平台与存储设备（LiteLLM / Axis / Synology / REDCap）</h2>
         </div>
         <p>来源：CISA KEV 公告、The Hacker News、Security Affairs、Google Threat Intelligence Group、Rapid7、Safe Security 与厂商公告，2026-11-19 至 11-20。</p>
       </div>
@@ -904,7 +1011,7 @@ fatal_error_backtraces = 0</div>
       <div class="section-heading reveal">
         <div>
           <p class="eyebrow">Learning & Compliance</p>
-          <h2>十、学习路径与合规提醒</h2>
+          <h2>十二、学习路径与合规提醒</h2>
         </div>
       </div>
       <div class="vuln-card reveal">
